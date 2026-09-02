@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
-import { routing, type Locale } from '@/i18n/routing'
+import { contentLocales, type Locale } from '@/i18n/routing'
 import { listPosts, listProjects } from '@/lib/content'
 import { hasDatabase } from '@/lib/prisma'
 import { StickerCard } from '@/components/ui/sticker-card'
@@ -44,12 +44,19 @@ export default async function StudioDashboard({
 
   const t = await getTranslations('studio')
 
-  // The studio manages every locale, not just the one the UI is in.
+  // The studio manages every translation separately, not just the one the UI is
+  // in — and `exactLocale` keeps each row to the language it was written in.
+  // Mapping over the *UI* locales listed English content twice, because `ja`
+  // reads the English corpus: the tab badges said 10 posts where there were 7.
   const [posts, projects] = await Promise.all([
-    Promise.all(routing.locales.map((code) => listPosts({ locale: code, includeDrafts: true })))
-      .then((groups) => groups.flat()),
-    Promise.all(routing.locales.map((code) => listProjects({ locale: code, includeDrafts: true })))
-      .then((groups) => groups.flat()),
+    Promise.all(
+      contentLocales.map((code) => listPosts({ locale: code, includeDrafts: true, exactLocale: true })),
+    ).then((groups) => groups.flat()),
+    Promise.all(
+      contentLocales.map((code) =>
+        listProjects({ locale: code, includeDrafts: true, exactLocale: true }),
+      ),
+    ).then((groups) => groups.flat()),
   ])
 
   return (

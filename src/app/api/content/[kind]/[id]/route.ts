@@ -13,6 +13,7 @@ import {
   revalidateContent,
   uniqueSlugFor,
 } from '@/lib/studio-service'
+import { mediaPathsIn, pruneOrphanedMedia } from '@/lib/media-cleanup'
 import type { Prisma } from '@/generated/prisma/client'
 
 type Ctx = { params: Promise<{ kind: string; id: string }> }
@@ -76,7 +77,11 @@ export async function PATCH(request: Request, ctx: Ctx) {
       // The first transition to PUBLISHED stamps the publication date.
       if (input.status === 'PUBLISHED' && !existing.publishedAt) data.publishedAt = new Date()
 
+      // Snapshot before the write: whatever the edit drops — a replaced cover, a
+      // deleted image block — is only detectable against the previous version.
+      const previousMedia = mediaPathsIn(existing)
       const record = await db.post.update({ where: { id }, data })
+      await pruneOrphanedMedia(previousMedia)
       revalidateContent(kind, record.slug)
       if (existing.slug !== record.slug) revalidateContent(kind, existing.slug)
       return Response.json({ id: record.id, slug: record.slug })
@@ -125,7 +130,9 @@ export async function PATCH(request: Request, ctx: Ctx) {
 
     if (input.status === 'PUBLISHED' && !existing.publishedAt) data.publishedAt = new Date()
 
+    const previousMedia = mediaPathsIn(existing)
     const record = await db.project.update({ where: { id }, data })
+    await pruneOrphanedMedia(previousMedia)
     revalidateContent(kind, record.slug)
     if (existing.slug !== record.slug) revalidateContent(kind, existing.slug)
     return Response.json({ id: record.id, slug: record.slug })
@@ -144,6 +151,8 @@ export async function DELETE(_request: Request, ctx: Ctx) {
         ? await db.post.delete({ where: { id } })
         : await db.project.delete({ where: { id } })
 
+    // The row is gone, so its uploads are orphans unless a translation shares them.
+    await pruneOrphanedMedia(mediaPathsIn(record))
     revalidateContent(kind, record.slug)
     return Response.json({ ok: true })
   } catch (error) {

@@ -310,10 +310,10 @@
    colour palette was clipped away entirely. Size the popover, not the toolbar. */
 .studio-editor .ce-popover--inline .ce-popover__container {
   height: auto;
-  min-height: 3.1rem;
+  min-height: 2.7rem;
   overflow: visible;
   align-items: center;
-  padding: 0.3rem;
+  padding: 0.25rem;
 }
 .studio-editor .ce-popover--inline .ce-popover__items {
   height: auto;
@@ -327,32 +327,59 @@
 }
 .studio-editor .ce-inline-tool,
 .studio-editor .ce-inline-toolbar__dropdown {
-  width: 40px;
-  height: 40px;
-  border-radius: 0.6rem;
+  width: 26px;
+  height: 26px;
+  border-radius: 0.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 .studio-editor .ce-inline-tool svg,
 .studio-editor .ce-inline-toolbar__dropdown svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
-.studio-editor .ce-inline-toolbar__dropdown { width: auto; padding: 0 0.6rem; gap: 0.25rem; }
+.studio-editor .ce-inline-toolbar__dropdown { width: auto; padding: 0 0.5rem; gap: 0.2rem; }
 
 /* conversion menu (the "T ⌄" list) */
 .studio-editor .ce-conversion-toolbar,
 .studio-editor .ce-popover--inline {
   min-width: 15rem;
 }
-.studio-editor .ce-conversion-tool,
-.studio-editor .ce-popover--inline .ce-popover-item {
+.studio-editor .ce-conversion-tool {
   padding: 0.55rem 0.7rem;
   font-size: 0.9rem;
 }
-.studio-editor .ce-conversion-tool__icon,
-.studio-editor .ce-popover--inline .ce-popover-item__icon {
+.studio-editor .ce-conversion-tool__icon {
+  width: 30px;
+  height: 30px;
+}
+
+/* The popover *item* is what sets the bar's height, not `.ce-inline-tool` — the
+   tools are icons in a row here rather than the labelled list the conversion
+   menu shows, so they can sit tighter without becoming hard to hit. The child
+   chain matters: the conversion menu is a nested popover *inside* this one, and
+   a descendant selector shrank its rows too. */
+.studio-editor .ce-popover--inline > .ce-popover__container > .ce-popover__items > .ce-popover-item {
+  padding: 0.3rem 0.4rem;
+  font-size: 0.9rem;
+}
+.studio-editor
+  .ce-popover--inline
+  > .ce-popover__container
+  > .ce-popover__items
+  > .ce-popover-item
+  .ce-popover-item__icon {
+  width: 27px;
+  height: 27px;
+}
+
+/* Labelled rows, so they keep the roomier sizing. */
+.studio-editor .ce-popover--nested .ce-popover-item {
+  padding: 0.55rem 0.7rem;
+  font-size: 0.9rem;
+}
+.studio-editor .ce-popover--nested .ce-popover-item__icon {
   width: 30px;
   height: 30px;
 }
@@ -371,16 +398,26 @@
   height: auto;
   overflow: visible;
 }
-.studio-editor .studio-colour__palette {
+/* The palette lives on `document.body`, outside `.studio-editor`, so that Editor.js
+   cannot remove it when the inline toolbar closes — hence the unprefixed selectors. */
+.studio-colour__palette {
+  position: fixed;
+  z-index: 1100;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   width: max-content;
-  max-width: 14rem;
+  /* Wide enough for all six swatches plus the clear button on one row —
+     at 14rem the last one wrapped and left half the panel empty. */
+  max-width: 17rem;
   padding: 0.5rem;
+  border: 2px solid var(--line);
+  border-radius: 0.9rem;
+  background: var(--paper);
+  box-shadow: 0 6px 0 -2px var(--line);
 }
-.studio-editor .studio-colour__palette[hidden] { display: none; }
-.studio-editor .studio-colour__swatch {
+.studio-colour__palette[hidden] { display: none; }
+.studio-colour__swatch {
   width: 28px;
   height: 28px;
   border-radius: 0.5rem;
@@ -388,8 +425,8 @@
   cursor: pointer;
   padding: 0;
 }
-.studio-editor .studio-colour__swatch:hover { transform: translateY(-1px); }
-.studio-editor .studio-colour__clear {
+.studio-colour__swatch:hover { transform: translateY(-1px); }
+.studio-colour__clear {
   width: 28px;
   height: 28px;
   border-radius: 0.5rem;
@@ -400,7 +437,7 @@
   font-size: 12px;
   line-height: 1;
 }
-.studio-editor .studio-colour__clear:hover { color: var(--ink); border-color: var(--line); }
+.studio-colour__clear:hover { color: var(--ink); border-color: var(--line); }
 
 /* Editor.js toolbars must always sit above block content. */
 .studio-editor .ce-toolbar,

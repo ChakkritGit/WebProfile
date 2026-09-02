@@ -57,11 +57,13 @@ export async function ArticleShell({
             <Image src={coverImage} alt="" fill unoptimized className="object-cover" priority />
             {/* Fades the art into the page toward the text so the heading keeps
                 its contrast at any image brightness. */}
-            {/* Narrow screens have no room for the art to sit beside the text,
-                so the wash is much heavier there — it reads as a tint rather
-                than a picture competing with the heading. */}
-            <div className="from-paper-alt via-paper-alt/92 to-paper-alt/45 sm:via-paper-alt/75 absolute inset-0 bg-gradient-to-r sm:to-transparent" />
-            <div className="from-paper-alt absolute inset-0 bg-gradient-to-t to-transparent" />
+            {/* Narrow screens have no room for the art to sit beside the text, so
+                the wash covers the whole panel and reads as a tint. Desktop has
+                the room, so the fade is pulled into the first third and the rest
+                of the picture is left alone — spreading it further washed the
+                cover out to the point of being unreadable. */}
+            <div className="from-paper-alt via-paper-alt/92 via-50% to-paper-alt/45 sm:via-paper-alt/45 sm:via-18% sm:to-transparent sm:to-52% absolute inset-0 bg-gradient-to-r" />
+            <div className="from-paper-alt to-transparent sm:to-35% absolute inset-0 bg-gradient-to-t" />
           </div>
         )}
 

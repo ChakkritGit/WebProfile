@@ -47,6 +47,7 @@ class ColourTool {
   private button: HTMLButtonElement | null = null
   private palette: HTMLElement | null = null
   private savedRange: Range | null = null
+  private dismiss: (() => void) | null = null
 
   constructor({ config }: { config?: ToolConfig } = {}) {
     if (config?.property) this.property = config.property
@@ -66,10 +67,24 @@ class ColourTool {
     return button
   }
 
-  renderActions(): HTMLElement {
+  /**
+   * The palette is mounted on `document.body`, not returned from `renderActions()`.
+   *
+   * Editor.js owns whatever `renderActions()` returns and pulls it out of the DOM
+   * each time the inline toolbar closes — which it does the moment a swatch is
+   * clicked. The palette was therefore gone before a second colour could be
+   * picked, and re-opening the tool removed it again. Owning the element here
+   * keeps it alive across picks; it is positioned against the button by hand.
+   */
+  private buildPalette(): HTMLElement {
     const palette = document.createElement('div')
     palette.classList.add('studio-colour__palette')
+    palette.dataset.studioPalette = this.property
     palette.hidden = true
+
+    // Focus must stay in the editor, or the browser drops the text selection
+    // before the click lands and there is nothing left to colour.
+    palette.addEventListener('mousedown', (event) => event.preventDefault())
 
     for (const colour of this.swatches) {
       const swatch = document.createElement('button')
@@ -82,7 +97,8 @@ class ColourTool {
         event.preventDefault()
         event.stopPropagation()
         this.apply(colour)
-        palette.hidden = true
+        // Left open on purpose: trying colours against the real text is the
+        // whole point of a palette, and re-opening it cost two more clicks.
       })
       palette.append(swatch)
     }
@@ -97,12 +113,49 @@ class ColourTool {
       event.preventDefault()
       event.stopPropagation()
       this.apply(null)
-      palette.hidden = true
+      this.close()
     })
     palette.append(clear)
 
-    this.palette = palette
+    // A remount would otherwise leave the previous palette orphaned on the body.
+    document.querySelector(`[data-studio-palette="${this.property}"]`)?.remove()
+    document.body.append(palette)
     return palette
+  }
+
+  private open(): void {
+    const palette = (this.palette ??= this.buildPalette())
+    const anchor = this.button?.getBoundingClientRect()
+    if (!anchor) return
+
+    // Drop below the whole toolbar, not below the button: the button sits inside
+    // the toolbar's padding, so clearing only the button overlapped its border.
+    const bar = this.button?.closest('.ce-popover__container')?.getBoundingClientRect()
+
+    palette.hidden = false
+    const width = palette.offsetWidth
+    palette.style.top = `${(bar?.bottom ?? anchor.bottom) + 8}px`
+    palette.style.left = `${Math.min(Math.max(8, anchor.left - 8), window.innerWidth - width - 8)}px`
+
+    const dismiss = (event: Event) => {
+      if (event.type === 'keydown' && (event as KeyboardEvent).key !== 'Escape') return
+      if (event.type === 'mousedown' && palette.contains(event.target as Node)) return
+      this.close()
+    }
+    document.addEventListener('mousedown', dismiss, true)
+    document.addEventListener('keydown', dismiss, true)
+    window.addEventListener('scroll', dismiss, true)
+    this.dismiss = () => {
+      document.removeEventListener('mousedown', dismiss, true)
+      document.removeEventListener('keydown', dismiss, true)
+      window.removeEventListener('scroll', dismiss, true)
+      this.dismiss = null
+    }
+  }
+
+  private close(): void {
+    if (this.palette) this.palette.hidden = true
+    this.dismiss?.()
   }
 
   /** Editor.js calls this when the toolbar button is pressed. */
@@ -110,7 +163,8 @@ class ColourTool {
     if (!range) return
     // Keep the selection: opening the palette moves focus off the text.
     this.savedRange = range.cloneRange()
-    if (this.palette) this.palette.hidden = !this.palette.hidden
+    if (this.palette && !this.palette.hidden) this.close()
+    else this.open()
   }
 
   checkState(): boolean {
@@ -120,8 +174,20 @@ class ColourTool {
   }
 
   clear(): void {
-    if (this.palette) this.palette.hidden = true
+    // Editor.js tears the inline toolbar down on every selection change —
+    // including the one our own edit causes. Honouring that here closed the
+    // palette and dropped the range after a single pick, so the second colour
+    // had nothing to act on. While the palette is open it closes on its own
+    // terms: an outside click, Escape, or a scroll.
+    if (this.palette && !this.palette.hidden) return
+    this.close()
     this.savedRange = null
+  }
+
+  destroy(): void {
+    this.dismiss?.()
+    this.palette?.remove()
+    this.palette = null
   }
 
   private isInsideColoured(): boolean {
@@ -134,31 +200,55 @@ class ColourTool {
   }
 
   private apply(colour: string | null) {
-    const range = this.savedRange
-    if (!range) return
-
     const selection = window.getSelection()
+    // The live selection is the fallback: each apply re-selects what it wrote,
+    // so it stays correct even if the saved range was cleared in between.
+    const range =
+      this.savedRange ?? (selection?.rangeCount ? selection.getRangeAt(0) : null)
+    if (!range || range.collapsed) return
+
     selection?.removeAllRanges()
     selection?.addRange(range)
 
+    const contents = range.extractContents()
+
+    // Strip the property wherever the selection already carries it. Wrapping a
+    // second colour around the first left the old span nested inside the new
+    // one, where being deeper won it the cascade — so every colour after the
+    // first looked like it did nothing.
+    contents.querySelectorAll('span[style]').forEach((span) => {
+      const el = span as HTMLElement
+      el.style.removeProperty(this.property)
+      if (!el.getAttribute('style')) el.replaceWith(...Array.from(el.childNodes))
+    })
+
+    let inserted: Node[]
     if (colour === null) {
-      // Unwrap: replace any coloured span in the selection with its contents.
-      const contents = range.extractContents()
-      contents.querySelectorAll('span[style]').forEach((span) => {
-        const el = span as HTMLElement
-        el.style.removeProperty(this.property)
-        if (!el.getAttribute('style')) el.replaceWith(...Array.from(el.childNodes))
-      })
+      inserted = Array.from(contents.childNodes)
       range.insertNode(contents)
     } else {
       const span = document.createElement('span')
       span.style.setProperty(this.property, colour)
-      span.append(range.extractContents())
+      span.append(contents)
+      inserted = [span]
       range.insertNode(span)
     }
 
+    // Leave the text selected. Dropping the selection closed the toolbar, so
+    // picking a different colour meant re-selecting the text first; and the
+    // range is what a follow-up pick re-wraps.
+    if (inserted.length === 0) {
+      selection?.removeAllRanges()
+      this.savedRange = null
+      return
+    }
+
+    const restored = document.createRange()
+    restored.setStartBefore(inserted[0])
+    restored.setEndAfter(inserted[inserted.length - 1])
     selection?.removeAllRanges()
-    this.savedRange = null
+    selection?.addRange(restored)
+    this.savedRange = restored.cloneRange()
   }
 }
 

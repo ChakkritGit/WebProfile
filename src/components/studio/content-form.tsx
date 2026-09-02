@@ -196,19 +196,20 @@ export function ContentForm({
   const published = values.status === 'PUBLISHED'
 
   return (
-    /* Three grid children rather than two: on a narrow screen the reader gets
-       heading → editor → metadata, while on wide screens the heading and the
-       metadata share the right column and the editor keeps the left one. */
+    /* The heading and the back link share the editor's column rather than the
+       sidebar's: they name the thing being written, not the metadata beside it.
+       Giving them a grid row of their own instead would let the sidebar, which
+       spans both rows, stretch that row and open a gap under the heading. */
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-      <div className="lg:col-start-2 lg:row-start-1">
-        <ButtonLink href="/studio" size="sm" variant="outline" className="mb-3">
-          <ArrowRightIcon className="size-4 rotate-180" />
-          {t('backToStudio')}
-        </ButtonLink>
-        <h2 className="text-2xl">{heading}</h2>
-      </div>
+      <div className="space-y-4">
+        <div>
+          <ButtonLink href="/studio" size="sm" variant="outline" className="mb-3">
+            <ArrowRightIcon className="size-4 rotate-180" />
+            {t('backToStudio')}
+          </ButtonLink>
+          <h2 className="text-2xl">{heading}</h2>
+        </div>
 
-      <div className="space-y-4 lg:col-start-1 lg:row-start-1 lg:row-span-2">
         <div>
           <label htmlFor="f-title" className="font-display mb-1.5 block text-sm font-semibold">
             {t('fieldTitle')}
@@ -226,7 +227,7 @@ export function ContentForm({
       </div>
 
       {/* ------------------------------ sidebar ----------------------------- */}
-      <aside className="space-y-4 lg:col-start-2 lg:row-start-2 lg:sticky lg:top-[calc(var(--header-h)+1rem)]">
+      <aside className="space-y-4 lg:sticky lg:top-[calc(var(--header-h)+1rem)]">
         <StickerCard className="space-y-3 p-4">
           <div className="flex flex-wrap gap-2">
             <Button

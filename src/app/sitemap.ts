@@ -103,11 +103,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // `listPosts`/`listProjects` already fall back to seed content, but a sitemap
   // that throws takes the whole build down — degrade to the static routes.
   try {
+    // `exactLocale`: the sitemap pairs the two corpora by `translationKey` to emit
+    // hreflang, so it needs each language on its own rather than one merged list.
     const [thPosts, enPosts, thProjects, enProjects] = await Promise.all([
-      listPosts({ locale: 'th' }),
-      listPosts({ locale: 'en' }),
-      listProjects({ locale: 'th' }),
-      listProjects({ locale: 'en' }),
+      listPosts({ locale: 'th', exactLocale: true }),
+      listPosts({ locale: 'en', exactLocale: true }),
+      listProjects({ locale: 'th', exactLocale: true }),
+      listProjects({ locale: 'en', exactLocale: true }),
     ])
     // Japanese is a UI translation over the English corpus, so it lists the
     // same entries under its own prefix.

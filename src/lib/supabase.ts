@@ -37,3 +37,17 @@ export function missingStorageEnv(): string[] {
 export function publicUrlFor(client: SupabaseClient, path: string): string {
   return client.storage.from(STORAGE_BUCKET).getPublicUrl(path).data.publicUrl
 }
+
+/**
+ * The object path behind one of our own public URLs, or `null` for anything else.
+ *
+ * Covers may also be pasted in as links to images we do not host; those must
+ * never be treated as ours to delete, so the bucket prefix has to match exactly.
+ */
+export function storagePathFromUrl(url: string): string | null {
+  if (!SUPABASE_URL) return null
+  const prefix = `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/`
+  if (!url.startsWith(prefix)) return null
+  const path = url.slice(prefix.length).split(/[?#]/)[0]
+  return path ? decodeURIComponent(path) : null
+}

@@ -25,8 +25,22 @@ export type Locale = (typeof routing.locales)[number]
  */
 export type ContentLocale = 'th' | 'en'
 
+export const contentLocales = ['th', 'en'] as const satisfies readonly ContentLocale[]
+
 export function contentLocaleFor(locale: Locale): ContentLocale {
   return locale === 'th' ? 'th' : 'en'
+}
+
+/**
+ * Which language to show a piece of content in, best first.
+ *
+ * A listing is never filtered down to one language: a post written only in Thai
+ * still belongs on `/ja/blog`, or the site would silently have less to show in
+ * one interface language than another. The reader picks the language they read
+ * the interface in, and each entry appears in the closest language it exists in.
+ */
+export function contentLocalePreference(locale: Locale): readonly ContentLocale[] {
+  return locale === 'th' ? (['th', 'en'] as const) : (['en', 'th'] as const)
 }
 
 export const localeMeta: Record<Locale, { label: string; htmlLang: string; short: string }> = {

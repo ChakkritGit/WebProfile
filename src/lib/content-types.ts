@@ -44,4 +44,10 @@ export interface ListOptions {
   featuredOnly?: boolean
   /** Order by view count instead of date — used by the "most read" strip. */
   orderBy?: 'recent' | 'views'
+  /**
+   * Return only rows written in this locale, instead of one row per piece of
+   * content in its best available language. The studio and the sitemap enumerate
+   * every translation separately and need the strict form; readers do not.
+   */
+  exactLocale?: boolean
 }
