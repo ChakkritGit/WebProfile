@@ -41,11 +41,28 @@ export function SiteHeader() {
     href === '/' ? pathname === '/' : pathname.startsWith(href)
 
   const listRef = useRef<HTMLUListElement>(null)
-  const [pill, setPill] = useState<{ x: number; width: number } | null>(null)
+  const [pill, setPill] = useState<{
+    x: number
+    y: number
+    width: number
+    height: number
+  } | null>(null)
 
   const measurePill = useCallback(() => {
     const active = listRef.current?.querySelector<HTMLElement>('a[aria-current="page"]')
-    setPill(active ? { x: active.offsetLeft, width: active.offsetWidth } : null)
+    // The link's own box, all four numbers. Stretching the pill to the list's
+    // height instead made it 24px tall against a 37px link — the list is shorter
+    // than the links it holds.
+    setPill(
+      active
+        ? {
+            x: active.offsetLeft,
+            y: active.offsetTop,
+            width: active.offsetWidth,
+            height: active.offsetHeight,
+          }
+        : null,
+    )
   }, [])
 
   // Layout effect so the pill is already in place on the first paint of a new
@@ -53,6 +70,7 @@ export function SiteHeader() {
   useLayoutEffect(measurePill, [measurePill, pathname, t])
   useEffect(() => {
     window.addEventListener('resize', measurePill)
+    void document.fonts?.ready.then(measurePill)
     return () => window.removeEventListener('resize', measurePill)
   }, [measurePill])
 
@@ -83,9 +101,9 @@ export function SiteHeader() {
             {pill && (
               <motion.span
                 aria-hidden
-                className="bg-brand-soft border-line absolute top-0 bottom-0 left-0 -z-10 rounded-full border-2"
+                className="bg-brand-soft border-line absolute top-0 left-0 -z-10 rounded-full border-2"
                 initial={false}
-                animate={{ x: pill.x, width: pill.width }}
+                animate={{ x: pill.x, y: pill.y, width: pill.width, height: pill.height }}
                 transition={
                   reduce ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34 }
                 }

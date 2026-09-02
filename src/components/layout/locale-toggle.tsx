@@ -8,6 +8,29 @@ import { CheckIcon, ChevronDownIcon, GlobeIcon } from '@/components/icons'
 import { cn } from '@/lib/utils'
 
 /**
+ * Holds the page at `target` while the translated tree renders.
+ *
+ * Deliberately outside React. Whether the picker unmounts across a locale change
+ * depends on how Next reconciles the `[locale]` segment, and both a ref and a
+ * mount effect turned out to be unreliable places to put this — a plain rAF loop
+ * runs regardless and stops itself.
+ *
+ * It re-asserts every frame rather than setting the offset once: until the new
+ * page has grown, the browser clamps the scroll to whatever room exists, which on
+ * a nearly empty document is a few pixels.
+ */
+function holdScroll(target: number) {
+  if (target <= 0) return
+  const started = performance.now()
+  const tick = () => {
+    window.scrollTo({ top: target, behavior: 'instant' })
+    if (Math.abs(window.scrollY - target) < 2 || performance.now() - started > 900) return
+    requestAnimationFrame(tick)
+  }
+  requestAnimationFrame(tick)
+}
+
+/**
  * Language picker: a globe plus the current language, opening a themed list.
  *
  * A row of buttons stopped scaling once a third language arrived, and it would
@@ -37,12 +60,19 @@ export function LocaleToggle({ className }: { className?: string }) {
     setOpen(false)
     if (next === locale) return
     const search = typeof window === 'undefined' ? '' : window.location.search
-    startTransition(() =>
-      // Land at the top of the translated page. Restoring the exact reading
-      // position is not achievable across languages — the translations differ
-      // in length, so any offset we restore drops the reader elsewhere.
-      router.replace(`${pathname}${search}`, { locale: next, scroll: true }),
-    )
+
+    // Stay where the reader was. Scrolling to the top was a deliberate choice —
+    // translations differ in length, so the same offset is not the same place —
+    // but in practice it threw anyone reading halfway down a page back to the
+    // start and made them find their spot again.
+    //
+    // `scroll: false` alone is not enough: while the subtree is being replaced
+    // the document is briefly short enough that the browser clamps the scroll,
+    // so the offset is captured here and reapplied by the component that mounts
+    // on the other side.
+    const target = window.scrollY
+    startTransition(() => router.replace(`${pathname}${search}`, { locale: next, scroll: false }))
+    holdScroll(target)
   }
 
   function onKeyDown(event: React.KeyboardEvent) {

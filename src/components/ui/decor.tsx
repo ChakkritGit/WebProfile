@@ -56,15 +56,34 @@ export function StarBurst({ className, color = 'var(--sun)' }: { className?: str
 /** Hand-drawn-ish circle used to ring a word or an avatar. */
 export function CircleScribble({ className, color = 'var(--brand)' }: { className?: string; color?: string }) {
   return (
-    <svg aria-hidden viewBox="0 0 200 90" fill="none" className={cn('pointer-events-none', className)}>
-      <path
-        d="M100 6C56 6 12 18 8 44c-4 26 46 40 92 40s94-14 92-40C188 18 144 6 100 6Z"
-        stroke={color}
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        strokeDasharray="1 0"
-        opacity="0.9"
-      />
+    <svg
+      aria-hidden
+      viewBox="0 0 200 90"
+      fill="none"
+      // Stretch to the box instead of fitting inside it: with the aspect ratio
+      // preserved the loop shrank to the middle of the name and circled two
+      // syllables. The uneven scaling also thickens the vertical strokes, which
+      // suits a pen mark.
+      preserveAspectRatio="none"
+      className={cn('pointer-events-none', className)}
+    >
+      {/* Drawn like a pen loop rather than an ellipse: the radii are uneven, the
+          line is slightly off-axis, and it overshoots the start and crosses back
+          over itself. A closed symmetric path read as a shape, not a scribble. */}
+      <g stroke={color} strokeLinecap="round" strokeLinejoin="round" fill="none">
+        <path
+          d="M66 13C34 16 9 29 10 47c1 21 46 34 96 34s85-14 84-34C189 27 151 13 103 11c-17-.7-32 .6-46 4.5-6 1.7-11 4-15 6.6"
+          strokeWidth="3.6"
+          opacity="0.92"
+        />
+        {/* A second, lighter pass riding just inside the first — the way a real
+            pen doubles back when one loop does not look closed enough. */}
+        <path
+          d="M20 40c-2 4-2 8-1 11 4 15 44 26 88 26 42 0 76-11 79-25"
+          strokeWidth="2.2"
+          opacity="0.4"
+        />
+      </g>
     </svg>
   )
 }
