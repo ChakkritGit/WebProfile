@@ -29,16 +29,6 @@ declare module 'editorjs-alert' {
   export default Alert
 }
 
-declare module 'editorjs-text-color-plugin' {
-  const ColorPlugin: new (...args: unknown[]) => unknown
-  export default ColorPlugin
-}
-
-declare module '@calumk/editorjs-codeflask' {
-  const CodeFlask: new (...args: unknown[]) => unknown
-  export default CodeFlask
-}
-
 declare module 'editorjs-text-alignment-blocktune' {
   const AlignmentTune: new (...args: unknown[]) => unknown
   export default AlignmentTune

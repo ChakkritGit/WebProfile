@@ -91,15 +91,16 @@ export async function SiteFooter() {
 
             <div>
               <p className="font-display text-sm font-bold tracking-wide uppercase">
-                {t('webringTitle')}
+                {t('linksTitle')}
               </p>
               {/* Icon-only: each link carries its label via aria-label/title. */}
               <ul className="mt-3 flex items-center gap-2">
                 <li>
                   <WebringBadge
-                    size={22}
+                    size={20}
+                    mono
                     label={t('webringAlt')}
-                    className="sticker-sm sticker-hover bg-surface grid size-10 place-items-center"
+                    className="sticker-sm sticker-hover bg-surface text-ink grid size-10 place-items-center"
                   />
                 </li>
                 <li>

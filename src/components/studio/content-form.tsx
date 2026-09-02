@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Editor } from './editor'
-import { Button, ButtonLink } from '@/components/ui/button'
+import { Button, } from '@/components/ui/button'
 import { StickerCard } from '@/components/ui/sticker-card'
 import { CheckIcon, EyeIcon, TrashIcon } from '@/components/icons'
 import { EMPTY_DOCUMENT, type EditorDocument } from '@/lib/editor'
@@ -215,7 +215,14 @@ export function ContentForm({
       <aside className="space-y-4 lg:sticky lg:top-[calc(var(--header-h)+1rem)]">
         <StickerCard className="space-y-3 p-4">
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={() => void save()} disabled={saving} className="flex-1">
+            <Button
+              size="sm"
+              onClick={() => void save()}
+              loading={saving}
+              loadingLabel={t('saving')}
+              className="flex-1"
+            >
+              {!saving && <CheckIcon className="size-4" />}
               {saving ? t('saving') : t('save')}
             </Button>
             <Button
@@ -250,9 +257,6 @@ export function ContentForm({
           {formError && <p className="text-sm text-[#e0362f]">{formError}</p>}
 
           <div className="flex flex-wrap gap-2 pt-1">
-            <ButtonLink href="/studio" size="sm" variant="outline">
-              {t('backToStudio')}
-            </ButtonLink>
             {id && (
               <Button size="sm" variant="danger" onClick={() => setConfirmOpen(true)} disabled={saving}>
                 <TrashIcon className="size-4" />

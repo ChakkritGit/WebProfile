@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useRef, type ReactNode } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from './button'
+import { CloseIcon } from '@/components/icons'
 import { cn } from '@/lib/utils'
 
 /**
@@ -28,6 +30,7 @@ export function Dialog({
   footer?: ReactNode
   className?: string
 }) {
+  const t = useTranslations('common')
   const ref = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -35,6 +38,22 @@ export function Dialog({
     if (!el) return
     if (open && !el.open) el.showModal()
     if (!open && el.open) el.close()
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    // `showModal()` makes the page inert but does not reliably stop it
+    // scrolling behind the dialog. Padding the body by the scrollbar's width
+    // keeps the layout from jumping when the bar disappears.
+    const { overflow, paddingRight } = document.body.style
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth
+    document.body.style.overflow = 'hidden'
+    if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`
+
+    return () => {
+      document.body.style.overflow = overflow
+      document.body.style.paddingRight = paddingRight
+    }
   }, [open])
 
   return (
@@ -58,8 +77,17 @@ export function Dialog({
         className,
       )}
     >
-      <div className="p-6">
-        <h2 id="dialog-title" className="text-xl">
+      <div className="relative p-6">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t('resumeClose')}
+          className="sticker-sm sticker-hover bg-surface absolute end-4 top-4 grid size-9 place-items-center"
+        >
+          <CloseIcon className="size-4" />
+        </button>
+
+        <h2 id="dialog-title" className="pe-12 text-xl">
           {title}
         </h2>
         {description && <div className="text-muted mt-2 text-sm leading-relaxed">{description}</div>}

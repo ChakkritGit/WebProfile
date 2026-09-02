@@ -9,15 +9,23 @@ export function Container({ children, className }: { children: ReactNode; classN
 export function Section({
   children,
   className,
+  contentClassName,
   id,
 }: {
   children: ReactNode
+  /** Applied to the <section> — backgrounds, borders, vertical padding. */
   className?: string
+  /**
+   * Applied to the inner container. Layout classes for the children belong
+   * here: the section's only child is the container, so a `space-y-*` passed
+   * through `className` silently does nothing.
+   */
+  contentClassName?: string
   id?: string
 }) {
   return (
     <section id={id} className={cn('py-14 sm:py-20', className)}>
-      <Container>{children}</Container>
+      <Container className={contentClassName}>{children}</Container>
     </section>
   )
 }

@@ -9,6 +9,7 @@ import { PageHeader, Section } from '@/components/ui/section'
 import { RevealGroup, RevealItem } from '@/components/motion/reveal'
 import { StickerCard } from '@/components/ui/sticker-card'
 import { TagIcon } from '@/components/icons'
+import { TechIcon, hasTechIcon } from '@/components/brand/tech-icons'
 
 export async function generateMetadata({
   params,
@@ -58,7 +59,11 @@ export default async function TopicsPage({ params }: { params: Promise<{ locale:
               <Link href={`/topics/${tagSlug(tag)}`} className="block no-underline">
                 <StickerCard interactive className="flex items-center gap-3 p-4">
                   <span className="bg-brand-soft border-line grid size-10 shrink-0 place-items-center rounded-xl border-2">
-                    <TagIcon className="size-[1.1rem]" />
+                    {hasTechIcon(tag) ? (
+                      <TechIcon name={tag} className="size-[1.15rem]" />
+                    ) : (
+                      <TagIcon className="size-[1.1rem]" />
+                    )}
                   </span>
                   <span className="font-display min-w-0 flex-1 truncate font-bold">{tag}</span>
                   <span className="text-muted font-display text-sm">{count}</span>

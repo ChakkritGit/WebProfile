@@ -11,10 +11,13 @@ export function WebringBadge({
   size = 32,
   className,
   label = 'วงแหวนเว็บ',
+  mono = false,
 }: {
   size?: number
   className?: string
   label?: string
+  /** Draw in the current ink colour so it matches neighbouring icons. */
+  mono?: boolean
 }) {
   return (
     <a
@@ -29,14 +32,31 @@ export function WebringBadge({
         className,
       )}
     >
-      <Image
-        alt={label}
-        width={size}
-        height={size}
-        src="/webring.svg"
-        // Static asset already sized for the badge; no responsive variants needed.
-        unoptimized
-      />
+      {mono ? (
+        // Inlined rather than an <img> so it can inherit currentColor.
+        <svg width={size} height={size} viewBox="0 0 416 416" fill="none" aria-hidden="true">
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M53 128.8l-16-8.2a192 192 0 1094.7-88.9l7.1 16.6A174 174 0 1153 128.8z"
+            fill="currentColor"
+          />
+          <path
+            d="M94.7 92.3L82 126.5 62.6 95.7l-36.4-1.4 23.3-28-9.9-35.1 33.9 13.5 30.3-20.3-2.4 36.4L130 83.3l-35.3 9z"
+            fill="currentColor"
+            opacity="0.55"
+          />
+        </svg>
+      ) : (
+        <Image
+          alt={label}
+          width={size}
+          height={size}
+          src="/webring.svg"
+          // Static asset already sized for the badge; no responsive variants needed.
+          unoptimized
+        />
+      )}
     </a>
   )
 }

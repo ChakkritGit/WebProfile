@@ -21,6 +21,7 @@ Thai and English, light and dark, Next.js 16 App Router on Supabase Postgres.
 | Highlighting | Shiki, rendered on the server with dual light/dark themes |
 | Storage | Supabase Storage (public bucket) |
 | Animation | `motion` 13 |
+| Telemetry | Vercel Analytics + Speed Insights (active only on a Vercel deployment) |
 
 ---
 
@@ -322,6 +323,14 @@ scroll animation. The table of contents and back-to-top request smoothing per ca
 
 `postinstall` runs `prisma generate`, so the client is always built for the target
 platform.
+
+### Telemetry
+
+`<Analytics />` and `<SpeedInsights />` are mounted in the locale layout. They
+inject `/_vercel/insights/script.js` and `/_vercel/speed-insights/script.js`,
+which are served by Vercel's edge — so **those two requests 404 under
+`next start` locally, and that is expected**, not a defect. Nothing is reported
+off-platform.
 
 ### Known advisory
 

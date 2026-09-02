@@ -11,6 +11,8 @@ import { Providers } from '@/components/layout/providers'
 import { SiteHeader } from '@/components/layout/site-header'
 import { SiteFooter } from '@/components/layout/site-footer'
 import { QuickContactDock } from '@/components/layout/quick-contact'
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 const kanit = Kanit({
   subsets: ['latin', 'thai'],
@@ -115,6 +117,9 @@ export default async function LocaleLayout({
             </main>
             <SiteFooter />
             <QuickContactDock />
+            {/* No-ops off Vercel; they only report from a deployed instance. */}
+            <Analytics />
+            <SpeedInsights />
           </Providers>
         </NextIntlClientProvider>
       </body>

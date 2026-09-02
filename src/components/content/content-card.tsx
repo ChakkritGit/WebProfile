@@ -56,7 +56,11 @@ export async function PostCard({
       <div className="flex flex-1 flex-col p-5">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           {post.tags.slice(0, 2).map((tag) => (
-            <Badge key={tag} tone={toneFor(tag)}>
+            <Badge
+              key={tag}
+              tone={toneFor(tag)}
+              icon={<TechIcon name={tag} className="size-3.5 shrink-0" />}
+            >
               {tag}
             </Badge>
           ))}

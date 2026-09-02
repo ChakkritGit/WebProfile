@@ -1,6 +1,6 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState } from 'react'
 import { signIn, signOut } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
@@ -8,15 +8,22 @@ import { GitHubIcon } from '@/components/icons'
 
 export function SignInButton({ callbackUrl = '/studio' }: { callbackUrl?: string }) {
   const t = useTranslations('studio')
-  const [pending, start] = useTransition()
+  // Not useTransition: `signIn` returns a promise and navigates away, so the
+  // transition callback resolves immediately and the pending flag never sticks.
+  const [pending, setPending] = useState(false)
 
   return (
     <Button
       size="lg"
-      disabled={pending}
-      onClick={() => start(() => void signIn('github', { callbackUrl }))}
+      loading={pending}
+      loadingLabel={t('signIn')}
+      onClick={() => {
+        setPending(true)
+        // Only re-enable if it fails; on success the page navigates away.
+        void signIn('github', { callbackUrl }).catch(() => setPending(false))
+      }}
     >
-      <GitHubIcon className="size-5" />
+      {!pending && <GitHubIcon className="size-5" />}
       {t('signIn')}
     </Button>
   )
@@ -24,14 +31,18 @@ export function SignInButton({ callbackUrl = '/studio' }: { callbackUrl?: string
 
 export function SignOutButton() {
   const t = useTranslations('studio')
-  const [pending, start] = useTransition()
+  const [pending, setPending] = useState(false)
 
   return (
     <Button
       size="sm"
       variant="secondary"
-      disabled={pending}
-      onClick={() => start(() => void signOut({ callbackUrl: '/' }))}
+      loading={pending}
+      loadingLabel={t('signOut')}
+      onClick={() => {
+        setPending(true)
+        void signOut({ callbackUrl: '/' }).catch(() => setPending(false))
+      }}
     >
       {t('signOut')}
     </Button>

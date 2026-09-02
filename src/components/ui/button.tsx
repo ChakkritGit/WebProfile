@@ -2,6 +2,7 @@
 
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { Link } from '@/i18n/navigation'
+import { Spinner } from './spinner'
 import { cn } from '@/lib/utils'
 
 type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
@@ -23,7 +24,10 @@ const sizes: Record<Size, string> = {
 
 const base =
   'inline-flex items-center justify-center rounded-full border-2 border-line font-display font-semibold ' +
-  'whitespace-nowrap select-none disabled:pointer-events-none disabled:opacity-55'
+  'whitespace-nowrap select-none disabled:pointer-events-none ' +
+  // A flat grey reads as "not available" far more clearly than a faded version
+  // of the enabled colour.
+  'disabled:border-line-soft disabled:bg-surface-2 disabled:text-muted disabled:shadow-none'
 
 function classes(variant: Variant, size: Size, className?: string) {
   return cn(
@@ -39,10 +43,32 @@ function classes(variant: Variant, size: Size, className?: string) {
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant
   size?: Size
+  /** Shows a spinner and disables the button. */
+  loading?: boolean
+  loadingLabel?: string
 }
 
-export function Button({ variant = 'primary', size = 'md', className, ...props }: ButtonProps) {
-  return <button className={classes(variant, size, className)} {...props} />
+export function Button({
+  variant = 'primary',
+  size = 'md',
+  className,
+  loading = false,
+  loadingLabel,
+  disabled,
+  children,
+  ...props
+}: ButtonProps) {
+  return (
+    <button
+      className={classes(variant, size, className)}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      {...props}
+    >
+      {loading && <Spinner className="size-4 shrink-0" label={loadingLabel} />}
+      {children}
+    </button>
+  )
 }
 
 interface ButtonLinkProps {

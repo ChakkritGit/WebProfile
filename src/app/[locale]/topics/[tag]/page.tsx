@@ -78,14 +78,17 @@ export default async function TopicPage({
 
   return (
     <>
-      <PageHeader title={t('title', { tag: label })} description={t('subtitle', { tag: label })}>
+      <PageHeader
+        title={t('title', { tag: label })}
+        description={t('subtitle', { tag: label })}
+      >
         <ButtonLink href="/topics" variant="secondary" size="sm" className="mt-5">
           <TagIcon className="size-4" />
           {t('backToAll')}
         </ButtonLink>
       </PageHeader>
 
-      <Section className="space-y-12">
+      <Section contentClassName="space-y-14">
         {matchedProjects.length > 0 && (
           <div>
             <h2 className="mb-5 text-2xl">{t('projectsHeading')}</h2>
