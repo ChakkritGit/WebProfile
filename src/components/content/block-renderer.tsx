@@ -223,12 +223,20 @@ function Block({ block }: { block: AnnotatedBlock }) {
       if (!url) return null
       const caption = String(data.caption ?? '')
 
+      // Editor.js image tunes. Only `stretched` was read here, so an author who
+      // ticked "with background" or "with border" saw the change in the editor and
+      // nothing at all on the published page.
+      const stretched = Boolean(data.stretched)
+      const withBackground = Boolean(data.withBackground)
+      const withBorder = Boolean(data.withBorder)
+
       return (
         <figure className="my-8">
           <div
             className={cn(
-              'sticker bg-surface relative overflow-hidden',
-              Boolean(data.stretched) && '-mx-4 sm:-mx-8',
+              'sticker relative overflow-hidden',
+              withBackground ? 'bg-surface-2 p-4 sm:p-8' : 'bg-surface',
+              stretched && '-mx-4 sm:-mx-8',
             )}
           >
             <Image
@@ -236,7 +244,11 @@ function Block({ block }: { block: AnnotatedBlock }) {
               alt={caption || ''}
               width={file.width ?? 1280}
               height={file.height ?? 720}
-              className="h-auto w-full"
+              className={cn(
+                'h-auto w-full',
+                withBackground && 'mx-auto max-w-[85%] rounded-xl sm:max-w-[70%]',
+                withBorder && 'border-line rounded-xl border-2',
+              )}
               sizes="(max-width: 768px) 100vw, 768px"
             />
           </div>

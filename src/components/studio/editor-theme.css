@@ -386,6 +386,29 @@
   height: 27px;
 }
 
+/* Built-in inline tools render as `.ce-popover-item-html > .ce-inline-tool`, a
+   path that never passes through `.ce-popover-item__icon` — which is why they were
+   the only icons in the editor without the framed box the block menu gives every
+   entry. Frame them to match, and let their wrapper size to the framed icon. */
+.studio-editor .ce-popover--inline .ce-popover-item-html {
+  width: auto;
+  height: auto;
+  display: flex;
+  align-items: center;
+  padding: 0.3rem 0.1rem;
+}
+.studio-editor .ce-popover--inline .ce-inline-tool {
+  width: 27px;
+  height: 27px;
+  border-radius: 0.5rem;
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+}
+.studio-editor .ce-inline-tool--active {
+  background: var(--brand-soft) !important;
+  border-color: var(--line);
+}
+
 /* Editor.js caps the nested list at a fixed height that assumed its own smaller
    rows; with ours it cut the last entry in half. Let it size to content, bounded
    by the viewport rather than a magic number. */
@@ -398,10 +421,13 @@
    `cdx-settings-button`s, so its three icons were the only rows in the block menu
    without the framed icon box every other entry has. */
 .studio-editor .cdx-settings-button {
-  width: 30px;
-  height: 30px;
+  /* Matched to `.ce-popover-item__icon` exactly — 26px and square-cornered. Left
+     at 30px with a 0.55rem radius they were visibly rounder and larger than every
+     other icon in the same menu. */
+  width: 26px;
+  height: 26px;
   margin: 2px;
-  border-radius: 0.55rem;
+  border-radius: 0;
   background: var(--surface-2);
   border: 1px solid var(--line-soft);
   color: var(--ink);
@@ -418,7 +444,6 @@
 .studio-editor .cdx-settings-button--active,
 .studio-editor .cdx-settings-button.ce-popover-item--active {
   background: var(--brand-soft);
-  border-color: var(--line);
 }
 .studio-editor .cdx-settings-button svg {
   width: 18px;
