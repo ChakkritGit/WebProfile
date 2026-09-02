@@ -23,8 +23,8 @@ export function InkWobbleDefs() {
     <svg aria-hidden width="0" height="0" className="pointer-events-none absolute">
       <defs>
         <filter id="ink-wobble" x="-15%" y="-15%" width="130%" height="130%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.11" numOctaves="2" seed="9" result="grain" />
-          <feDisplacementMap in="SourceGraphic" in2="grain" scale="1.3" xChannelSelector="R" yChannelSelector="G" />
+          <feTurbulence type="fractalNoise" baseFrequency="0.085" numOctaves="3" seed="9" result="grain" />
+          <feDisplacementMap in="SourceGraphic" in2="grain" scale="2.4" xChannelSelector="R" yChannelSelector="G" />
         </filter>
       </defs>
     </svg>

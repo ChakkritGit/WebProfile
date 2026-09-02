@@ -209,22 +209,60 @@
 /* ------------------------------------------------------------------ *
  * Sticker primitives — the signature of the cartoon look
  * ------------------------------------------------------------------ */
+/* Every corner gets its own radius, and the horizontal and vertical radii differ
+   from each other. A single value draws four identical corners, which is exactly
+   what a compass does and a hand never does. The edges stay straight, so text and
+   backgrounds are unaffected — only the corners read as drawn. */
+/* Uneven side weights on top of the uneven corners: a pen does not hold the same
+   pressure all the way round a box, and a uniform 2px line is the clearest tell
+   that a machine drew it. */
 @utility sticker {
-  border: 2px solid var(--line);
-  border-radius: var(--radius-sticker);
+  border: solid var(--line);
+  border-width: 2px 2px 3px 2px;
+  border-radius: 22px 17px 24px 19px / 18px 24px 16px 23px;
   box-shadow: 4px 4px 0 0 var(--shadow);
 }
 
 @utility sticker-sm {
-  border: 2px solid var(--line);
-  border-radius: 0.75rem;
+  border: solid var(--line);
+  border-width: 2px 2px 3px 2px;
+  border-radius: 13px 10px 14px 11px / 11px 14px 10px 13px;
   box-shadow: 2px 2px 0 0 var(--shadow);
 }
 
 @utility sticker-lg {
-  border: 3px solid var(--line);
-  border-radius: 1.75rem;
+  border: solid var(--line);
+  border-width: 3px 3px 4px 3px;
+  border-radius: 30px 24px 33px 27px / 25px 33px 23px 31px;
   box-shadow: 7px 7px 0 0 var(--shadow);
+}
+
+/* Neighbours should not be tracings of each other, so the corners rotate through
+   a few shapes down a list of cards. */
+/* Matched through the card's *wrapper* as well as the card itself: in a grid or a
+   list the sticker is usually an only child of its own cell, so `:nth-child` on the
+   sticker alone always evaluates to 1 and every card came out identical. Sub-pixel
+   border widths were the other dead end — the browser rounds 2.5px back to 2px at
+   ordinary pixel density, so the weights differ by a whole pixel instead. */
+:nth-child(2n) > .sticker,
+.sticker:nth-child(2n) {
+  border-width: 3px 2px 2px 3px;
+  border-radius: 18px 24px 17px 25px / 24px 17px 23px 19px;
+}
+:nth-child(3n) > .sticker,
+.sticker:nth-child(3n) {
+  border-width: 2px 3px 2px 2px;
+  border-radius: 25px 19px 21px 23px / 19px 26px 20px 22px;
+}
+:nth-child(2n) > .sticker-sm,
+.sticker-sm:nth-child(2n) {
+  border-width: 3px 2px 2px 2px;
+  border-radius: 10px 14px 11px 13px / 14px 10px 13px 11px;
+}
+:nth-child(3n) > .sticker-sm,
+.sticker-sm:nth-child(3n) {
+  border-width: 2px 2px 3px 3px;
+  border-radius: 14px 11px 12px 13px / 11px 14px 12px 13px;
 }
 
 /* Lift-on-hover interaction shared by cards and buttons. */
