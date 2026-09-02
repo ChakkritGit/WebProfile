@@ -13,6 +13,7 @@ import { Select } from '@/components/ui/select'
 import { ConfirmDialog } from '@/components/ui/dialog'
 import { ImageField } from './image-field'
 import { TagPicker } from './tag-picker'
+import { useToast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
 
 export type ContentKind = 'posts' | 'projects'
@@ -129,6 +130,17 @@ export function ContentForm({
     }
   }
 
+  /**
+   * The id of a record created in this session, before the router has moved to
+   * its URL. Without it, "Save" then "Publish" on a new post sent two POSTs —
+   * the `id` prop only arrives with the page the redirect renders, so the second
+   * click still looked like a create and made a duplicate at `<slug>-2`.
+   */
+  const toast = useToast()
+  const tToast = useTranslations('toast')
+  const [createdId, setCreatedId] = useState<string | null>(null)
+  const recordId = id ?? createdId
+
   async function save(overrides: Partial<{ status: 'DRAFT' | 'PUBLISHED' }> = {}) {
     if (!values.title.trim()) {
       setErrors({ title: [t('requiredTitle')] })
@@ -141,9 +153,9 @@ export function ContentForm({
 
     try {
       const response = await fetch(
-        id ? `/api/content/${kind}/${id}` : `/api/content/${kind}`,
+        recordId ? `/api/content/${kind}/${recordId}` : `/api/content/${kind}`,
         {
-          method: id ? 'PATCH' : 'POST',
+          method: recordId ? 'PATCH' : 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload(overrides)),
         },
@@ -163,9 +175,20 @@ export function ContentForm({
       setDirty(false)
       setSavedAt(Date.now())
       if (overrides.status) set('status', overrides.status)
+      toast(
+        overrides.status === 'PUBLISHED'
+          ? tToast('published')
+          : overrides.status === 'DRAFT'
+            ? tToast('unpublished')
+            : tToast('saved'),
+      )
 
-      if (!id && body.id) router.replace(`/studio/${kind}/${body.id}`)
-      else router.refresh()
+      if (!recordId && body.id) {
+        setCreatedId(body.id)
+        router.replace(`/studio/${kind}/${body.id}`)
+      } else {
+        router.refresh()
+      }
     } catch {
       setFormError(tCommon('error'))
     } finally {
@@ -174,13 +197,14 @@ export function ContentForm({
   }
 
   async function remove() {
-    if (!id) return
+    if (!recordId) return
     setConfirmOpen(false)
     setSaving(true)
-    const response = await fetch(`/api/content/${kind}/${id}`, { method: 'DELETE' })
+    const response = await fetch(`/api/content/${kind}/${recordId}`, { method: 'DELETE' })
     setSaving(false)
     if (response.ok) {
       setDirty(false)
+      toast(tToast('deleted'))
       // `replace`, so the back button cannot return to the editor of a record that
       // no longer exists; `refresh`, because the client router cache would other-
       // wise replay the listing it fetched before the delete and still show the row.
@@ -276,7 +300,7 @@ export function ContentForm({
           {formError && <p className="text-sm text-[#e0362f]">{formError}</p>}
 
           <div className="flex flex-wrap gap-2 pt-1">
-            {id && (
+            {recordId && (
               <Button size="sm" variant="danger" onClick={() => setConfirmOpen(true)} disabled={saving}>
                 <TrashIcon className="size-4" />
                 {t('delete')}

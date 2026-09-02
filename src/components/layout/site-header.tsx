@@ -174,7 +174,7 @@ export function SiteHeader() {
                 </li>
               ))}
               <li className="pt-2">
-                <LocaleToggle className="w-full justify-center" />
+                <LocaleToggle block />
               </li>
             </ul>
           </motion.div>

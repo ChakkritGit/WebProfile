@@ -3,8 +3,33 @@ import type { SVGProps } from 'react'
 /**
  * Inline icon set — no icon dependency. Stroke icons share a chunky 2px cap so
  * they sit next to the sticker outlines without looking thin.
+ *
+ * Every icon is passed through a displacement filter so the lines waver slightly
+ * instead of being perfectly true, which is what makes a drawing read as drawn.
+ * Redrawing forty paths by hand would have been the alternative; one filter does
+ * it uniformly and stays legible at 14px. Technology marks are deliberately left
+ * out of this — a wobbly brand logo reads as broken, not hand-made.
  */
 type IconProps = SVGProps<SVGSVGElement>
+
+const WOBBLE = 'url(#ink-wobble)'
+
+/**
+ * The filter itself, mounted once per document. When it is absent the reference
+ * is simply ignored and the icons render as clean geometry, so nothing breaks.
+ */
+export function InkWobbleDefs() {
+  return (
+    <svg aria-hidden width="0" height="0" className="pointer-events-none absolute">
+      <defs>
+        <filter id="ink-wobble" x="-15%" y="-15%" width="130%" height="130%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.11" numOctaves="2" seed="9" result="grain" />
+          <feDisplacementMap in="SourceGraphic" in2="grain" scale="1.3" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </defs>
+    </svg>
+  )
+}
 
 function Stroke({ children, ...props }: IconProps) {
   return (
@@ -16,6 +41,7 @@ function Stroke({ children, ...props }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
+      filter={WOBBLE}
       {...props}
     >
       {children}
@@ -25,7 +51,7 @@ function Stroke({ children, ...props }: IconProps) {
 
 function Solid({ children, ...props }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" filter={WOBBLE} {...props}>
       {children}
     </svg>
   )

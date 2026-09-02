@@ -315,5 +315,15 @@
     "blogHint": "Notes on building things for the web",
     "contact": "Get in touch",
     "contactHint": "Email, phone or GitHub — whichever is easiest"
+  },
+  "toast": {
+    "saved": "Saved",
+    "published": "Published",
+    "unpublished": "Moved back to draft",
+    "deleted": "Deleted",
+    "tagAdded": "Tag added",
+    "tagRemoved": "Tag removed",
+    "uploaded": "Image uploaded",
+    "failed": "That did not go through"
   }
 }

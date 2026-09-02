@@ -315,5 +315,15 @@
     "blogHint": "ウェブをつくることについての記録",
     "contact": "連絡する",
     "contactHint": "メール・電話・GitHub、お好きな方法で"
+  },
+  "toast": {
+    "saved": "保存しました",
+    "published": "公開しました",
+    "unpublished": "下書きに戻しました",
+    "deleted": "削除しました",
+    "tagAdded": "タグを追加しました",
+    "tagRemoved": "タグを削除しました",
+    "uploaded": "画像をアップロードしました",
+    "failed": "処理できませんでした"
   }
 }

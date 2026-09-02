@@ -36,7 +36,7 @@ function holdScroll(target: number) {
  * A row of buttons stopped scaling once a third language arrived, and it would
  * only get worse with a fourth.
  */
-export function LocaleToggle({ className }: { className?: string }) {
+export function LocaleToggle({ block = false }: { block?: boolean }) {
   const t = useTranslations('common')
   const locale = useLocale() as Locale
   const pathname = usePathname()
@@ -102,7 +102,12 @@ export function LocaleToggle({ className }: { className?: string }) {
   }
 
   return (
-    <div ref={rootRef} className={cn('relative', className)}>
+    // `block` is the mobile menu's layout, where the picker spans the row. Passing
+    // that as a className landed it on this wrapper instead of the button: the
+    // wrapper stretched, the button stayed its own size on the left, and the list —
+    // anchored to the wrapper's end edge — opened over on the far right, detached
+    // from the control that opened it.
+    <div ref={rootRef} className={cn('relative', block && 'w-full')}>
       <button
         type="button"
         role="combobox"
@@ -115,6 +120,7 @@ export function LocaleToggle({ className }: { className?: string }) {
         onKeyDown={onKeyDown}
         className={cn(
           'sticker-sm sticker-hover bg-surface font-display flex h-10 items-center gap-1.5 px-3 text-xs font-bold',
+          block && 'w-full justify-center',
           open && 'shadow-[1px_1px_0_0_var(--shadow)]',
         )}
       >
@@ -131,7 +137,10 @@ export function LocaleToggle({ className }: { className?: string }) {
           id={listId}
           role="listbox"
           aria-label={t('changeLanguage')}
-          className="sticker bg-surface absolute end-0 z-50 mt-2 w-44 p-1.5"
+          className={cn(
+            'sticker bg-surface absolute z-50 mt-2 p-1.5',
+            block ? 'inset-x-0' : 'end-0 w-44',
+          )}
         >
           {routing.locales.map((code, index) => {
             const selected = code === locale
