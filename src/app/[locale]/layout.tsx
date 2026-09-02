@@ -11,7 +11,6 @@ import { Providers } from '@/components/layout/providers'
 import { SiteHeader } from '@/components/layout/site-header'
 import { SiteFooter } from '@/components/layout/site-footer'
 import { QuickContactDock } from '@/components/layout/quick-contact'
-import { InkWobbleDefs } from '@/components/icons'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 
@@ -117,7 +116,6 @@ export default async function LocaleLayout({
             </main>
             <SiteFooter />
             <QuickContactDock />
-            <InkWobbleDefs />
             {/* No-ops off Vercel; they only report from a deployed instance. */}
             <Analytics />
             <SpeedInsights />

@@ -237,6 +237,31 @@
   box-shadow: 7px 7px 0 0 var(--shadow);
 }
 
+/* Pills and rounded boxes are frames too — chips, buttons, the navbar's active
+   pill, form fields. Matching on the radius *and* a visible border keeps this to
+   outlines and leaves undecorated rounded things (skeletons, blurred blobs) alone.
+   Oversized radii are clamped by the browser proportionally, so the corners stay
+   uneven however short the chip is. */
+.rounded-full.border-2,
+.rounded-full.border,
+.rounded-2xl.border-2,
+.rounded-xl.border-2,
+.rounded-xl.border {
+  border-radius: 26px 21px 25px 22px / 22px 26px 21px 25px;
+}
+:nth-child(2n) > .rounded-full.border-2,
+.rounded-full.border-2:nth-child(2n),
+:nth-child(2n) > .rounded-xl.border-2,
+.rounded-xl.border-2:nth-child(2n) {
+  border-radius: 21px 26px 22px 25px / 26px 21px 25px 22px;
+}
+:nth-child(3n) > .rounded-full.border-2,
+.rounded-full.border-2:nth-child(3n),
+:nth-child(3n) > .rounded-xl.border-2,
+.rounded-xl.border-2:nth-child(3n) {
+  border-radius: 24px 22px 26px 21px / 21px 25px 22px 26px;
+}
+
 /* Neighbours should not be tracings of each other, so the corners rotate through
    a few shapes down a list of cards. */
 /* Matched through the card's *wrapper* as well as the card itself: in a grid or a
