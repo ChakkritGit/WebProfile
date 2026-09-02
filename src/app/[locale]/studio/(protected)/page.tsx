@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
-import { contentLocales, type Locale } from '@/i18n/routing'
+import { type Locale } from '@/i18n/routing'
 import { listPosts, listProjects } from '@/lib/content'
 import { hasDatabase } from '@/lib/prisma'
 import { StickerCard } from '@/components/ui/sticker-card'
@@ -44,19 +44,14 @@ export default async function StudioDashboard({
 
   const t = await getTranslations('studio')
 
-  // The studio manages every translation separately, not just the one the UI is
-  // in — and `exactLocale` keeps each row to the language it was written in.
-  // Mapping over the *UI* locales listed English content twice, because `ja`
-  // reads the English corpus: the tab badges said 10 posts where there were 7.
+  // One query per kind, every language, nothing collapsed. Fanning out over a
+  // hardcoded list of locales got this wrong twice: mapping over the UI locales
+  // listed English rows once per locale that reads them, and narrowing that list
+  // hid the Japanese rows entirely — they stayed live at their URLs with no way
+  // to edit or delete them from here.
   const [posts, projects] = await Promise.all([
-    Promise.all(
-      contentLocales.map((code) => listPosts({ locale: code, includeDrafts: true, exactLocale: true })),
-    ).then((groups) => groups.flat()),
-    Promise.all(
-      contentLocales.map((code) =>
-        listProjects({ locale: code, includeDrafts: true, exactLocale: true }),
-      ),
-    ).then((groups) => groups.flat()),
+    listPosts({ locale: locale as Locale, includeDrafts: true, allLocales: true }),
+    listProjects({ locale: locale as Locale, includeDrafts: true, allLocales: true }),
   ])
 
   return (

@@ -17,19 +17,12 @@ export const routing = defineRouting({
 export type Locale = (typeof routing.locales)[number]
 
 /**
- * Locales that articles and projects are actually written in.
- *
- * Japanese is a UI translation only: the interface is localised, but the
- * long-form content is not, so `ja` reads the English corpus rather than
- * showing an empty site.
+ * Any locale can hold content. Japanese started as a UI-only translation, but the
+ * studio has always let an author pick it, and two posts were saved that way —
+ * treating `ja` as "reads the English corpus" made those rows unreachable from
+ * the studio while still being served at their URLs.
  */
-export type ContentLocale = 'th' | 'en'
-
-export const contentLocales = ['th', 'en'] as const satisfies readonly ContentLocale[]
-
-export function contentLocaleFor(locale: Locale): ContentLocale {
-  return locale === 'th' ? 'th' : 'en'
-}
+export type ContentLocale = Locale
 
 /**
  * Which language to show a piece of content in, best first.
@@ -40,7 +33,7 @@ export function contentLocaleFor(locale: Locale): ContentLocale {
  * the interface in, and each entry appears in the closest language it exists in.
  */
 export function contentLocalePreference(locale: Locale): readonly ContentLocale[] {
-  return locale === 'th' ? (['th', 'en'] as const) : (['en', 'th'] as const)
+  return [locale, ...routing.locales.filter((other) => other !== locale)]
 }
 
 export const localeMeta: Record<Locale, { label: string; htmlLang: string; short: string }> = {

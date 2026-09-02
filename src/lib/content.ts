@@ -4,7 +4,7 @@ import { asEditorDocument, readingMinutes } from './editor'
 import { hasDatabase, prisma } from './prisma'
 import { seedPosts, seedProjects } from '@/content/seed'
 import type { ListOptions, PostRecord, ProjectRecord } from './content-types'
-import { contentLocaleFor, contentLocalePreference, type Locale } from '@/i18n/routing'
+import { contentLocalePreference, type Locale } from '@/i18n/routing'
 
 /**
  * Content access layer.
@@ -70,9 +70,9 @@ function toProject(row: any): ProjectRecord {
 
 function filterSeed<T extends { locale: string; status: string; tags: string[]; featured: boolean }>(
   rows: T[],
-  { locale, includeDrafts, tag, featuredOnly, exactLocale }: ListOptions,
+  { includeDrafts, tag, featuredOnly }: ListOptions,
 ): T[] {
-  let out = exactLocale ? rows.filter((r) => r.locale === contentLocaleFor(locale)) : [...rows]
+  let out = [...rows]
   if (!includeDrafts) out = out.filter((r) => r.status === 'PUBLISHED')
   if (tag) out = out.filter((r) => r.tags.includes(tag))
   if (featuredOnly) out = out.filter((r) => r.featured)
@@ -121,7 +121,7 @@ function finish<T extends Variant & Sortable>(
   options: ListOptions,
   compare: (a: T, b: T) => number,
 ): T[] {
-  const out = options.exactLocale ? rows : preferLocale(rows, options.locale)
+  const out = options.allLocales ? rows : preferLocale(rows, options.locale)
   out.sort(compare)
   return typeof options.limit === 'number' ? out.slice(0, options.limit) : out
 }
@@ -149,7 +149,6 @@ export async function listPosts(options: ListOptions): Promise<PostRecord[]> {
   return safely(async () => {
     const rows = await prisma!.post.findMany({
       where: {
-        ...(options.exactLocale ? { locale: contentLocaleFor(options.locale) } : {}),
         ...(options.includeDrafts ? {} : { status: 'PUBLISHED' }),
         ...(options.tag ? { tags: { has: options.tag } } : {}),
         ...(options.featuredOnly ? { featured: true } : {}),
@@ -202,7 +201,6 @@ export async function listProjects(options: ListOptions): Promise<ProjectRecord[
   return safely(async () => {
     const rows = await prisma!.project.findMany({
       where: {
-        ...(options.exactLocale ? { locale: contentLocaleFor(options.locale) } : {}),
         ...(options.includeDrafts ? {} : { status: 'PUBLISHED' }),
         ...(options.tag ? { tags: { has: options.tag } } : {}),
         ...(options.featuredOnly ? { featured: true } : {}),

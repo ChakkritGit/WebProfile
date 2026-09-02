@@ -227,7 +227,7 @@ export function ContentForm({
       </div>
 
       {/* ------------------------------ sidebar ----------------------------- */}
-      <aside className="space-y-4">
+      <aside className="space-y-4 lg:sticky lg:top-[calc(var(--header-h)+1rem)]">
         <StickerCard className="space-y-3 p-4">
           <div className="flex flex-wrap gap-2">
             <Button

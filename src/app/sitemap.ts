@@ -103,18 +103,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // `listPosts`/`listProjects` already fall back to seed content, but a sitemap
   // that throws takes the whole build down — degrade to the static routes.
   try {
-    // `exactLocale`: the sitemap pairs the two corpora by `translationKey` to emit
-    // hreflang, so it needs each language on its own rather than one merged list.
-    const [thPosts, enPosts, thProjects, enProjects] = await Promise.all([
-      listPosts({ locale: 'th', exactLocale: true }),
-      listPosts({ locale: 'en', exactLocale: true }),
-      listProjects({ locale: 'th', exactLocale: true }),
-      listProjects({ locale: 'en', exactLocale: true }),
+    // One listing per interface locale, each already resolved to the best language
+    // available. That is exactly the URL space a reader of that locale is served,
+    // so it is exactly what belongs in the sitemap; `translationKey` still pairs
+    // the entries for hreflang below.
+    const [thPosts, enPosts, jaPosts, thProjects, enProjects, jaProjects] = await Promise.all([
+      listPosts({ locale: 'th' }),
+      listPosts({ locale: 'en' }),
+      listPosts({ locale: 'ja' }),
+      listProjects({ locale: 'th' }),
+      listProjects({ locale: 'en' }),
+      listProjects({ locale: 'ja' }),
     ])
-    // Japanese is a UI translation over the English corpus, so it lists the
-    // same entries under its own prefix.
-    posts = { th: thPosts, en: enPosts, ja: enPosts }
-    projects = { th: thProjects, en: enProjects, ja: enProjects }
+    posts = { th: thPosts, en: enPosts, ja: jaPosts }
+    projects = { th: thProjects, en: enProjects, ja: jaProjects }
   } catch (error) {
     console.error('[sitemap] could not read content, emitting static routes only:', error)
   }

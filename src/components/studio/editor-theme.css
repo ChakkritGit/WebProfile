@@ -56,11 +56,10 @@
   background: var(--brand-soft);
 }
 
-/* Only the *container* carries the frame. `.ce-popover` is a positioning wrapper
-   that collapses to a few pixels tall on the inline toolbar, so giving it a border
-   too painted a dark sliver above the bar. */
+/* Only the *container* carries the frame. `.ce-popover` and `.ce-inline-toolbar`
+   are positioning wrappers that collapse to ~4px tall, so a border and a hard
+   shadow on them drew a thick dark line above the bar rather than a frame. */
 .studio-editor .ce-popover__container,
-.studio-editor .ce-inline-toolbar,
 .studio-editor .ce-conversion-toolbar {
   background: var(--surface);
   border: 2px solid var(--line);
@@ -68,7 +67,8 @@
   box-shadow: 4px 4px 0 0 var(--shadow);
   color: var(--ink);
 }
-.studio-editor .ce-popover {
+.studio-editor .ce-popover,
+.studio-editor .ce-inline-toolbar {
   background: transparent;
   border: 0;
   box-shadow: none;
@@ -400,7 +400,9 @@
 .studio-editor .ce-popover--inline .ce-inline-tool {
   width: 27px;
   height: 27px;
-  border-radius: 0.5rem;
+  /* Square, like `.ce-popover-item__icon` — Editor.js's own icons have no radius,
+     so a rounded box read as a different kind of control in the same row. */
+  border-radius: 0;
   background: var(--surface-2);
   border: 1px solid var(--line-soft);
 }
