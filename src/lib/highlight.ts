@@ -32,6 +32,38 @@ export function normaliseLang(input: unknown): string {
   return (LANGS as readonly string[]).includes(mapped) ? mapped : 'text'
 }
 
+/**
+ * Best-effort language guess for blocks saved before the picker existed.
+ *
+ * Ordered most-specific first. A wrong guess only costs the wrong palette; the
+ * alternative — leaving older posts unhighlighted — is worse.
+ */
+export function detectLanguage(code: string): string {
+  const text = code.trim()
+  if (!text) return 'text'
+  const first = text.split('\n')[0] ?? ''
+
+  if (/^#!/.test(first)) return 'bash'
+  if (/^(FROM|RUN|COPY|WORKDIR|ENTRYPOINT|CMD)\s/m.test(text)) return 'docker'
+  if (/^\s*(model|datasource|generator)\s+\w+\s*\{/m.test(text)) return 'prisma'
+  if (/^\s*[{[]/.test(text) && /"[^"]+"\s*:/.test(text)) return 'json'
+  if (/^---\s*$/m.test(text) || (/^\s*[\w.-]+:\s*(\S|$)/m.test(text) && !/[;{}]/.test(text)))
+    return 'yaml'
+  if (/^\s*<[a-z!/]/i.test(text)) return 'html'
+  if (/\b(SELECT|INSERT INTO|UPDATE|DELETE FROM|CREATE TABLE|ALTER TABLE)\b/i.test(text))
+    return 'sql'
+  if (/\b(interface|type)\s+\w+\s*[={]|:\s*(string|number|boolean|void|Promise<)/.test(text))
+    return 'typescript'
+  if (/\b(fun|val|var)\s+\w+|suspend\s+fun|@Composable/.test(text)) return 'kotlin'
+  if (/\b(def|elif)\s|^\s*from\s+\w+\s+import\s/m.test(text)) return 'python'
+  if (/\b(import|export|const|let|function)\b|=>/.test(text)) return 'javascript'
+  if (/^\s*[.#]?[\w-]+\s*\{[^}]*:[^}]*;/m.test(text)) return 'css'
+  if (/^\s*[$#]\s|\b(npm|npx|yarn|pnpm|git|docker|sudo|curl|cd|mkdir|export)\s/m.test(text))
+    return 'bash'
+
+  return 'text'
+}
+
 let highlighterPromise: Promise<Highlighter> | null = null
 
 function getHighlighter() {
@@ -75,7 +107,9 @@ export async function highlightBlocks(blocks: AnnotatedBlock[]): Promise<Annotat
       const code = String(data.code ?? '')
       if (!code.trim()) return block
 
-      const language = normaliseLang(data.language)
+      // Blocks saved before the language picker existed carry no language.
+      const declared = normaliseLang(data.language)
+      const language = declared === 'text' ? detectLanguage(code) : declared
       const html = await highlight(code, language)
       return { ...block, data: { ...data, language, highlighted: html } }
     }),

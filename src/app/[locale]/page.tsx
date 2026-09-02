@@ -68,7 +68,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 <p
                   className={
                     stat.wide
-                      ? 'font-display text-2xl leading-[1.25] font-extrabold break-words sm:text-3xl'
+                      ? 'font-display text-2xl leading-tight font-extrabold wrap-break-word sm:text-3xl'
                       : 'font-display text-4xl leading-[1.15] font-extrabold sm:text-5xl'
                   }
                 >
@@ -207,7 +207,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       {/* ----------------------------- webring ----------------------------- */}
-      <Container className="pb-16">
+      <Container className="pt-12 pb-16 sm:pt-16">
         <Reveal>
           <StickerCard tone="brand" size="lg" className="p-7 sm:p-10">
             <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">

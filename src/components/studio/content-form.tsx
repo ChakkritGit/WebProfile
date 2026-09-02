@@ -4,9 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Editor } from './editor'
-import { Button, } from '@/components/ui/button'
+import { Button, ButtonLink } from '@/components/ui/button'
 import { StickerCard } from '@/components/ui/sticker-card'
-import { CheckIcon, EyeIcon, TrashIcon } from '@/components/icons'
+import { ArrowRightIcon, CheckIcon, EyeIcon, TrashIcon } from '@/components/icons'
 import { EMPTY_DOCUMENT, type EditorDocument } from '@/lib/editor'
 import { localeMeta, routing } from '@/i18n/routing'
 import { Select } from '@/components/ui/select'
@@ -61,10 +61,13 @@ export function ContentForm({
   kind,
   id,
   initial,
+  heading,
 }: {
   kind: ContentKind
   id?: string
   initial?: Partial<FormValues>
+  /** Page title. Rendered in the sidebar so the editor keeps the full column. */
+  heading: string
 }) {
   const t = useTranslations('studio')
   const tCommon = useTranslations('common')
@@ -193,8 +196,19 @@ export function ContentForm({
   const published = values.status === 'PUBLISHED'
 
   return (
+    /* Three grid children rather than two: on a narrow screen the reader gets
+       heading → editor → metadata, while on wide screens the heading and the
+       metadata share the right column and the editor keeps the left one. */
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-      <div className="space-y-4">
+      <div className="lg:col-start-2 lg:row-start-1">
+        <ButtonLink href="/studio" size="sm" variant="outline" className="mb-3">
+          <ArrowRightIcon className="size-4 rotate-180" />
+          {t('backToStudio')}
+        </ButtonLink>
+        <h2 className="text-2xl">{heading}</h2>
+      </div>
+
+      <div className="space-y-4 lg:col-start-1 lg:row-start-1 lg:row-span-2">
         <div>
           <label htmlFor="f-title" className="font-display mb-1.5 block text-sm font-semibold">
             {t('fieldTitle')}
@@ -212,7 +226,7 @@ export function ContentForm({
       </div>
 
       {/* ------------------------------ sidebar ----------------------------- */}
-      <aside className="space-y-4 lg:sticky lg:top-[calc(var(--header-h)+1rem)]">
+      <aside className="space-y-4 lg:col-start-2 lg:row-start-2 lg:sticky lg:top-[calc(var(--header-h)+1rem)]">
         <StickerCard className="space-y-3 p-4">
           <div className="flex flex-wrap gap-2">
             <Button

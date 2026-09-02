@@ -3,10 +3,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import type { Locale } from '@/i18n/routing'
 import { getProjectById } from '@/lib/content'
 import { ContentForm } from '@/components/studio/content-form'
-import { ButtonLink } from '@/components/ui/button'
-import { ArrowRightIcon } from '@/components/icons'
 
-export default async function EditPage({
+export default async function EditProjectPage({
   params,
 }: {
   params: Promise<{ locale: string; id: string }>
@@ -20,36 +18,28 @@ export default async function EditPage({
   const t = await getTranslations('studio')
 
   return (
-    <div className="space-y-6">
-      <div>
-        <ButtonLink href="/studio" size="sm" variant="outline" className="mb-4">
-          <ArrowRightIcon className="size-4 rotate-180" />
-          {t('backToStudio')}
-        </ButtonLink>
-        <h2 className="text-2xl">{t('editProject')}</h2>
-      </div>
-      <ContentForm
-        kind="projects"
-        id={record.id}
-        initial={{
-          title: record.title,
-          slug: record.slug,
-          locale: record.locale,
-          translationKey: record.translationKey ?? '',
-          summary: record.summary ?? '',
-          coverImage: record.coverImage ?? '',
-          tags: record.tags,
-          status: record.status,
-          featured: record.featured,
-          content: record.content,
-          role: record.role ?? '',
-          stack: record.stack,
-          year: record.year ? String(record.year) : '',
-          liveUrl: record.liveUrl ?? '',
-          repoUrl: record.repoUrl ?? '',
-          sortOrder: String(record.sortOrder),
-        }}
-      />
-    </div>
+    <ContentForm
+      heading={t('editProject')}
+      kind="projects"
+      id={record.id}
+      initial={{
+        title: record.title,
+        slug: record.slug,
+        locale: record.locale,
+        translationKey: record.translationKey ?? '',
+        summary: record.summary ?? '',
+        coverImage: record.coverImage ?? '',
+        tags: record.tags,
+        status: record.status,
+        featured: record.featured,
+        content: record.content,
+        role: record.role ?? '',
+        stack: record.stack,
+        year: record.year ? String(record.year) : '',
+        liveUrl: record.liveUrl ?? '',
+        repoUrl: record.repoUrl ?? '',
+        sortOrder: String(record.sortOrder),
+      }}
+    />
   )
 }

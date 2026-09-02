@@ -66,12 +66,25 @@ export async function uniqueSlugFor(
 /** Refreshes every cached route that could show this record. */
 export function revalidateContent(kind: ContentKindParam, slug?: string) {
   const section = kind === 'posts' ? 'blog' : 'projects'
+
   for (const locale of routing.locales) {
-    const prefix = locale === routing.defaultLocale ? '' : `/${locale}`
-    revalidatePath(`${prefix}/`)
-    revalidatePath(`${prefix}/${section}`)
-    if (slug) revalidatePath(`${prefix}/${section}/${slug}`)
+    // Cache keys carry the locale segment even when the URL does not: with
+    // `localePrefix: 'as-needed'` the proxy rewrites `/` to `/th`, so the
+    // prerendered entry is `/th`. Revalidating the pretty path alone left the
+    // home page showing stale content after a publish.
+    revalidatePath(`/${locale}`)
+    revalidatePath(`/${locale}/${section}`)
+    revalidatePath(`/${locale}/topics`)
+    if (slug) revalidatePath(`/${locale}/${section}/${slug}`)
   }
+
+  // Tag pages list posts and projects, and the affected tags are not known here
+  // (an edit can remove a tag as easily as add one). The 'page' form clears every
+  // rendered tag page at once, but only when the argument is the *route pattern* —
+  // every dynamic segment in brackets, `[locale]` included. A half-concrete
+  // `/th/topics/[tag]` matches no cache entry and fails silently.
+  revalidatePath('/[locale]/topics/[tag]', 'page')
+
   revalidatePath('/sitemap.xml')
   revalidatePath('/feed.xml')
 }
