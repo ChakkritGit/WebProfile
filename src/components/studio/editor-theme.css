@@ -56,7 +56,9 @@
   background: var(--brand-soft);
 }
 
-.studio-editor .ce-popover,
+/* Only the *container* carries the frame. `.ce-popover` is a positioning wrapper
+   that collapses to a few pixels tall on the inline toolbar, so giving it a border
+   too painted a dark sliver above the bar. */
 .studio-editor .ce-popover__container,
 .studio-editor .ce-inline-toolbar,
 .studio-editor .ce-conversion-toolbar {
@@ -64,6 +66,12 @@
   border: 2px solid var(--line);
   border-radius: var(--ce-radius);
   box-shadow: 4px 4px 0 0 var(--shadow);
+  color: var(--ink);
+}
+.studio-editor .ce-popover {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
   color: var(--ink);
 }
 
@@ -308,14 +316,18 @@
 /* Editor.js 2.31 renders the inline toolbar as a popover whose container is a
    fixed 38px with `overflow: hidden` — taller buttons overflowed it and the
    colour palette was clipped away entirely. Size the popover, not the toolbar. */
-.studio-editor .ce-popover--inline .ce-popover__container {
+/* Direct children only. As a descendant selector this also caught the nested
+   "convert to" popover, forcing a row of icons' geometry — centred, 2.7rem tall,
+   `overflow: visible` — onto a vertical list, whose rows then spilled past their
+   own frame. */
+.studio-editor .ce-popover--inline > .ce-popover__container {
   height: auto;
   min-height: 2.7rem;
   overflow: visible;
   align-items: center;
   padding: 0.25rem;
 }
-.studio-editor .ce-popover--inline .ce-popover__items {
+.studio-editor .ce-popover--inline > .ce-popover__container > .ce-popover__items {
   height: auto;
   display: flex;
   align-items: center;
@@ -374,6 +386,45 @@
   height: 27px;
 }
 
+/* Editor.js caps the nested list at a fixed height that assumed its own smaller
+   rows; with ours it cut the last entry in half. Let it size to content, bounded
+   by the viewport rather than a magic number. */
+.studio-editor .ce-popover--nested > .ce-popover__container {
+  height: auto;
+  max-height: min(28rem, calc(100dvh - 8rem));
+}
+
+/* The alignment tune is written against the older settings API: it renders bare
+   `cdx-settings-button`s, so its three icons were the only rows in the block menu
+   without the framed icon box every other entry has. */
+.studio-editor .cdx-settings-button {
+  width: 30px;
+  height: 30px;
+  margin: 2px;
+  border-radius: 0.55rem;
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.studio-editor .cdx-settings-button:first-child {
+  margin-inline-start: 0.5rem;
+}
+.studio-editor .cdx-settings-button:hover {
+  background: var(--brand-soft);
+}
+.studio-editor .cdx-settings-button--active,
+.studio-editor .cdx-settings-button.ce-popover-item--active {
+  background: var(--brand-soft);
+  border-color: var(--line);
+}
+.studio-editor .cdx-settings-button svg {
+  width: 18px;
+  height: 18px;
+}
+
 /* Labelled rows, so they keep the roomier sizing. */
 .studio-editor .ce-popover--nested .ce-popover-item {
   padding: 0.55rem 0.7rem;
@@ -384,20 +435,6 @@
   height: 30px;
 }
 
-/* Editor.js already opens a nested popover for tool actions; let the palette
-   fill that instead of floating a second panel beside it. The nested container
-   is fixed-size by default, so it has to be told to fit its content. */
-.studio-editor .ce-popover--nested .ce-popover__container {
-  width: max-content;
-  min-width: 0;
-  height: auto;
-  overflow: visible;
-  padding: 0;
-}
-.studio-editor .ce-popover--nested .ce-popover__items {
-  height: auto;
-  overflow: visible;
-}
 /* The palette lives on `document.body`, outside `.studio-editor`, so that Editor.js
    cannot remove it when the inline toolbar closes — hence the unprefixed selectors. */
 .studio-colour__palette {

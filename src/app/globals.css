@@ -133,7 +133,11 @@
     font-feature-settings: 'ss01', 'cv01';
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    /* `clip`, not `hidden`: `overflow-x: hidden` turns the body into a scroll
+       container, and `position: sticky` then resolves against a box that never
+       scrolls — which is why the studio sidebar and every other sticky element
+       silently stopped sticking. `clip` cuts the same overflow without it. */
+    overflow-x: clip;
   }
 
   h1, h2, h3, h4, h5, h6 {

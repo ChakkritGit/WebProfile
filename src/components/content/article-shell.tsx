@@ -62,7 +62,7 @@ export async function ArticleShell({
                 the room, so the fade is pulled into the first third and the rest
                 of the picture is left alone — spreading it further washed the
                 cover out to the point of being unreadable. */}
-            <div className="from-paper-alt via-paper-alt/92 via-50% to-paper-alt/45 sm:via-paper-alt/45 sm:via-18% sm:to-transparent sm:to-52% absolute inset-0 bg-gradient-to-r" />
+            <div className="from-paper-alt via-paper-alt/92 via-50% to-paper-alt/45 sm:via-paper-alt/55 sm:via-30% sm:to-transparent sm:to-78% absolute inset-0 bg-gradient-to-r" />
             <div className="from-paper-alt to-transparent sm:to-35% absolute inset-0 bg-gradient-to-t" />
           </div>
         )}

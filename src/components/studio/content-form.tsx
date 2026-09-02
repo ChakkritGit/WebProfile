@@ -227,7 +227,12 @@ export function ContentForm({
       </div>
 
       {/* ------------------------------ sidebar ----------------------------- */}
-      <aside className="space-y-4 lg:sticky lg:top-[calc(var(--header-h)+1rem)]">
+      <aside
+        /* Capping the height is what makes the pin useful: this sidebar is taller
+           than the viewport, so without it the panel pins at the top and its lower
+           cards become unreachable while scrolled down. */
+        className="space-y-4 lg:sticky lg:top-[calc(var(--header-h)+1rem)] lg:max-h-[calc(100dvh-var(--header-h)-2rem)] lg:overflow-y-auto lg:overscroll-contain lg:pe-1"
+      >
         <StickerCard className="space-y-3 p-4">
           <div className="flex flex-wrap gap-2">
             <Button
