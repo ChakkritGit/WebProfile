@@ -1,0 +1,95 @@
+import type { ReactNode } from 'react'
+import { getTranslations } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
+import { Container } from '@/components/ui/section'
+import { TagLink } from './tag-link'
+import { BlockRenderer } from './block-renderer'
+import { TableOfContents } from './table-of-contents'
+import { ShareBar } from './share-bar'
+import { buildOutline } from '@/lib/toc'
+import type { EditorDocument } from '@/lib/editor'
+import { ArrowRightIcon } from '@/components/icons'
+
+/**
+ * Shared reading layout for posts and projects: a measured content column with
+ * a sticky table of contents on the right (collapsing above the article on
+ * small screens).
+ */
+export async function ArticleShell({
+  title,
+  content,
+  meta,
+  tags,
+  aside,
+  backHref,
+  backLabelKey,
+  shareUrl,
+}: {
+  title: string
+  content: EditorDocument
+  meta?: ReactNode
+  tags?: string[]
+  aside?: ReactNode
+  backHref: string
+  backLabelKey: 'blog' | 'projects'
+  shareUrl: string
+}) {
+  const t = await getTranslations('common')
+  const tNav = await getTranslations('nav')
+  const { blocks, toc } = buildOutline(content)
+
+  return (
+    <article className="pb-16">
+      <div className="border-line-soft paper-grain bg-paper-alt relative overflow-hidden border-b">
+        <Container className="relative z-10 py-10 sm:py-14">
+          <Link
+            href={backHref}
+            className="text-muted hover:text-brand font-display mb-5 inline-flex items-center gap-2 text-sm font-semibold transition-colors"
+          >
+            <ArrowRightIcon className="size-4 rotate-180" />
+            {t('backTo', { page: tNav(backLabelKey) })}
+          </Link>
+
+          <h1 className="max-w-3xl text-3xl sm:text-4xl lg:text-5xl">{title}</h1>
+
+          {meta && <div className="text-muted mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">{meta}</div>}
+
+          {tags && tags.length > 0 && (
+            <ul className="mt-5 flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <li key={tag}>
+                  <TagLink tag={tag} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </Container>
+      </div>
+
+      <Container className="pt-8">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12">
+          <div className="min-w-0">
+            {/* Mobile TOC sits above the article; the desktop rail is in the sidebar. */}
+            {toc.length > 0 && (
+              <div className="mb-6 lg:hidden">
+                <TableOfContents items={toc} />
+              </div>
+            )}
+
+            {aside}
+
+            <BlockRenderer blocks={blocks} />
+
+            <ShareBar url={shareUrl} title={title} />
+          </div>
+
+          {/* self-start stops the grid stretching the column, which is what
+              lets the sticky offset actually travel with the scroll. */}
+          <aside className="hidden lg:sticky lg:top-[calc(var(--header-h)+1.5rem)] lg:block lg:self-start">
+            <TableOfContents items={toc} />
+          </aside>
+        </div>
+      </Container>
+    </article>
+  )
+}

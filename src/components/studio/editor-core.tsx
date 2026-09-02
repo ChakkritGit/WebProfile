@@ -1,0 +1,134 @@
+'use client'
+
+import { useEffect, useRef } from 'react'
+import EditorJS, { type OutputData } from '@editorjs/editorjs'
+import Header from '@editorjs/header'
+import Paragraph from '@editorjs/paragraph'
+import List from '@editorjs/list'
+import Checklist from '@editorjs/checklist'
+import Quote from '@editorjs/quote'
+import CodeTool from '@editorjs/code'
+import InlineCode from '@editorjs/inline-code'
+import Marker from '@editorjs/marker'
+import Underline from '@editorjs/underline'
+import Delimiter from '@editorjs/delimiter'
+import Table from '@editorjs/table'
+import ImageTool from '@editorjs/image'
+import LinkTool from '@editorjs/link'
+import Embed from '@editorjs/embed'
+
+import type { EditorDocument } from '@/lib/editor'
+import './editor-theme.css'
+
+interface EditorCoreProps {
+  initialData: EditorDocument
+  onChange: (data: EditorDocument) => void
+  placeholder?: string
+}
+
+/**
+ * Editor.js instance wrapper.
+ *
+ * Three lifecycle hazards are handled here:
+ *  1. React StrictMode mounts effects twice in development. Creation and
+ *     teardown are serialised through `teardownRef`: a new instance waits for
+ *     the previous one to finish destroying. Without this the first instance's
+ *     async `destroy()` lands *after* the second has rendered and empties the
+ *     holder — a blank editor with no error anywhere.
+ *  2. `destroy()` must never run mid-initialisation, so it is chained onto the
+ *     creation promise rather than fired independently.
+ *  3. `onChange` is kept in a ref so changing the callback identity never
+ *     re-creates the editor (which would wipe the author's cursor position).
+ */
+export default function EditorCore({ initialData, onChange, placeholder }: EditorCoreProps) {
+  const holderRef = useRef<HTMLDivElement>(null)
+  const editorRef = useRef<EditorJS | null>(null)
+  const onChangeRef = useRef(onChange)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const teardownRef = useRef<Promise<void>>(Promise.resolve())
+
+  // Refs must not be written during render.
+  useEffect(() => {
+    onChangeRef.current = onChange
+  }, [onChange])
+
+  useEffect(() => {
+    const holder = holderRef.current
+    if (!holder) return
+
+    let cancelled = false
+    let instance: EditorJS | null = null
+
+    const ready = (async () => {
+      // Serialise against any in-flight teardown (see note 1 above).
+      await teardownRef.current
+      if (cancelled) return
+
+      instance = new EditorJS({
+        holder,
+        placeholder,
+        autofocus: false,
+        data: initialData.blocks.length ? (initialData as OutputData) : undefined,
+        tools: {
+          header: { class: Header as never, inlineToolbar: true, config: { levels: [2, 3, 4], defaultLevel: 2 } },
+          paragraph: { class: Paragraph as never, inlineToolbar: true },
+          list: { class: List as never, inlineToolbar: true, config: { defaultStyle: 'unordered' } },
+          checklist: { class: Checklist as never, inlineToolbar: true },
+          quote: { class: Quote as never, inlineToolbar: true },
+          code: CodeTool as never,
+          delimiter: Delimiter as never,
+          table: { class: Table as never, inlineToolbar: true },
+          image: {
+            class: ImageTool as never,
+            config: {
+              endpoints: { byFile: '/api/upload', byUrl: '/api/upload' },
+              field: 'image',
+              types: 'image/*',
+            },
+          },
+          linkTool: { class: LinkTool as never },
+          embed: { class: Embed as never, inlineToolbar: true },
+          inlineCode: InlineCode as never,
+          marker: Marker as never,
+          underline: Underline as never,
+        },
+        async onChange(api) {
+          if (debounceRef.current) clearTimeout(debounceRef.current)
+          debounceRef.current = setTimeout(async () => {
+            try {
+              const saved = await api.saver.save()
+              onChangeRef.current(saved as EditorDocument)
+            } catch {
+              // A block can fail to serialise while it is mid-edit; the next
+              // change event will pick it up.
+            }
+          }, 600)
+        },
+      })
+
+      editorRef.current = instance
+      try {
+        await instance.isReady
+      } catch {
+        // Destroyed while still initialising — nothing more to do.
+      }
+    })()
+
+    return () => {
+      cancelled = true
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      editorRef.current = null
+      teardownRef.current = ready
+        .then(() => {
+          instance?.destroy()
+        })
+        .catch(() => {
+          /* never initialised — nothing to tear down */
+        })
+    }
+    // Intentionally mount-only: re-running would discard the author's work.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  return <div ref={holderRef} className="studio-editor" />
+}

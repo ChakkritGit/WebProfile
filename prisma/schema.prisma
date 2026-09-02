@@ -1,0 +1,74 @@
+// Portfolio content schema — Supabase Postgres.
+// Editor.js output is stored verbatim in `content` (JSON) so the editor and the
+// public renderer share one shape. New content modules = new model here.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+}
+
+/// A blog article authored in the studio.
+model Post {
+  id             String        @id @default(cuid())
+  slug           String
+  locale         String        @default("th")
+  /// Rows sharing a translationKey are the same article in different languages.
+  translationKey String?
+  title          String
+  summary        String?
+  coverImage     String?
+  /// Editor.js OutputData: { time, blocks[], version }
+  content        Json
+  tags           String[]      @default([])
+  status         ContentStatus @default(DRAFT)
+  readingMinutes Int           @default(1)
+  featured       Boolean       @default(false)
+  publishedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([slug, locale])
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([locale, status])
+  @@index([translationKey])
+}
+
+/// A portfolio project. Shares the Editor.js content shape with Post so the
+/// studio editor and the public renderer are reused as-is.
+model Project {
+  id             String        @id @default(cuid())
+  slug           String
+  locale         String        @default("th")
+  translationKey String?
+  title          String
+  summary        String?
+  coverImage     String?
+  content        Json
+  role           String?
+  stack          String[]      @default([])
+  year           Int?
+  liveUrl        String?
+  repoUrl        String?
+  tags           String[]      @default([])
+  status         ContentStatus @default(DRAFT)
+  featured       Boolean       @default(false)
+  /// Manual ordering on the projects index (lower first).
+  sortOrder      Int           @default(0)
+  publishedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([slug, locale])
+  @@index([status, sortOrder])
+  @@index([locale, status])
+  @@index([translationKey])
+}

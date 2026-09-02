@@ -1,0 +1,204 @@
+/*
+ * Editor.js ships a light-only skin. These overrides re-point its chrome at the
+ * site's design tokens so the writing surface matches the published article in
+ * both light and dark theme.
+ */
+
+.studio-editor {
+  --ce-radius: 0.75rem;
+  color: var(--ink);
+}
+
+.studio-editor .codex-editor__redactor {
+  padding-bottom: 6rem !important;
+}
+
+.studio-editor .ce-block__content,
+.studio-editor .ce-toolbar__content {
+  max-width: none;
+}
+
+.studio-editor .ce-paragraph,
+.studio-editor .cdx-block {
+  line-height: 1.85;
+}
+
+.studio-editor .ce-paragraph[data-placeholder-active]::before,
+.studio-editor .cdx-block::before {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+/* headings */
+.studio-editor .ce-header {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  padding: 0.4em 0 0.2em;
+}
+.studio-editor h1.ce-header { font-size: 2rem; }
+.studio-editor h2.ce-header { font-size: 1.6rem; }
+.studio-editor h3.ce-header { font-size: 1.3rem; }
+.studio-editor h4.ce-header { font-size: 1.1rem; }
+
+/* toolbar buttons + popovers */
+.studio-editor .ce-toolbar__plus,
+.studio-editor .ce-toolbar__settings-btn {
+  color: var(--ink);
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 0.6rem;
+  box-shadow: 2px 2px 0 0 var(--shadow);
+}
+.studio-editor .ce-toolbar__plus:hover,
+.studio-editor .ce-toolbar__settings-btn:hover {
+  background: var(--brand-soft);
+}
+
+.studio-editor .ce-popover,
+.studio-editor .ce-popover__container,
+.studio-editor .ce-inline-toolbar,
+.studio-editor .ce-conversion-toolbar {
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--ce-radius);
+  box-shadow: 4px 4px 0 0 var(--shadow);
+  color: var(--ink);
+}
+
+.studio-editor .ce-popover-item__title,
+.studio-editor .ce-popover-item__secondary-title,
+.studio-editor .ce-inline-tool,
+.studio-editor .ce-conversion-tool__text {
+  color: var(--ink);
+}
+
+.studio-editor .ce-popover-item__icon,
+.studio-editor .ce-conversion-tool__icon {
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  color: var(--ink);
+  box-shadow: none;
+}
+
+.studio-editor .ce-popover-item:hover:not(.ce-popover-item--no-hover),
+.studio-editor .ce-inline-tool:hover,
+.studio-editor .ce-conversion-tool:hover {
+  background: var(--brand-soft) !important;
+}
+
+.studio-editor .ce-popover-item--active {
+  background: var(--brand-soft) !important;
+  color: var(--ink);
+}
+
+.studio-editor .cdx-search-field {
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  border-radius: 0.55rem;
+}
+.studio-editor .cdx-search-field__input {
+  color: var(--ink);
+}
+.studio-editor .cdx-search-field__input::placeholder {
+  color: var(--muted);
+}
+
+.studio-editor .ce-block--selected .ce-block__content,
+.studio-editor .ce-inline-toolbar--showed {
+  background: var(--brand-soft);
+  border-radius: 0.4rem;
+}
+
+/* inline tools */
+.studio-editor .cdx-marker {
+  background: var(--sun-soft);
+  border-radius: 0.25rem;
+  padding: 0.05em 0.2em;
+}
+.studio-editor .inline-code,
+.studio-editor code.inline-code {
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  border-radius: 0.35rem;
+  color: var(--brand);
+  font-family: var(--font-mono);
+  padding: 0.1em 0.35em;
+}
+
+/* blocks */
+.studio-editor .cdx-quote,
+.studio-editor .cdx-quote__text {
+  background: var(--violet-soft);
+  border: none;
+  border-radius: var(--ce-radius);
+  color: var(--ink);
+}
+.studio-editor .cdx-quote__text { padding: 1rem; min-height: auto; }
+.studio-editor .cdx-quote__caption {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 0 1rem 0.75rem;
+}
+
+.studio-editor .ce-code__textarea,
+.studio-editor .cdx-input {
+  background: var(--surface-2);
+  border: 2px solid var(--line-soft);
+  border-radius: var(--ce-radius);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  box-shadow: none;
+}
+
+.studio-editor .cdx-checklist__item-checkbox-check {
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 0.35rem;
+}
+.studio-editor .cdx-checklist__item--checked .cdx-checklist__item-checkbox-check {
+  background: var(--mint);
+  border-color: var(--line);
+}
+
+.studio-editor .ce-delimiter::before {
+  color: var(--brand);
+}
+
+.studio-editor .tc-table,
+.studio-editor .tc-wrap {
+  --color-border: var(--line-soft);
+  --color-background: var(--surface-2);
+  --color-text-secondary: var(--muted);
+  border-radius: var(--ce-radius);
+  color: var(--ink);
+}
+.studio-editor .tc-cell { border-color: var(--line-soft); }
+.studio-editor .tc-add-column,
+.studio-editor .tc-add-row {
+  color: var(--muted);
+}
+
+.studio-editor .cdx-list__item::before {
+  color: var(--brand);
+}
+
+.studio-editor .image-tool__caption,
+.studio-editor .cdx-button {
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--ce-radius);
+  color: var(--ink);
+  box-shadow: none;
+}
+.studio-editor .cdx-button:hover { background: var(--brand-soft); }
+
+.studio-editor .embed-tool__caption,
+.studio-editor .link-tool__input {
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  border-radius: 0.5rem;
+  color: var(--ink);
+}
