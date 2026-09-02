@@ -5,7 +5,6 @@ import { redirect } from '@/i18n/navigation'
 import type { Locale } from '@/i18n/routing'
 import { Container } from '@/components/ui/section'
 import { SignOutButton } from '@/components/studio/auth-buttons'
-import { StudioTabs } from '@/components/studio/studio-tabs'
 import { StudioSession } from '@/components/studio/studio-session'
 
 export const metadata: Metadata = { robots: { index: false, follow: false } }
@@ -49,7 +48,6 @@ export default async function StudioLayout({
               <SignOutButton />
             </div>
           </div>
-          <StudioTabs className="mt-6" />
         </Container>
       </div>
 

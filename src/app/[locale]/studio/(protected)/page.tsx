@@ -4,6 +4,7 @@ import { listPosts, listProjects } from '@/lib/content'
 import { hasDatabase } from '@/lib/prisma'
 import { StickerCard } from '@/components/ui/sticker-card'
 import { ContentManager, type ManagedItem } from '@/components/studio/content-manager'
+import { StudioTabs, type StudioTab } from '@/components/studio/studio-tabs'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,10 +32,14 @@ const toManaged = (r: Row): ManagedItem => ({
 
 export default async function StudioDashboard({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>
+  searchParams: Promise<{ tab?: string }>
 }) {
   const { locale } = await params
+  const { tab } = await searchParams
+  const active: StudioTab = tab === 'projects' ? 'projects' : 'posts'
   setRequestLocale(locale as Locale)
 
   const t = await getTranslations('studio')
@@ -48,7 +53,7 @@ export default async function StudioDashboard({
   ])
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-6">
       {!hasDatabase && (
         <StickerCard tone="sun" className="p-5">
           <p className="font-display font-bold">Database not connected</p>
@@ -64,25 +69,32 @@ export default async function StudioDashboard({
         </StickerCard>
       )}
 
-      <ContentManager
-        kind="posts"
-        items={posts.map(toManaged)}
-        locale={locale}
-        title={t('posts')}
-        newLabel={t('newPost')}
-        newHref="/studio/posts/new"
-        emptyLabel={t('noPosts')}
+      <StudioTabs
+        active={active}
+        counts={{ posts: posts.length, projects: projects.length }}
       />
 
-      <ContentManager
-        kind="projects"
-        items={projects.map(toManaged)}
-        locale={locale}
-        title={t('projects')}
-        newLabel={t('newProject')}
-        newHref="/studio/projects/new"
-        emptyLabel={t('noProjects')}
-      />
+      {active === 'posts' ? (
+        <ContentManager
+          kind="posts"
+          items={posts.map(toManaged)}
+          locale={locale}
+          title={t('posts')}
+          newLabel={t('newPost')}
+          newHref="/studio/posts/new"
+          emptyLabel={t('noPosts')}
+        />
+      ) : (
+        <ContentManager
+          kind="projects"
+          items={projects.map(toManaged)}
+          locale={locale}
+          title={t('projects')}
+          newLabel={t('newProject')}
+          newHref="/studio/projects/new"
+          emptyLabel={t('noProjects')}
+        />
+      )}
     </div>
   )
 }

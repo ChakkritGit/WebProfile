@@ -33,6 +33,7 @@ export async function generateMetadata({
     title: post.title,
     description: post.summary ?? undefined,
     path: `/blog/${post.slug}`,
+    ogImagePath: `/blog/${post.slug}/opengraph-image`,
     locale: locale as Locale,
     type: 'article',
     publishedTime: post.publishedAt ?? undefined,

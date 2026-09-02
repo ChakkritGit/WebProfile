@@ -94,7 +94,7 @@ export function TableOfContents({ items, className }: { items: TocItem[]; classN
               onClick={(event) => jumpTo(event, item.id)}
               aria-current={active ? 'location' : undefined}
               className={cn(
-                'block rounded-lg px-3 py-1.5 text-sm transition-colors',
+                'block rounded-s-none rounded-e-lg px-3 py-1.5 text-sm transition-colors',
                 'border-s-2',
                 active
                   ? 'border-brand bg-brand-soft text-ink font-semibold'

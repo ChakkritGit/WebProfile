@@ -53,6 +53,12 @@ export interface BuildMetadataOptions {
   path?: string
   locale: Locale
   image?: string
+  /**
+   * Route that renders this page's own `opengraph-image`. A page that overrides
+   * `openGraph` loses the images the file convention would have injected, so
+   * detail pages name their own here instead of falling back to the site card.
+   */
+  ogImagePath?: string
   type?: 'website' | 'article'
   publishedTime?: string
   tags?: string[]
@@ -64,6 +70,7 @@ export function buildMetadata({
   path = '/',
   locale,
   image,
+  ogImagePath,
   type = 'website',
   publishedTime,
   tags,
@@ -74,9 +81,7 @@ export function buildMetadata({
   const url = absoluteUrl(path, locale)
   const otherLocale = routing.locales.find((l) => l !== locale) ?? routing.defaultLocale
 
-  // A page that overrides `openGraph` loses the images the `opengraph-image`
-  // file convention would have injected, so point at that route explicitly.
-  const ogImage = image ?? absoluteUrl('/opengraph-image', locale)
+  const ogImage = image ?? absoluteUrl(ogImagePath ?? '/opengraph-image', locale)
   const images = [{ url: ogImage, width: 1200, height: 630, alt: resolvedTitle }]
 
   const openGraphBase = {

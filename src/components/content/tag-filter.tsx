@@ -2,6 +2,7 @@
 
 import { Link } from '@/i18n/navigation'
 import { buildQuery } from '@/lib/search'
+import { pinScroll } from '@/lib/pin-scroll'
 import { cn } from '@/lib/utils'
 
 /**
@@ -22,10 +23,16 @@ export function TagFilter({
   basePath: string
   query?: string
 }) {
-  const chip = (label: string, href: string, isActive: boolean) => (
+  // The key must be the tag's identity, not the href. Href encodes the current
+  // filter state, so keying on it remounted every chip on each change — which
+  // moved focus to a fresh node and made the browser scroll it into view.
+  const chip = (key: string, label: string, href: string, isActive: boolean) => (
     <Link
-      key={href}
+      key={key}
       href={href}
+      // Refining a filter should not throw the reader back to the top.
+      scroll={false}
+      onClick={() => pinScroll()}
       aria-current={isActive ? 'page' : undefined}
       className={cn(
         'font-display rounded-full border-2 px-3.5 py-1.5 text-sm font-semibold transition-all',
@@ -40,9 +47,9 @@ export function TagFilter({
 
   return (
     <div className="flex flex-wrap gap-2" role="group">
-      {chip(allLabel, `${basePath}${buildQuery({ q: query })}`, !active)}
+      {chip('__all', allLabel, `${basePath}${buildQuery({ q: query })}`, !active)}
       {tags.map((tag) =>
-        chip(tag, `${basePath}${buildQuery({ tag, q: query })}`, active === tag),
+        chip(tag, tag, `${basePath}${buildQuery({ tag, q: query })}`, active === tag),
       )}
     </div>
   )

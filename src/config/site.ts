@@ -26,7 +26,7 @@ export const profile = {
   name: 'Chakkrit Laolit',
   nickname: 'Ton',
   handle: 'chakkritton',
-  role: 'Full-Stack Developer',
+  role: 'Software Engineer',
   company: 'Thanes Development Co., Ltd.',
   location: 'Chatuchak, Bangkok, Thailand',
   email: 'chakkritlaolit@hotmail.com',

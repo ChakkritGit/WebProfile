@@ -1,15 +1,21 @@
 'use client'
 
-import { useRef, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { usePathname, useRouter } from '@/i18n/navigation'
 import { CloseIcon, SearchIcon } from '@/components/icons'
 import { buildQuery } from '@/lib/search'
+import { pinScroll } from '@/lib/pin-scroll'
 import { cn } from '@/lib/utils'
 
 /**
- * Search input that writes to the URL so every result set is shareable and
- * back/forward works. Typing is debounced; submitting applies immediately.
+ * Search input that writes to the URL so every result set is shareable.
+ *
+ * The field owns its text outright and is never re-seeded from the URL while
+ * the reader is typing — an earlier version synced state back from the query on
+ * every render, which meant each keystroke was immediately overwritten by the
+ * value the previous keystroke had just pushed. Back/forward is handled through
+ * `popstate` instead, which cannot fire mid-keystroke.
  */
 export function SearchBox({
   initialQuery = '',
@@ -23,33 +29,40 @@ export function SearchBox({
   const t = useTranslations('common')
   const router = useRouter()
   const pathname = usePathname()
+
   const [value, setValue] = useState(initialQuery)
-  // Last value this component pushed to the URL. Comparing against it lets us
-  // tell "the URL changed because of us" from "the URL changed elsewhere".
-  const [applied, setApplied] = useState(initialQuery)
   const [, startTransition] = useTransition()
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  // A tag chip, a back button or a plain link changed the query: adopt it.
-  // Adjusting state during render (rather than in an effect) avoids rendering
-  // one frame with the stale term. Typing is unaffected because `applied`
-  // already matches whatever we pushed.
-  if (initialQuery !== applied) {
-    setApplied(initialQuery)
-    setValue(initialQuery)
-  }
+  useEffect(() => {
+    // Only history navigation may replace what the reader has typed.
+    const onPopState = () => {
+      const next = new URLSearchParams(window.location.search).get('q') ?? ''
+      setValue(next)
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (timer.current) clearTimeout(timer.current)
+    }
+  }, [])
 
   function apply(next: string) {
-    if (next === applied) return
-    setApplied(next)
+    pinScroll()
     // Dropping `page` is essential: page 3 of a new query is usually empty.
-    startTransition(() => router.replace(`${pathname}${buildQuery({ q: next, tag })}`))
+    startTransition(() =>
+      router.replace(`${pathname}${buildQuery({ q: next, tag })}`, { scroll: false }),
+    )
   }
 
   function onChange(next: string) {
     setValue(next)
     if (timer.current) clearTimeout(timer.current)
-    timer.current = setTimeout(() => apply(next), 350)
+    timer.current = setTimeout(() => apply(next), 400)
   }
 
   return (
@@ -67,6 +80,7 @@ export function SearchBox({
         className="text-muted pointer-events-none absolute start-4 top-1/2 size-[1.15rem] -translate-y-1/2"
       />
       <input
+        ref={inputRef}
         type="search"
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -85,6 +99,7 @@ export function SearchBox({
             setValue('')
             if (timer.current) clearTimeout(timer.current)
             apply('')
+            inputRef.current?.focus()
           }}
           aria-label={t('searchClear')}
           className="text-muted hover:text-ink absolute end-3 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full transition-colors"
