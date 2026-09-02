@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/ui/section'
@@ -7,6 +8,7 @@ import { BlockRenderer } from './block-renderer'
 import { TableOfContents } from './table-of-contents'
 import { ShareBar } from './share-bar'
 import { buildOutline } from '@/lib/toc'
+import { highlightBlocks } from '@/lib/highlight'
 import type { EditorDocument } from '@/lib/editor'
 import { ArrowRightIcon } from '@/components/icons'
 
@@ -24,6 +26,7 @@ export async function ArticleShell({
   backHref,
   backLabelKey,
   shareUrl,
+  coverImage,
 }: {
   title: string
   content: EditorDocument
@@ -33,14 +36,35 @@ export async function ArticleShell({
   backHref: string
   backLabelKey: 'blog' | 'projects'
   shareUrl: string
+  /** Optional cover art, bled into the right of the header. */
+  coverImage?: string | null
 }) {
   const t = await getTranslations('common')
   const tNav = await getTranslations('nav')
-  const { blocks, toc } = buildOutline(content)
+  const { blocks: outlineBlocks, toc } = buildOutline(content)
+  const blocks = await highlightBlocks(outlineBlocks)
 
   return (
     <article className="pb-16">
       <div className="border-line-soft paper-grain bg-paper-alt relative overflow-hidden border-b">
+        {coverImage && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 end-0 w-3/5 sm:w-3/5 lg:w-1/2"
+          >
+            {/* Unoptimised: covers may point at hosts outside next.config's
+                remotePatterns allow-list. */}
+            <Image src={coverImage} alt="" fill unoptimized className="object-cover" priority />
+            {/* Fades the art into the page toward the text so the heading keeps
+                its contrast at any image brightness. */}
+            {/* Narrow screens have no room for the art to sit beside the text,
+                so the wash is much heavier there — it reads as a tint rather
+                than a picture competing with the heading. */}
+            <div className="from-paper-alt via-paper-alt/92 to-paper-alt/45 sm:via-paper-alt/75 absolute inset-0 bg-gradient-to-r sm:to-transparent" />
+            <div className="from-paper-alt absolute inset-0 bg-gradient-to-t to-transparent" />
+          </div>
+        )}
+
         <Container className="relative z-10 py-10 sm:py-14">
           <Link
             href={backHref}

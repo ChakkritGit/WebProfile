@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import type { EditorDocument } from '@/lib/editor'
+import { Skeleton, SkeletonLines } from '@/components/ui/skeleton'
 
 /**
  * Editor.js touches `document` at import time, so the core is loaded only in
@@ -10,16 +11,17 @@ import type { EditorDocument } from '@/lib/editor'
  */
 const EditorCore = dynamic(() => import('./editor-core'), {
   ssr: false,
-  loading: () => <EditorSkeleton />,
+  loading: () => <EditorSkeleton label="Loading editor" />,
 })
 
-function EditorSkeleton() {
+function EditorSkeleton({ label }: { label: string }) {
   return (
-    <div className="text-muted animate-pulse space-y-3 p-6">
-      <div className="bg-line-soft h-6 w-1/3 rounded-lg" />
-      <div className="bg-line-soft h-4 w-full rounded-lg" />
-      <div className="bg-line-soft h-4 w-5/6 rounded-lg" />
-      <div className="bg-line-soft h-4 w-2/3 rounded-lg" />
+    <div role="status" aria-live="polite" aria-busy="true" className="space-y-5 p-6">
+      <span className="sr-only">{label}</span>
+      <Skeleton className="h-7 w-2/5" />
+      <SkeletonLines count={3} label={label} />
+      <Skeleton className="h-24 w-full rounded-xl" />
+      <SkeletonLines count={2} label={label} />
     </div>
   )
 }

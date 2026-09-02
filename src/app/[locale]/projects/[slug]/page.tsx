@@ -6,10 +6,12 @@ import { getProject, listProjects } from '@/lib/content'
 import { absoluteUrl, buildMetadata } from '@/lib/seo'
 import { profile } from '@/config/site'
 import { ArticleShell } from '@/components/content/article-shell'
+import { ViewTracker } from '@/components/content/view-tracker'
 import { StickerCard } from '@/components/ui/sticker-card'
 import { TagLink } from '@/components/content/tag-link'
 import { ButtonLink } from '@/components/ui/button'
-import { ExternalLinkIcon, GitHubIcon } from '@/components/icons'
+import { ExternalLinkIcon, EyeIcon, GitHubIcon } from '@/components/icons'
+import { decodeParam } from '@/lib/slug'
 
 export const revalidate = 3600
 
@@ -27,7 +29,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; slug: string }>
 }): Promise<Metadata> {
-  const { locale, slug } = await params
+  const { locale, slug: rawSlug } = await params
+  const slug = decodeParam(rawSlug)
   const project = await getProject(slug, locale as Locale)
   if (!project) return {}
 
@@ -49,13 +52,15 @@ export default async function ProjectPage({
 }: {
   params: Promise<{ locale: string; slug: string }>
 }) {
-  const { locale, slug } = await params
+  const { locale, slug: rawSlug } = await params
+  const slug = decodeParam(rawSlug)
   setRequestLocale(locale as Locale)
 
   const project = await getProject(slug, locale as Locale)
   if (!project) notFound()
 
   const t = await getTranslations('projects')
+  const tCommon = await getTranslations('common')
   const url = absoluteUrl(`/projects/${project.slug}`, locale as Locale)
 
   const jsonLd = {
@@ -72,6 +77,7 @@ export default async function ProjectPage({
 
   return (
     <>
+      <ViewTracker kind="project" slug={project.slug} locale={locale} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
@@ -83,6 +89,7 @@ export default async function ProjectPage({
         backHref="/projects"
         backLabelKey="projects"
         shareUrl={url}
+        coverImage={project.coverImage}
         meta={
           <>
             {project.year && (
@@ -95,6 +102,10 @@ export default async function ProjectPage({
                 {t('roleLabel')}: <strong className="text-ink">{project.role}</strong>
               </span>
             )}
+            <span className="inline-flex items-center gap-1.5">
+              <EyeIcon className="size-4" />
+              {tCommon('views', { count: project.views })}
+            </span>
           </>
         }
         aside={

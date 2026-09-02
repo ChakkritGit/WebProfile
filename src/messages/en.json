@@ -57,7 +57,14 @@
     "previous": "Previous",
     "next": "Next",
     "pageOf": "Page {page} of {total}",
-    "goToPage": "Go to page {page}"
+    "goToPage": "Go to page {page}",
+    "resumeTitle": "Resume",
+    "resumeOpenTab": "Open in a new tab",
+    "resumeDownload": "Download PDF",
+    "resumeClose": "Close",
+    "resumeFallback": "Your browser cannot show the PDF inline.",
+    "views": "{count, plural, =0 {No views yet} one {# view} other {# views}}",
+    "viewsShort": "{count}"
   },
   "home": {
     "greeting": "Hi, I'm",
@@ -89,7 +96,9 @@
     "blogSubtitle": "Notes on building things for the web",
     "webringTitle": "Part of the Thai webring",
     "webringBody": "This site is a member of วงแหวนเว็บ — a ring of personal sites by Thai artists, designers and developers. Follow the badge to discover the neighbours.",
-    "webringCta": "Explore the ring"
+    "webringCta": "Explore the ring",
+    "popularTitle": "Most read",
+    "popularSubtitle": "What visitors are opening the most right now"
   },
   "about": {
     "title": "Profile",
@@ -270,7 +279,15 @@
     "coverPreview": "Cover preview",
     "coverHint": "Paste a link, or upload a file to Supabase Storage.",
     "uploadFailed": "Upload failed",
-    "selectOpen": "Open list"
+    "selectOpen": "Open list",
+    "tagsLabel": "Tags",
+    "tagsPlaceholder": "Search or add a tag…",
+    "tagsAdd": "Add “{name}”",
+    "tagsSelected": "{count} selected",
+    "tagsNone": "No tags match",
+    "tagsRemove": "Remove {name}",
+    "tagsHint": "Pick from the shared list, or type a new one and press Enter.",
+    "tagsLoading": "Loading tags…"
   },
   "tagSearch": {
     "title": "Tagged “{tag}”",

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useReducedMotion } from 'motion/react'
 import { Link } from '@/i18n/navigation'
 import { tagSlug } from '@/lib/search'
+import { TechIcon } from '@/components/brand/tech-icons'
 import { cn } from '@/lib/utils'
 
 /**
@@ -113,8 +114,9 @@ export function MarqueeRow({
             // The duplicate half is decorative; hide it from assistive tech.
             aria-hidden={i >= items.length}
             tabIndex={i >= items.length ? -1 : undefined}
-            className="sticker-sm sticker-hover bg-surface font-display shrink-0 px-4 py-2 text-sm font-semibold no-underline"
+            className="sticker-sm sticker-hover bg-surface font-display inline-flex shrink-0 items-center gap-2 px-4 py-2 text-sm font-semibold no-underline"
           >
+            <TechIcon name={item} className="size-4 shrink-0" />
             {item}
           </Link>
         ))}

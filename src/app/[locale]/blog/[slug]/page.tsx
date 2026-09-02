@@ -6,8 +6,10 @@ import { getPost, listPosts } from '@/lib/content'
 import { absoluteUrl, buildMetadata } from '@/lib/seo'
 import { profile } from '@/config/site'
 import { ArticleShell } from '@/components/content/article-shell'
-import { ClockIcon } from '@/components/icons'
+import { ViewTracker } from '@/components/content/view-tracker'
+import { ClockIcon, EyeIcon } from '@/components/icons'
 import { formatDate } from '@/lib/utils'
+import { decodeParam } from '@/lib/slug'
 
 export const revalidate = 3600
 
@@ -25,7 +27,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; slug: string }>
 }): Promise<Metadata> {
-  const { locale, slug } = await params
+  const { locale, slug: rawSlug } = await params
+  const slug = decodeParam(rawSlug)
   const post = await getPost(slug, locale as Locale)
   if (!post) return {}
 
@@ -47,7 +50,8 @@ export default async function BlogPostPage({
 }: {
   params: Promise<{ locale: string; slug: string }>
 }) {
-  const { locale, slug } = await params
+  const { locale, slug: rawSlug } = await params
+  const slug = decodeParam(rawSlug)
   setRequestLocale(locale as Locale)
 
   const post = await getPost(slug, locale as Locale)
@@ -73,6 +77,7 @@ export default async function BlogPostPage({
 
   return (
     <>
+      <ViewTracker kind="post" slug={post.slug} locale={locale} />
       <script
         type="application/ld+json"
         // Serialised from our own data; `<` is escaped to prevent tag breakout.
@@ -87,6 +92,7 @@ export default async function BlogPostPage({
         backHref="/blog"
         backLabelKey="blog"
         shareUrl={url}
+        coverImage={post.coverImage}
         meta={
           <>
             <time dateTime={post.publishedAt ?? undefined}>
@@ -95,6 +101,10 @@ export default async function BlogPostPage({
             <span className="inline-flex items-center gap-1.5">
               <ClockIcon className="size-4" />
               {t('minuteRead', { minutes: post.readingMinutes })}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <EyeIcon className="size-4" />
+              {t('views', { count: post.views })}
             </span>
           </>
         }

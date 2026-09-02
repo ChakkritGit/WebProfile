@@ -12,17 +12,17 @@ import {
 import { Container, PageHeader, Section, SectionHeading } from '@/components/ui/section'
 import { StickerCard } from '@/components/ui/sticker-card'
 import { TagLink } from '@/components/content/tag-link'
-import { ButtonLink } from '@/components/ui/button'
 import { Reveal, RevealGroup, RevealItem } from '@/components/motion/reveal'
 import {
   BriefcaseIcon,
   CapIcon,
-  DownloadIcon,
+  EyeIcon,
   GlobeIcon,
   LayersIcon,
   MapPinIcon,
 } from '@/components/icons'
 import { formatMonthYear } from '@/lib/utils'
+import { ResumeButton } from '@/components/content/resume-button'
 
 export async function generateMetadata({
   params,
@@ -50,10 +50,10 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     <>
       <PageHeader title={t('title')} description={t('subtitle')}>
         <div className="mt-6 flex flex-wrap gap-3">
-          <ButtonLink href={profile.resume} external download>
-            <DownloadIcon className="size-4" />
+          <ResumeButton variant="primary" size="md">
+            <EyeIcon className="size-4" />
             {t('downloadResume')}
-          </ButtonLink>
+          </ResumeButton>
           <span className="sticker-sm bg-surface inline-flex items-center gap-2 px-4 py-2 text-sm">
             <MapPinIcon className="text-brand size-4" />
             {profile.location}

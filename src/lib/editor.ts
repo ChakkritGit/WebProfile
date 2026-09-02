@@ -7,6 +7,8 @@ export interface EditorBlock<T = Record<string, unknown>> {
   id?: string
   type: string
   data: T
+  /** Block tunes, e.g. `{ alignment: { alignment: 'center' } }`. */
+  tunes?: Record<string, unknown>
 }
 
 export interface EditorDocument {

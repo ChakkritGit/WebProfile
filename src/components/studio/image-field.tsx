@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { CloseIcon, DownloadIcon } from '@/components/icons'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
 /**
@@ -54,14 +55,14 @@ export function ImageField({
 
   return (
     <div>
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2">
         <input
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={t('coverUrl')}
           aria-label={t('coverUrl')}
           className={cn(
-            'bg-paper min-w-0 flex-1 rounded-xl border-2 px-3.5 py-2.5 text-sm outline-none transition-colors',
+            'bg-paper w-full rounded-xl border-2 px-3.5 py-2.5 text-sm outline-none transition-colors',
             invalid ? 'border-[#e0362f]' : 'border-line-soft focus:border-line',
           )}
         />
@@ -71,7 +72,7 @@ export function ImageField({
           variant="secondary"
           disabled={uploading}
           onClick={() => fileRef.current?.click()}
-          className="shrink-0"
+          className="w-full"
         >
           <DownloadIcon className="size-4 rotate-180" />
           {uploading ? t('coverUploading') : t('coverUpload')}
@@ -91,7 +92,14 @@ export function ImageField({
       <p className="text-muted mt-1 text-xs">{t('coverHint')}</p>
       {error && <p className="mt-1 text-sm text-[#e0362f]">{error}</p>}
 
-      {value && (
+      {uploading && (
+        <div role="status" aria-live="polite" aria-busy="true" className="mt-3">
+          <span className="sr-only">{t('coverUploading')}</span>
+          <Skeleton className="h-32 w-full rounded-xl" />
+        </div>
+      )}
+
+      {value && !uploading && (
         <div className="sticker-sm bg-surface-2 relative mt-3 overflow-hidden">
           {/* Unoptimised: the URL may point anywhere, including hosts not in
               next.config's remotePatterns allow-list. */}

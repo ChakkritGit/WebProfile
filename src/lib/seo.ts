@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { SITE_URL, profile } from '@/config/site'
 import { routing, type Locale } from '@/i18n/routing'
 import en from '@/messages/en.json'
+import ja from '@/messages/ja.json'
 import th from '@/messages/th.json'
 
 /**
@@ -11,9 +12,11 @@ import th from '@/messages/th.json'
  * (domain, site name, locale codes, robots directives) is derived here.
  */
 
-const OG_LOCALE: Record<Locale, string> = { th: 'th_TH', en: 'en_US' }
-const MESSAGES: Record<Locale, { meta: { siteName: string; tagline: string; defaultDescription: string } }> =
-  { th, en }
+const OG_LOCALE: Record<Locale, string> = { th: 'th_TH', en: 'en_US', ja: 'ja_JP' }
+const MESSAGES: Record<
+  Locale,
+  { meta: { siteName: string; tagline: string; defaultDescription: string } }
+> = { th, en, ja }
 
 export function siteName(locale: Locale): string {
   return MESSAGES[locale].meta.siteName
@@ -40,9 +43,10 @@ export function absoluteUrl(path: string, locale?: Locale): string {
 
 /** hreflang map for one logical page, with Thai doubling as `x-default`. */
 export function languageAlternates(path: string): Record<Locale | 'x-default', string> {
+  // Built from routing.locales so a new language can never be missed here.
+  const entries = routing.locales.map((locale) => [locale, absoluteUrl(path, locale)] as const)
   return {
-    th: absoluteUrl(path, 'th'),
-    en: absoluteUrl(path, 'en'),
+    ...(Object.fromEntries(entries) as Record<Locale, string>),
     'x-default': absoluteUrl(path, routing.defaultLocale),
   }
 }

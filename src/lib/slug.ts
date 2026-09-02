@@ -47,3 +47,16 @@ export function uniqueSlug(base: string, taken: Set<string>, fallback = 'section
   taken.add(candidate)
   return candidate
 }
+
+/**
+ * Route params arrive percent-encoded, so a Thai slug reaches the page as
+ * `%E0%B8%97…` and never matches the stored value. Decoding is guarded because
+ * a literal `%` in a URL makes `decodeURIComponent` throw.
+ */
+export function decodeParam(value: string): string {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}

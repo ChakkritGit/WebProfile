@@ -30,7 +30,7 @@ export default async function EditPage({
           translationKey: record.translationKey ?? '',
           summary: record.summary ?? '',
           coverImage: record.coverImage ?? '',
-          tags: record.tags.join(', '),
+          tags: record.tags,
           status: record.status,
           featured: record.featured,
           content: record.content,

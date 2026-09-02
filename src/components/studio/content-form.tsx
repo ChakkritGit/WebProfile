@@ -8,11 +8,11 @@ import { Button, ButtonLink } from '@/components/ui/button'
 import { StickerCard } from '@/components/ui/sticker-card'
 import { CheckIcon, EyeIcon, TrashIcon } from '@/components/icons'
 import { EMPTY_DOCUMENT, type EditorDocument } from '@/lib/editor'
-import { parseList } from '@/lib/studio-schema'
 import { localeMeta, routing } from '@/i18n/routing'
 import { Select } from '@/components/ui/select'
 import { ConfirmDialog } from '@/components/ui/dialog'
 import { ImageField } from './image-field'
+import { TagPicker } from './tag-picker'
 import { cn } from '@/lib/utils'
 
 export type ContentKind = 'posts' | 'projects'
@@ -24,12 +24,12 @@ export interface FormValues {
   translationKey: string
   summary: string
   coverImage: string
-  tags: string
+  tags: string[]
   status: 'DRAFT' | 'PUBLISHED'
   featured: boolean
   content: EditorDocument
   role: string
-  stack: string
+  stack: string[]
   year: string
   liveUrl: string
   repoUrl: string
@@ -43,12 +43,12 @@ export const emptyValues: FormValues = {
   translationKey: '',
   summary: '',
   coverImage: '',
-  tags: '',
+  tags: [],
   status: 'DRAFT',
   featured: false,
   content: EMPTY_DOCUMENT,
   role: '',
-  stack: '',
+  stack: [],
   year: '',
   liveUrl: '',
   repoUrl: '',
@@ -109,7 +109,7 @@ export function ContentForm({
       translationKey: values.translationKey || undefined,
       summary: values.summary || undefined,
       coverImage: values.coverImage || undefined,
-      tags: parseList(values.tags),
+      tags: values.tags,
       status: overrides.status ?? values.status,
       featured: values.featured,
       content: contentRef.current,
@@ -118,7 +118,7 @@ export function ContentForm({
     return {
       ...base,
       role: values.role || undefined,
-      stack: parseList(values.stack),
+      stack: values.stack,
       year: values.year ? Number(values.year) : undefined,
       liveUrl: values.liveUrl || undefined,
       repoUrl: values.repoUrl || undefined,
@@ -250,7 +250,7 @@ export function ContentForm({
           {formError && <p className="text-sm text-[#e0362f]">{formError}</p>}
 
           <div className="flex flex-wrap gap-2 pt-1">
-            <ButtonLink href="/studio" size="sm" variant="ghost">
+            <ButtonLink href="/studio" size="sm" variant="outline">
               {t('backToStudio')}
             </ButtonLink>
             {id && (
@@ -301,11 +301,11 @@ export function ContentForm({
             />
           </Field>
 
-          <Field label={t('fieldTags')} error={errors.tags}>
-            <input
-              className={inputClass('tags')}
+          <Field label={t('tagsLabel')} error={errors.tags}>
+            <TagPicker
               value={values.tags}
-              onChange={(e) => set('tags', e.target.value)}
+              onChange={(next) => set('tags', next)}
+              label={t('tagsLabel')}
             />
           </Field>
 
@@ -330,10 +330,10 @@ export function ContentForm({
               />
             </Field>
             <Field label={t('fieldStack')} error={errors.stack}>
-              <input
-                className={inputClass('stack')}
+              <TagPicker
                 value={values.stack}
-                onChange={(e) => set('stack', e.target.value)}
+                onChange={(next) => set('stack', next)}
+                label={t('fieldStack')}
               />
             </Field>
             <Field label={t('fieldYear')} error={errors.year}>

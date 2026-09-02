@@ -23,13 +23,16 @@ const headingStyles: Record<number, string> = {
   6: 'text-base mt-6 mb-2',
 }
 
-function Heading({ block }: { block: AnnotatedBlock }) {
+function Heading({ block, align }: { block: AnnotatedBlock; align: string }) {
   const { text = '', level = 2 } = block.data as { text?: string; level?: number }
   const clamped = Math.min(6, Math.max(1, level))
   const Tag = `h${clamped}` as 'h2'
 
   return (
-    <Tag id={block.anchor} className={cn('group scroll-mt-28 font-bold', headingStyles[clamped])}>
+    <Tag
+      id={block.anchor}
+      className={cn('group scroll-mt-28 font-bold', headingStyles[clamped], align)}
+    >
       <span>
         <RichText html={text} />
       </span>
@@ -110,16 +113,26 @@ function Checklist({ items }: { items: ListItem[] }) {
 
 /* ------------------------------- renderer ------------------------------- */
 
+/** Reads the alignment block-tune, which the editor stores alongside the data. */
+function alignmentOf(block: AnnotatedBlock): string {
+  const tune = block.tunes?.alignment as { alignment?: string } | undefined
+  const value = tune?.alignment ?? (block.data as { alignment?: string }).alignment
+  if (value === 'center') return 'text-center'
+  if (value === 'right') return 'text-end'
+  if (value === 'justify') return 'text-justify'
+  return ''
+}
+
 function Block({ block }: { block: AnnotatedBlock }) {
   const data = block.data as Record<string, unknown>
 
   switch (block.type) {
     case 'header':
-      return <Heading block={block} />
+      return <Heading block={block} align={alignmentOf(block)} />
 
     case 'paragraph':
       return (
-        <p className="my-4 leading-[1.85]">
+        <p className={cn('my-4 leading-[1.85]', alignmentOf(block))}>
           <RichText html={String(data.text ?? '')} />
         </p>
       )
@@ -135,7 +148,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
 
     case 'quote':
       return (
-        <figure className="sticker bg-violet-soft my-7 p-5 sm:p-6">
+        <figure className={cn('sticker bg-violet-soft my-7 p-5 sm:p-6', alignmentOf(block))}>
           <blockquote className="font-display text-lg leading-relaxed font-medium">
             <RichText html={String(data.text ?? '')} />
           </blockquote>
@@ -148,7 +161,13 @@ function Block({ block }: { block: AnnotatedBlock }) {
       )
 
     case 'code':
-      return <CodeBlock code={String(data.code ?? '')} />
+      return (
+        <CodeBlock
+          code={String(data.code ?? '')}
+          language={typeof data.language === 'string' ? data.language : undefined}
+          highlighted={typeof data.highlighted === 'string' ? data.highlighted : null}
+        />
+      )
 
     case 'delimiter':
       return (
@@ -232,22 +251,57 @@ function Block({ block }: { block: AnnotatedBlock }) {
 
     case 'linkTool': {
       const link = String(data.link ?? '')
-      const meta = (data.meta ?? {}) as { title?: string; description?: string; image?: { url?: string } }
       if (!link) return null
+
+      const meta = (data.meta ?? {}) as {
+        title?: string
+        description?: string
+        site_name?: string
+        image?: { url?: string }
+      }
+      const image = meta.image?.url
+      let host = meta.site_name ?? link
+      try {
+        host = new URL(link).hostname.replace(/^www\./, '')
+      } catch {
+        // Keep the raw link if it isn't parseable.
+      }
+
       return (
         <a
           href={link}
           target="_blank"
           rel="noreferrer noopener"
-          className="sticker sticker-hover bg-surface my-7 flex items-center gap-4 overflow-hidden p-4 no-underline"
+          className="sticker sticker-hover bg-surface my-7 flex items-stretch gap-0 overflow-hidden no-underline"
         >
-          <span className="min-w-0 flex-1">
-            <span className="font-display block truncate font-bold">{meta.title || link}</span>
+          <span className="min-w-0 flex-1 p-4 sm:p-5">
+            <span className="text-brand font-display block truncate text-xs font-bold tracking-wide uppercase">
+              {host}
+            </span>
+            <span className="font-display mt-1.5 block font-bold leading-snug">
+              {meta.title || link}
+            </span>
             {meta.description && (
-              <span className="text-muted mt-1 line-clamp-2 block text-sm">{meta.description}</span>
+              <span className="text-muted mt-1.5 line-clamp-2 block text-sm leading-relaxed">
+                {meta.description}
+              </span>
             )}
-            <span className="text-brand mt-1 block truncate text-xs">{link}</span>
           </span>
+
+          {image && (
+            <span className="border-line relative hidden w-40 shrink-0 border-s-2 sm:block">
+              {/* Unoptimised: previews point at arbitrary hosts that are not in
+                  next.config's remotePatterns allow-list. */}
+              <Image
+                src={image}
+                alt=""
+                width={320}
+                height={320}
+                unoptimized
+                className="absolute inset-0 size-full object-cover"
+              />
+            </span>
+          )}
         </a>
       )
     }
@@ -273,6 +327,26 @@ function Block({ block }: { block: AnnotatedBlock }) {
             </figcaption>
           ) : null}
         </figure>
+      )
+    }
+
+    case 'alert': {
+      const tones: Record<string, string> = {
+        primary: 'bg-sky-soft',
+        secondary: 'bg-surface-2',
+        info: 'bg-sky-soft',
+        success: 'bg-mint-soft',
+        warning: 'bg-sun-soft',
+        danger: 'bg-brand-soft',
+        light: 'bg-surface',
+        dark: 'bg-surface-2',
+      }
+      const tone = tones[String(data.type ?? 'primary')] ?? 'bg-sky-soft'
+      const align = data.align === 'center' ? 'text-center' : data.align === 'right' ? 'text-end' : ''
+      return (
+        <aside className={cn('sticker my-7 p-5', tone, align)} role="note">
+          <RichText html={String(data.message ?? '')} />
+        </aside>
       )
     }
 

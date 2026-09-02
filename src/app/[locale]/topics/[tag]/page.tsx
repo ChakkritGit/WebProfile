@@ -4,6 +4,7 @@ import { routing, type Locale } from '@/i18n/routing'
 import { listPosts, listProjects } from '@/lib/content'
 import { buildMetadata } from '@/lib/seo'
 import { findTagBySlug, tagSlug } from '@/lib/search'
+import { decodeParam } from '@/lib/slug'
 import { PageHeader, Section } from '@/components/ui/section'
 import { RevealGroup, RevealItem } from '@/components/motion/reveal'
 import { StickerCard } from '@/components/ui/sticker-card'
@@ -39,7 +40,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; tag: string }>
 }): Promise<Metadata> {
-  const { locale, tag: slug } = await params
+  const { locale, tag: rawTag } = await params
+  const slug = decodeParam(rawTag)
   const { labels } = await topicsFor(locale as Locale)
   const label = findTagBySlug(labels, slug) ?? decodeURIComponent(slug)
   const t = await getTranslations({ locale, namespace: 'tagSearch' })
@@ -57,7 +59,8 @@ export default async function TopicPage({
 }: {
   params: Promise<{ locale: string; tag: string }>
 }) {
-  const { locale, tag: slug } = await params
+  const { locale, tag: rawTag } = await params
+  const slug = decodeParam(rawTag)
   setRequestLocale(locale as Locale)
 
   const t = await getTranslations('tagSearch')

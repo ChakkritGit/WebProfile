@@ -4,6 +4,7 @@ import type { Locale } from '@/i18n/routing'
 export type ContentStatus = 'DRAFT' | 'PUBLISHED'
 
 export interface ContentBase {
+  views: number
   id: string
   slug: string
   locale: Locale
@@ -41,4 +42,6 @@ export interface ListOptions {
   limit?: number
   tag?: string
   featuredOnly?: boolean
+  /** Order by view count instead of date — used by the "most read" strip. */
+  orderBy?: 'recent' | 'views'
 }

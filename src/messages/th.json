@@ -57,7 +57,14 @@
     "previous": "ก่อนหน้า",
     "next": "ถัดไป",
     "pageOf": "หน้า {page} จาก {total}",
-    "goToPage": "ไปหน้า {page}"
+    "goToPage": "ไปหน้า {page}",
+    "resumeTitle": "Resume",
+    "resumeOpenTab": "เปิดในแท็บใหม่",
+    "resumeDownload": "ดาวน์โหลด PDF",
+    "resumeClose": "ปิด",
+    "resumeFallback": "เบราว์เซอร์นี้แสดง PDF ในหน้าไม่ได้",
+    "views": "{count, plural, =0 {ยังไม่มีผู้เข้าชม} other {# ครั้ง}}",
+    "viewsShort": "{count}"
   },
   "home": {
     "greeting": "สวัสดีครับ ผมชื่อ",
@@ -89,7 +96,9 @@
     "blogSubtitle": "บันทึกเรื่องการทำเว็บและงานพัฒนา",
     "webringTitle": "เป็นส่วนหนึ่งของวงแหวนเว็บ",
     "webringBody": "เว็บนี้เป็นสมาชิกของวงแหวนเว็บ กลุ่มเว็บไซต์ส่วนตัวของศิลปิน นักออกแบบ และนักพัฒนาชาวไทย กดที่ไอคอนเพื่อไปดูเว็บของคนอื่น ๆ ได้เลย",
-    "webringCta": "ไปดูวงแหวนเว็บ"
+    "webringCta": "ไปดูวงแหวนเว็บ",
+    "popularTitle": "ดูมากที่สุด",
+    "popularSubtitle": "สิ่งที่คนเข้ามาเปิดอ่านมากที่สุดตอนนี้"
   },
   "about": {
     "title": "โปรไฟล์",
@@ -270,7 +279,15 @@
     "coverPreview": "ตัวอย่างรูปปก",
     "coverHint": "วางลิงก์ หรืออัปโหลดไฟล์ขึ้น Supabase Storage ก็ได้",
     "uploadFailed": "อัปโหลดไม่สำเร็จ",
-    "selectOpen": "เปิดรายการ"
+    "selectOpen": "เปิดรายการ",
+    "tagsLabel": "แท็ก",
+    "tagsPlaceholder": "ค้นหาหรือเพิ่มแท็ก…",
+    "tagsAdd": "เพิ่ม “{name}”",
+    "tagsSelected": "เลือกไว้ {count} รายการ",
+    "tagsNone": "ไม่พบแท็กที่ตรงกัน",
+    "tagsRemove": "เอา {name} ออก",
+    "tagsHint": "เลือกจากรายการกลาง หรือพิมพ์ใหม่แล้วกด Enter",
+    "tagsLoading": "กำลังโหลดแท็ก…"
   },
   "tagSearch": {
     "title": "แท็ก “{tag}”",

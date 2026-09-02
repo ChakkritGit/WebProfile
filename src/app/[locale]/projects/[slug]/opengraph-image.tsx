@@ -3,6 +3,7 @@ import type { Locale } from '@/i18n/routing'
 import { getProject } from '@/lib/content'
 import { clampText, OG_CONTENT_TYPE, OG_SIZE, renderOgCard } from '@/lib/og-card'
 import { profile } from '@/config/site'
+import { decodeParam } from '@/lib/slug'
 
 export const alt = 'Project'
 export const size = OG_SIZE
@@ -13,7 +14,8 @@ export default async function Image({
 }: {
   params: Promise<{ locale: string; slug: string }>
 }) {
-  const { locale, slug } = await params
+  const { locale, slug: rawSlug } = await params
+  const slug = decodeParam(rawSlug)
   const project = await getProject(slug, locale as Locale)
   const t = await getTranslations({ locale, namespace: 'projects' })
 

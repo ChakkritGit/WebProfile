@@ -202,3 +202,53 @@
   border-radius: 0.5rem;
   color: var(--ink);
 }
+
+/* link tool preview card */
+.studio-editor .link-tool__content {
+  background: var(--surface-2);
+  border: 2px solid var(--line);
+  border-radius: var(--ce-radius);
+  box-shadow: 2px 2px 0 0 var(--shadow);
+  color: var(--ink);
+  overflow: hidden;
+}
+.studio-editor .link-tool__title {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+.studio-editor .link-tool__description { color: var(--muted); }
+.studio-editor .link-tool__anchor { color: var(--brand); }
+.studio-editor .link-tool__image {
+  border-radius: 0.5rem;
+}
+.studio-editor .link-tool__progress-inner { background: var(--brand); }
+.studio-editor .link-tool__input {
+  background: var(--paper);
+  border: 2px solid var(--line-soft);
+  border-radius: 0.6rem;
+  color: var(--ink);
+}
+.studio-editor .link-tool__input::placeholder { color: var(--muted); }
+
+/* alert + warning blocks */
+.studio-editor .cdx-alert {
+  border-radius: var(--ce-radius);
+  border-width: 2px;
+}
+.studio-editor .cdx-alert__message,
+.studio-editor .cdx-warning__title,
+.studio-editor .cdx-warning__message {
+  color: var(--ink);
+}
+.studio-editor .cdx-warning::before { opacity: 0.75; }
+
+/* colour-plugin popover */
+.studio-editor .ct-popover,
+.studio-editor .colorPlugin,
+.studio-editor .ce-inline-tool-color-picker {
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--ce-radius);
+  color: var(--ink);
+}

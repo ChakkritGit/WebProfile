@@ -115,7 +115,7 @@ export function Select({
         role="combobox"
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-controls={open ? listId : undefined}
+        aria-controls={listId}
         aria-label={label}
         onClick={() => setOpen((v) => !v)}
         onKeyDown={onKeyDown}

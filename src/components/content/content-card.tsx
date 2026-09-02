@@ -2,7 +2,8 @@ import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Badge, toneFor } from '@/components/ui/badge'
-import { ArrowRightIcon, ClockIcon } from '@/components/icons'
+import { TechIcon } from '@/components/brand/tech-icons'
+import { ArrowRightIcon, ClockIcon, EyeIcon } from '@/components/icons'
 import { formatDate } from '@/lib/utils'
 import type { PostRecord, ProjectRecord } from '@/lib/content-types'
 import { cn } from '@/lib/utils'
@@ -76,6 +77,12 @@ export async function PostCard({
             <ClockIcon className="size-3.5" />
             {t('minuteRead', { minutes: post.readingMinutes })}
           </span>
+          {post.views > 0 && (
+            <span className="inline-flex items-center gap-1">
+              <EyeIcon className="size-3.5" />
+              {post.views}
+            </span>
+          )}
           <ArrowRightIcon className="text-brand ms-auto size-4 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
@@ -122,7 +129,11 @@ export async function ProjectCard({
 
         <div className="mt-4 flex flex-wrap gap-1.5">
           {project.stack.slice(0, 4).map((tech) => (
-            <Badge key={tech} tone={toneFor(tech)}>
+            <Badge
+              key={tech}
+              tone={toneFor(tech)}
+              icon={<TechIcon name={tech} className="size-3.5 shrink-0" />}
+            >
               {tech}
             </Badge>
           ))}

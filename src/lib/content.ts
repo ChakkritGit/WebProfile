@@ -4,14 +4,15 @@ import { asEditorDocument, readingMinutes } from './editor'
 import { hasDatabase, prisma } from './prisma'
 import { seedPosts, seedProjects } from '@/content/seed'
 import type { ListOptions, PostRecord, ProjectRecord } from './content-types'
-import type { Locale } from '@/i18n/routing'
+import { contentLocaleFor, type Locale } from '@/i18n/routing'
 
 /**
  * Content access layer.
  *
- * Every read falls back to the bundled seed content when Supabase is not
- * configured or unreachable, so the site always renders — during `next build`,
- * in a fresh clone, and if the database has a hiccup in production.
+ * Seed content is a fallback for an *unavailable* database — no DATABASE_URL, or
+ * a query that threw. It is never a fallback for an empty result: "no featured
+ * projects" and "that slug was deleted" are real answers and must be returned as
+ * such, or the site starts resurrecting sample content over live data.
  */
 
 function iso(value: Date | string | null | undefined): string | null {
@@ -36,6 +37,7 @@ function toPost(row: any): PostRecord {
     featured: Boolean(row.featured),
     publishedAt: iso(row.publishedAt),
     updatedAt: iso(row.updatedAt) ?? new Date().toISOString(),
+    views: row.views ?? 0,
     readingMinutes: row.readingMinutes || readingMinutes(content),
   }
 }
@@ -55,6 +57,7 @@ function toProject(row: any): ProjectRecord {
     featured: Boolean(row.featured),
     publishedAt: iso(row.publishedAt),
     updatedAt: iso(row.updatedAt) ?? new Date().toISOString(),
+    views: row.views ?? 0,
     role: row.role ?? null,
     stack: row.stack ?? [],
     year: row.year ?? null,
@@ -89,19 +92,22 @@ async function safely<T>(run: () => Promise<T>, fallback: T): Promise<T> {
 /* ------------------------------- posts -------------------------------- */
 
 export async function listPosts(options: ListOptions): Promise<PostRecord[]> {
-  const fallback = filterSeed(seedPosts, options)
+  const fallback = filterSeed(seedPosts, { ...options, locale: contentLocaleFor(options.locale) })
   return safely(async () => {
     const rows = await prisma!.post.findMany({
       where: {
-        locale: options.locale,
+        locale: contentLocaleFor(options.locale),
         ...(options.includeDrafts ? {} : { status: 'PUBLISHED' }),
         ...(options.tag ? { tags: { has: options.tag } } : {}),
         ...(options.featuredOnly ? { featured: true } : {}),
       },
-      orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
+      orderBy:
+        options.orderBy === 'views'
+          ? [{ views: 'desc' }, { publishedAt: 'desc' }]
+          : [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
       ...(options.limit ? { take: options.limit } : {}),
     })
-    return rows.length ? rows.map(toPost) : fallback
+    return rows.map(toPost)
   }, fallback)
 }
 
@@ -110,14 +116,17 @@ export async function getPost(
   locale: Locale,
   includeDrafts = false,
 ): Promise<PostRecord | null> {
+  const content = contentLocaleFor(locale)
   const fallback =
     seedPosts.find(
-      (p) => p.slug === slug && p.locale === locale && (includeDrafts || p.status === 'PUBLISHED'),
+      (p) => p.slug === slug && p.locale === content && (includeDrafts || p.status === 'PUBLISHED'),
     ) ?? null
 
   return safely(async () => {
-    const row = await prisma!.post.findUnique({ where: { slug_locale: { slug, locale } } })
-    if (!row) return fallback
+    const row = await prisma!.post.findUnique({
+      where: { slug_locale: { slug, locale: content } },
+    })
+    if (!row) return null
     if (!includeDrafts && row.status !== 'PUBLISHED') return null
     return toPost(row)
   }, fallback)
@@ -133,19 +142,25 @@ export async function getPostById(id: string): Promise<PostRecord | null> {
 /* ------------------------------ projects ------------------------------ */
 
 export async function listProjects(options: ListOptions): Promise<ProjectRecord[]> {
-  const fallback = filterSeed(seedProjects, options).sort((a, b) => a.sortOrder - b.sortOrder)
+  const fallback = filterSeed(seedProjects, {
+    ...options,
+    locale: contentLocaleFor(options.locale),
+  }).sort((a, b) => a.sortOrder - b.sortOrder)
   return safely(async () => {
     const rows = await prisma!.project.findMany({
       where: {
-        locale: options.locale,
+        locale: contentLocaleFor(options.locale),
         ...(options.includeDrafts ? {} : { status: 'PUBLISHED' }),
         ...(options.tag ? { tags: { has: options.tag } } : {}),
         ...(options.featuredOnly ? { featured: true } : {}),
       },
-      orderBy: [{ sortOrder: 'asc' }, { publishedAt: 'desc' }],
+      orderBy:
+        options.orderBy === 'views'
+          ? [{ views: 'desc' }, { sortOrder: 'asc' }]
+          : [{ sortOrder: 'asc' }, { publishedAt: 'desc' }],
       ...(options.limit ? { take: options.limit } : {}),
     })
-    return rows.length ? rows.map(toProject) : fallback
+    return rows.map(toProject)
   }, fallback)
 }
 
@@ -154,14 +169,17 @@ export async function getProject(
   locale: Locale,
   includeDrafts = false,
 ): Promise<ProjectRecord | null> {
+  const content = contentLocaleFor(locale)
   const fallback =
     seedProjects.find(
-      (p) => p.slug === slug && p.locale === locale && (includeDrafts || p.status === 'PUBLISHED'),
+      (p) => p.slug === slug && p.locale === content && (includeDrafts || p.status === 'PUBLISHED'),
     ) ?? null
 
   return safely(async () => {
-    const row = await prisma!.project.findUnique({ where: { slug_locale: { slug, locale } } })
-    if (!row) return fallback
+    const row = await prisma!.project.findUnique({
+      where: { slug_locale: { slug, locale: content } },
+    })
+    if (!row) return null
     if (!includeDrafts && row.status !== 'PUBLISHED') return null
     return toProject(row)
   }, fallback)

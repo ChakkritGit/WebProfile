@@ -11,12 +11,13 @@ import { CircleScribble, StarBurst, StarGrid } from '@/components/ui/decor'
 import {
   ArrowRightIcon,
   CrownIcon,
-  DownloadIcon,
+  EyeIcon,
   MailIcon,
   SparkleIcon,
   ThumbsUpIcon,
 } from '@/components/icons'
 import { Container } from '@/components/ui/section'
+import { ResumeButton } from '@/components/content/resume-button'
 
 /** Floating sticker chips that echo the old portfolio's badges. */
 function FloatingChip({
@@ -135,10 +136,10 @@ export function Hero({ roles }: { roles: string[] }) {
                 <MailIcon className="size-4" />
                 {t('ctaContact')}
               </ButtonLink>
-              <ButtonLink href={profile.resume} variant="secondary" size="lg" external download>
-                <DownloadIcon className="size-4" />
+              <ResumeButton variant="secondary" size="lg">
+                <EyeIcon className="size-4" />
                 {t('ctaResume')}
-              </ButtonLink>
+              </ResumeButton>
             </motion.div>
           </div>
 

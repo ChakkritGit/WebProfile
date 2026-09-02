@@ -1,5 +1,6 @@
 import { Link } from '@/i18n/navigation'
 import { Badge, toneFor } from '@/components/ui/badge'
+import { TechIcon } from '@/components/brand/tech-icons'
 import { tagSlug } from '@/lib/search'
 
 /**
@@ -17,6 +18,7 @@ export function TagLink({ tag, className }: { tag: string; className?: string })
     >
       <Badge
         tone={toneFor(tag)}
+        icon={<TechIcon name={tag} className="size-3.5 shrink-0" />}
         className="cursor-pointer transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-[2px_2px_0_0_var(--shadow)]"
       >
         {tag}

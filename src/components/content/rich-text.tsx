@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 
 /**
  * Editor.js inline tools emit a small, known subset of HTML (bold, italic,
@@ -10,6 +11,8 @@ import { Fragment, type ReactNode } from 'react'
  */
 
 const ALLOWED = {
+  span: 'span',
+  font: 'span',
   b: 'strong',
   strong: 'strong',
   i: 'em',
@@ -26,6 +29,34 @@ type AllowedTag = keyof typeof ALLOWED
 
 const VOID_TAGS = new Set(['br'])
 const SAFE_SCHEME = /^(https?:|mailto:|tel:|#|\/)/i
+
+/**
+ * The colour tools emit inline colours. Only literal colour values are copied
+ * through — anything that isn't a hex/rgb/hsl triple is dropped, so a style
+ * attribute can never smuggle in `url()`, `expression()` or another property.
+ */
+const COLOR_VALUE = /^(#[0-9a-f]{3,8}|rgba?\([\d\s.,%/]+\)|hsla?\([\d\s.,%/deg]+\))$/i
+
+function safeColorStyle(attrs: string): React.CSSProperties | undefined {
+  const style: React.CSSProperties = {}
+
+  const colorAttr = getAttr(attrs, 'color')
+  if (colorAttr && COLOR_VALUE.test(colorAttr.trim())) style.color = colorAttr.trim()
+
+  const inline = getAttr(attrs, 'style')
+  if (inline) {
+    for (const rule of inline.split(';')) {
+      const [rawProp, ...rest] = rule.split(':')
+      const prop = rawProp?.trim().toLowerCase()
+      const value = rest.join(':').trim()
+      if (!prop || !value || !COLOR_VALUE.test(value)) continue
+      if (prop === 'color') style.color = value
+      if (prop === 'background-color') style.backgroundColor = value
+    }
+  }
+
+  return Object.keys(style).length ? style : undefined
+}
 
 const ENTITIES: Record<string, string> = {
   amp: '&',
@@ -69,7 +100,9 @@ function getAttr(attrs: string, name: string): string | null {
 }
 
 const classFor: Partial<Record<AllowedTag, string>> = {
-  mark: 'bg-sun-soft rounded px-1 py-0.5 box-decoration-clone',
+  // A marker with its own colour keeps that colour; an uncoloured one falls
+  // back to the theme's highlight.
+  mark: 'rounded px-1 py-0.5 box-decoration-clone',
   code: 'bg-surface-2 border-line-soft rounded-md border px-1.5 py-0.5 font-mono text-[0.92em] font-medium',
   a: 'text-brand font-medium underline decoration-2 underline-offset-2 hover:decoration-[3px]',
 }
@@ -124,8 +157,16 @@ export function parseInlineHtml(input: string): ReactNode[] {
       return
     }
 
+    const style = frame.tag === 'span' || frame.tag === 'font' || frame.tag === 'mark'
+      ? safeColorStyle(frame.attrs)
+      : undefined
+
     parent.children.push(
-      <Tag key={key++} className={className}>
+      <Tag
+        key={key++}
+        className={cn(className, frame.tag === 'mark' && !style?.backgroundColor && 'bg-sun-soft')}
+        style={style}
+      >
         {frame.children}
       </Tag>,
     )

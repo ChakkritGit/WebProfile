@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import type { Locale } from '@/i18n/routing'
+import type { PostRecord, ProjectRecord } from '@/lib/content-types'
 import { listPosts, listProjects } from '@/lib/content'
 import { skillGroups, yearsOfExperience } from '@/config/site'
 import { Container, Section, SectionHeading } from '@/components/ui/section'
@@ -22,10 +23,22 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const tCommon = await getTranslations('common')
   const tSkills = await getTranslations('skills')
 
-  const [projects, posts] = await Promise.all([
+  const [projects, posts, popularPosts, popularProjects] = await Promise.all([
     listProjects({ locale: locale as Locale, limit: 3, featuredOnly: true }),
-    listPosts({ locale: locale as Locale, limit: 3 }),
+    listPosts({ locale: locale as Locale, limit: 3, featuredOnly: true }),
+    listPosts({ locale: locale as Locale, orderBy: 'views' }),
+    listProjects({ locale: locale as Locale, orderBy: 'views' }),
   ])
+
+  // One combined "most read" strip: whichever three items have the most views,
+  // regardless of kind. Anything never opened is left out entirely.
+  const popular = [
+    ...popularPosts.map((p) => ({ kind: 'post' as const, item: p })),
+    ...popularProjects.map((p) => ({ kind: 'project' as const, item: p })),
+  ]
+    .filter((entry) => entry.item.views > 0)
+    .sort((a, b) => b.item.views - a.item.views)
+    .slice(0, 3)
 
   const roles = t.raw('roles') as string[]
   const allSkills = skillGroups.flatMap((group) => [...group.items])
@@ -170,6 +183,28 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <EmptyState title={tCommon('empty')} hint={tCommon('emptyHint')} />
         )}
       </Section>
+
+      {/* ---------------------------- most read ---------------------------- */}
+      {popular.length > 0 && (
+        <Section className="bg-paper-alt border-line-soft border-y">
+          <SectionHeading
+            eyebrow="Popular"
+            title={t('popularTitle')}
+            description={t('popularSubtitle')}
+          />
+          <RevealGroup className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {popular.map(({ kind, item }, i) => (
+              <RevealItem key={`${kind}-${item.id}`} className="h-full">
+                {kind === 'post' ? (
+                  <PostCard post={item as PostRecord} index={i} locale={locale} />
+                ) : (
+                  <ProjectCard project={item as ProjectRecord} index={i} />
+                )}
+              </RevealItem>
+            ))}
+          </RevealGroup>
+        </Section>
+      )}
 
       {/* ----------------------------- webring ----------------------------- */}
       <Container className="pb-16">

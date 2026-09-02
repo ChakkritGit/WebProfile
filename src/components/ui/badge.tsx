@@ -24,10 +24,13 @@ export function Badge({
   children,
   tone = 'neutral',
   className,
+  icon,
 }: {
   children: ReactNode
   tone?: Tone
   className?: string
+  /** Leading mark, e.g. a technology logo. */
+  icon?: ReactNode
 }) {
   return (
     <span
@@ -38,6 +41,7 @@ export function Badge({
         className,
       )}
     >
+      {icon}
       {children}
     </span>
   )

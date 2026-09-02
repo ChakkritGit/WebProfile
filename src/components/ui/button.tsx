@@ -4,12 +4,13 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { Link } from '@/i18n/navigation'
 import { cn } from '@/lib/utils'
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
+type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
 type Size = 'sm' | 'md' | 'lg'
 
 const variants: Record<Variant, string> = {
   primary: 'bg-brand text-brand-ink',
   secondary: 'bg-surface text-ink',
+  outline: 'bg-transparent text-ink',
   ghost: 'bg-transparent text-ink border-transparent shadow-none hover:bg-surface-2',
   danger: 'bg-[#e0362f] text-white',
 }
@@ -30,6 +31,7 @@ function classes(variant: Variant, size: Size, className?: string) {
     sizes[size],
     variants[variant],
     variant !== 'ghost' && 'shadow-[3px_3px_0_0_var(--shadow)] sticker-hover',
+    variant === 'outline' && 'hover:bg-surface-2',
     className,
   )
 }

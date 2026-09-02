@@ -14,10 +14,11 @@ Thai and English, light and dark, Next.js 16 App Router on Supabase Postgres.
 | Framework | Next.js 16.3.4 (App Router, React 19.2) |
 | Language | TypeScript 5, `strict` |
 | Styling | Tailwind CSS v4 (CSS-variable theming, no config file) |
-| i18n | next-intl 4 — Thai at `/`, English at `/en/…` |
+| i18n | next-intl 4 — Thai at `/`, English at `/en/…`, Japanese at `/ja/…` |
 | Database | Supabase Postgres via Prisma 7 (`@prisma/adapter-pg`) |
 | Auth | Auth.js v5 (`next-auth@5 beta`) — GitHub, single-owner allowlist |
-| Editor | Editor.js 2.31 + 14 official tools |
+| Editor | Editor.js 2.31 — header, list, checklist, quote, code (language-aware), table, image, embed, link, warning, alert, colour/highlight, marker, underline, inline-code, delimiter, alignment tune |
+| Highlighting | Shiki, rendered on the server with dual light/dark themes |
 | Storage | Supabase Storage (public bucket) |
 | Animation | `motion` 13 |
 
@@ -25,7 +26,7 @@ Thai and English, light and dark, Next.js 16 App Router on Supabase Postgres.
 
 ## Routes
 
-**Public** — Thai unprefixed, English under `/en`
+**Public** — Thai unprefixed, English under `/en`, Japanese under `/ja`
 
 ```
 /                     intro, stats, skills, featured work, latest posts
@@ -57,6 +58,9 @@ PATCH  /api/content/[kind]/[id]         update
 DELETE /api/content/[kind]/[id]         delete
 POST   /api/content/[kind]/[id]/publish toggle draft ⇄ published
 POST   /api/upload                      image upload → Supabase Storage
+POST   /api/views                       record one view (public, no identifiers)
+GET    /api/link-preview?url=…          OG metadata for the editor's link tool
+GET    /api/tags · POST · DELETE        master tag vocabulary
        /api/auth/[...nextauth]          Auth.js handlers
 ```
 
@@ -180,7 +184,7 @@ callback, so a disallowed account never receives a session at all.
 ## Layout
 
 ```
-prisma/schema.prisma        Post + Project models (Editor.js JSON in `content`)
+prisma/schema.prisma        Post, Project (Editor.js JSON in `content`, `views`) + Tag vocabulary
 prisma/seed.ts              upserts src/content/seed.ts into Supabase
 src/
 ├─ app/
@@ -201,14 +205,14 @@ src/
 ├─ config/site.ts           ← all personal data lives here
 ├─ content/seed.ts          bundled sample content (also the DB seed source)
 ├─ lib/                     content repo, editor helpers, slugs, SEO, search
-├─ i18n/ + messages/        routing config and th/en catalogues (kept in parity)
+├─ i18n/ + messages/        routing config and th/en/ja catalogues (kept in parity)
 └─ generated/prisma/        Prisma client — git-ignored, built by `postinstall`
 ```
 
 ### Where to change things
 
 - **Personal details, links, skills, jobs** → `src/config/site.ts`
-- **Any UI copy** → `src/messages/th.json` + `src/messages/en.json`
+- **Any UI copy** → `src/messages/{th,en,ja}.json` (all three kept key-for-key in parity)
 - **Colours, spacing, sticker styles** → the token block atop `src/app/globals.css`
 - **Navigation** → `src/config/nav.ts`
 - **Items per page** → `PER_PAGE` in `src/components/studio/content-manager.tsx` (8)
@@ -223,14 +227,65 @@ times you press it; drafts never appear on public pages, in the sitemap or in th
 RSS feed. Unpublishing preserves the original `publishedAt` so re-publishing does
 not reset the date.
 
+**Japanese is a UI translation, not a content one.** All 261 interface strings are
+translated, but articles and projects are written in Thai and English only, so
+`contentLocaleFor()` (`src/i18n/routing.ts`) maps `ja` onto the English corpus.
+Without that the Japanese site would render a complete interface around empty
+lists.
+
+**Technology marks are drawn, not fetched.** `src/components/brand/tech-icons.tsx`
+holds simplified geometric versions of each logo — legible at 14px, no licensing
+or network fetch, and the officially monochrome ones use `currentColor` so they
+invert with the theme. Unknown names simply render no icon.
+
+**Code is highlighted on the server.** `src/lib/highlight.ts` runs Shiki during
+render, so no highlighter ships to the browser. It emits `--shiki-light` /
+`--shiki-dark` custom properties rather than baking one theme in, so the page's
+own theme toggle drives the colours. The language list is curated — importing
+`codeToHtml` from the shiki entrypoint would pull in every grammar and theme.
+
+**Views are a popularity signal, not analytics.** `/api/views` increments a
+counter on published records only; nothing identifying is stored. The client
+sends it once per session per item after a 1.5s dwell, so reloads don't inflate
+it. The home page's "most read" strip mixes posts and projects, ranked by count,
+and hides anything never opened.
+
+**Two StrictMode traps, same shape.** React runs effects twice in development. In
+both `editor-core.tsx` and `view-tracker.tsx` the first pass claimed a resource
+and its cleanup undid the pending work, leaving the second pass with nothing to
+do — a blank editor and a view that never counted. Both now commit the guard at
+the moment the work actually happens, not when the effect starts.
+
+**Route params arrive percent-encoded.** A Thai slug reaches the page as
+`%E0%B8%97…` and never matches the stored value, so every dynamic route decodes
+via `decodeParam()` (`src/lib/slug.ts`). Seed content uses ASCII slugs, which is
+why this stayed hidden until real Thai titles were written.
+
+**Tags are a shared vocabulary.** The `Tag` table backs the pickers in the studio;
+posts and projects still store a denormalised `tags` array for querying. Typing a
+name that doesn't exist offers to add it, so the next form already knows it. The
+old comma-separated field silently created a new tag on every typo.
+
+**The link tool needs `/api/link-preview`.** Editor.js can't resolve a page title
+itself — without an endpoint it only reports "Couldn't get this link data". The
+route is owner-gated, restricted to `http(s)` and refuses loopback/private hosts
+so it can't be used to probe internal addresses.
+
 **Editor.js content is never injected as raw HTML.** `src/components/content/rich-text.tsx`
 tokenises the inline subset the editor produces (bold, italic, marker, inline
-code, links) into React elements, drops unknown tags and rejects any link scheme
-outside `http(s)` / `mailto` / `tel`. Stored content cannot execute script.
+code, links, colours) into React elements, drops unknown tags and rejects any link
+scheme outside `http(s)` / `mailto` / `tel`. Inline colours are copied through only
+when the value is a literal hex/rgb/hsl triple, so a `style` attribute can't smuggle
+in `url()`, `expression()` or another property. Stored content cannot execute script.
 
 **Reading time counts Thai characters and Latin words separately**
 (`src/lib/editor.ts`). Thai has no word spacing, so a naive word count reports
 every Thai article as one minute.
+
+**The résumé opens inline.** A download makes a visitor commit to a file before
+knowing whether it's worth reading. `ResumeButton` previews the PDF in a modal,
+with download still one click away — and falls back to the browser's own viewer
+on small screens, where iframed PDFs don't render.
 
 **Filters keep your place.** Searching, tag filtering and paging use
 `scroll: false` plus `pinScroll()` (`src/lib/pin-scroll.ts`), which re-asserts the
@@ -241,6 +296,11 @@ browser re-anchors on its own. A deliberate wheel or touch cancels the pin.
 `src/components/studio/editor-core.tsx`. Without that, React StrictMode's double
 mount lets the first instance's async `destroy()` land after the second has
 rendered, wiping the editor DOM — a blank canvas with no error anywhere.
+
+**An empty query result is a real answer.** Seed content is a fallback only for an
+*unavailable* database. An earlier version fell back whenever a query returned zero
+rows, which meant "nothing is featured" and "that slug was deleted" both resurrected
+sample content over live data.
 
 **Language switch scrolls to the top.** Restoring the exact reading position across
 languages is not achievable: the translations differ in length, so any restored

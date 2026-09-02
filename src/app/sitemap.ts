@@ -97,8 +97,8 @@ function newest(rows: ContentEntry[][]): Date {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  let posts: Record<Locale, ContentEntry[]> = { th: [], en: [] }
-  let projects: Record<Locale, ContentEntry[]> = { th: [], en: [] }
+  let posts: Record<Locale, ContentEntry[]> = { th: [], en: [], ja: [] }
+  let projects: Record<Locale, ContentEntry[]> = { th: [], en: [], ja: [] }
 
   // `listPosts`/`listProjects` already fall back to seed content, but a sitemap
   // that throws takes the whole build down — degrade to the static routes.
@@ -109,8 +109,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       listProjects({ locale: 'th' }),
       listProjects({ locale: 'en' }),
     ])
-    posts = { th: thPosts, en: enPosts }
-    projects = { th: thProjects, en: enProjects }
+    // Japanese is a UI translation over the English corpus, so it lists the
+    // same entries under its own prefix.
+    posts = { th: thPosts, en: enPosts, ja: enPosts }
+    projects = { th: thProjects, en: enProjects, ja: enProjects }
   } catch (error) {
     console.error('[sitemap] could not read content, emitting static routes only:', error)
   }
