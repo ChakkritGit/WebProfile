@@ -98,9 +98,8 @@ const Tailwind = (p: P) => (
 )
 
 const Shadcn = (p: P) => (
-  <Svg {...p}>
-    <circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" strokeWidth="1.6" />
-    <path d="M16.5 7.5 7.5 16.5M15 15.5l1.5 1.5" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+  <Svg {...p} fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round">
+    <path d="M18.5 4.5 4.5 18.5M20 12.5l-7 7" />
   </Svg>
 )
 
@@ -119,7 +118,6 @@ const Bootstrap = (p: P) => (
 const NodeJs = (p: P) => (
   <Svg {...p}>
     <path d="M12 1.2 22 7v10l-10 5.8L2 17V7l10-5.8Z" fill="#539E43" />
-    <path d="M12 6.4c2.6 0 4.2.9 4.2 2.5 0 .5-.4.9-.9.9s-.9-.4-.9-.8c0-.6-.8-1-2.4-1-1.7 0-2.3.4-2.3 1.1 0 .6.3.8 2.6 1.1 2.7.4 4 1 4 2.7 0 1.8-1.6 2.8-4.4 2.8-3.1 0-4.5-1-4.5-2.8 0-.5.4-.9.9-.9s.9.4.9.9c0 .8.9 1.2 2.7 1.2 1.9 0 2.6-.4 2.6-1.1 0-.6-.3-.8-2.7-1.1-2.6-.3-3.9-1-3.9-2.7 0-1.7 1.5-2.7 4.1-2.7Z" fill="#fff" />
   </Svg>
 )
 
@@ -135,9 +133,10 @@ const Express = (p: P) => (
 
 const NestJs = (p: P) => (
   <Svg {...p}>
+    <path d="M12 1.6 20.7 6.8v10.4L12 22.4 3.3 17.2V6.8L12 1.6Z" fill="#E0234E" />
     <path
-      d="M9.4 2c-.6 0-1.1.4-1.1 1 0 .3.1.5.3.7.3.4.4.8.2 1.2-1.5 2.4-2 4.9-1.4 7.5.5 2.2 1.8 4 3.7 5.4-2.4-.6-4.2-2-5.3-4.2-1.4-2.8-1.2-5.6.6-8.1-2.9 1.9-4.3 5.6-3.2 9 1 3.3 4 5.5 7.5 5.5 3.9 0 7.1-2.9 7.6-6.7.4-3-1-5.7-3.6-7.2 1.2 1.5 1.6 3.1 1.1 4.9-.5 1.9-1.8 3.1-3.7 3.6 1.5-1.4 2-3 1.4-4.9-.5-1.7-1.7-2.8-3.4-3.3.4-.6.5-1.2.2-1.9-.2-.9-.8-1.5-1.5-1.5Z"
-      fill="#E0234E"
+      d="M8.4 7.2c1.4-.8 3-.6 4 .7l4 5.4c.7 1 .5 2.3-.5 3-1 .8-2.4.6-3.1-.4l-2.6-3.5c-.6.9-.5 2 .2 2.9-1.6-.7-2.4-2.4-2-4.1.2-.9.7-1.6 1.4-2.1-.9-.2-1.7 0-2.4.6-.3-.9 0-1.8.9-2.4Z"
+      fill="#fff"
     />
   </Svg>
 )
@@ -168,7 +167,13 @@ const Postgres = (p: P) => <SqlDb {...p} fill="#336791" />
 
 const Prisma = (p: P) => (
   <Svg {...p}>
-    <path d="M11.2 1.6a1.3 1.3 0 0 1 2 .4l7.2 15.3c.3.6 0 1.3-.6 1.6l-9.6 4.5c-.9.4-1.9-.4-1.7-1.4L12.3 2.3c0-.3.2-.5.4-.7Z" fill="#2D3748" stroke="#5A67D8" strokeWidth="1.1" />
+    <path
+      d="M12.6 2.6 20.8 18a1 1 0 0 1-.6 1.4l-10 2.9a1 1 0 0 1-1.3-1.2L11.3 2.9a.7.7 0 0 1 1.3-.3Z"
+      fill="#2D3748"
+      stroke="#5A67D8"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
   </Svg>
 )
 
@@ -190,15 +195,16 @@ const GitHubMark = (p: P) => (
 const Docker = (p: P) => (
   <Svg {...p}>
     <g fill="#2496ED">
-      <rect x="3.2" y="10.4" width="3" height="2.8" rx=".3" />
-      <rect x="6.7" y="10.4" width="3" height="2.8" rx=".3" />
-      <rect x="10.2" y="10.4" width="3" height="2.8" rx=".3" />
-      <rect x="13.7" y="10.4" width="3" height="2.8" rx=".3" />
-      <rect x="6.7" y="7.2" width="3" height="2.8" rx=".3" />
-      <rect x="10.2" y="7.2" width="3" height="2.8" rx=".3" />
-      <rect x="10.2" y="4" width="3" height="2.8" rx=".3" />
+      <rect x="3.4" y="10.2" width="3" height="2.9" rx=".35" />
+      <rect x="6.9" y="10.2" width="3" height="2.9" rx=".35" />
+      <rect x="10.4" y="10.2" width="3" height="2.9" rx=".35" />
+      <rect x="13.9" y="10.2" width="3" height="2.9" rx=".35" />
+      <rect x="6.9" y="6.9" width="3" height="2.9" rx=".35" />
+      <rect x="10.4" y="6.9" width="3" height="2.9" rx=".35" />
+      <rect x="10.4" y="3.6" width="3" height="2.9" rx=".35" />
+      <path d="M1.6 14.2h18.9a.7.7 0 0 1 .7.8c-.6 3.4-3.7 5.9-8.8 5.9-5.2 0-8.9-2.3-10.2-5.8a.7.7 0 0 1 .6-.9Z" />
+      <path d="M19.7 12.6c1-.8 2.4-.9 3.6-.3-.2 1.5-1.4 2.5-3 2.5" />
     </g>
-    <path d="M22.6 11.2c-.7-.5-2.3-.6-3.4-.4-.2-1.1-.8-2-1.8-2.8l-.6-.4-.4.6c-.5.8-.7 1.9-.6 2.8H1.6c-.3 2.6.5 5.9 2.5 8 1.9 1.9 4.7 2.9 8.2 2.9 7.6 0 10.4-5.4 11.4-8.3 1 0 2-.4 2.3-1.2l-3.4-1.2Z" fill="#2496ED" />
   </Svg>
 )
 
@@ -223,10 +229,12 @@ const Android = (p: P) => (
   </Svg>
 )
 
-const Signal = (p: P) => (
+const Mqtt = (p: P) => (
   <Svg {...p} fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round">
-    <path d="M5 14a5 5 0 0 1 5-5M2 17a8.5 8.5 0 0 1 8.5-8.5M8 20a2 2 0 0 1 2-2" />
-    <circle cx="17" cy="7" r="3" fill="currentColor" stroke="none" />
+    <path d="M5 19.5a7 7 0 0 1 7-7" />
+    <path d="M5 19.5a12 12 0 0 1 12-12" />
+    <path d="M5 19.5a17 17 0 0 1 17-17" />
+    <circle cx="5" cy="19.5" r="1.6" fill="currentColor" stroke="none" />
   </Svg>
 )
 
@@ -240,8 +248,14 @@ const Css3 = (p: P) => (
   <Svg {...p}>
     <path d="M3 2h18l-1.6 18L12 22l-7.4-2L3 2Z" fill="#264DE4" />
     <path d="M12 4.2v15.9l6-1.7L19.3 4.2H12Z" fill="#2965F1" />
-    <path d="M7.2 9.6 7.4 12H12V9.6H7.2Zm.4 4.8.2 2.3 4.4 1.2v-2.5l-4.6-1Z" fill="#EBEBEB" />
-    <path d="M16.6 9.6H12V12h4.4l-.4 4.3-3.9 1.1v2.5l6.2-1.7.6-6.6H12" fill="#fff" />
+    <path
+      d="M9 7.8h6.4M15 7.8l-.4 3.4h-3.2m3 0h1.9l-.5 5-3.8 1.3-3.5-1.1-.2-2"
+      fill="none"
+      stroke="#fff"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </Svg>
 )
 
@@ -297,6 +311,83 @@ const Sync = (p: P) => (
 
 /* ------------------------------- registry ------------------------------ */
 
+/* --------------------------- everything else --------------------------- *
+ * The writing is not only about code. These are the same line-drawn treatment
+ * as the technology marks so a mixed row of chips reads as one set.
+ * ----------------------------------------------------------------------- */
+
+const Line = ({ children, ...p }: P) => (
+  <Svg {...p} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    {children}
+  </Svg>
+)
+
+const Flask = (p: P) => (
+  <Line {...p}>
+    <path d="M9.5 3v6.2L4.6 17.6A2 2 0 0 0 6.3 20.6h11.4a2 2 0 0 0 1.7-3l-4.9-8.4V3M8 3h8M7.4 14.5h9.2" />
+  </Line>
+)
+const Planet = (p: P) => (
+  <Line {...p}>
+    <circle cx="12" cy="12" r="6.2" />
+    <path d="M3.6 17c-1.2-1-1.7-2-1.3-2.8.8-1.6 5-1.3 9.5.7s7.4 5 6.6 6.5c-.4.8-1.6.9-3.1.5" />
+  </Line>
+)
+const Plane = (p: P) => (
+  <Line {...p}>
+    <path d="M12 2.6c.9 0 1.5.8 1.5 1.8v4.5l7.5 4.3v1.9l-7.5-2.2v4.2l2.4 1.7v1.5L12 19.5l-3.9.8v-1.5l2.4-1.7v-4.2L3 15.1v-1.9l7.5-4.3V4.4c0-1 .6-1.8 1.5-1.8Z" />
+  </Line>
+)
+const Bowl = (p: P) => (
+  <Line {...p}>
+    <path d="M3 11h18a9 9 0 0 1-9 9 9 9 0 0 1-9-9ZM8.5 7.5c0-1.5 1.5-1.8 1.5-3M12 7.5c0-1.5 1.5-1.8 1.5-3M15.5 7.5c0-1.5 1.5-1.8 1.5-3" />
+  </Line>
+)
+const Chart = (p: P) => (
+  <Line {...p}>
+    <path d="M3 20h18M6 20v-5.5M11 20V9M16 20v-8.5M4.5 10.5 9 6l3.5 3 6-6" />
+  </Line>
+)
+const Book = (p: P) => (
+  <Line {...p}>
+    <path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H19v15H5.5A1.5 1.5 0 0 0 4 19.5v-15ZM4 19.5A1.5 1.5 0 0 0 5.5 21H19v-3" />
+  </Line>
+)
+const Camera = (p: P) => (
+  <Line {...p}>
+    <path d="M3 8.5A1.5 1.5 0 0 1 4.5 7h2.8l1.4-2.2h6.6L16.7 7h2.8A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-9Z" />
+    <circle cx="12" cy="13" r="3.4" />
+  </Line>
+)
+const Note = (p: P) => (
+  <Line {...p}>
+    <path d="M9 18V5.5l10-2V16" />
+    <circle cx="6.5" cy="18" r="2.6" />
+    <circle cx="16.5" cy="16" r="2.6" />
+  </Line>
+)
+const Film = (p: P) => (
+  <Line {...p}>
+    <rect x="3" y="4.5" width="18" height="15" rx="2" />
+    <path d="M3 9h18M3 15h18M8 4.5v15M16 4.5v15" />
+  </Line>
+)
+const Heart = (p: P) => (
+  <Line {...p}>
+    <path d="M12 20.4 4.6 13a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9A4.6 4.6 0 1 1 19.4 13L12 20.4Z" />
+  </Line>
+)
+const Sprout = (p: P) => (
+  <Line {...p}>
+    <path d="M12 21v-8M12 13c0-3.3-2.7-6-6-6 0 3.3 2.7 6 6 6ZM12 13c0-2.8 2.2-5 5-5 0 2.8-2.2 5-5 5Z" />
+  </Line>
+)
+const Sparkle = (p: P) => (
+  <Line {...p}>
+    <path d="M12 3.2 13.8 9l5.8 1.8-5.8 1.8L12 18.4 10.2 12.6 4.4 10.8 10.2 9 12 3.2ZM18.5 17l.7 2.1 2.1.7-2.1.7-.7 2.1-.7-2.1-2.1-.7 2.1-.7.7-2.1Z" />
+  </Line>
+)
+
 const REGISTRY: Record<string, (p: P) => React.ReactElement> = {
   javascript: JavaScript,
   typescript: TypeScript,
@@ -330,7 +421,8 @@ const REGISTRY: Record<string, (p: P) => React.ReactElement> = {
   android: Android,
   'android ndk': Chip,
   ndk: Chip,
-  mqtt: Signal,
+  mqtt: Mqtt,
+  'mqtt broker': Mqtt,
   websocket: Plug,
   iot: Chip,
   coroutines: Sync,
@@ -341,6 +433,34 @@ const REGISTRY: Record<string, (p: P) => React.ReactElement> = {
   accessibility: Accessibility,
   i18n: Globe,
   thai: Globe,
+
+  /* subjects outside programming */
+  science: Flask,
+  วิทยาศาสตร์: Flask,
+  astronomy: Planet,
+  space: Planet,
+  ดาราศาสตร์: Planet,
+  travel: Plane,
+  ท่องเที่ยว: Plane,
+  food: Bowl,
+  cooking: Bowl,
+  อาหาร: Bowl,
+  economics: Chart,
+  finance: Chart,
+  เศรษฐกิจ: Chart,
+  books: Book,
+  reading: Book,
+  หนังสือ: Book,
+  photography: Camera,
+  music: Note,
+  film: Film,
+  movies: Film,
+  health: Heart,
+  environment: Sprout,
+  nature: Sprout,
+  life: Sparkle,
+  misc: Sparkle,
+  'อื่น ๆ': Sparkle,
 }
 
 /** Renders the mark for a technology name, or nothing when there isn't one. */

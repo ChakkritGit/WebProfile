@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from 'next'
 import { notFound } from 'next/navigation'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import { IBM_Plex_Sans_Thai, Kanit } from 'next/font/google'
 
 import '../globals.css'
-import { routing, type Locale } from '@/i18n/routing'
+import { routing } from '@/i18n/routing'
 import { profile, SITE_URL } from '@/config/site'
 import { Providers } from '@/components/layout/providers'
 import { SiteHeader } from '@/components/layout/site-header'
@@ -96,7 +96,6 @@ export default async function LocaleLayout({
   if (!hasLocale(routing.locales, locale)) notFound()
 
   // Opts every page under this layout into static rendering.
-  setRequestLocale(locale as Locale)
 
   const t = await getTranslations({ locale, namespace: 'nav' })
 
@@ -107,7 +106,7 @@ export default async function LocaleLayout({
           <Providers>
             <a
               href="#main"
-              className="sticker-sm bg-brand text-brand-ink font-display sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:font-semibold"
+              className="sticker-sm bg-brand text-brand-ink font-display sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-100 focus:px-4 focus:py-2 focus:font-semibold"
             >
               {t('skipToContent')}
             </a>

@@ -32,8 +32,17 @@ export type ContentLocale = Locale
  * one interface language than another. The reader picks the language they read
  * the interface in, and each entry appears in the closest language it exists in.
  */
+const FALLBACK_ORDER: Record<Locale, readonly ContentLocale[]> = {
+  // Own language first, then the closest one a reader is likely to manage.
+  // Deriving this from `routing.locales` order instead put Thai ahead of English
+  // for Japanese readers, which is the least useful of the three.
+  th: ['th', 'en', 'ja'],
+  en: ['en', 'th', 'ja'],
+  ja: ['ja', 'en', 'th'],
+}
+
 export function contentLocalePreference(locale: Locale): readonly ContentLocale[] {
-  return [locale, ...routing.locales.filter((other) => other !== locale)]
+  return FALLBACK_ORDER[locale]
 }
 
 export const localeMeta: Record<Locale, { label: string; htmlLang: string; short: string }> = {

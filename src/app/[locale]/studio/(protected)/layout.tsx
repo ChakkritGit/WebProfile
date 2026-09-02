@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import { getOwnerSession } from '@/auth'
 import { redirect } from '@/i18n/navigation'
-import type { Locale } from '@/i18n/routing'
 import { Container } from '@/components/ui/section'
 import { SignOutButton } from '@/components/studio/auth-buttons'
 import { StudioSession } from '@/components/studio/studio-session'
@@ -18,7 +17,6 @@ export default async function StudioLayout({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  setRequestLocale(locale as Locale)
 
   const session = await getOwnerSession()
   if (!session) {

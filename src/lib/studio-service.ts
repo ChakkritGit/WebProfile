@@ -40,24 +40,48 @@ export function requireDatabase() {
  * Builds a slug that is unique within a locale. `excludeId` lets an update keep
  * its own slug instead of colliding with itself.
  */
+/**
+ * A free slug, unique across *every* locale.
+ *
+ * The database only enforces `(slug, locale)`, which was enough while each locale
+ * had its own URL space. It no longer does: `/blog/<slug>` resolves to whichever
+ * language suits the reader, so two unrelated pieces sharing a slug meant one of
+ * them was listed but unreachable — every link went to the other.
+ *
+ * Translations are the deliberate exception. Rows paired by `translationKey` are
+ * the same article written twice and are *supposed* to share a slug, so a sibling
+ * never blocks the name.
+ */
 export async function uniqueSlugFor(
   kind: ContentKindParam,
   desired: string,
   title: string,
-  locale: string,
+  translationKey: string | null | undefined,
   excludeId?: string,
 ): Promise<string> {
   const db = requireDatabase()
   const root = slugify(desired || title, 'untitled')
 
+  const select = { id: true, slug: true, translationKey: true }
+  const where = { slug: { startsWith: root } }
+  const rows =
+    kind === 'posts'
+      ? await db.post.findMany({ where, select })
+      : await db.project.findMany({ where, select })
+
+  const taken = new Set(
+    rows
+      .filter(
+        (row) =>
+          row.id !== excludeId &&
+          !(translationKey && row.translationKey === translationKey),
+      )
+      .map((row) => row.slug),
+  )
+
   for (let attempt = 0; attempt < 50; attempt++) {
     const candidate = attempt === 0 ? root : `${root}-${attempt + 1}`
-    const existing =
-      kind === 'posts'
-        ? await db.post.findUnique({ where: { slug_locale: { slug: candidate, locale } } })
-        : await db.project.findUnique({ where: { slug_locale: { slug: candidate, locale } } })
-
-    if (!existing || existing.id === excludeId) return candidate
+    if (!taken.has(candidate)) return candidate
   }
   // Extremely unlikely; a timestamp suffix always terminates the loop.
   return `${root}-${Date.now().toString(36)}`

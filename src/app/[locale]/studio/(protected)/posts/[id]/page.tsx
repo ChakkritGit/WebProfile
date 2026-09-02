@@ -1,16 +1,14 @@
 import { notFound } from 'next/navigation'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
-import type { Locale } from '@/i18n/routing'
+import { getTranslations } from 'next-intl/server'
 import { getPostById } from '@/lib/content'
 import { ContentForm } from '@/components/studio/content-form'
 
 export default async function EditPostPage({
   params,
 }: {
-  params: Promise<{ locale: string; id: string }>
+  params: Promise<{ id: string }>
 }) {
-  const { locale, id } = await params
-  setRequestLocale(locale as Locale)
+  const { id } = await params
 
   const record = await getPostById(id)
   if (!record) notFound()

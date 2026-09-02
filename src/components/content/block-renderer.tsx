@@ -244,6 +244,9 @@ function Block({ block }: { block: AnnotatedBlock }) {
               alt={caption || ''}
               width={file.width ?? 1280}
               height={file.height ?? 720}
+              // Same reason as the cover: `data.url` can point at a host the
+              // optimiser is not allowed to fetch.
+              unoptimized
               className={cn(
                 'h-auto w-full',
                 withBackground && 'mx-auto max-w-[85%] rounded-xl sm:max-w-[70%]',

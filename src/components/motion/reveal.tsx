@@ -35,7 +35,7 @@ export function Reveal({
 
   if (reduce) return <div className={className}>{children}</div>
 
-  return (
+  const animated = (
     <motion.div
       className={className}
       initial={{ opacity: 0, x, y }}
@@ -46,6 +46,14 @@ export function Reveal({
       {children}
     </motion.div>
   )
+
+  // A sideways entrance widens the page while it waits its turn: a full-width card
+  // parked 24px to the right pushed the document 8px past a 390px viewport, and
+  // anything below the fold stayed there until it was scrolled to. Clipping the
+  // wrapper keeps the offset off the layout; the clip margin leaves room for the
+  // sticker shadow so nothing visible is cut.
+  if (x === 0) return animated
+  return <div style={{ overflowX: 'clip', overflowClipMargin: '16px' }}>{animated}</div>
 }
 
 /**

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { Link, usePathname } from '@/i18n/navigation'
@@ -40,6 +40,22 @@ export function SiteHeader() {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href)
 
+  const listRef = useRef<HTMLUListElement>(null)
+  const [pill, setPill] = useState<{ x: number; width: number } | null>(null)
+
+  const measurePill = useCallback(() => {
+    const active = listRef.current?.querySelector<HTMLElement>('a[aria-current="page"]')
+    setPill(active ? { x: active.offsetLeft, width: active.offsetWidth } : null)
+  }, [])
+
+  // Layout effect so the pill is already in place on the first paint of a new
+  // route; the label widths change with the language, hence the resize listener.
+  useLayoutEffect(measurePill, [measurePill, pathname, t])
+  useEffect(() => {
+    window.addEventListener('resize', measurePill)
+    return () => window.removeEventListener('resize', measurePill)
+  }, [measurePill])
+
   return (
     <header
       className={cn(
@@ -57,7 +73,24 @@ export function SiteHeader() {
             <Logo label={profile.brand} className="[&>span:last-child]:hidden sm:[&>span:last-child]:inline" />
           </Link>
 
-          <ul className="hidden items-center gap-1 md:flex">
+          <ul ref={listRef} className="relative hidden items-center gap-1 md:flex">
+            {/* One pill, positioned from the active link's own measurements.
+                A `layoutId` shared element read its position from the document, so
+                the page's scroll counted as movement: leaving a listing scrolled
+                1200px down for an article made the pill fly up from off-screen.
+                Measuring inside the list removes scroll from the equation, and
+                `initial={false}` means a fresh page renders it already in place. */}
+            {pill && (
+              <motion.span
+                aria-hidden
+                className="bg-brand-soft border-line absolute top-0 bottom-0 left-0 -z-10 rounded-full border-2"
+                initial={false}
+                animate={{ x: pill.x, width: pill.width }}
+                transition={
+                  reduce ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34 }
+                }
+              />
+            )}
             {navItems.map((item) => (
               <li key={item.key}>
                 <Link
@@ -68,15 +101,6 @@ export function SiteHeader() {
                     isActive(item.href) ? 'text-ink' : 'text-muted hover:text-ink',
                   )}
                 >
-                  {isActive(item.href) && (
-                    <motion.span
-                      layoutId="nav-pill"
-                      className="bg-brand-soft border-line absolute inset-0 -z-10 rounded-full border-2"
-                      transition={
-                        reduce ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34 }
-                      }
-                    />
-                  )}
                   {t(item.key)}
                 </Link>
               </li>

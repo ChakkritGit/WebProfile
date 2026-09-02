@@ -1,4 +1,4 @@
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import type { Locale } from '@/i18n/routing'
 import type { PostRecord, ProjectRecord } from '@/lib/content-types'
 import { listPosts, listProjects } from '@/lib/content'
@@ -17,7 +17,6 @@ import { Squiggle } from '@/components/ui/decor'
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
-  setRequestLocale(locale as Locale)
 
   const t = await getTranslations('home')
   const tCommon = await getTranslations('common')

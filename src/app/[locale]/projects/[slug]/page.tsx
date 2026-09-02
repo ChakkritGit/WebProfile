@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import { routing, type Locale } from '@/i18n/routing'
 import { getProject, listProjects } from '@/lib/content'
 import { absoluteUrl, buildMetadata } from '@/lib/seo'
@@ -54,7 +54,6 @@ export default async function ProjectPage({
 }) {
   const { locale, slug: rawSlug } = await params
   const slug = decodeParam(rawSlug)
-  setRequestLocale(locale as Locale)
 
   const project = await getProject(slug, locale as Locale)
   if (!project) notFound()
@@ -77,7 +76,10 @@ export default async function ProjectPage({
 
   return (
     <>
-      <ViewTracker kind="project" slug={project.slug} locale={locale} />
+      {/* The record's own locale, not the interface one: a Thai article read at
+          `/ja/...` must still count against the Thai row, and `/api/views`
+          matches on (slug, locale). Passing the UI locale dropped the view. */}
+      <ViewTracker kind="project" slug={project.slug} locale={project.locale} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}

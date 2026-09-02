@@ -18,6 +18,9 @@ function CoverArt({ record, index }: { record: { coverImage: string | null; titl
         alt=""
         width={640}
         height={360}
+        // Unoptimised: a cover can be pasted in as a link to any host, and the
+        // optimiser answers 400 for anything outside next.config's remotePatterns.
+        unoptimized
         className="size-full object-cover"
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
       />

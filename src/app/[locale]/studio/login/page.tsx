@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import { redirect } from '@/i18n/navigation'
 import { getOwnerSession } from '@/auth'
-import type { Locale } from '@/i18n/routing'
 import { Container } from '@/components/ui/section'
 import { StickerCard } from '@/components/ui/sticker-card'
 import { SignInButton } from '@/components/studio/auth-buttons'
@@ -19,7 +18,6 @@ export default async function StudioLoginPage({
 }) {
   const { locale } = await params
   const { error } = await searchParams
-  setRequestLocale(locale as Locale)
 
   // Already the owner? Skip the login screen entirely.
   if (await getOwnerSession()) redirect({ href: '/studio', locale })

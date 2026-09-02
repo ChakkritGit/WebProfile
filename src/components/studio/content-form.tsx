@@ -181,7 +181,11 @@ export function ContentForm({
     setSaving(false)
     if (response.ok) {
       setDirty(false)
-      router.push('/studio')
+      // `replace`, so the back button cannot return to the editor of a record that
+      // no longer exists; `refresh`, because the client router cache would other-
+      // wise replay the listing it fetched before the delete and still show the row.
+      router.replace('/studio')
+      router.refresh()
     } else {
       setFormError(tCommon('error'))
     }

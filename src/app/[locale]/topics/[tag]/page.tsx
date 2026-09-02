@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import { routing, type Locale } from '@/i18n/routing'
 import { listPosts, listProjects } from '@/lib/content'
 import { buildMetadata } from '@/lib/seo'
@@ -61,7 +61,6 @@ export default async function TopicPage({
 }) {
   const { locale, tag: rawTag } = await params
   const slug = decodeParam(rawTag)
-  setRequestLocale(locale as Locale)
 
   const t = await getTranslations('tagSearch')
   const { posts, projects, labels } = await topicsFor(locale as Locale)

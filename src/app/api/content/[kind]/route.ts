@@ -35,7 +35,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ kin
       const record = await db.post.create({
         data: {
           title: input.title,
-          slug: await uniqueSlugFor(kind, input.slug, input.title, input.locale),
+          slug: await uniqueSlugFor(kind, input.slug, input.title, input.translationKey),
           locale: input.locale,
           translationKey: input.translationKey,
           coverImage: input.coverImage,
@@ -59,7 +59,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ kin
     const record = await db.project.create({
       data: {
         title: input.title,
-        slug: await uniqueSlugFor(kind, input.slug, input.title, input.locale),
+        slug: await uniqueSlugFor(kind, input.slug, input.title, input.translationKey),
         locale: input.locale,
         translationKey: input.translationKey,
         coverImage: input.coverImage,

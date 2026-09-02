@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import { routing, type Locale } from '@/i18n/routing'
 import { getPost, listPosts } from '@/lib/content'
 import { absoluteUrl, buildMetadata } from '@/lib/seo'
@@ -52,7 +52,6 @@ export default async function BlogPostPage({
 }) {
   const { locale, slug: rawSlug } = await params
   const slug = decodeParam(rawSlug)
-  setRequestLocale(locale as Locale)
 
   const post = await getPost(slug, locale as Locale)
   if (!post) notFound()
@@ -77,7 +76,10 @@ export default async function BlogPostPage({
 
   return (
     <>
-      <ViewTracker kind="post" slug={post.slug} locale={locale} />
+      {/* The record's own locale, not the interface one: a Thai article read at
+          `/ja/...` must still count against the Thai row, and `/api/views`
+          matches on (slug, locale). Passing the UI locale dropped the view. */}
+      <ViewTracker kind="post" slug={post.slug} locale={post.locale} />
       <script
         type="application/ld+json"
         // Serialised from our own data; `<` is escaped to prevent tag breakout.

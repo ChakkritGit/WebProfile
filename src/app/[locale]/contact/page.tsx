@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import type { Locale } from '@/i18n/routing'
 import { profile, socials } from '@/config/site'
 import { cn } from '@/lib/utils'
@@ -46,10 +46,7 @@ export async function generateMetadata({
   })
 }
 
-export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params
-  setRequestLocale(locale as Locale)
-
+export default async function ContactPage() {
   const t = await getTranslations('contact')
   const elsewhere = socials.filter((s) => !DIRECT.includes(s.id as (typeof DIRECT)[number]))
 

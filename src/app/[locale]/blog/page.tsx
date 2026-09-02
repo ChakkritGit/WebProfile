@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import type { Locale } from '@/i18n/routing'
 import { collectTags, listPosts } from '@/lib/content'
 import { buildMetadata } from '@/lib/seo'
@@ -44,7 +44,6 @@ export default async function BlogPage({
 }) {
   const { locale } = await params
   const { tag, q = '', page: pageParam } = await searchParams
-  setRequestLocale(locale as Locale)
 
   const t = await getTranslations('blog')
   const tCommon = await getTranslations('common')

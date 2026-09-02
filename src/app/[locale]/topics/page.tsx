@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/i18n/routing'
 import { listPosts, listProjects } from '@/lib/content'
@@ -28,7 +28,6 @@ export async function generateMetadata({
 
 export default async function TopicsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
-  setRequestLocale(locale as Locale)
 
   const t = await getTranslations('tagSearch')
   const [posts, projects] = await Promise.all([

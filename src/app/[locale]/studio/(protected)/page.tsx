@@ -1,4 +1,4 @@
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import { type Locale } from '@/i18n/routing'
 import { listPosts, listProjects } from '@/lib/content'
 import { hasDatabase } from '@/lib/prisma'
@@ -40,7 +40,6 @@ export default async function StudioDashboard({
   const { locale } = await params
   const { tab } = await searchParams
   const active: StudioTab = tab === 'projects' ? 'projects' : 'posts'
-  setRequestLocale(locale as Locale)
 
   const t = await getTranslations('studio')
 

@@ -25,11 +25,15 @@ export function mediaPathsIn(value: unknown, found = new Set<string>()): Set<str
   return found
 }
 
-/** Paths still referenced by content that exists right now. */
-async function pathsInUse(): Promise<Set<string>> {
-  const inUse = new Set<string>()
-  if (!prisma) return inUse
+/**
+ * Paths still referenced by content that exists right now, or `null` when that
+ * cannot be established. Returning an empty set for an unreachable database would
+ * make every candidate look unreferenced and delete the lot.
+ */
+async function pathsInUse(): Promise<Set<string> | null> {
+  if (!prisma) return null
 
+  const inUse = new Set<string>()
   const select = { coverImage: true, content: true }
   const [posts, projects] = await Promise.all([
     prisma.post.findMany({ select }),
@@ -55,6 +59,7 @@ export async function pruneOrphanedMedia(candidates: Set<string>): Promise<strin
 
   try {
     const inUse = await pathsInUse()
+    if (!inUse) return []
     const orphans = [...candidates].filter((path) => !inUse.has(path))
     if (orphans.length === 0) return []
 

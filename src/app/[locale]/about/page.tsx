@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
-import type { Locale } from '@/i18n/routing'
+import { getTranslations } from 'next-intl/server'
 import {
   education,
   experience,
@@ -40,7 +39,6 @@ export async function generateMetadata({
 
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
-  setRequestLocale(locale as Locale)
 
   const t = await getTranslations('about')
   const tSkills = await getTranslations('skills')

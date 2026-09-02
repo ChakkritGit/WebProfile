@@ -59,7 +59,7 @@ export async function PATCH(request: Request, ctx: Ctx) {
               kind,
               input.slug ?? existing.slug,
               input.title ?? existing.title,
-              input.locale ?? existing.locale,
+              input.translationKey ?? existing.translationKey,
               id,
             )
           : existing.slug
@@ -115,7 +115,7 @@ export async function PATCH(request: Request, ctx: Ctx) {
             kind,
             input.slug ?? existing.slug,
             input.title ?? existing.title,
-            input.locale ?? existing.locale,
+            input.translationKey ?? existing.translationKey,
             id,
           )
         : existing.slug
