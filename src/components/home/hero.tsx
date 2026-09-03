@@ -183,9 +183,12 @@ export function Hero({ roles }: { roles: string[] }) {
                   sizes="(max-width: 640px) 15rem, (max-width: 1024px) 18rem, 20rem"
                   className="size-full object-cover"
                 />
-                {/* Creases over the whole sheet, photograph and margin alike —
-                    a piece of paper is crumpled all the way through. */}
+                {/* Over the whole sheet, photograph and margin alike — a piece
+                    of paper is crumpled all the way through. Two layers, because
+                    the broad swelling and the sharp folds want different blends;
+                    see `globals.css`. */}
                 <span aria-hidden className="crumple pointer-events-none absolute inset-0" />
+                <span aria-hidden className="crumple-folds pointer-events-none absolute inset-0" />
               </div>
             </div>
 

@@ -327,7 +327,8 @@
     "empty": "Nothing is tagged “{tag}” yet.",
     "backToAll": "See all topics",
     "topicsTitle": "Topics",
-    "topicsSubtitle": "Every technology and subject covered across my projects and writing."
+    "topicsSubtitle": "Every technology and subject covered across my projects and writing.",
+    "topicsEmpty": "No topics yet"
   },
   "notFound": {
     "badge": "Error 404",

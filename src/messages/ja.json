@@ -327,7 +327,8 @@
     "empty": "「{tag}」のタグが付いたものはまだありません。",
     "backToAll": "すべてのトピックへ",
     "topicsTitle": "トピック",
-    "topicsSubtitle": "プロジェクトと記事で扱ってきた技術とテーマの一覧。"
+    "topicsSubtitle": "プロジェクトと記事で扱ってきた技術とテーマの一覧。",
+    "topicsEmpty": "トピックはまだありません"
   },
   "notFound": {
     "badge": "エラー 404",

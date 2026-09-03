@@ -8,6 +8,7 @@ import { tagSlug } from '@/lib/search'
 import { PageHeader, Section } from '@/components/ui/section'
 import { RevealGroup, RevealItem } from '@/components/motion/reveal'
 import { StickerCard } from '@/components/ui/sticker-card'
+import { EmptyResults } from '@/components/content/empty-results'
 import { TagIcon } from '@/components/icons'
 import { TechIcon, hasTechIcon } from '@/components/brand/tech-icons'
 
@@ -52,6 +53,17 @@ export default async function TopicsPage({ params }: { params: Promise<{ locale:
     <>
       <PageHeader title={t('topicsTitle')} description={t('topicsSubtitle')} />
       <Section>
+        {topics.length === 0 && (
+          // Nothing was searched for here, so there are no filters to clear and a
+          // magnifying glass would be the wrong thing to show.
+          <EmptyResults
+            query=""
+            hasFilters={false}
+            basePath="/topics"
+            fallback={t('topicsEmpty')}
+            icon={<TagIcon aria-hidden className="text-muted mx-auto size-9" />}
+          />
+        )}
         <RevealGroup className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {topics.map(([tag, count]) => (
             <RevealItem key={tag}>

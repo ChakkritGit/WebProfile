@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { getTranslations } from 'next-intl/server'
 import { StickerCard } from '@/components/ui/sticker-card'
 import { ButtonLink } from '@/components/ui/button'
@@ -8,18 +9,22 @@ export async function EmptyResults({
   hasFilters,
   basePath,
   fallback,
+  icon,
 }: {
   query: string
   hasFilters: boolean
   basePath: string
   /** Shown when there is simply no content yet, rather than no match. */
   fallback: string
+  /** Defaults to a magnifying glass, which only makes sense where something was
+   *  searched for. */
+  icon?: ReactNode
 }) {
   const t = await getTranslations('common')
 
   return (
     <StickerCard className="mt-6 p-12 text-center">
-      <SearchIcon aria-hidden className="text-muted mx-auto size-9" />
+      {icon ?? <SearchIcon aria-hidden className="text-muted mx-auto size-9" />}
       <p className="font-display mt-4 text-xl font-bold">
         {hasFilters ? (query ? t('noResults', { query }) : t('empty')) : fallback}
       </p>
