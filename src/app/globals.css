@@ -239,7 +239,7 @@
   border: 2.5px solid transparent;
   border-image-source: var(--sketch-frame);
   border-image-slice: 28;
-  border-image-width: 13px;
+  border-image-width: 17px;
   border-image-outset: 2px;
   border-image-repeat: stretch;
   border-radius: 6px;
@@ -308,7 +308,10 @@
   border-color: transparent;
   border-image-source: var(--sketch-pill);
   border-image-slice: 26;
-  border-image-width: 11px;
+  /* 4.6 x 15/26 = 2.65px, matching the cards. At 11px the pills were drawn with a
+     finer pen than everything around them, which is what made the buttons and the
+     contact dock look like they belonged to a different set. */
+  border-image-width: 15px;
   /* No outset on pills. The fill stops at the padding box, so pushing the drawn
      line outward opened a pale sliver between the two — most obvious on the solid
      buttons, where the capsule of colour clearly did not match the line around
@@ -326,7 +329,7 @@
   border-color: transparent;
   border-image-source: var(--sketch-frame);
   border-image-slice: 28;
-  border-image-width: 14px;
+  border-image-width: 18px;
   border-image-outset: 2px;
   border-image-repeat: stretch;
   border-radius: 10px;

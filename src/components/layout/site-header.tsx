@@ -78,7 +78,9 @@ export function SiteHeader() {
     <header
       className={cn(
         'sticky top-0 z-50 transition-shadow duration-300',
-        scrolled && 'shadow-[0_1px_0_0_var(--line-soft)]',
+        // A drawn rule rather than a hairline shadow, so the header's edge belongs
+        // to the same hand as everything below it.
+        scrolled && 'drawn-rule',
       )}
       style={{ height: 'var(--header-h)' }}
     >
