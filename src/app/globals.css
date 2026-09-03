@@ -599,3 +599,16 @@
   100% { transform: translate3d(70px, 130%, 0) rotate(-6deg); opacity: 0; }
 }
 .festival-drift { animation-name: festival-drift; }
+
+/* Fireworks do not drift across the header, they pop where they are: a shell
+   expanding and fading, staggered so several are always mid-burst. */
+@keyframes festival-burst {
+  0% { transform: scale(0.15) rotate(0deg); opacity: 0; }
+  18% { opacity: 1; }
+  55% { opacity: 0.85; }
+  100% { transform: scale(1.5) rotate(28deg); opacity: 0; }
+}
+.festival-burst {
+  animation-name: festival-burst;
+  animation-timing-function: cubic-bezier(0.16, 0.9, 0.3, 1);
+}

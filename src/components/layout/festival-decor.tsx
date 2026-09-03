@@ -57,11 +57,17 @@ const GLYPHS: Record<FestivalId, (key: number) => React.ReactNode> = {
     </svg>
   ),
   'new-year': (k) => (
+    // A burst: spokes out of a bright core, with embers on the ends. Drawn as
+    // strokes so the scale-up of the animation reads as the shell expanding.
     <svg key={k} viewBox="0 0 16 16" className="size-full text-[#e0a020]">
-      <path
-        d="M8 1.6c.4 3.2 1.9 4.7 5.1 5.1-3.2.4-4.7 1.9-5.1 5.1-.4-3.2-1.9-4.7-5.1-5.1C6.1 6.3 7.6 4.8 8 1.6Z"
-        fill="currentColor"
-      />
+      <g stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <path d="M8 1.4v3.2M8 11.4v3.2M1.4 8h3.2M11.4 8h3.2M3.3 3.3l2.3 2.3M10.4 10.4l2.3 2.3M12.7 3.3l-2.3 2.3M5.6 10.4l-2.3 2.3" />
+      </g>
+      <circle cx="8" cy="8" r="1.9" fill="currentColor" />
+      <g fill="currentColor">
+        <circle cx="8" cy="1.2" r="0.9" /><circle cx="8" cy="14.8" r="0.9" />
+        <circle cx="1.2" cy="8" r="0.9" /><circle cx="14.8" cy="8" r="0.9" />
+      </g>
     </svg>
   ),
   valentine: (k) => (
@@ -113,8 +119,13 @@ export function FestivalDecor({ festival }: { festival: Festival }) {
             className={`festival-glyph festival-${festival.motion} absolute block`}
             style={{
               left: `${left}%`,
-              width: i % 3 === 0 ? 16 : i % 3 === 1 ? 11 : 13,
-              height: i % 3 === 0 ? 16 : i % 3 === 1 ? 11 : 13,
+              // Bursts do not travel, so each needs its own height; the others are
+              // parked above or below the header by their motion class.
+              ...(festival.motion === 'burst' ? { top: `${[6, 34, 20, 52, 40][i % 5]}%` } : null),
+              // Bursts stay put and scale up from almost nothing, so they can
+              // afford to be larger than the glyphs that cross the whole header.
+              width: (i % 3 === 0 ? 16 : i % 3 === 1 ? 11 : 13) * (festival.motion === 'burst' ? 1.5 : 1),
+              height: (i % 3 === 0 ? 16 : i % 3 === 1 ? 11 : 13) * (festival.motion === 'burst' ? 1.5 : 1),
               animationDelay: `${(i * 1.37) % 9}s`,
               animationDuration: `${8 + (i % 5) * 1.6}s`,
             }}

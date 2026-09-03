@@ -30,14 +30,14 @@ export type Festival = {
   through?: [number, number]
   /** Gregorian dates per year, for festivals that move with the moon. */
   lunar?: Record<number, [number, number]>
-  /** Drives the glyph animation: falling, rising or drifting across. */
-  motion: 'fall' | 'rise' | 'drift'
+  /** Drives the glyph animation. */
+  motion: 'fall' | 'rise' | 'drift' | 'burst'
   /** Tint washed across the top of the header. */
   wash: string
 }
 
 export const FESTIVALS: readonly Festival[] = [
-  { id: 'new-year', on: [1, 1], motion: 'rise', wash: 'rgb(232 163 23 / 0.18)' },
+  { id: 'new-year', on: [1, 1], motion: 'burst', wash: 'rgb(232 163 23 / 0.18)' },
   { id: 'valentine', on: [2, 14], motion: 'rise', wash: 'rgb(255 90 95 / 0.16)' },
   { id: 'songkran', on: [4, 13], through: [4, 15], motion: 'fall', wash: 'rgb(63 160 255 / 0.18)' },
   {
