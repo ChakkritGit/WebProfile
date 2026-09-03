@@ -65,11 +65,11 @@ function Firework({ seed }: { seed: number }) {
 
   return (
     <>
-      <svg viewBox="0 0 32 32" className="fw-rocket absolute inset-0 size-full">
+      <svg viewBox="-2 -2 36 36" className="fw-rocket absolute inset-0 size-full">
         <path d="M16 11v8" stroke={head} strokeWidth="1.6" strokeLinecap="round" opacity="0.5" />
         <circle cx="16" cy="10" r="1.7" fill={head} />
       </svg>
-      <svg viewBox="0 0 32 32" className="fw-shell absolute inset-0 size-full">
+      <svg viewBox="-2 -2 36 36" className="fw-shell absolute inset-0 size-full">
         <g strokeLinecap="round">
           {Array.from({ length: 12 }, (_, i) => {
             const a = ((i * 30 + seed * 11) * Math.PI) / 180
@@ -298,7 +298,10 @@ const GREETERS: Record<FestivalId, ReactNode> = {
     </svg>
   ),
   'new-year': (
-    <svg viewBox="0 0 120 140" className="size-full text-[#e0a020]">
+    // Square, and wider than the others: the embers throw 67 from a centre at
+    // x=60, which ran off both sides of the 120-wide box the rest of the
+    // greeters use.
+    <svg viewBox="-16 -8 152 152" className="size-full text-[#e0a020]">
       {/* the trail it went up on */}
       <path
         d="M26 136q8-26 26-42"
