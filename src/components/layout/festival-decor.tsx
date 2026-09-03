@@ -144,6 +144,12 @@ export function FestivalDecor({ festival }: { festival: Festival }) {
         className="absolute inset-x-0 top-0 h-full"
         style={{ background: `linear-gradient(to bottom, ${festival.wash}, transparent 78%)` }}
       />
+      {/* The glyphs live behind a mask that fades out at the top and bottom of the
+          header. Without it they were sliced flat by the clip edge — a heart cut
+          in half along a straight line reads as a rendering fault, not as one
+          drifting out of view. The wash is deliberately outside it: masking that
+          too would have eaten the tint at the top, which is the part you see. */}
+      <div className="festival-lane absolute inset-0">
       {!reduce &&
         LANES.map((left, i) => {
           const size = (i % 3 === 0 ? 16 : i % 3 === 1 ? 11 : 13) * (burst ? 1.7 : 1)
@@ -156,7 +162,7 @@ export function FestivalDecor({ festival }: { festival: Festival }) {
                 // A firework ends up where it exploded, so each needs its own
                 // apex; the others are parked above or below the header by their
                 // motion class and travel the whole way across.
-                ...(burst ? { top: `${[8, 34, 18, 48, 28][i % 5]}%` } : null),
+                ...(burst ? { top: `${[16, 38, 24, 50, 32][i % 5]}%` } : null),
                 width: size,
                 height: size,
                 // A firework that took nine seconds to go up would not read as
@@ -170,6 +176,7 @@ export function FestivalDecor({ festival }: { festival: Festival }) {
             </span>
           )
         })}
+      </div>
     </div>
   )
 }
@@ -417,7 +424,8 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-[70] grid place-items-center">
-      <div className="festival-greet w-40 sm:w-52">{GREETERS[festival.id]}</div>
+      <div className="festival-veil absolute inset-0 bg-black/45" />
+      <div className="festival-greet relative w-40 sm:w-52">{GREETERS[festival.id]}</div>
     </div>
   )
 }

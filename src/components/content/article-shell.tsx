@@ -6,7 +6,7 @@ import { Container } from '@/components/ui/section'
 import { TagLink } from './tag-link'
 import { BlockRenderer } from './block-renderer'
 import { TableOfContents } from './table-of-contents'
-import { ReadingSize, ReadingSizeScript } from './reading-size'
+import { ReadingFont, ReadingSize, ReadingPrefsScript } from './reading-prefs'
 import { ShareBar } from './share-bar'
 import { buildOutline } from '@/lib/toc'
 import { highlightBlocks } from '@/lib/highlight'
@@ -47,7 +47,7 @@ export async function ArticleShell({
 
   return (
     <article className="pb-16">
-      <ReadingSizeScript />
+      <ReadingPrefsScript />
       <div className="drawn-rule paper-grain bg-paper-alt relative overflow-hidden">
         {coverImage && (
           <div
@@ -101,6 +101,7 @@ export async function ArticleShell({
             <div className="mb-6 space-y-4 lg:hidden">
               {toc.length > 0 && <TableOfContents items={toc} />}
               <ReadingSize />
+              <ReadingFont />
             </div>
 
             {aside}
@@ -120,6 +121,7 @@ export async function ArticleShell({
           <aside className="hidden lg:sticky lg:top-[calc(var(--header-h)+1.5rem)] lg:flex lg:max-h-[calc(100vh-var(--header-h)-3rem)] lg:flex-col lg:gap-4 lg:self-start">
             <TableOfContents items={toc} className="min-h-0 flex-1" />
             <ReadingSize className="shrink-0" />
+            <ReadingFont className="shrink-0" />
           </aside>
         </div>
       </Container>

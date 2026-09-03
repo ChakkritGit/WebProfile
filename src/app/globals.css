@@ -104,6 +104,13 @@
     ui-monospace, 'SF Mono', 'JetBrains Mono', 'Cascadia Code', Menlo, Consolas,
     var(--font-hand), monospace;
 
+  /* The way out of the handwriting, for readers who find it hard going. Nothing
+     downloaded: whatever the reader's system already uses for running text is by
+     definition the face they read most comfortably. */
+  --font-plain:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    'Noto Sans Thai', 'Noto Sans JP', Arial, sans-serif;
+
   --radius-sticker: 1.25rem;
 }
 
@@ -563,6 +570,12 @@
  * behind the header is exactly the case where handing each one to JavaScript
  * costs more than it buys. `will-change` keeps them off the main thread.
  * ------------------------------------------------------------------ */
+/* Glyphs fade out at the header's edges rather than meeting them. */
+.festival-lane {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 18%, #000 82%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 18%, #000 82%, transparent 100%);
+}
+
 .festival-glyph {
   top: -18%;
   opacity: 0;
@@ -657,13 +670,34 @@
   filter: drop-shadow(0 10px 0 var(--shadow));
 }
 
+/* The page dimmed behind it, so the character is not competing with the article
+   for the eye. It leaves ahead of the character rather than with it — a veil that
+   outlasts what it was framing reads as a stuck overlay. */
+@keyframes festival-veil {
+  0% { opacity: 0; }
+  16% { opacity: 1; }
+  55% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.festival-veil {
+  animation: festival-veil 2.6s ease-out forwards;
+}
+
 /* Reader-set text size.
  *
- * `zoom` rather than `font-size`: the article's headings, code blocks and figures
- * are sized in rem by utility classes, so a font-size on the container would have
- * scaled the paragraphs and left everything around them behind. Zoom scales the
- * layout itself, and unlike a transform it reflows — the column keeps its width
- * and the text wraps to the new size instead of overflowing. */
+ * The container carries the size and everything inside it is written in `em`, so
+ * one number moves the whole article. `zoom` was the first attempt and it has to
+ * stay gone: at a fractional zoom Chrome drops border-image edges and the offset
+ * shadow, so at the smallest and largest steps the drawn frame around every code
+ * block and table lost its bottom edge and corner. */
 .article-body {
-  zoom: var(--reading-scale, 1);
+  font-size: calc(1.02rem * var(--reading-scale, 1));
+  font-family: var(--reading-font, var(--font-sans));
+}
+
+/* Headings take --font-display, which is the same handwriting stack, so swapping
+   the body face alone would have left every heading in the hand the reader just
+   turned off. */
+.article-body :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--reading-font, var(--font-display));
 }

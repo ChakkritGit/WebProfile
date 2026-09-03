@@ -37,7 +37,7 @@ export function CodeBlock({
   return (
     <div className="sticker group relative my-7 overflow-hidden">
       <div className="drawn-rule relative flex items-center justify-between px-4 py-2">
-        <span className="font-display text-muted text-xs font-bold tracking-[0.12em] uppercase">
+        <span className="font-display text-muted text-[0.74em]/[1.33] font-bold tracking-[0.12em] uppercase">
           {language && language !== 'text' ? language : 'code'}
         </span>
         <button
@@ -52,11 +52,11 @@ export function CodeBlock({
 
       {highlighted ? (
         <div
-          className="shiki-block overflow-x-auto text-[0.9rem] leading-[1.75]"
+          className="shiki-block overflow-x-auto text-[0.88em] leading-[1.75]"
           dangerouslySetInnerHTML={{ __html: highlighted }}
         />
       ) : (
-        <pre className="bg-surface-2 overflow-x-auto p-5 text-[0.9rem] leading-[1.75]">
+        <pre className="bg-surface-2 overflow-x-auto p-5 text-[0.88em] leading-[1.75]">
           <code className="font-mono font-medium">{code}</code>
         </pre>
       )}

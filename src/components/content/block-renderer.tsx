@@ -14,13 +14,22 @@ interface ListItem {
   meta?: { checked?: boolean }
 }
 
+/**
+ * The heading scale in `em`, not `rem`.
+ *
+ * Every size in the article is relative to `.article-body`, which is what lets
+ * the reader's text-size control move the whole thing with one number. The
+ * values are the rem sizes these used to be (text-3xl and friends) divided by
+ * the 1.02rem the body is set at, and the leading is spelled out because an
+ * arbitrary `text-[…]` does not carry one the way the named steps do.
+ */
 const headingStyles: Record<number, string> = {
-  1: 'text-3xl sm:text-4xl mt-12 mb-4',
-  2: 'text-2xl sm:text-3xl mt-12 mb-4',
-  3: 'text-xl sm:text-2xl mt-9 mb-3',
-  4: 'text-lg sm:text-xl mt-7 mb-2',
-  5: 'text-base sm:text-lg mt-6 mb-2',
-  6: 'text-base mt-6 mb-2',
+  1: 'text-[1.84em]/[1.2] sm:text-[2.2em]/[1.11] mt-12 mb-4',
+  2: 'text-[1.47em]/[1.33] sm:text-[1.84em]/[1.2] mt-12 mb-4',
+  3: 'text-[1.23em]/[1.4] sm:text-[1.47em]/[1.33] mt-9 mb-3',
+  4: 'text-[1.1em]/[1.56] sm:text-[1.23em]/[1.4] mt-7 mb-2',
+  5: 'text-[0.98em]/[1.5] sm:text-[1.1em]/[1.56] mt-6 mb-2',
+  6: 'text-[0.98em]/[1.5] mt-6 mb-2',
 }
 
 function Heading({ block, align }: { block: AnnotatedBlock; align: string }) {
@@ -149,11 +158,11 @@ function Block({ block }: { block: AnnotatedBlock }) {
     case 'quote':
       return (
         <figure className={cn('sticker bg-violet-soft my-7 p-5 sm:p-6', alignmentOf(block))}>
-          <blockquote className="font-display text-lg leading-relaxed font-medium">
+          <blockquote className="font-display text-[1.1em] leading-relaxed font-medium">
             <RichText html={String(data.text ?? '')} />
           </blockquote>
           {data.caption ? (
-            <figcaption className="text-muted mt-3 text-sm">
+            <figcaption className="text-muted mt-3 text-[0.86em]/[1.43]">
               — <RichText html={String(data.caption)} />
             </figcaption>
           ) : null}
@@ -185,7 +194,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
 
       return (
         <div className="sticker bg-surface my-7 overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full border-collapse text-[0.86em]/[1.43]">
             {withHeadings && (
               <thead>
                 <tr className="bg-surface-2">
@@ -256,7 +265,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
             />
           </div>
           {caption ? (
-            <figcaption className="text-muted mt-3 text-center text-sm">
+            <figcaption className="text-muted mt-3 text-center text-[0.86em]/[1.43]">
               <RichText html={caption} />
             </figcaption>
           ) : null}
@@ -290,14 +299,14 @@ function Block({ block }: { block: AnnotatedBlock }) {
           className="sticker sticker-hover bg-surface my-7 flex items-stretch gap-0 overflow-hidden no-underline"
         >
           <span className="min-w-0 flex-1 p-4 sm:p-5">
-            <span className="text-brand font-display block truncate text-xs font-bold tracking-wide uppercase">
+            <span className="text-brand font-display block truncate text-[0.74em]/[1.33] font-bold tracking-wide uppercase">
               {host}
             </span>
             <span className="font-display mt-1.5 block font-bold leading-snug">
               {meta.title || link}
             </span>
             {meta.description && (
-              <span className="text-muted mt-1.5 line-clamp-2 block text-sm leading-relaxed">
+              <span className="text-muted mt-1.5 line-clamp-2 block text-[0.86em] leading-relaxed">
                 {meta.description}
               </span>
             )}
@@ -337,7 +346,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
             />
           </div>
           {data.caption ? (
-            <figcaption className="text-muted mt-3 text-center text-sm">
+            <figcaption className="text-muted mt-3 text-center text-[0.86em]/[1.43]">
               <RichText html={String(data.caption)} />
             </figcaption>
           ) : null}
@@ -386,7 +395,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
 
 export function BlockRenderer({ blocks }: { blocks: AnnotatedBlock[] }) {
   return (
-    <div className="article-body text-ink text-[1.02rem]">
+    <div className="article-body text-ink">
       {blocks.map((block, i) => (
         <Block key={block.id ?? i} block={block} />
       ))}
