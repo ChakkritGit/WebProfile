@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { FESTIVALS, type FestivalId } from '@/config/festivals'
 import { CloseIcon } from '@/components/icons'
-import { playFestival } from './festival-decor'
+import { playFestival, useSceneRunning } from './festival-decor'
 import { useIsMounted } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 
@@ -33,12 +33,15 @@ export function FestivalPicker() {
   const t = useTranslations('festival')
   const tName = useTranslations('festival.name')
   const mounted = useIsMounted()
+  const playing = useSceneRunning()
   const [open, setOpen] = useState(false)
   const [current, setCurrent] = useState('')
   const box = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!open) return
+    // Nothing to dismiss while a scene is on screen — the panel is not rendered
+    // then, and the control cannot be reached to open one.
+    if (!open || playing) return
     const away = (event: PointerEvent) => {
       if (!box.current?.contains(event.target as Node)) setOpen(false)
     }
@@ -53,7 +56,7 @@ export function FestivalPicker() {
       document.removeEventListener('pointerdown', away)
       document.removeEventListener('keydown', esc)
     }
-  }, [open])
+  }, [open, playing])
 
   if (!mounted) return null
 
@@ -64,8 +67,17 @@ export function FestivalPicker() {
   }
 
   return (
-    <div ref={box} className="fixed bottom-4 left-4 z-50 sm:bottom-6 sm:left-6">
-      {open && (
+    // It steps out of the way while a scene plays and comes back when it is over.
+    // Faded rather than unmounted, so it does not pop in and out of existence and
+    // it keeps whatever it was told to remember.
+    <div
+      ref={box}
+      className={cn(
+        'fixed bottom-4 left-4 z-50 transition-all duration-500 sm:bottom-6 sm:left-6',
+        playing && 'pointer-events-none translate-y-4 opacity-0',
+      )}
+    >
+      {open && !playing && (
         <div className="sticker bg-surface absolute bottom-full left-0 mb-3 w-52 p-2">
           <p className="font-display text-muted px-2 py-1 text-xs font-bold tracking-wide uppercase">
             {t('pick')}
@@ -119,9 +131,11 @@ export function FestivalPicker() {
         </button>
 
         {/* The nudge sits outside the button, where it can be read without
-            hovering anything. */}
+            hovering anything — but only where there is room for it. On a phone
+            it is a chip of text sitting over the page for the sake of a control
+            the palette already explains. */}
         {!open && (
-          <span className="sticker-sm bg-brand-soft font-display px-2.5 py-1 text-xs font-bold whitespace-nowrap">
+          <span className="sticker-sm bg-brand-soft font-display hidden px-2.5 py-1 text-xs font-bold whitespace-nowrap sm:inline-block">
             {t('hint')}
           </span>
         )}

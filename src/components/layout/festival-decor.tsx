@@ -64,6 +64,36 @@ export function playFestival(id: string) {
   playListeners.forEach((notify) => notify())
 }
 
+/**
+ * Whether a scene is on screen right now.
+ *
+ * The picker reads this to get out of the way while one plays. It is set from
+ * the greeting rather than worked out by the picker, because only the greeting
+ * knows when it started — and it is cleared on the same clock the scene ends on,
+ * not on unmount, since the component stays mounted after its scene is over.
+ */
+let sceneRunning = false
+const sceneListeners = new Set<() => void>()
+
+function setSceneRunning(on: boolean) {
+  if (sceneRunning === on) return
+  sceneRunning = on
+  sceneListeners.forEach((notify) => notify())
+}
+
+export function useSceneRunning() {
+  return useSyncExternalStore(
+    (notify) => {
+      sceneListeners.add(notify)
+      return () => {
+        sceneListeners.delete(notify)
+      }
+    },
+    () => sceneRunning,
+    () => false,
+  )
+}
+
 export function useFestivalPlayKey() {
   return useSyncExternalStore(
     subscribePlay,
@@ -641,6 +671,18 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
     const timer = setTimeout(() => setDone(true), GREETING_MS)
     return () => clearTimeout(timer)
   }, [])
+
+  // Tell the picker to stand aside for as long as this runs. Reduced motion plays
+  // nothing, so there is nothing to stand aside for.
+  useEffect(() => {
+    if (reduce) return
+    setSceneRunning(true)
+    const over = setTimeout(() => setSceneRunning(false), GREETING_MS + (AFTER_MS[festival.id] ?? 0))
+    return () => {
+      clearTimeout(over)
+      setSceneRunning(false)
+    }
+  }, [festival.id, reduce])
 
   // Four festivals borrow the dark, each at the moment that suits it: Halloween
   // and New Year from the first frame, and the other two while the greeting's
