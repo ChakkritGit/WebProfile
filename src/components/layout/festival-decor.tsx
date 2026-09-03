@@ -552,16 +552,19 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    const timer = setTimeout(() => setDone(true), 3400)
+    const timer = setTimeout(() => setDone(true), GREETING_MS)
     return () => clearTimeout(timer)
   }, [])
 
-  // Two festivals borrow the dark for the length of their scene and hand the
-  // reader's own theme back afterwards. It suits both: a haunting, and snow at
-  // night. A reader already in the theme it wants gets nothing to undo, the
-  // original is restored rather than blindly cleared, and it comes off on unmount
-  // as well as on the timer, so a navigation part way through cannot leave the
-  // site stuck in a theme nobody chose.
+  // Two festivals borrow the dark, and they take it at the moment the greeting
+  // clears rather than at load. The greeting has its own veil over the page, so
+  // changing the theme underneath it was work nobody could see; the swap belongs
+  // to the scene that follows, which is played against the page itself.
+  //
+  // The reader's own theme is handed back afterwards. One already in the dark
+  // gets nothing to undo, the original is restored rather than blindly cleared,
+  // and it comes off on unmount as well as on the timer, so a navigation part way
+  // through cannot leave the site stuck in a theme nobody chose.
   useEffect(() => {
     const want = SCENE_THEME[festival.id]
     if (!want || reduce) return
@@ -569,29 +572,25 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
     const wasDark = root.classList.contains('dark')
     if (wasDark === (want === 'dark')) return
 
-    root.classList.add('theme-xfade')
-
-    // Two frames, then read the colour back, and only then change the theme.
-    // This runs at hydration, which can land before the browser has painted at
-    // all: a transition needs a previously rendered value to move away from, and
-    // without one the lights went out in a single frame. Waiting for a paint
-    // gives it that value, and the read makes sure the style is computed with the
-    // transition already in place.
-    let dropped = false
-    const frame = requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        if (dropped) return
+    let frame = 0
+    const enter = setTimeout(() => {
+      root.classList.add('theme-xfade')
+      // A frame, then read the colour back, and only then change the theme.
+      // Adding the class and the theme in one tick batches into a single style
+      // recalculation, which leaves the transition no previous value to move
+      // away from — and the lights go out in a single frame.
+      frame = requestAnimationFrame(() => {
         void getComputedStyle(document.body).backgroundColor
         root.classList.toggle('dark', want === 'dark')
-      }),
-    )
+      })
+    }, GREETING_MS)
 
-    const scene = 3400 + (AFTER_MS[festival.id] ?? 0)
+    const scene = GREETING_MS + (AFTER_MS[festival.id] ?? 0)
     const back = setTimeout(() => root.classList.toggle('dark', wasDark), scene)
     const settle = setTimeout(() => root.classList.remove('theme-xfade'), scene + 800)
 
     return () => {
-      dropped = true
+      clearTimeout(enter)
       cancelAnimationFrame(frame)
       clearTimeout(back)
       clearTimeout(settle)
@@ -732,6 +731,10 @@ function GhostPeek() {
 }
 
 /* ---------------------------- the afterpieces ---------------------------- */
+
+/** How long the greeting holds the middle of the screen before its scene takes
+ *  over. Matches the animations in `globals.css`. */
+const GREETING_MS = 3400
 
 /** The theme a scene borrows while it plays, if it wants one at all. Snow and
  *  ghosts both want the dark; white reads on it, and cream is where the snowmen
