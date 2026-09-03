@@ -290,6 +290,13 @@ export const ListIcon = (p: IconProps) => (
   </Stroke>
 )
 
+export const TextSizeIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M3.4 15.4 6.6 8.2 9.9 15.4M4.4 13.1q2.2-.3 4.3.1" />
+    <path d="M12.6 19.4 17 5.3l4.6 14.1M14 15.5q3-.4 6 .1" />
+  </Stroke>
+)
+
 export const PencilIcon = (p: IconProps) => (
   <Stroke {...p}>
     <path d="M4 20.2h4l10.6-10.6a2.8 2.8 0 0 0-4-4L4 16.2v4Z" />

@@ -386,7 +386,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
 
 export function BlockRenderer({ blocks }: { blocks: AnnotatedBlock[] }) {
   return (
-    <div className="text-ink text-[1.02rem]">
+    <div className="article-body text-ink text-[1.02rem]">
       {blocks.map((block, i) => (
         <Block key={block.id ?? i} block={block} />
       ))}

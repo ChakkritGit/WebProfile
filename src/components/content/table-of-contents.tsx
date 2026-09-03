@@ -146,16 +146,16 @@ export function TableOfContents({ items, className }: { items: TocItem[]; classN
   return (
     <>
       {/* Desktop: sticky rail */}
-      <nav aria-label={t('tableOfContents')} className={cn('hidden lg:block', className)}>
-        <div className="sticker bg-surface p-4">
+      <nav aria-label={t('tableOfContents')} className={cn('hidden min-h-0 lg:flex lg:flex-col', className)}>
+        <div className="sticker bg-surface flex min-h-0 flex-col p-4">
             <p className="font-display mb-3 flex items-center gap-2 text-sm font-bold tracking-wide uppercase">
               <ListIcon className="size-4" />
               {t('tableOfContents')}
             </p>
             <ReadingSquiggle progress={progress} />
-          <div className="max-h-[calc(100vh-var(--header-h)-8rem)] overflow-y-auto pe-1">
-            {list}
-          </div>
+          {/* The height comes from the column now, not a hand-computed max: the
+              sibling card below it has to fit too. */}
+          <div className="min-h-0 flex-1 overflow-y-auto pe-1">{list}</div>
         </div>
       </nav>
 

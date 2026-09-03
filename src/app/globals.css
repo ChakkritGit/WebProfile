@@ -600,15 +600,70 @@
 }
 .festival-drift { animation-name: festival-drift; }
 
-/* Fireworks do not drift across the header, they pop where they are: a shell
-   expanding and fading, staggered so several are always mid-burst. */
-@keyframes festival-burst {
-  0% { transform: scale(0.15) rotate(0deg); opacity: 0; }
-  18% { opacity: 1; }
-  55% { opacity: 0.85; }
-  100% { transform: scale(1.5) rotate(28deg); opacity: 0; }
+/* Fireworks are two motions in one cycle: the shell climbs to its apex, then
+   opens. The launch carries the whole glyph up and *holds* it there for the rest
+   of the cycle, so the burst stays where it exploded instead of drifting on. The
+   two children read their duration and delay from this parent with `inherit`,
+   which is what keeps the rocket's last frame and the shell's first frame on the
+   same instant however each firework is staggered. */
+@keyframes festival-launch {
+  0% { transform: translate3d(0, 300%, 0); }
+  32% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
 }
-.festival-burst {
-  animation-name: festival-burst;
-  animation-timing-function: cubic-bezier(0.16, 0.9, 0.3, 1);
+.festival-launch {
+  animation-name: festival-launch;
+  animation-timing-function: cubic-bezier(0.1, 0.7, 0.25, 1);
+  opacity: 1;
+}
+
+.festival-launch > * {
+  animation-duration: inherit;
+  animation-delay: inherit;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+/* The climbing shell, gone the moment it opens. */
+@keyframes fw-rocket {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  29% { opacity: 1; }
+  33% { opacity: 0; }
+  100% { opacity: 0; }
+}
+.fw-rocket { animation-name: fw-rocket; animation-timing-function: linear; }
+
+/* The colours it opens into. */
+@keyframes fw-shell {
+  0%, 31% { transform: scale(0.06); opacity: 0; }
+  38% { transform: scale(0.8); opacity: 1; }
+  62% { transform: scale(1.2); opacity: 0.95; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+.fw-shell { animation-name: fw-shell; animation-timing-function: cubic-bezier(0.12, 0.85, 0.3, 1); }
+
+/* The festival greeting: in from below with a little overshoot, a beat to be
+   looked at, then up and away. */
+@keyframes festival-greet {
+  0% { transform: translateY(26px) scale(0.7); opacity: 0; }
+  18% { transform: translateY(0) scale(1.06); opacity: 1; }
+  26% { transform: translateY(0) scale(1); }
+  62% { transform: translateY(-6px) scale(1); opacity: 1; }
+  100% { transform: translateY(-40px) scale(0.94); opacity: 0; }
+}
+.festival-greet {
+  animation: festival-greet 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  filter: drop-shadow(0 10px 0 var(--shadow));
+}
+
+/* Reader-set text size.
+ *
+ * `zoom` rather than `font-size`: the article's headings, code blocks and figures
+ * are sized in rem by utility classes, so a font-size on the container would have
+ * scaled the paragraphs and left everything around them behind. Zoom scales the
+ * layout itself, and unlike a transform it reflows — the column keeps its width
+ * and the text wraps to the new size instead of overflowing. */
+.article-body {
+  zoom: var(--reading-scale, 1);
 }

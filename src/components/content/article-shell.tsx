@@ -6,6 +6,7 @@ import { Container } from '@/components/ui/section'
 import { TagLink } from './tag-link'
 import { BlockRenderer } from './block-renderer'
 import { TableOfContents } from './table-of-contents'
+import { ReadingSize, ReadingSizeScript } from './reading-size'
 import { ShareBar } from './share-bar'
 import { buildOutline } from '@/lib/toc'
 import { highlightBlocks } from '@/lib/highlight'
@@ -46,6 +47,7 @@ export async function ArticleShell({
 
   return (
     <article className="pb-16">
+      <ReadingSizeScript />
       <div className="drawn-rule paper-grain bg-paper-alt relative overflow-hidden">
         {coverImage && (
           <div
@@ -96,11 +98,10 @@ export async function ArticleShell({
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12">
           <div className="min-w-0">
             {/* Mobile TOC sits above the article; the desktop rail is in the sidebar. */}
-            {toc.length > 0 && (
-              <div className="mb-6 lg:hidden">
-                <TableOfContents items={toc} />
-              </div>
-            )}
+            <div className="mb-6 space-y-4 lg:hidden">
+              {toc.length > 0 && <TableOfContents items={toc} />}
+              <ReadingSize />
+            </div>
 
             {aside}
 
@@ -111,8 +112,14 @@ export async function ArticleShell({
 
           {/* self-start stops the grid stretching the column, which is what
               lets the sticky offset actually travel with the scroll. */}
-          <aside className="hidden lg:sticky lg:top-[calc(var(--header-h)+1.5rem)] lg:block lg:self-start">
-            <TableOfContents items={toc} />
+          {/* A flex column bounded by the viewport, not two cards stacked: with a
+              long outline the list used to push the size control past the bottom
+              of the screen, where it could not be reached at all. The outline is
+              what gives way — it takes the space the card does not need, and
+              scrolls inside it. */}
+          <aside className="hidden lg:sticky lg:top-[calc(var(--header-h)+1.5rem)] lg:flex lg:max-h-[calc(100vh-var(--header-h)-3rem)] lg:flex-col lg:gap-4 lg:self-start">
+            <TableOfContents items={toc} className="min-h-0 flex-1" />
+            <ReadingSize className="shrink-0" />
           </aside>
         </div>
       </Container>

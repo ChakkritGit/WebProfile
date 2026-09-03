@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState, type ReactNode } from 'react'
 import { useReducedMotion } from 'motion/react'
 import { festivalById, festivalOn, type Festival, type FestivalId } from '@/config/festivals'
 import { useIsMounted } from '@/lib/hooks'
@@ -48,6 +49,49 @@ function forcedId(): string {
 
 const S = { fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' } as const
 
+/** What a firework opens into. Rotated per shell so no two look alike. */
+const FIREWORK_HUES = ['#ffd166', '#ff6b8a', '#4fc3f7', '#7c5cff', '#5ddba4', '#ff9f45']
+
+/**
+ * A shell that climbs and then opens into colours.
+ *
+ * Two layers on one clock: the rocket is a bright head with a short tail, and it
+ * is switched off at the exact frame the shell starts to open — see the
+ * `festival-launch` rules, where both children take their timing from the
+ * parent.
+ */
+function Firework({ seed }: { seed: number }) {
+  const head = FIREWORK_HUES[seed % FIREWORK_HUES.length]
+
+  return (
+    <>
+      <svg viewBox="0 0 32 32" className="fw-rocket absolute inset-0 size-full">
+        <path d="M16 11v8" stroke={head} strokeWidth="1.6" strokeLinecap="round" opacity="0.5" />
+        <circle cx="16" cy="10" r="1.7" fill={head} />
+      </svg>
+      <svg viewBox="0 0 32 32" className="fw-shell absolute inset-0 size-full">
+        <g strokeLinecap="round">
+          {Array.from({ length: 12 }, (_, i) => {
+            const a = ((i * 30 + seed * 11) * Math.PI) / 180
+            const len = i % 2 ? 11 : 14
+            const hue = FIREWORK_HUES[(i + seed) % FIREWORK_HUES.length]
+            return (
+              <g key={i} stroke={hue} fill={hue}>
+                <path
+                  strokeWidth={i % 2 ? 1.4 : 1.9}
+                  d={`M${16 + Math.cos(a) * 4} ${16 + Math.sin(a) * 4}L${16 + Math.cos(a) * len} ${16 + Math.sin(a) * len}`}
+                />
+                <circle cx={16 + Math.cos(a) * (len + 1.7)} cy={16 + Math.sin(a) * (len + 1.7)} r={i % 2 ? 0.9 : 1.3} stroke="none" />
+              </g>
+            )
+          })}
+        </g>
+        <circle cx="16" cy="16" r="2.3" fill="#fffbe8" />
+      </svg>
+    </>
+  )
+}
+
 const GLYPHS: Record<FestivalId, (key: number) => React.ReactNode> = {
   christmas: (k) => (
     <svg key={k} viewBox="0 0 16 16" className="size-full text-[#6fb3e0]">
@@ -56,20 +100,7 @@ const GLYPHS: Record<FestivalId, (key: number) => React.ReactNode> = {
       </g>
     </svg>
   ),
-  'new-year': (k) => (
-    // A burst: spokes out of a bright core, with embers on the ends. Drawn as
-    // strokes so the scale-up of the animation reads as the shell expanding.
-    <svg key={k} viewBox="0 0 16 16" className="size-full text-[#e0a020]">
-      <g stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-        <path d="M8 1.4v3.2M8 11.4v3.2M1.4 8h3.2M11.4 8h3.2M3.3 3.3l2.3 2.3M10.4 10.4l2.3 2.3M12.7 3.3l-2.3 2.3M5.6 10.4l-2.3 2.3" />
-      </g>
-      <circle cx="8" cy="8" r="1.9" fill="currentColor" />
-      <g fill="currentColor">
-        <circle cx="8" cy="1.2" r="0.9" /><circle cx="8" cy="14.8" r="0.9" />
-        <circle cx="1.2" cy="8" r="0.9" /><circle cx="14.8" cy="8" r="0.9" />
-      </g>
-    </svg>
-  ),
+  'new-year': (k) => <Firework key={k} seed={k} />,
   valentine: (k) => (
     <svg key={k} viewBox="0 0 16 16" className="size-full text-[#ff5a6e]">
       <path
@@ -105,6 +136,7 @@ const LANES = [4, 12, 19, 27, 35, 43, 51, 58, 66, 73, 81, 89, 95]
 export function FestivalDecor({ festival }: { festival: Festival }) {
   const reduce = useReducedMotion()
   const glyph = GLYPHS[festival.id]
+  const burst = festival.motion === 'burst'
 
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -113,26 +145,31 @@ export function FestivalDecor({ festival }: { festival: Festival }) {
         style={{ background: `linear-gradient(to bottom, ${festival.wash}, transparent 78%)` }}
       />
       {!reduce &&
-        LANES.map((left, i) => (
-          <span
-            key={left}
-            className={`festival-glyph festival-${festival.motion} absolute block`}
-            style={{
-              left: `${left}%`,
-              // Bursts do not travel, so each needs its own height; the others are
-              // parked above or below the header by their motion class.
-              ...(festival.motion === 'burst' ? { top: `${[6, 34, 20, 52, 40][i % 5]}%` } : null),
-              // Bursts stay put and scale up from almost nothing, so they can
-              // afford to be larger than the glyphs that cross the whole header.
-              width: (i % 3 === 0 ? 16 : i % 3 === 1 ? 11 : 13) * (festival.motion === 'burst' ? 1.5 : 1),
-              height: (i % 3 === 0 ? 16 : i % 3 === 1 ? 11 : 13) * (festival.motion === 'burst' ? 1.5 : 1),
-              animationDelay: `${(i * 1.37) % 9}s`,
-              animationDuration: `${8 + (i % 5) * 1.6}s`,
-            }}
-          >
-            {glyph(i)}
-          </span>
-        ))}
+        LANES.map((left, i) => {
+          const size = (i % 3 === 0 ? 16 : i % 3 === 1 ? 11 : 13) * (burst ? 1.7 : 1)
+          return (
+            <span
+              key={left}
+              className={`festival-glyph festival-${burst ? 'launch' : festival.motion} absolute block`}
+              style={{
+                left: `${left}%`,
+                // A firework ends up where it exploded, so each needs its own
+                // apex; the others are parked above or below the header by their
+                // motion class and travel the whole way across.
+                ...(burst ? { top: `${[8, 34, 18, 48, 28][i % 5]}%` } : null),
+                width: size,
+                height: size,
+                // A firework that took nine seconds to go up would not read as
+                // one. They run a much shorter cycle, spread across it so some
+                // are always climbing while others open.
+                animationDelay: burst ? `${(i * 0.83) % 4.5}s` : `${(i * 1.37) % 9}s`,
+                animationDuration: burst ? `${3.6 + (i % 5) * 0.6}s` : `${8 + (i % 5) * 1.6}s`,
+              }}
+            >
+              {glyph(i)}
+            </span>
+          )
+        })}
     </div>
   )
 }
@@ -190,5 +227,197 @@ export function FestivalOrnament({ id }: { id: FestivalId }) {
     <svg viewBox="0 0 24 24" {...common}>
       <path d="M2 9.6c2.4-.6 3.6-2.1 4.2-3.9 1 2 2.6 3 4.5 3 .8 0 1.4.6 1.8 1.5.4-.9 1-1.5 1.8-1.5 1.9 0 3.5-1 4.5-3 .6 1.8 1.8 3.3 4.2 3.9-2.1.7-3 2.4-3.3 4.5-1.4-1.4-2.9-1.8-4.5-1.4-1 .3-2 1.1-2.7 2.3-.7-1.2-1.7-2-2.7-2.3-1.6-.4-3.1 0-4.5 1.4-.3-2.1-1.2-3.8-3.3-4.5Z" fill="#c9a8ff" stroke="var(--line)" strokeWidth="1.5" strokeLinejoin="round" />
     </svg>
+  )
+}
+
+/* -------------------------- the hello on load --------------------------- */
+
+/** [angle°, length] — picked by hand so no two spokes match. Even spokes read
+ *  as a sun rather than a burst. */
+const SPARKS: [number, number][] = [
+  [4, 46], [26, 33], [49, 50], [71, 35], [93, 47], [116, 31], [138, 49], [161, 36],
+  [183, 45], [206, 34], [228, 48], [251, 33], [272, 46], [295, 38], [317, 50], [340, 32],
+]
+
+/** [angle°, distance, radius] — sparks that broke away from the shell. */
+const EMBERS: [number, number, number][] = [
+  [14, 60, 4], [57, 66, 3], [129, 62, 4.5], [197, 64, 3.5], [268, 59, 4], [331, 67, 3],
+]
+
+/** [x, y, scale] for the drops flying off the splash. */
+const SPLASH: [number, number, number][] = [
+  [97, 26, 0.5],
+  [104, 74, 0.38],
+  [26, 34, 0.42],
+]
+
+/** The character that comes out to say hello, one per festival. */
+const GREETERS: Record<FestivalId, ReactNode> = {
+  halloween: (
+    <svg viewBox="0 0 120 140" className="size-full">
+      <path
+        d="M60 8c24 0 41 19 41 44v70c0 4-4 6-7 3l-9-9-9 9c-2 2-5 2-7 0l-9-9-9 9c-2 2-5 2-7 0l-9-9-9 9c-3 3-7 1-7-3V52C19 27 36 8 60 8Z"
+        fill="#fffcf7"
+        stroke="var(--line)"
+        strokeWidth="4"
+        strokeLinejoin="round"
+      />
+      <ellipse cx="45" cy="52" rx="7" ry="9" fill="var(--line)" />
+      <ellipse cx="75" cy="52" rx="7" ry="9" fill="var(--line)" />
+      <path d="M48 78c4 6 8 9 12 9s8-3 12-9" fill="none" stroke="var(--line)" strokeWidth="4" strokeLinecap="round" />
+    </svg>
+  ),
+  christmas: (
+    <svg viewBox="0 0 120 140" className="size-full">
+      <path
+        d="M60 20 88 60H72l20 30H74l19 28H27l19-28H28l20-30H32L60 20Z"
+        fill="#2f9e6b"
+        stroke="var(--line)"
+        strokeWidth="4"
+        strokeLinejoin="round"
+      />
+      <rect x="51" y="116" width="18" height="18" rx="3" fill="#8a5a34" stroke="var(--line)" strokeWidth="4" />
+      <path
+        d="M60 2 62.7 9.3 70.5 9.6 64.4 14.4 66.5 21.9 60 17.6 53.5 21.9 55.6 14.4 49.5 9.6 57.3 9.3Z"
+        fill="#ffd166"
+        stroke="var(--line)"
+        strokeWidth="3.5"
+        strokeLinejoin="round"
+      />
+      <circle cx="47" cy="72" r="5" fill="#e0362f" />
+      <circle cx="74" cy="70" r="5" fill="#e0362f" />
+      <circle cx="60" cy="98" r="5" fill="#ffd166" />
+      <circle cx="44" cy="106" r="4.5" fill="#e0362f" />
+    </svg>
+  ),
+  'new-year': (
+    <svg viewBox="0 0 120 140" className="size-full text-[#e0a020]">
+      {/* the trail it went up on */}
+      <path
+        d="M26 136q8-26 26-42"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeDasharray="1 10"
+        opacity="0.65"
+      />
+      <g strokeLinecap="round">
+        {SPARKS.map(([deg, len], i) => {
+          const a = (deg * Math.PI) / 180
+          return (
+            <path
+              key={i}
+              stroke={FIREWORK_HUES[i % FIREWORK_HUES.length]}
+              strokeWidth={len > 40 ? 4.5 : 3}
+              d={`M${60 + Math.cos(a) * 13} ${68 + Math.sin(a) * 13}L${60 + Math.cos(a) * len} ${68 + Math.sin(a) * len}`}
+            />
+          )
+        })}
+      </g>
+      <g>
+        {EMBERS.map(([deg, dist, r], i) => {
+          const a = (deg * Math.PI) / 180
+          return (
+            <circle key={i} cx={60 + Math.cos(a) * dist} cy={68 + Math.sin(a) * dist} r={r} fill={FIREWORK_HUES[(i + 2) % FIREWORK_HUES.length]} />
+          )
+        })}
+        <circle cx="60" cy="68" r="6" fill="#fffbe8" stroke="var(--line)" strokeWidth="2.5" />
+      </g>
+    </svg>
+  ),
+  valentine: (
+    <svg viewBox="0 0 120 140" className="size-full">
+      <path
+        d="M60 128 14 82a28 28 0 0 1 40-39l6 6 6-6a28 28 0 1 1 40 39l-46 46Z"
+        fill="#ff5a6e"
+        stroke="var(--line)"
+        strokeWidth="4.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  songkran: (
+    <svg viewBox="0 0 120 140" className="size-full">
+      <path
+        d="M56 22c24 32 36 52 36 66a36 36 0 0 1-72 0c0-14 12-34 36-66Z"
+        fill="#3fa0ff"
+        stroke="var(--line)"
+        strokeWidth="4.5"
+        strokeLinejoin="round"
+      />
+      <path d="M42 84c-4 6-6 11-5 17" fill="none" stroke="#fffcf7" strokeWidth="6" strokeLinecap="round" />
+      {/* the water thrown off it, so it reads as a splash and not one drop */}
+      {SPLASH.map(([x, y, scale], i) => (
+        <path
+          key={i}
+          transform={`translate(${x} ${y}) scale(${scale})`}
+          d="M0 0c6 8 9 13 9 16a9 9 0 0 1-18 0c0-3 3-8 9-16Z"
+          fill="#3fa0ff"
+          stroke="var(--line)"
+          strokeWidth={4.5 / scale}
+          strokeLinejoin="round"
+        />
+      ))}
+    </svg>
+  ),
+  'loy-krathong': (
+    <svg viewBox="0 0 120 140" className="size-full">
+      {/* lotus petals fanned out behind the float */}
+      <g stroke="var(--line)" strokeWidth="4" strokeLinejoin="round">
+        {[-62, -33, 0, 33, 62].map((deg) => (
+          <path key={deg} transform={`translate(60 96) rotate(${deg})`} d="M0 0Q-10-20 0-34Q10-20 0 0Z" fill="#8fd6a8" />
+        ))}
+      </g>
+      {/* the candle it carries */}
+      <rect x="54" y="58" width="12" height="30" rx="3" fill="#fffcf7" stroke="var(--line)" strokeWidth="4" />
+      <path
+        d="M60 32c7 9 10 14 10 18a10 10 0 0 1-20 0c0-4 3-9 10-18Z"
+        fill="#ffb02e"
+        stroke="var(--line)"
+        strokeWidth="4"
+        strokeLinejoin="round"
+      />
+      {/* the banana-leaf bowl */}
+      <path d="M16 96c0 17 20 28 44 28s44-11 44-28Z" fill="#5fb885" stroke="var(--line)" strokeWidth="4.5" strokeLinejoin="round" />
+      <ellipse cx="60" cy="96" rx="44" ry="12" fill="#8fd6a8" stroke="var(--line)" strokeWidth="4.5" />
+      {/* the river it floats away on */}
+      <path
+        d="M10 130q9-7 18 0t18 0t18 0t18 0t18 0"
+        fill="none"
+        stroke="#3fa0ff"
+        strokeWidth="4"
+        strokeLinecap="round"
+        opacity="0.75"
+      />
+    </svg>
+  ),
+}
+
+/**
+ * A one-off hello in the middle of the screen when the page loads during a
+ * festival.
+ *
+ * It plays per page load, not per navigation: this lives in the header, which
+ * survives client-side route changes, so moving between pages does not replay
+ * it — only a real load or refresh does. It removes itself from the DOM
+ * afterwards rather than sitting there invisible, and never takes a pointer
+ * event, so a click landing mid-greeting still reaches the page underneath.
+ */
+export function FestivalGreeting({ festival }: { festival: Festival }) {
+  const reduce = useReducedMotion()
+  const [done, setDone] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDone(true), 2600)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (done || reduce) return null
+
+  return (
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-[70] grid place-items-center">
+      <div className="festival-greet w-40 sm:w-52">{GREETERS[festival.id]}</div>
+    </div>
   )
 }
