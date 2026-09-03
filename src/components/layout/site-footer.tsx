@@ -35,7 +35,11 @@ export async function SiteFooter() {
     <footer className="mt-24">
       <WaveDivider className="text-surface-2 h-12" />
 
-      <div className="bg-surface-2 paper-grain">
+      {/* `-mt-px`: the wave is an SVG and the body a div, so their edge meets at
+          whatever fraction of a pixel the layout lands on. Overlapping by one
+          pixel means a hairline cannot open up between them at any zoom or
+          device pixel ratio. */}
+      <div className="bg-surface-2 paper-grain -mt-px">
         <div className="relative z-10 mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div className="lg:col-span-2">
