@@ -704,7 +704,7 @@ function GhostPeek() {
 const AFTER_MS: Partial<Record<FestivalId, number>> = {
   halloween: 6000,
   'new-year': 7000,
-  valentine: 8600,
+  valentine: 11400,
   songkran: 7400,
   christmas: 8200,
 }
@@ -810,27 +810,35 @@ function HeartBalloon() {
     const between = (min: number, max: number) => min + Math.random() * (max - min)
     const onRight = Math.random() < 0.5
     const narrow = window.innerWidth < 640
-    const count = narrow ? 3 : 4
-    const lane = (narrow ? 26 : 22) / count
+    const lane = narrow ? 17 : 14
 
+    // Two at a time, twice over. The second pair comes up as the first is
+    // already climbing away, so there is a handover rather than a gap — but never
+    // more than a pair holding the edge.
     return {
       onRight,
-      balloons: Array.from({ length: count }, (_, i) => {
-        // Each gets a lane out from the edge and jitters inside it, so they
-        // never stack on top of one another however the sizes come out.
-        const offset = 3 + i * lane + between(0, lane * 0.55)
+      balloons: Array.from({ length: 4 }, (_, i) => {
+        const wave = Math.floor(i / 2)
+        const inWave = i % 2
+        // Each of the pair gets a lane out from the edge and jitters inside it,
+        // so they cluster without stacking however the sizes come out.
+        const offset = 3.5 + inWave * lane + between(0, lane * 0.5)
         const width = Math.round(between(narrow ? 52 : 66, narrow ? 84 : 122))
-        const sway = between(1.8, 2.7)
-        // Whole cycles only: a sway still running when the balloon lets go would
-        // snap the transform from wherever it had got to — the same fault the
-        // peeking ghost had.
-        const arrive = between(0, 0.55)
+        const sway = between(1.15, 1.4)
+        // 4.8s apart, not 4.2s: the slowest of a pair lets go at 4.02s and takes
+        // about half a second to lift clear of the edge. At 4.2s the next pair
+        // was arriving while it was still down there, which put three on the
+        // edge for a couple of frames.
+        const arrive = wave * 4.8 + inWave * between(0.12, 0.32)
         return {
           offset,
           width,
           sway,
           arrive,
           tilt: between(5, 10),
+          // Whole cycles only: a sway still running when the balloon lets go
+          // would snap the transform from wherever it had got to — the same
+          // fault the peeking ghost had.
           release: arrive + 0.9 + sway * 2,
           drift: Math.round(between(40, 190)) * (onRight ? -1 : 1),
           spin: Math.round(between(10, 30)) * (onRight ? -1 : 1),
