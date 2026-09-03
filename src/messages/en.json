@@ -79,7 +79,19 @@
     "songkran": "Happy Songkran",
     "loy-krathong": "Happy Loy Krathong",
     "halloween": "Happy Halloween",
-    "christmas": "Merry Christmas"
+    "christmas": "Merry Christmas",
+    "hint": "Play with this!",
+    "pick": "Pick a festival",
+    "normal": "Back to normal",
+    "replay": "Play again",
+    "name": {
+      "new-year": "New Year",
+      "valentine": "Valentine's",
+      "songkran": "Songkran",
+      "loy-krathong": "Loy Krathong",
+      "halloween": "Halloween",
+      "christmas": "Christmas"
+    }
   },
   "home": {
     "greeting": "Hi, I'm",

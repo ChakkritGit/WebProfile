@@ -10,7 +10,8 @@ import { CloseIcon, MenuIcon } from '@/components/icons'
 import { Logo } from '@/components/brand/logo'
 import { LocaleToggle } from './locale-toggle'
 import { ThemeToggle } from './theme-toggle'
-import { FestivalDecor, FestivalGreeting, useFestival } from './festival-decor'
+import { FestivalDecor, FestivalGreeting, useFestival, useFestivalPlayKey } from './festival-decor'
+import { FestivalPicker } from './festival-picker'
 import { useScrolledPast } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 
@@ -21,6 +22,11 @@ export function SiteHeader() {
   const scrolled = useScrolledPast(8)
   const reduce = useReducedMotion()
   const festival = useFestival()
+  // The scene in the middle of the screen belongs to the front page. Anywhere
+  // else it would land on top of whatever the reader came to read, so those pages
+  // get the dressed header and nothing more.
+  const playKey = useFestivalPlayKey()
+  const atHome = pathname === '/'
 
   // Close the sheet whenever the route changes — including via back/forward.
   // Adjusting state during render is React's documented alternative to an
@@ -78,7 +84,8 @@ export function SiteHeader() {
 
   return (
     <>
-      {festival && <FestivalGreeting festival={festival} />}
+      {atHome && <FestivalPicker />}
+      {atHome && festival && <FestivalGreeting key={playKey} festival={festival} />}
       <header
         className={cn(
           'sticky top-0 z-50 transition-shadow duration-300',

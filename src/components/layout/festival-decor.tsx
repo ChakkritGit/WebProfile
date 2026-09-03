@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { useReducedMotion } from 'motion/react'
 import { festivalById, festivalOn, type Festival, type FestivalId } from '@/config/festivals'
@@ -27,6 +27,49 @@ export function useFestival(): Festival | null {
   if (!mounted) return null
 
   return festivalById(forcedId()) ?? festivalOn(new Date())
+}
+
+/* ------------------------- playing one on demand ------------------------- */
+
+/**
+ * A counter the picker bumps to replay whatever is in the URL.
+ *
+ * Setting `?festival=` to the value it already had changes nothing React can see,
+ * so pressing the same festival twice would do nothing. The count is the thing
+ * that changes: the header keys the greeting on it, a new key remounts, and the
+ * scene starts over without a page load.
+ */
+let playCount = 0
+const playListeners = new Set<() => void>()
+
+function subscribePlay(notify: () => void) {
+  playListeners.add(notify)
+  return () => {
+    playListeners.delete(notify)
+  }
+}
+
+/** Put a festival in the URL and play it. An empty id hands the page back to the
+ *  calendar. */
+export function playFestival(id: string) {
+  const url = new URL(window.location.href)
+  if (id) url.searchParams.set('festival', id)
+  else url.searchParams.delete('festival')
+  // The hash can carry one too — see `forcedId` — so it has to be cleared from
+  // there as well, or a stale override would win over the choice just made.
+  url.hash = url.hash.split('?')[0]
+  window.history.replaceState(null, '', url)
+
+  playCount += 1
+  playListeners.forEach((notify) => notify())
+}
+
+export function useFestivalPlayKey() {
+  return useSyncExternalStore(
+    subscribePlay,
+    () => playCount,
+    () => 0,
+  )
 }
 
 /**
@@ -599,10 +642,10 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
     return () => clearTimeout(timer)
   }, [])
 
-  // Three festivals borrow the dark, each at the moment that suits it: Halloween
-  // from the first frame, because the lights going out is part of the haunting,
-  // and the other two while the greeting's veil is lifting, so the page is
-  // already dark by the time there is nothing over it.
+  // Four festivals borrow the dark, each at the moment that suits it: Halloween
+  // and New Year from the first frame, and the other two while the greeting's
+  // veil is lifting, so the page is already dark by the time there is nothing
+  // over it.
   //
   // The reader's own theme is handed back afterwards. One already in the dark
   // gets nothing to undo, the original is restored rather than blindly cleared,
@@ -793,8 +836,10 @@ const VEIL_LIFTS_AT = Math.round(GREETING_MS * 0.55)
  *  went nearly invisible. */
 const SCENE_THEME: Partial<Record<FestivalId, { theme: 'dark' | 'light'; at: number }>> = {
   // Halloween wants the dark from the first frame — the lights going out is part
-  // of the haunting, not a change of scene.
+  // of the haunting, not a change of scene. New Year wants it for the same reason
+  // in reverse: fireworks are only bright against a night.
   halloween: { theme: 'dark', at: 0 },
+  'new-year': { theme: 'dark', at: 0 },
   // These two want the page dark by the time there is nothing over it, so they
   // take it while the veil is lifting.
   christmas: { theme: 'dark', at: VEIL_LIFTS_AT },
@@ -858,44 +903,66 @@ const SHOTS: [0 | 1, number, number, number, number][] = [
   [1, 42, -240, 3.1, 4],
 ]
 
-function Mortar({ side }: { side: 0 | 1 }) {
+/**
+ * A tube and the shells it fires, as one unit.
+ *
+ * They have to be one unit: the shots used to be positioned from the edge of the
+ * screen by their own percentage while the mouth of the tube sat half a tube's
+ * *width* in from a different one, so they agreed at one viewport size and
+ * nowhere else — 15px apart on a phone.
+ *
+ * The tube leans inward, and the shells drift the same way. It used to lean out
+ * while they drifted in.
+ */
+function Battery({ side }: { side: 0 | 1 }) {
+  const lean = side ? -10 : 10
+
   return (
-    <svg
-      viewBox="0 0 40 60"
-      className={`ny-tube absolute -bottom-2 w-11 sm:w-14 ${side ? 'right-[4%]' : 'left-[4%]'}`}
-      style={{ transform: `rotate(${side ? 9 : -9}deg)` }}
-    >
-      <rect x="8" y="10" width="24" height="50" rx="4" fill="#c0392b" stroke="var(--line)" strokeWidth="3" />
-      <ellipse cx="20" cy="11" rx="12" ry="4.5" fill="#7e2018" stroke="var(--line)" strokeWidth="3" />
-      <rect x="5" y="28" width="30" height="9" rx="3.5" fill="#ffd166" stroke="var(--line)" strokeWidth="3" />
-    </svg>
+    <div className={`ny-battery absolute -bottom-2 w-11 sm:w-14 ${side ? 'right-[4%]' : 'left-[4%]'}`}>
+      <svg viewBox="0 0 40 60" className="ny-tube block w-full" style={{ transform: `rotate(${lean}deg)`, transformOrigin: 'bottom center' }}>
+        <rect x="8" y="10" width="24" height="50" rx="4" fill="#c0392b" stroke="var(--line)" strokeWidth="3" />
+        <ellipse cx="20" cy="11" rx="12" ry="4.5" fill="#7e2018" stroke="var(--line)" strokeWidth="3" />
+        <rect x="5" y="28" width="30" height="9" rx="3.5" fill="#ffd166" stroke="var(--line)" strokeWidth="3" />
+      </svg>
+
+      {/* The shots live in a box that leans with the tube, so the origin lands on
+          the mouth whatever the layout works out to. Computing the leaned-over
+          position by hand instead left them 9 to 14px above the rim: the tube's
+          rendered height is not quite the ratio its viewBox implies. Leaning the
+          trajectory too is right anyway — a tilted mortar fires at a tilt. */}
+      <div className="absolute inset-0" style={{ transform: `rotate(${lean}deg)`, transformOrigin: 'bottom center' }}>
+        {SHOTS.filter(([s]) => s === side).map(([, rise, drift, delay, seed], i) => (
+          <span
+            key={i}
+            className="ny-shot absolute"
+            // The mouth in the tube's own coordinates: centred, 49 of its 60
+            // units up from the base.
+            style={
+              {
+                left: '50%',
+                bottom: '81.7%',
+                '--rise': `${rise}vh`,
+                '--drift': `${drift}px`,
+                animationDelay: `${delay}s`,
+              } as React.CSSProperties
+            }
+          >
+            <span className="ny-trail" style={{ animationDelay: `${delay}s` }} />
+            <svg viewBox="-2 -2 36 36" className="ny-burst" style={{ animationDelay: `${delay}s` }}>
+              {shellPaths(seed)}
+            </svg>
+          </span>
+        ))}
+      </div>
+    </div>
   )
 }
 
 function FireworkFinale() {
   return (
     <Stage>
-      <Mortar side={0} />
-      <Mortar side={1} />
-      {SHOTS.map(([side, rise, drift, delay, seed], i) => (
-        <span
-          key={i}
-          className="ny-shot absolute bottom-11"
-          style={
-            {
-              [side ? 'right' : 'left']: '6%',
-              '--rise': `${rise}vh`,
-              '--drift': `${drift}px`,
-              animationDelay: `${delay}s`,
-            } as React.CSSProperties
-          }
-        >
-          <span className="ny-trail" style={{ animationDelay: `${delay}s` }} />
-          <svg viewBox="-2 -2 36 36" className="ny-burst" style={{ animationDelay: `${delay}s` }}>
-            {shellPaths(seed)}
-          </svg>
-        </span>
-      ))}
+      <Battery side={0} />
+      <Battery side={1} />
     </Stage>
   )
 }
@@ -1243,7 +1310,7 @@ function KrathongDrift() {
     return Array.from({ length: narrow ? 4 : 6 }, (_, i) => ({
       width: Math.round(between(narrow ? 54 : 76, narrow ? 88 : 132)),
       // Staggered so they come past in ones and twos rather than as a line.
-      delay: i * between(0.5, 0.9),
+      delay: i * between(0.35, 0.7),
       // Long enough that they barely cover half the screen before the river takes
       // them: a krathong that crosses in eight seconds is a boat, not a float.
       duration: between(11, 14.5),

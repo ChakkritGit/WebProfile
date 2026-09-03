@@ -79,7 +79,19 @@
     "songkran": "ソンクラーンおめでとう",
     "loy-krathong": "ロイクラトン",
     "halloween": "ハッピーハロウィン",
-    "christmas": "メリークリスマス"
+    "christmas": "メリークリスマス",
+    "hint": "ここで遊べます！",
+    "pick": "祝日を選ぶ",
+    "normal": "通常に戻す",
+    "replay": "もう一度",
+    "name": {
+      "new-year": "お正月",
+      "valentine": "バレンタイン",
+      "songkran": "ソンクラーン",
+      "loy-krathong": "ロイクラトン",
+      "halloween": "ハロウィン",
+      "christmas": "クリスマス"
+    }
   },
   "home": {
     "greeting": "はじめまして、",

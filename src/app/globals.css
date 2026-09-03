@@ -1295,14 +1295,18 @@
 
 /* Each one carries its own pace and its own roll, so the river never moves as a
    single piece. They drift rather than cross: the travel is short and the clock
-   is long, and none of them get near the far side before the river takes them. */
+   is long, and none of them get near the far side before the river takes them.
+
+   The span is the same 82vw as before but shifted right — they used to start
+   24vw off the edge, which at this pace was several seconds of empty water
+   before the first one arrived. */
 @keyframes lk-drift {
-  0% { transform: translate(-24vw, 0) rotate(calc(var(--bob) * -1)); opacity: 0; }
-  10% { opacity: 1; }
-  32% { transform: translate(-4vw, -5px) rotate(var(--bob)); }
-  56% { transform: translate(17vw, 3px) rotate(calc(var(--bob) * -1)); }
-  80% { transform: translate(39vw, -4px) rotate(var(--bob)); }
-  100% { transform: translate(58vw, 2px) rotate(calc(var(--bob) * -0.5)); opacity: 1; }
+  0% { transform: translate(-12vw, 0) rotate(calc(var(--bob) * -1)); opacity: 0; }
+  7% { opacity: 1; }
+  32% { transform: translate(8vw, -5px) rotate(var(--bob)); }
+  56% { transform: translate(29vw, 3px) rotate(calc(var(--bob) * -1)); }
+  80% { transform: translate(51vw, -4px) rotate(var(--bob)); }
+  100% { transform: translate(70vw, 2px) rotate(calc(var(--bob) * -0.5)); opacity: 1; }
 }
 /* They go out with the river, not on their own schedule — the second animation
    is the same fade the water runs, on the same clock. */
