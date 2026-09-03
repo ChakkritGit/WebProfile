@@ -138,9 +138,12 @@ const GLYPHS: Record<FestivalId, (key: number) => React.ReactNode> = {
       </svg>
     ),
   'loy-krathong': (k) => (
-    <svg key={k} viewBox="0 0 16 16" className="size-full text-[#e09a2c]">
-      <path d="M8 2.4c1.7 2 2.6 3.5 2.6 4.6a2.6 2.6 0 0 1-5.2 0c0-1.1.9-2.6 2.6-4.6Z" fill="currentColor" />
-      <path d="M3.4 11.4h9.2c-.6 1.7-2.3 2.6-4.6 2.6s-4-.9-4.6-2.6Z" fill="currentColor" opacity="0.75" />
+    // A sky lantern, which is what actually goes up on the night — the krathong
+    // is the thing that goes on the water, and it has the finale to itself.
+    <svg key={k} viewBox="0 0 16 16" className="size-full text-[#ffb02e]">
+      <path d="M8 1.4c3.1 0 4.9 2.1 4.9 4.6 0 2.1-1.1 3.9-2 5.2H5.1C4.2 9.9 3.1 8.1 3.1 6c0-2.5 1.8-4.6 4.9-4.6Z" fill="currentColor" />
+      <rect x="5.2" y="10.8" width="5.6" height="1.6" rx="0.8" fill="#d9711a" />
+      <circle cx="8" cy="8.4" r="1.4" fill="#fff3c4" />
     </svg>
   ),
   halloween: (k) => (
@@ -269,10 +272,21 @@ export function FestivalOrnament({ id }: { id: FestivalId }) {
   if (id === 'loy-krathong')
     return (
       <svg viewBox="0 0 24 24" className="pointer-events-none absolute -top-3 -right-2 size-7">
-        {/* A flame over a lotus cup. The candle, the leaf folds and the rim petals
-            of the first version were invisible at this size and only muddied it. */}
-        <path d="M12 2.2c2 2.5 3 4.4 3 5.7a3 3 0 0 1-6 0c0-1.3 1-3.2 3-5.7Z" fill="#ffb02e" stroke="var(--line)" strokeWidth="1.8" strokeLinejoin="round" />
-        <path d="M2.6 12.4h18.8c-1.2 4.6-4.6 6.9-9.4 6.9s-8.2-2.3-9.4-6.9Z" fill="#8fd6a8" stroke="var(--line)" strokeWidth="1.8" strokeLinejoin="round" />
+        {/* The lotus krathong the finale floats, cut down to what survives at this
+            size: a flame, one ring of petals and the cup they sit in. */}
+        <path d="M12 2.4c1.8 2.3 2.7 3.8 2.7 4.9a2.7 2.7 0 0 1-5.4 0c0-1.1.9-2.6 2.7-4.9Z" fill="#ffb02e" stroke="var(--line)" strokeWidth="1.7" strokeLinejoin="round" />
+        {[-58, -29, 0, 29, 58].map((deg) => (
+          <path
+            key={deg}
+            transform={`translate(12 14.6) rotate(${deg})`}
+            d="M0 0Q-3.6-4.6 0-8.4Q3.6-4.6 0 0Z"
+            fill="#f9b8ce"
+            stroke="var(--line)"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+        ))}
+        <path d="M3 14.4h18c-1.2 4.4-4.4 6.6-9 6.6s-7.8-2.2-9-6.6Z" fill="#ec7fa8" stroke="var(--line)" strokeWidth="1.8" strokeLinejoin="round" />
       </svg>
     )
   return (
@@ -742,6 +756,7 @@ const GREETING_MS = 3400
 const SCENE_THEME: Partial<Record<FestivalId, 'dark' | 'light'>> = {
   halloween: 'dark',
   christmas: 'dark',
+  'loy-krathong': 'dark',
 }
 
 /** How long each festival's closing scene runs before it unmounts for good. */
@@ -751,6 +766,7 @@ const AFTER_MS: Partial<Record<FestivalId, number>> = {
   valentine: 11400,
   songkran: 7400,
   christmas: 8200,
+  'loy-krathong': 9800,
 }
 
 /**
@@ -775,6 +791,7 @@ function FestivalAfter({ id }: { id: FestivalId }) {
   if (id === 'new-year') return <FireworkFinale />
   if (id === 'valentine') return <HeartBalloon />
   if (id === 'songkran') return <SandPagodas />
+  if (id === 'loy-krathong') return <KrathongDrift />
   return <SnowmenChase />
 }
 
@@ -1089,6 +1106,127 @@ function SnowmenChase() {
           </svg>
         </div>
       </div>
+    </Stage>
+  )
+}
+
+/* --- Loy Krathong: a river of them, coming past from the left ------------ */
+
+/** The water they ride on. Stretched to the width of the screen, so the swell is
+ *  drawn long rather than tiled. */
+function NightWater() {
+  return (
+    <svg
+      viewBox="0 0 1200 100"
+      preserveAspectRatio="none"
+      className="lk-water absolute inset-x-0 bottom-0 h-16 w-full sm:h-20"
+    >
+      <path d="M0 26q75-12 150-2t150 4t150-8t150 6t150-4t150 8t150-6t150 2V100H0Z" fill="#12305c" />
+      <path d="M0 48q100 6 200 1t200 5t200-3t200 7t200-2t200 5V100H0Z" fill="#0d2445" opacity="0.85" />
+      <g
+        fill="none"
+        stroke="#5b95d6"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+        opacity="0.5"
+      >
+        <path d="M60 60q26-7 52 0t52 0M320 72q26-7 52 0t52 0M640 58q26-7 52 0t52 0M900 74q26-7 52 0t52 0" />
+      </g>
+    </svg>
+  )
+}
+
+/** A lotus krathong: petals in two rows, a candle, and incense standing behind. */
+function Krathong({ width }: { width: number }) {
+  return (
+    <svg viewBox="0 0 120 100" style={{ width }} className="block">
+      <g stroke="#caa227" strokeWidth="2.6" strokeLinecap="round">
+        <path d="M50 58V18M60 58V11M70 58V20" />
+      </g>
+      <circle cx="50" cy="17" r="2.4" fill="#e0362f" />
+      <circle cx="60" cy="10" r="2.4" fill="#e0362f" />
+      <circle cx="70" cy="19" r="2.4" fill="#e0362f" />
+
+      <rect x="78" y="34" width="10" height="26" rx="3" fill="#fffcf7" stroke="var(--line)" strokeWidth="2.6" />
+      <path
+        d="M83 24c3.2 4.3 4.7 6.5 4.7 8.1a4.7 4.7 0 0 1-9.4 0c0-1.6 1.5-3.8 4.7-8.1Z"
+        fill="#ffb02e"
+        stroke="var(--line)"
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+      />
+
+      {/* the row behind, darker, so the flower has depth */}
+      {[-62, -33, 0, 33, 62].map((deg) => (
+        <path
+          key={`back-${deg}`}
+          transform={`translate(60 66) rotate(${deg})`}
+          d="M0 0Q-11-17 0-32Q11-17 0 0Z"
+          fill="#ec7fa8"
+          stroke="var(--line)"
+          strokeWidth="2.4"
+          strokeLinejoin="round"
+        />
+      ))}
+      {/* and the row in front, paler and shorter */}
+      {[-76, -46, -16, 16, 46, 76].map((deg) => (
+        <path
+          key={`front-${deg}`}
+          transform={`translate(60 70) rotate(${deg})`}
+          d="M0 0Q-10-13 0-26Q10-13 0 0Z"
+          fill="#f9b8ce"
+          stroke="var(--line)"
+          strokeWidth="2.4"
+          strokeLinejoin="round"
+        />
+      ))}
+      <path
+        d="M14 70c0 9 20 15 46 15s46-6 46-15Z"
+        fill="#e06a9a"
+        stroke="var(--line)"
+        strokeWidth="2.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function KrathongDrift() {
+  // A handful of them, each its own size and pace, so the river never moves as
+  // one piece. Rolled on mount for the same reason the other scenes are.
+  const [boats] = useState(() => {
+    const between = (min: number, max: number) => min + Math.random() * (max - min)
+    const narrow = window.innerWidth < 640
+    return Array.from({ length: narrow ? 4 : 6 }, (_, i) => ({
+      width: Math.round(between(narrow ? 54 : 76, narrow ? 88 : 132)),
+      // Staggered so they come past in ones and twos rather than as a line.
+      delay: i * between(0.85, 1.35),
+      duration: between(7.4, 9.6),
+      lift: Math.round(between(2, 16)),
+      bob: between(2.4, 4.6),
+    }))
+  })
+
+  return (
+    <Stage>
+      <NightWater />
+      {boats.map((boat, i) => (
+        <div
+          key={i}
+          className="lk-boat absolute"
+          style={
+            {
+              bottom: 24 + boat.lift,
+              animationDelay: `${boat.delay.toFixed(2)}s`,
+              animationDuration: `${boat.duration.toFixed(2)}s`,
+              '--bob': `${boat.bob.toFixed(1)}deg`,
+            } as React.CSSProperties
+          }
+        >
+          <Krathong width={boat.width} />
+        </div>
+      ))}
     </Stage>
   )
 }
