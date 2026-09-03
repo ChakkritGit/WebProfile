@@ -1232,10 +1232,13 @@
   /* Ten passes to 3.1s, then it stands there laughing. */
   animation:
     xm-bob 0.31s ease-in-out 10,
-    /* Nine passes runs to 8.68s, past the end of the fade at 8.2s. Six stopped it
-       at 6.82s and left it standing there for the last second and a half — it
+    /* It stops at 3.1s, watches the wreckage for the best part of a second, and
+       only then starts. Laughing the instant the other one hit the ground read as
+       a reflex rather than a reaction.
+
+       Eight passes from 4s runs to 8.96s, past the end of the fade at 8.2s — it
        should still be laughing when it goes. */
-    xm-laugh 0.62s ease-in-out 3.1s 9;
+    xm-laugh 0.62s ease-in-out 4s 8;
 }
 
 /* Halloween borrows the dark theme for the length of its scene, then hands it

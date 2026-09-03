@@ -570,10 +570,10 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
     return () => clearTimeout(timer)
   }, [])
 
-  // Two festivals borrow the dark, and they take it at the moment the greeting
-  // clears rather than at load. The greeting has its own veil over the page, so
-  // changing the theme underneath it was work nobody could see; the swap belongs
-  // to the scene that follows, which is played against the page itself.
+  // Three festivals borrow the dark, and they take it while the greeting's veil
+  // is lifting — so the page is already dark by the time there is nothing over
+  // it. Swapping at load was work nobody could see under a veil at full strength;
+  // swapping after it cleared put a colour change on a bare page.
   //
   // The reader's own theme is handed back afterwards. One already in the dark
   // gets nothing to undo, the original is restored rather than blindly cleared,
@@ -597,7 +597,7 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
         void getComputedStyle(document.body).backgroundColor
         root.classList.toggle('dark', want === 'dark')
       })
-    }, GREETING_MS)
+    }, SCENE_THEME_AT)
 
     const scene = GREETING_MS + (AFTER_MS[festival.id] ?? 0)
     const back = setTimeout(() => root.classList.toggle('dark', wasDark), scene)
@@ -749,6 +749,14 @@ function GhostPeek() {
 /** How long the greeting holds the middle of the screen before its scene takes
  *  over. Matches the animations in `globals.css`. */
 const GREETING_MS = 3400
+
+/** When a scene that borrows a theme starts taking it.
+ *
+ * The greeting's veil begins lifting at 55% of its run, so the swap goes under a
+ * veil that is already thinning and is finished before it clears. Waiting for the
+ * greeting to end put a 700ms colour change on an otherwise bare page, which is
+ * the part that read as a jolt. */
+const SCENE_THEME_AT = Math.round(GREETING_MS * 0.55)
 
 /** The theme a scene borrows while it plays, if it wants one at all. Snow and
  *  ghosts both want the dark; white reads on it, and cream is where the snowmen
