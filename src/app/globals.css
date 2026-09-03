@@ -226,6 +226,10 @@
      someone drew. The corners carry the character instead. */
   border: 3px solid transparent;
   border-image-source: var(--sketch-frame);
+  /* The fill has to stop at the padding box. By default a background paints under
+     the border too, and this border is transparent — so the colour ran straight
+     through the ring the line is drawn in and spilled past it. */
+  background-clip: padding-box;
   border-image-slice: 28;
   border-image-width: 18px;
   border-image-outset: 2px;
@@ -238,6 +242,10 @@
   /* Same treatment as `sticker`, scaled down. */
   border: 2.5px solid transparent;
   border-image-source: var(--sketch-frame);
+  /* The fill has to stop at the padding box. By default a background paints under
+     the border too, and this border is transparent — so the colour ran straight
+     through the ring the line is drawn in and spilled past it. */
+  background-clip: padding-box;
   border-image-slice: 28;
   border-image-width: 17px;
   border-image-outset: 2px;
@@ -250,6 +258,10 @@
   /* Same treatment as `sticker`, scaled down. */
   border: 4px solid transparent;
   border-image-source: var(--sketch-frame);
+  /* The fill has to stop at the padding box. By default a background paints under
+     the border too, and this border is transparent — so the colour ran straight
+     through the ring the line is drawn in and spilled past it. */
+  background-clip: padding-box;
   border-image-slice: 28;
   border-image-width: 22px;
   border-image-outset: 3px;
@@ -307,6 +319,10 @@
 .rounded-full.border {
   border-color: transparent;
   border-image-source: var(--sketch-pill);
+  /* The fill has to stop at the padding box. By default a background paints under
+     the border too, and this border is transparent — so the colour ran straight
+     through the ring the line is drawn in and spilled past it. */
+  background-clip: padding-box;
   border-image-slice: 26;
   /* 4.6 x 15/26 = 2.65px, matching the cards. At 11px the pills were drawn with a
      finer pen than everything around them, which is what made the buttons and the
@@ -328,6 +344,10 @@
 .rounded-xl.border {
   border-color: transparent;
   border-image-source: var(--sketch-frame);
+  /* The fill has to stop at the padding box. By default a background paints under
+     the border too, and this border is transparent — so the colour ran straight
+     through the ring the line is drawn in and spilled past it. */
+  background-clip: padding-box;
   border-image-slice: 28;
   border-image-width: 18px;
   border-image-outset: 2px;
