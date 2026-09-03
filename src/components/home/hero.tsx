@@ -19,6 +19,11 @@ import {
 import { Container } from '@/components/ui/section'
 import { ResumeButton } from '@/components/content/resume-button'
 
+/** A strip of masking tape, torn at both ends, holding a corner down. */
+function Tape({ className }: { className: string }) {
+  return <span aria-hidden className={`tape pointer-events-none absolute h-6 w-24 ${className}`} />
+}
+
 /** Floating sticker chips that echo the old portfolio's badges. */
 function FloatingChip({
   children,
@@ -26,6 +31,7 @@ function FloatingChip({
   delay = 0,
   tone,
   playIntro,
+  peel = false,
 }: {
   children: React.ReactNode
   className?: string
@@ -33,6 +39,8 @@ function FloatingChip({
   tone: string
   /** False after the first mount, so a locale switch doesn't replay the pop-in. */
   playIntro: boolean
+  /** Coming away from the paper at its right edge, with a shadow under the lift. */
+  peel?: boolean
 }) {
   const reduce = useReducedMotion()
   return (
@@ -43,7 +51,9 @@ function FloatingChip({
       className={className}
     >
       <div
-        className={`sticker-sm font-display flex items-center gap-2 px-3.5 py-2 text-sm font-bold ${tone} ${reduce ? '' : 'animate-float'}`}
+        // A sticker that has come unstuck does not bob — the float and the peel
+        // both write `transform`, and the animation would win every frame.
+        className={`sticker-sm font-display flex items-center gap-2 px-3.5 py-2 text-sm font-bold ${tone} ${peel ? 'sticker-peel' : reduce ? '' : 'animate-float'}`}
         style={{ animationDelay: `${delay}s` }}
       >
         {children}
@@ -143,27 +153,40 @@ export function Hero({ roles }: { roles: string[] }) {
             </motion.div>
           </div>
 
-          {/* Illustration panel — geometric avatar built from shapes, no photo needed. */}
+          {/* The photo, torn out of a sheet and taped down. */}
           <motion.div
             initial={from({ opacity: 0, scale: 0.9 })}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.2, type: 'spring', stiffness: 90 }}
             className="relative mx-auto w-full max-w-[15rem] sm:max-w-[17rem] lg:max-w-[20rem]"
           >
-            <div className="sticker-lg bg-surface relative aspect-square overflow-hidden">
-              <Image
-                src={profile.avatar}
-                alt={tMeta('siteName')}
-                width={860}
-                height={860}
-                priority
-                sizes="(max-width: 640px) 15rem, (max-width: 1024px) 18rem, 20rem"
-                className="size-full object-cover"
-              />
+            {/* Two elements, not one: the clip has to sit on the inner box and the
+                shadow on the outer, because a filter is applied before the clip
+                and a shadow drawn on the same element would be cut away with the
+                edge it is meant to follow. */}
+            <div className="torn-shadow relative aspect-square">
+              {/* The sheet is `--surface`, not the page colour: on the light theme a
+                    cream page and a cream margin left the tear along the top and
+                    left invisible, carried only by the shadow on the other two
+                    sides. */}
+              <div className="torn-paper paper-grain bg-surface size-full p-[9px]">
+                <Image
+                  src={profile.avatar}
+                  alt={tMeta('siteName')}
+                  width={860}
+                  height={860}
+                  priority
+                  sizes="(max-width: 640px) 15rem, (max-width: 1024px) 18rem, 20rem"
+                  className="size-full object-cover"
+                />
+              </div>
             </div>
 
-            <StarBurst className="animate-wobble absolute -top-4 -right-3 size-10" />
-            <StarBurst className="animate-wobble absolute -bottom-2 -left-4 size-7" color="var(--mint)" />
+            <Tape className="-top-4 -right-6 rotate-[42deg]" />
+            <Tape className="-bottom-4 -left-6 rotate-[42deg]" />
+
+            <StarBurst className="animate-wobble absolute -top-7 right-10 size-9" />
+            <StarBurst className="animate-wobble absolute bottom-8 -left-5 size-7" color="var(--mint)" />
 
             <FloatingChip
               className="absolute -top-5 -left-6 sm:-left-10"
@@ -179,6 +202,7 @@ export function Hero({ roles }: { roles: string[] }) {
               delay={0.75}
               tone="bg-mint-soft"
               playIntro={playIntro}
+              peel
             >
               <ThumbsUpIcon className="text-mint size-4" />
               Good at Programming
