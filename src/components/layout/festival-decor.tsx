@@ -120,8 +120,13 @@ const GLYPHS: Record<FestivalId, (key: number) => React.ReactNode> = {
     </svg>
   ),
   songkran: (k) => (
-    <svg key={k} viewBox="0 0 16 16" className="size-full text-[#3fa0ff]">
-      <path d="M8 1.8c2.9 3.7 4.4 6.3 4.4 8a4.4 4.4 0 0 1-8.8 0c0-1.7 1.5-4.3 4.4-8Z" fill="currentColor" />
+    // Golden shower blossom. April in Thailand is the month it flowers, and a
+    // falling one says Songkran the way a water drop only says water.
+    <svg key={k} viewBox="0 0 16 16" className="size-full text-[#f2c53d]">
+      {[0, 72, 144, 216, 288].map((deg) => (
+        <ellipse key={deg} cx="8" cy="3.9" rx="2.5" ry="3.5" transform={`rotate(${deg} 8 8)`} fill="currentColor" />
+      ))}
+      <circle cx="8" cy="8" r="1.6" fill="#e08b1a" />
     </svg>
   ),
   'loy-krathong': (k) => (
@@ -229,8 +234,22 @@ export function FestivalOrnament({ id }: { id: FestivalId }) {
     )
   if (id === 'songkran')
     return (
+      // One blossom caught on the mark, matching the ones coming down behind it.
       <svg viewBox="0 0 24 24" {...common}>
-        <path d="M12 2.5c4.4 5.6 6.6 9.4 6.6 11.9a6.6 6.6 0 0 1-13.2 0C5.4 11.9 7.6 8.1 12 2.5Z" fill="#6cc6ff" stroke="var(--line)" strokeWidth="1.8" strokeLinejoin="round" />
+        {[0, 72, 144, 216, 288].map((deg) => (
+          <ellipse
+            key={deg}
+            cx="12"
+            cy="5.6"
+            rx="3.7"
+            ry="5.2"
+            transform={`rotate(${deg} 12 12)`}
+            fill="#f2c53d"
+            stroke="var(--line)"
+            strokeWidth="1.6"
+          />
+        ))}
+        <circle cx="12" cy="12" r="2.6" fill="#e08b1a" stroke="var(--line)" strokeWidth="1.6" />
       </svg>
     )
   if (id === 'new-year')
@@ -810,7 +829,9 @@ function HeartBalloon() {
     const between = (min: number, max: number) => min + Math.random() * (max - min)
     const onRight = Math.random() < 0.5
     const narrow = window.innerWidth < 640
-    const lane = narrow ? 17 : 14
+    // Tight enough that the pair reads as a bunch someone is holding, not two
+    // balloons that happen to be near each other.
+    const lane = narrow ? 10 : 6
 
     // Two at a time, twice over. The second pair comes up as the first is
     // already climbing away, so there is a handover rather than a gap — but never
@@ -822,7 +843,7 @@ function HeartBalloon() {
         const inWave = i % 2
         // Each of the pair gets a lane out from the edge and jitters inside it,
         // so they cluster without stacking however the sizes come out.
-        const offset = 3.5 + inWave * lane + between(0, lane * 0.5)
+        const offset = 3.5 + inWave * lane + between(0, lane * 0.35)
         const width = Math.round(between(narrow ? 52 : 66, narrow ? 84 : 122))
         const sway = between(1.15, 1.4)
         // 4.8s apart, not 4.2s: the slowest of a pair lets go at 4.02s and takes
@@ -914,15 +935,7 @@ function Bunting({ sag, drop, className }: { sag: number; drop: number; classNam
   )
 }
 
-/** [left/right offset %, width px, delay s]. Uneven heights, like a real row. */
-const PAGODAS: [0 | 1, number, number, number][] = [
-  [0, 4, 132, 0.1],
-  [0, 19, 96, 0.28],
-  [0, 31, 74, 0.44],
-  [1, 4, 140, 0.16],
-  [1, 20, 104, 0.34],
-  [1, 32, 78, 0.5],
-]
+
 
 function Pagoda({ width }: { width: number }) {
   return (
@@ -936,19 +949,46 @@ function Pagoda({ width }: { width: number }) {
 }
 
 function SandPagodas() {
+  // Two piles heaped against each other and a third standing off on its own, per
+  // side. Laid out in pixels from the edge rather than percentages: the overlap
+  // is a fraction of the first pile's own width, and a percentage would have put
+  // the second one entirely inside the first on a phone.
+  const [piles] = useState(() => {
+    const between = (min: number, max: number) => min + Math.random() * (max - min)
+    const narrow = window.innerWidth < 640
+    const scale = narrow ? 0.5 : 1
+
+    return ([0, 1] as const).flatMap((side) => {
+      const big = Math.round(between(122, 148) * scale)
+      const mid = Math.round(between(88, 108) * scale)
+      const far = Math.round(between(66, 84) * scale)
+      const bigX = Math.round(between(6, 22) * scale)
+      const midX = bigX + Math.round(big * between(0.5, 0.66))
+      const farX = midX + mid + Math.round(between(34, 84) * scale)
+      return [
+        { side, x: bigX, width: big, delay: between(0.05, 0.16) },
+        { side, x: midX, width: mid, delay: between(0.22, 0.36) },
+        { side, x: farX, width: far, delay: between(0.42, 0.58) },
+      ]
+    })
+  })
+
   return (
     <Stage>
       <Bunting sag={210} drop={44} className="sk-bunting absolute bottom-[19%] left-0 h-28 w-full sm:h-36" />
       <Bunting sag={140} drop={38} className="sk-bunting sk-bunting--back absolute bottom-[27%] left-0 h-24 w-full sm:h-32" />
-      {PAGODAS.map(([side, offset, width, delay], i) => (
+      {piles.map((pile, i) => (
         <div
           key={i}
           className="sk-pagoda absolute bottom-0"
           // Two animations on this element, so two delays: a single value would
           // be reused for both and start the sink at the same moment as the rise.
-          style={{ [side ? 'right' : 'left']: `${offset}%`, animationDelay: `${delay}s, 6.2s` }}
+          style={{
+            [pile.side ? 'right' : 'left']: pile.x,
+            animationDelay: `${pile.delay.toFixed(2)}s, 6.2s`,
+          }}
         >
-          <Pagoda width={width} />
+          <Pagoda width={pile.width} />
         </div>
       ))}
     </Stage>
