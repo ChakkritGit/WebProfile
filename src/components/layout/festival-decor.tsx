@@ -61,6 +61,31 @@ const FIREWORK_HUES = ['#ffd166', '#ff6b8a', '#4fc3f7', '#7c5cff', '#5ddba4', '#
  * `festival-launch` rules, where both children take their timing from the
  * parent.
  */
+/** The open shell, in a 32-unit box. Shared by the header and the finale. */
+function shellPaths(seed: number) {
+  return (
+    <>
+      <g strokeLinecap="round">
+        {Array.from({ length: 12 }, (_, i) => {
+          const a = ((i * 30 + seed * 11) * Math.PI) / 180
+          const len = i % 2 ? 11 : 14
+          const hue = FIREWORK_HUES[(i + seed) % FIREWORK_HUES.length]
+          return (
+            <g key={i} stroke={hue} fill={hue}>
+              <path
+                strokeWidth={i % 2 ? 1.4 : 1.9}
+                d={`M${16 + Math.cos(a) * 4} ${16 + Math.sin(a) * 4}L${16 + Math.cos(a) * len} ${16 + Math.sin(a) * len}`}
+              />
+              <circle cx={16 + Math.cos(a) * (len + 1.7)} cy={16 + Math.sin(a) * (len + 1.7)} r={i % 2 ? 0.9 : 1.3} stroke="none" />
+            </g>
+          )
+        })}
+      </g>
+      <circle cx="16" cy="16" r="2.3" fill="#fffbe8" />
+    </>
+  )
+}
+
 function Firework({ seed }: { seed: number }) {
   const head = FIREWORK_HUES[seed % FIREWORK_HUES.length]
 
@@ -71,23 +96,7 @@ function Firework({ seed }: { seed: number }) {
         <circle cx="16" cy="10" r="1.7" fill={head} />
       </svg>
       <svg viewBox="-2 -2 36 36" className="fw-shell absolute inset-0 size-full">
-        <g strokeLinecap="round">
-          {Array.from({ length: 12 }, (_, i) => {
-            const a = ((i * 30 + seed * 11) * Math.PI) / 180
-            const len = i % 2 ? 11 : 14
-            const hue = FIREWORK_HUES[(i + seed) % FIREWORK_HUES.length]
-            return (
-              <g key={i} stroke={hue} fill={hue}>
-                <path
-                  strokeWidth={i % 2 ? 1.4 : 1.9}
-                  d={`M${16 + Math.cos(a) * 4} ${16 + Math.sin(a) * 4}L${16 + Math.cos(a) * len} ${16 + Math.sin(a) * len}`}
-                />
-                <circle cx={16 + Math.cos(a) * (len + 1.7)} cy={16 + Math.sin(a) * (len + 1.7)} r={i % 2 ? 0.9 : 1.3} stroke="none" />
-              </g>
-            )
-          })}
-        </g>
-        <circle cx="16" cy="16" r="2.3" fill="#fffbe8" />
+        {shellPaths(seed)}
       </svg>
     </>
   )
@@ -449,14 +458,50 @@ const CONFETTI: Record<FestivalId, ReactNode> = {
   ),
 }
 
-/** Where each piece of confetti is thrown: [angle°, distance, size, spin°]. Hand
- *  picked so the ring is uneven — an even fan reads as a machine, not a burst. */
-const THROW: [number, number, number, number][] = [
+/** [angle°, distance, size, spin°]. Hand picked so the spread is uneven — an even
+ *  fan reads as a machine, not a burst. */
+type Fling = [number, number, number, number]
+
+/** Straight out from the middle: sparks and bats. */
+const FLING_OUT: Fling[] = [
   [-88, 214, 20, 40], [-58, 176, 14, -70], [-31, 232, 22, 25], [-6, 188, 16, 90],
   [17, 240, 19, -35], [43, 170, 13, 60], [68, 226, 21, -20], [92, 182, 15, 75],
   [117, 236, 18, -55], [141, 174, 12, 30], [166, 222, 20, -85], [-165, 190, 16, 45],
   [-138, 234, 21, -30], [-113, 178, 14, 65],
 ]
+
+/** Up and apart: hearts and flames, which climb rather than scatter. */
+const FLING_UP: Fling[] = [
+  [-96, 300, 18, 30], [-70, 250, 13, -50], [-114, 272, 20, 20], [-58, 306, 15, 60],
+  [-128, 238, 12, -35], [-84, 342, 22, 15], [-104, 212, 14, -60], [-46, 262, 17, 45],
+  [-140, 288, 19, -25], [-76, 224, 12, 55], [-118, 320, 21, -40], [-62, 198, 14, 30],
+  [-92, 258, 16, -20], [-108, 232, 13, 50],
+]
+
+/** Out sideways and then down, for the things gravity gets: snow and water. */
+const FLING_DOWN: Fling[] = [
+  [84, 302, 18, 40], [56, 248, 13, -60], [104, 280, 20, 25], [40, 322, 15, 70],
+  [126, 236, 12, -30], [96, 344, 22, 20], [68, 210, 14, -55], [22, 268, 17, 50],
+  [146, 300, 19, -20], [76, 228, 12, 60], [112, 330, 21, -45], [50, 196, 14, 35],
+  [90, 256, 16, -25], [132, 220, 13, 55],
+]
+
+/**
+ * How each festival arrives, and what its confetti does afterwards.
+ *
+ * No two share a motion. A firework has to climb before it opens, a heart beats,
+ * a drop falls and squashes on landing, a krathong comes up on the water, a
+ * ghost does not arrive at all but appears, and the tree is drawn on the way
+ * everything else on this site is drawn.
+ */
+const STAGING: Record<FestivalId, { enter: string; fling: string; list: Fling[]; wish: number }> = {
+  'new-year': { enter: 'greet-in-burst', fling: 'fling-out', list: FLING_OUT, wish: 1.15 },
+  valentine: { enter: 'greet-in-beat', fling: 'fling-rise', list: FLING_UP, wish: 0.95 },
+  songkran: { enter: 'greet-in-drop', fling: 'fling-fall', list: FLING_DOWN, wish: 1.0 },
+  'loy-krathong': { enter: 'greet-in-float', fling: 'fling-rise', list: FLING_UP, wish: 1.1 },
+  halloween: { enter: 'greet-in-haunt', fling: 'fling-out', list: FLING_OUT, wish: 1.2 },
+  christmas: { enter: 'greet-in-draw', fling: 'fling-fall', list: FLING_DOWN, wish: 0.85 },
+}
 
 /**
  * A one-off hello in the middle of the screen when the page loads during a
@@ -484,9 +529,49 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
     return () => clearTimeout(timer)
   }, [])
 
-  // Reduced motion opts out of the whole flourish, the peeking ghost included.
+  // Halloween turns the lights out for the length of its scene and puts them
+  // back afterwards. A reader already in the dark gets nothing to undo, and the
+  // class is removed on unmount as well as on the timer, so a navigation part way
+  // through cannot leave the site stuck in a theme nobody chose.
+  useEffect(() => {
+    if (festival.id !== 'halloween' || reduce) return
+    const root = document.documentElement
+    if (root.classList.contains('dark')) return
+
+    root.classList.add('theme-xfade')
+
+    // Two frames, then read the colour back, and only then change the theme.
+    // This runs at hydration, which can land before the browser has painted at
+    // all: a transition needs a previously rendered value to move away from, and
+    // without one the lights went out in a single frame. Waiting for a paint
+    // gives it that value, and the read makes sure the style is computed with the
+    // transition already in place.
+    let dropped = false
+    const frame = requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        if (dropped) return
+        void getComputedStyle(document.body).backgroundColor
+        root.classList.add('dark')
+      }),
+    )
+
+    const back = setTimeout(() => root.classList.remove('dark'), 3400 + (AFTER_MS.halloween ?? 0))
+    const settle = setTimeout(() => root.classList.remove('theme-xfade'), 4200 + (AFTER_MS.halloween ?? 0))
+
+    return () => {
+      dropped = true
+      cancelAnimationFrame(frame)
+      clearTimeout(back)
+      clearTimeout(settle)
+      root.classList.remove('dark', 'theme-xfade')
+    }
+  }, [festival.id, reduce])
+
+  const stage = STAGING[festival.id]
+
+  // Reduced motion opts out of the whole flourish, the afterpiece included.
   if (reduce) return null
-  if (done) return festival.id === 'halloween' ? <GhostPeek /> : null
+  if (done) return <FestivalAfter id={festival.id} />
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-[70] grid place-items-center">
@@ -494,18 +579,23 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
 
       <div className="festival-greet relative flex flex-col items-center gap-5">
         <div className="relative">
-          <div className="greet-ink w-40 sm:w-52">{GREETERS[festival.id]}</div>
+          {/* The shell climbing to the middle, on the one festival that needs a
+              launch before there is anything to look at. */}
+          {festival.id === 'new-year' && (
+            <span className="greet-rocket absolute start-1/2 top-1/2 h-16 w-1.5 -translate-x-1/2 rounded-full bg-[#ffd166]" />
+          )}
+          <div className={`greet-ink ${stage.enter} w-40 sm:w-52`}>{GREETERS[festival.id]}</div>
 
           {/* Thrown from behind the character, so the first frames are hidden by
               it and the confetti appears to come out rather than start beside. */}
           <div className="pointer-events-none absolute inset-0 -z-10 grid place-items-center">
-            {THROW.map(([deg, dist, size, spin], i) => {
+            {stage.list.map(([deg, dist, size, spin], i) => {
               const a = (deg * Math.PI) / 180
               return (
                 <svg
                   key={i}
                   viewBox="0 0 16 16"
-                  className="greet-confetti absolute"
+                  className={`greet-confetti ${stage.fling} absolute`}
                   style={
                     {
                       width: size,
@@ -513,7 +603,7 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
                       '--dx': `${Math.cos(a) * dist}px`,
                       '--dy': `${Math.sin(a) * dist}px`,
                       '--spin': `${spin}deg`,
-                      animationDelay: `${0.62 + (i % 5) * 0.045}s`,
+                      animationDelay: `${stage.wish - 0.35 + (i % 5) * 0.045}s`,
                     } as React.CSSProperties
                   }
                 >
@@ -524,7 +614,10 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
           </div>
         </div>
 
-        <p className="greet-wish font-display text-center text-2xl font-bold text-[#fffcf7] sm:text-3xl">
+        <p
+          className="greet-wish font-display text-center text-2xl font-bold text-[#fffcf7] sm:text-3xl"
+          style={{ animationDelay: `${stage.wish}s` }}
+        >
           {t(festival.id)}
         </p>
       </div>
@@ -535,10 +628,10 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
 /**
  * The ghost that stays behind, leaning out from the left edge of the screen.
  *
- * It is drawn facing the way it leans: the eyes and mouth sit in the right half
- * of the box, because the left half is the part hanging off the screen. A
- * centred face would have put one eye and half a smile on screen, which reads as
- * a ghost cut in half rather than one looking round the corner.
+ * It comes out far enough to turn and face you — the whole face on screen, not a
+ * profile — holds your eye for a second, blinks twice and ducks back. Only the
+ * trailing edge of it stays off screen, which is what keeps it reading as
+ * something leaning out from behind rather than a sticker parked in the corner.
  */
 function GhostPeek() {
   const [gone, setGone] = useState(false)
@@ -564,11 +657,257 @@ function GhostPeek() {
           strokeLinejoin="round"
         />
         <g className="ghost-eyes">
-          <ellipse cx="74" cy="52" rx="7" ry="9" fill="var(--line)" />
-          <ellipse cx="99" cy="52" rx="6.4" ry="8.4" fill="var(--line)" />
+          <ellipse cx="46" cy="52" rx="7" ry="9" fill="var(--line)" />
+          <ellipse cx="76" cy="52" rx="7" ry="9" fill="var(--line)" />
         </g>
-        <path d="M76 78c4 6 8 9 12 9s8-3 11-8" fill="none" stroke="var(--line)" strokeWidth="4" strokeLinecap="round" />
+        <path d="M49 78c4 6 8 9 12 9s8-3 12-9" fill="none" stroke="var(--line)" strokeWidth="4" strokeLinecap="round" />
       </svg>
     </div>
+  )
+}
+
+/* ---------------------------- the afterpieces ---------------------------- */
+
+/** How long each festival's closing scene runs before it unmounts for good. */
+const AFTER_MS: Partial<Record<FestivalId, number>> = {
+  halloween: 5200,
+  'new-year': 7000,
+  valentine: 7000,
+  songkran: 7400,
+  christmas: 8200,
+}
+
+/**
+ * What each festival leaves behind once the greeting has gone.
+ *
+ * Every one of them plays out and then removes itself — none of them stay. They
+ * unmount on the clock their own exit finishes on, so nothing is left parked
+ * off-screen for a resize to find.
+ */
+function FestivalAfter({ id }: { id: FestivalId }) {
+  const [gone, setGone] = useState(false)
+  const ms = AFTER_MS[id]
+
+  useEffect(() => {
+    if (!ms) return
+    const timer = setTimeout(() => setGone(true), ms)
+    return () => clearTimeout(timer)
+  }, [ms])
+
+  if (!ms || gone) return null
+  if (id === 'halloween') return <GhostPeek />
+  if (id === 'new-year') return <FireworkFinale />
+  if (id === 'valentine') return <HeartBalloon />
+  if (id === 'songkran') return <SandPagodas />
+  return <SnowmenChase />
+}
+
+/** A layer that covers the screen, takes no input, and clips whatever leaves it. */
+function Stage({ children }: { children: ReactNode }) {
+  return (
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-40 overflow-hidden">
+      {children}
+    </div>
+  )
+}
+
+/* --- New Year: two mortars at the bottom corners, firing until they stop --- */
+
+/** [side, rise (vh), drift (px), delay (s), shell seed]. */
+const SHOTS: [0 | 1, number, number, number, number][] = [
+  [0, 48, 130, 0.25, 1],
+  [1, 54, -160, 0.7, 3],
+  [0, 40, 220, 1.5, 5],
+  [1, 46, -95, 1.95, 0],
+  [0, 57, 65, 2.7, 2],
+  [1, 42, -240, 3.1, 4],
+]
+
+function Mortar({ side }: { side: 0 | 1 }) {
+  return (
+    <svg
+      viewBox="0 0 40 60"
+      className={`ny-tube absolute -bottom-2 w-11 sm:w-14 ${side ? 'right-[4%]' : 'left-[4%]'}`}
+      style={{ transform: `rotate(${side ? 9 : -9}deg)` }}
+    >
+      <rect x="8" y="10" width="24" height="50" rx="4" fill="#c0392b" stroke="var(--line)" strokeWidth="3" />
+      <ellipse cx="20" cy="11" rx="12" ry="4.5" fill="#7e2018" stroke="var(--line)" strokeWidth="3" />
+      <rect x="5" y="28" width="30" height="9" rx="3.5" fill="#ffd166" stroke="var(--line)" strokeWidth="3" />
+    </svg>
+  )
+}
+
+function FireworkFinale() {
+  return (
+    <Stage>
+      <Mortar side={0} />
+      <Mortar side={1} />
+      {SHOTS.map(([side, rise, drift, delay, seed], i) => (
+        <span
+          key={i}
+          className="ny-shot absolute bottom-11"
+          style={
+            {
+              [side ? 'right' : 'left']: '6%',
+              '--rise': `${rise}vh`,
+              '--drift': `${drift}px`,
+              animationDelay: `${delay}s`,
+            } as React.CSSProperties
+          }
+        >
+          <span className="ny-trail" style={{ animationDelay: `${delay}s` }} />
+          <svg viewBox="-2 -2 36 36" className="ny-burst" style={{ animationDelay: `${delay}s` }}>
+            {shellPaths(seed)}
+          </svg>
+        </span>
+      ))}
+    </Stage>
+  )
+}
+
+/* --- Valentine: a balloon on a string, until the knot gives --------------- */
+
+function HeartBalloon() {
+  return (
+    <Stage>
+      <div className="vt-balloon absolute bottom-0 left-[7%] w-24 sm:w-28">
+        <svg viewBox="0 0 100 224" className="size-full">
+          <path d="M50 100q12 36-4 62t3 60" fill="none" stroke="var(--line)" strokeWidth="3" strokeLinecap="round" />
+          <path d="M36 220h28" stroke="var(--line)" strokeWidth="7" strokeLinecap="round" />
+          <path
+            d="M50 100 11 60a22 22 0 0 1 31-31l8 8 8-8a22 22 0 1 1 31 31L50 100Z"
+            fill="#ff5a6e"
+            stroke="var(--line)"
+            strokeWidth="4.5"
+            strokeLinejoin="round"
+          />
+          <path d="M28 46a13 13 0 0 1 10-12" fill="none" stroke="#fffcf7" strokeWidth="4.5" strokeLinecap="round" opacity="0.85" />
+        </svg>
+      </div>
+    </Stage>
+  )
+}
+
+/* --- Songkran: sand pagodas in both corners, under a string of flags ------ */
+
+const BUNTING_HUES = ['#ff3d7f', '#00b74a', '#1a3fd0', '#d81b23', '#ffc300']
+
+/** Triangles hanging from a sagging line, the way a swag actually hangs. */
+function Bunting({ sag, drop, className }: { sag: number; drop: number; className: string }) {
+  const at = (t: number) => ({
+    x: 2 * (1 - t) * t * 600 + t * t * 1200,
+    y: (1 - t) * (1 - t) * 16 + 2 * (1 - t) * t * sag + t * t * 16,
+  })
+  const flags = Array.from({ length: 21 }, (_, i) => at(0.03 + (i * 0.94) / 20))
+
+  return (
+    <svg viewBox="0 0 1200 200" preserveAspectRatio="none" className={className}>
+      <path d={`M0 16Q600 ${sag} 1200 16`} fill="none" stroke="var(--line)" strokeWidth="4" strokeLinecap="round" />
+      {flags.map((f, i) => (
+        <path
+          key={i}
+          d={`M${f.x - 17} ${f.y} L${f.x + 17} ${f.y} L${f.x} ${f.y + drop} Z`}
+          fill={BUNTING_HUES[i % BUNTING_HUES.length]}
+          stroke="var(--line)"
+          strokeWidth="3"
+          strokeLinejoin="round"
+        />
+      ))}
+    </svg>
+  )
+}
+
+/** [left/right offset %, width px, delay s]. Uneven heights, like a real row. */
+const PAGODAS: [0 | 1, number, number, number][] = [
+  [0, 4, 132, 0.1],
+  [0, 19, 96, 0.28],
+  [0, 31, 74, 0.44],
+  [1, 4, 140, 0.16],
+  [1, 20, 104, 0.34],
+  [1, 32, 78, 0.5],
+]
+
+function Pagoda({ width }: { width: number }) {
+  return (
+    <svg viewBox="0 -16 100 122" style={{ width }} className="block">
+      <path d="M50 6 94 104H6L50 6Z" fill="#e6c68a" stroke="var(--line)" strokeWidth="3.5" strokeLinejoin="round" />
+      <path d="M24 76h52M32 54h36M40 32h20" fill="none" stroke="var(--line)" strokeWidth="3" strokeLinecap="round" opacity="0.45" />
+      <path d="M50 6V-14" stroke="var(--line)" strokeWidth="3" strokeLinecap="round" />
+      <path d="M50-14 78-7 50 0Z" fill="#e0362f" stroke="var(--line)" strokeWidth="2.5" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function SandPagodas() {
+  return (
+    <Stage>
+      <Bunting sag={210} drop={44} className="sk-bunting absolute bottom-[19%] left-0 h-28 w-full sm:h-36" />
+      <Bunting sag={140} drop={38} className="sk-bunting sk-bunting--back absolute bottom-[27%] left-0 h-24 w-full sm:h-32" />
+      {PAGODAS.map(([side, offset, width, delay], i) => (
+        <div
+          key={i}
+          className="sk-pagoda absolute bottom-0"
+          // Two animations on this element, so two delays: a single value would
+          // be reused for both and start the sink at the same moment as the rise.
+          style={{ [side ? 'right' : 'left']: `${offset}%`, animationDelay: `${delay}s, 6.2s` }}
+        >
+          <Pagoda width={width} />
+        </div>
+      ))}
+    </Stage>
+  )
+}
+
+/* --- Christmas: one snowman trips, the other finds it funny --------------- */
+
+function SnowBall({ r, cx, cy, fill = '#fffcf7' }: { r: number; cx: number; cy: number; fill?: string }) {
+  return <circle cx={cx} cy={cy} r={r} fill={fill} stroke="var(--line)" strokeWidth="4" />
+}
+
+function SnowmenChase() {
+  return (
+    <Stage>
+      {/* The one in front, which does not make it. */}
+      <div className="xm-runner absolute bottom-2 left-0 w-24 sm:w-28">
+        <div className="xm-runner-bob">
+          <svg viewBox="0 0 100 150" className="size-full overflow-visible">
+            <g className="xm-base">
+              <SnowBall cx={50} cy={116} r={30} />
+            </g>
+            <g className="xm-mid">
+              <SnowBall cx={50} cy={72} r={23} />
+              <path d="M28 66 6 50M72 66l22-16" stroke="var(--line)" strokeWidth="4" strokeLinecap="round" fill="none" />
+              <circle cx="50" cy="66" r="3.4" fill="var(--line)" />
+              <circle cx="50" cy="80" r="3.4" fill="var(--line)" />
+            </g>
+            <g className="xm-head">
+              <SnowBall cx={50} cy={33} r={18} />
+              <circle cx="43" cy="29" r="2.8" fill="var(--line)" />
+              <circle cx="56" cy="29" r="2.8" fill="var(--line)" />
+              <path d="M50 35 62 39l-12 4Z" fill="#ff8c1a" stroke="var(--line)" strokeWidth="2.5" strokeLinejoin="round" />
+              <path d="M34 18h32M40 18V6h20v12" fill="#2f2a3d" stroke="var(--line)" strokeWidth="4" strokeLinejoin="round" />
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      {/* The one behind, which stops to enjoy it. */}
+      <div className="xm-chaser absolute bottom-2 left-0 w-24 sm:w-28">
+        <div className="xm-chaser-bob">
+          <svg viewBox="0 0 100 150" className="size-full overflow-visible">
+            <SnowBall cx={50} cy={116} r={30} />
+            <SnowBall cx={50} cy={72} r={23} />
+            <path d="M28 66 6 52M72 66l22-14" stroke="var(--line)" strokeWidth="4" strokeLinecap="round" fill="none" />
+            <circle cx="50" cy="66" r="3.4" fill="var(--line)" />
+            <circle cx="50" cy="80" r="3.4" fill="var(--line)" />
+            <SnowBall cx={50} cy={33} r={18} />
+            {/* Eyes shut and mouth wide — the face of something enjoying itself. */}
+            <path d="M38 28q5-5 10 0M52 28q5-5 10 0" fill="none" stroke="var(--line)" strokeWidth="3.4" strokeLinecap="round" />
+            <ellipse cx="50" cy="41" rx="7" ry="5.5" fill="var(--line)" />
+            <path d="M34 18h32M40 18V6h20v12" fill="#c0392b" stroke="var(--line)" strokeWidth="4" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </div>
+    </Stage>
   )
 }

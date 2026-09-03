@@ -684,16 +684,95 @@
   animation: festival-greet 3.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* Beat one. A soft-edged gradient mask sweeps across the character, so it arrives
-   stroke by stroke instead of fading in as a finished sticker. The mask is three
-   times the box so the transparent half is parked well outside it at each end,
-   and the whole thing settles out of a tilt as it lands.
+/* Beat one, six ways. Nothing is shared between these on purpose: a firework has
+   to climb before it opens, a heart beats, a drop falls and squashes when it
+   lands, a krathong comes up on the water, a ghost does not arrive so much as
+   appear, and the tree is drawn the way everything else on this site is drawn. */
 
-  The sweep runs 100% to 0%, not past either end: at 300% mask-size a position of
-  P offsets the image by P x -2W, so 0% is the only value that parks the opaque
-  half of the gradient over the whole box. Ending past it left the box sitting on
-  the empty space beyond the mask image, which erased the character entirely. */
-@keyframes greet-ink {
+.greet-ink > svg {
+  filter: drop-shadow(0 10px 0 var(--shadow));
+}
+
+/* New Year. Nothing to see until the shell reaches the middle, then it opens. */
+@keyframes greet-in-burst {
+  0%, 30% { transform: scale(0.04); opacity: 0; }
+  46% { transform: scale(1.18); opacity: 1; }
+  58% { transform: scale(0.97); }
+  72% { transform: scale(1.02); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.greet-in-burst { animation: greet-in-burst 1.7s cubic-bezier(0.1, 0.85, 0.3, 1) forwards; }
+
+/* The shell on its way up, cut out at the frame the burst opens on. */
+@keyframes greet-rocket {
+  0% { transform: translate(-50%, 44vh) scaleY(1.7); opacity: 0; }
+  12% { opacity: 1; }
+  40% { transform: translate(-50%, -30%) scaleY(0.9); opacity: 1; }
+  47% { opacity: 0; }
+  100% { transform: translate(-50%, -30%); opacity: 0; }
+}
+.greet-rocket {
+  transform: translate(-50%, 44vh);
+  animation: greet-rocket 1.7s cubic-bezier(0.25, 0.6, 0.35, 1) forwards;
+}
+
+/* Valentine. Two beats, the second the bigger one, the way a heart goes. */
+@keyframes greet-in-beat {
+  0% { transform: scale(0.2); opacity: 0; }
+  18% { transform: scale(1.12); opacity: 1; }
+  30% { transform: scale(0.92); }
+  44% { transform: scale(1.24); }
+  58% { transform: scale(0.97); }
+  70% { transform: scale(1.07); }
+  84%, 100% { transform: scale(1); opacity: 1; }
+}
+.greet-in-beat { animation: greet-in-beat 1.7s cubic-bezier(0.3, 0.9, 0.4, 1) forwards; }
+
+/* Songkran. It falls in and flattens on impact, then settles. */
+@keyframes greet-in-drop {
+  0% { transform: translateY(-52vh) scale(0.82, 1.35); opacity: 0; }
+  10% { opacity: 1; }
+  44% { transform: translateY(0) scale(1.28, 0.68); }
+  58% { transform: translateY(-26px) scale(0.9, 1.16); }
+  74% { transform: translateY(0) scale(1.08, 0.94); }
+  88% { transform: translateY(-6px) scale(0.98, 1.03); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.greet-in-drop { animation: greet-in-drop 1.7s cubic-bezier(0.45, 0, 0.4, 1) forwards; }
+
+/* Loy Krathong. Up on the water, rocking itself still. */
+@keyframes greet-in-float {
+  0% { transform: translateY(46vh) rotate(-8deg); opacity: 0; }
+  16% { opacity: 1; }
+  56% { transform: translateY(-8px) rotate(5deg); }
+  74% { transform: translateY(4px) rotate(-3.5deg); }
+  88% { transform: translateY(-2px) rotate(1.5deg); }
+  100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+}
+.greet-in-float { animation: greet-in-float 2s cubic-bezier(0.25, 0.7, 0.3, 1) forwards; }
+
+/* Halloween. It flickers into being twice before it commits. */
+@keyframes greet-in-haunt {
+  0% { transform: scale(1.32) skewX(-7deg); opacity: 0; filter: blur(7px); }
+  16% { opacity: 0.5; }
+  25% { opacity: 0.04; }
+  40% { opacity: 0.75; filter: blur(3px); }
+  49% { opacity: 0.1; }
+  72% { transform: scale(1.03) skewX(1.5deg); opacity: 1; filter: blur(0); }
+  86% { transform: scale(0.99) skewX(-1deg); }
+  100% { transform: scale(1) skewX(0deg); opacity: 1; filter: blur(0); }
+}
+.greet-in-haunt { animation: greet-in-haunt 1.8s ease-out forwards; }
+
+/* Christmas. A soft-edged gradient mask passes over it, so it arrives stroke by
+   stroke instead of fading in as a finished sticker. The mask is three times the
+   box so the transparent half is parked outside it at each end.
+
+   The sweep runs 100% to 0%, not past either end: at 300% mask-size a position of
+   P offsets the image by P x -2W, so 0% is the only value that parks the opaque
+   half of the gradient over the whole box. Ending past it left the box sitting on
+   the empty space beyond the mask image, which erased the character entirely. */
+@keyframes greet-in-draw {
   0% {
     -webkit-mask-position: 100% 0;
     mask-position: 100% 0;
@@ -711,31 +790,43 @@
     transform: scale(1) rotate(0deg);
   }
 }
-.greet-ink {
+.greet-in-draw {
   -webkit-mask-image: linear-gradient(100deg, #000 0 42%, rgb(0 0 0 / 0) 62%);
   mask-image: linear-gradient(100deg, #000 0 42%, rgb(0 0 0 / 0) 62%);
   -webkit-mask-size: 300% 100%;
   mask-size: 300% 100%;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
-  animation: greet-ink 1.5s cubic-bezier(0.3, 0.9, 0.3, 1) forwards;
-  filter: drop-shadow(0 10px 0 var(--shadow));
+  animation: greet-in-draw 1.5s cubic-bezier(0.3, 0.9, 0.3, 1) forwards;
 }
 
-/* Beat two. Each piece carries its own vector and spin as custom properties. */
-@keyframes greet-confetti {
+/* Beat two, three ways: thrown out, climbing, or falling. Each piece carries its
+   own vector and spin as custom properties. */
+@keyframes greet-fling-out {
   0% { transform: translate3d(0, 0, 0) scale(0.2) rotate(0deg); opacity: 0; }
   14% { opacity: 1; }
   70% { opacity: 0.9; }
-  100% {
-    transform: translate3d(var(--dx), var(--dy), 0) scale(1) rotate(var(--spin));
-    opacity: 0;
-  }
+  100% { transform: translate3d(var(--dx), var(--dy), 0) scale(1) rotate(var(--spin)); opacity: 0; }
 }
-.greet-confetti {
-  opacity: 0;
-  animation: greet-confetti 1.7s cubic-bezier(0.1, 0.75, 0.3, 1) forwards;
+
+@keyframes greet-fling-rise {
+  0% { transform: translate3d(0, 0, 0) scale(0.3) rotate(0deg); opacity: 0; }
+  20% { opacity: 1; }
+  78% { opacity: 0.85; }
+  100% { transform: translate3d(var(--dx), var(--dy), 0) scale(0.88) rotate(var(--spin)); opacity: 0; }
 }
+
+@keyframes greet-fling-fall {
+  0% { transform: translate3d(0, 0, 0) scale(0.25) rotate(0deg); opacity: 0; }
+  12% { opacity: 1; }
+  74% { opacity: 0.9; }
+  100% { transform: translate3d(var(--dx), var(--dy), 0) scale(1) rotate(var(--spin)); opacity: 0; }
+}
+
+.greet-confetti { opacity: 0; }
+.fling-out { animation: greet-fling-out 1.7s cubic-bezier(0.1, 0.75, 0.3, 1) forwards; }
+.fling-rise { animation: greet-fling-rise 2.4s cubic-bezier(0.25, 0.6, 0.3, 1) forwards; }
+.fling-fall { animation: greet-fling-fall 2.5s cubic-bezier(0.45, 0, 0.7, 0.45) forwards; }
 
 /* Beat three. The wish is written in with the same sweep the character got, left
    to right this time, because that is the direction it is read in. */
@@ -761,7 +852,7 @@
   mask-size: 260% 100%;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
-  animation: greet-wish 1.5s cubic-bezier(0.25, 0.9, 0.3, 1) 0.85s backwards;
+  animation: greet-wish 1.5s cubic-bezier(0.25, 0.9, 0.3, 1) backwards;
   text-shadow: 0 3px 0 rgb(0 0 0 / 0.45);
 }
 
@@ -820,22 +911,22 @@
  * carries -50% of its own width throughout — including inside the idle loop,
  * since a keyframe that set only the sway would have snapped it back on screen. */
 @keyframes ghost-peek-in {
-  0% { transform: translate(-100%, -50%) rotate(-6deg); }
-  62% { transform: translate(-36%, -50%) rotate(3deg); }
-  100% { transform: translate(-50%, -50%) rotate(0deg); }
+  0% { transform: translate(-104%, -50%) rotate(-9deg); }
+  62% { transform: translate(-12%, -50%) rotate(4deg); }
+  100% { transform: translate(-24%, -50%) rotate(0deg); }
 }
 
 @keyframes ghost-peek-idle {
-  0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-  50% { transform: translate(-45%, calc(-50% - 6px)) rotate(2.5deg); }
+  0%, 100% { transform: translate(-24%, -50%) rotate(0deg); }
+  50% { transform: translate(-19%, calc(-50% - 6px)) rotate(2.5deg); }
 }
 
 /* It leans in a touch further before it goes, the way you do when you have been
    spotted, then ducks back past the edge for good. */
 @keyframes ghost-peek-out {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  26% { transform: translate(-40%, calc(-50% - 4px)) rotate(4deg); }
-  100% { transform: translate(-108%, -50%) rotate(-9deg); }
+  0% { transform: translate(-24%, -50%) rotate(0deg); }
+  26% { transform: translate(-14%, calc(-50% - 5px)) rotate(4deg); }
+  100% { transform: translate(-108%, -50%) rotate(-10deg); }
 }
 
 /* Both eyes squash together, so the group is what scales and the lids land on the
@@ -855,10 +946,244 @@
    leave. The last one still running is the one that owns the transform, which is
    why the retreat is listed last. */
 .ghost-peek {
-  transform: translate(-50%, -50%);
+  transform: translate(-24%, -50%);
   filter: drop-shadow(4px 6px 0 var(--shadow));
   animation:
     ghost-peek-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) both,
     ghost-peek-idle 5s ease-in-out 1.1s infinite,
     ghost-peek-out 0.85s cubic-bezier(0.5, 0, 0.75, 0) 4.35s forwards;
+}
+
+/* ------------------------------------------------------------------ *
+ * The afterpieces
+ *
+ * Each festival's closing scene. They all play once and leave; the component
+ * unmounts on the same clock the exit finishes on.
+ * ------------------------------------------------------------------ */
+
+/* --- New Year: mortars in the corners --------------------------------- */
+
+@keyframes ny-tube-in {
+  0% { transform: translateY(90%) rotate(0deg); opacity: 0; }
+  100% { opacity: 1; }
+}
+.ny-tube {
+  animation:
+    ny-tube-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards,
+    ny-fade 0.9s ease-in 5.6s forwards;
+}
+
+/* The shell travels, holds where it burst, and the pieces below it are timed
+   against the same delay so the trail cuts out on the frame the shell opens. */
+@keyframes ny-shot {
+  0% { transform: translate3d(0, 0, 0); }
+  46%, 100% { transform: translate3d(var(--drift), calc(var(--rise) * -1), 0); }
+}
+.ny-shot {
+  animation: ny-shot 2.9s cubic-bezier(0.12, 0.72, 0.35, 1) forwards;
+}
+
+@keyframes ny-trail {
+  0% { opacity: 0; transform: translate(-50%, 0) scaleY(1.5); }
+  7% { opacity: 1; }
+  40% { opacity: 1; transform: translate(-50%, 0) scaleY(0.9); }
+  47%, 100% { opacity: 0; }
+}
+.ny-trail {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 5px;
+  height: 26px;
+  border-radius: 999px;
+  background: #ffd166;
+  opacity: 0;
+  animation: ny-trail 2.9s linear forwards;
+}
+
+@keyframes ny-burst {
+  0%, 44% { transform: translate(-50%, 50%) scale(0.05); opacity: 0; }
+  55% { transform: translate(-50%, 50%) scale(0.95); opacity: 1; }
+  100% { transform: translate(-50%, 50%) scale(1.7); opacity: 0; }
+}
+.ny-burst {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 190px;
+  height: 190px;
+  opacity: 0;
+  animation: ny-burst 2.9s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes ny-fade {
+  to { opacity: 0; }
+}
+
+/* --- Valentine: a balloon until the knot gives ------------------------- */
+
+@keyframes vt-arrive {
+  0% { transform: translateY(105%) rotate(-14deg); opacity: 0; }
+  100% { transform: translateY(0) rotate(-7deg); opacity: 1; }
+}
+@keyframes vt-sway {
+  0%, 100% { transform: rotate(-7deg); }
+  50% { transform: rotate(7deg); }
+}
+@keyframes vt-away {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  18% { transform: translate(-6px, 14px) rotate(-5deg); }
+  100% { transform: translate(120px, -130vh) rotate(20deg); opacity: 0; }
+}
+.vt-balloon {
+  transform-origin: bottom center;
+  filter: drop-shadow(3px 5px 0 var(--shadow));
+  animation:
+    vt-arrive 0.9s cubic-bezier(0.22, 1, 0.36, 1) backwards,
+    vt-sway 2.4s ease-in-out 0.9s infinite,
+    vt-away 2s cubic-bezier(0.45, 0, 0.7, 0.35) 5s forwards;
+}
+
+/* --- Songkran: sand and flags ----------------------------------------- */
+
+@keyframes sk-rise {
+  0% { transform: translateY(105%); opacity: 0; }
+  70% { transform: translateY(-6%); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes sk-sink {
+  to { transform: translateY(105%); opacity: 0; }
+}
+.sk-pagoda {
+  filter: drop-shadow(3px 4px 0 var(--shadow));
+  animation:
+    sk-rise 1s cubic-bezier(0.22, 1, 0.36, 1) backwards,
+    sk-sink 0.9s cubic-bezier(0.5, 0, 0.75, 0) 6.2s forwards;
+}
+
+@keyframes sk-hang {
+  0% { transform: translateY(-120%) rotate(-1.5deg); opacity: 0; }
+  62% { transform: translateY(4%) rotate(0.8deg); opacity: 1; }
+  100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+}
+@keyframes sk-flutter {
+  0%, 100% { transform: translateY(0) rotate(-0.6deg); }
+  50% { transform: translateY(-5px) rotate(0.6deg); }
+}
+.sk-bunting {
+  animation:
+    sk-hang 1.1s cubic-bezier(0.22, 1, 0.36, 1) backwards,
+    sk-flutter 3.4s ease-in-out 1.1s infinite,
+    ny-fade 0.9s ease-in 6.2s forwards;
+}
+.sk-bunting--back {
+  animation-delay: 0.22s, 1.32s, 6.2s;
+  opacity: 0.85;
+}
+
+/* --- Christmas: one trips, the other laughs ---------------------------- */
+
+/* The runner covers ground for 2.8s and then stops dead — its last frame is
+   where it came apart, and the pieces take over from there. */
+@keyframes xm-run {
+  0% { transform: translateX(-18vw); }
+  100% { transform: translateX(46vw); }
+}
+@keyframes xm-bob {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-9px) rotate(3deg); }
+}
+.xm-runner {
+  filter: drop-shadow(3px 4px 0 var(--shadow));
+  animation:
+    xm-run 2.8s linear forwards,
+    ny-fade 1s ease-in 7.2s forwards;
+}
+.xm-runner-bob {
+  transform-origin: bottom center;
+  /* Nine passes at 0.31s land on 2.79s — the frame it trips. */
+  animation: xm-bob 0.31s ease-in-out 9;
+}
+
+/* Head and middle go over the top and roll on; the base tips where it stood. */
+@keyframes xm-head-roll {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  16% { transform: translate(4vw, -70px) rotate(140deg); }
+  100% { transform: translate(30vw, 26px) rotate(920deg); }
+}
+@keyframes xm-mid-roll {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  18% { transform: translate(2vw, -34px) rotate(100deg); }
+  100% { transform: translate(19vw, 30px) rotate(640deg); }
+}
+/* The base is a circle, so rotating it would show nothing. It gets knocked
+   forward and squashes on each landing instead, which is what reads as toppled. */
+@keyframes xm-base-fall {
+  0% { transform: translate(0, 0) scale(1, 1); }
+  22% { transform: translate(12px, 7px) scale(1.14, 0.84); }
+  46% { transform: translate(24px, -4px) scale(0.93, 1.08); }
+  72% { transform: translate(32px, 5px) scale(1.07, 0.9); }
+  100% { transform: translate(38px, 2px) scale(1, 1); }
+}
+.xm-head,
+.xm-mid,
+.xm-base {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.xm-head { animation: xm-head-roll 2.2s cubic-bezier(0.3, 0.4, 0.5, 1) 2.8s both; }
+.xm-mid { animation: xm-mid-roll 2.2s cubic-bezier(0.35, 0.35, 0.5, 1) 2.85s both; }
+.xm-base {
+  transform-origin: bottom center;
+  animation: xm-base-fall 1.3s cubic-bezier(0.4, 0, 0.55, 1) 2.8s both;
+}
+
+/* The chaser stops just short of the mess and cannot keep it together. */
+@keyframes xm-chase {
+  0% { transform: translateX(-38vw); }
+  100% { transform: translateX(24vw); }
+}
+@keyframes xm-laugh {
+  0%, 100% { transform: rotate(-11deg) translateY(0); }
+  25% { transform: rotate(7deg) translateY(-7px); }
+  50% { transform: rotate(-13deg) translateY(0); }
+  75% { transform: rotate(6deg) translateY(-6px); }
+}
+.xm-chaser {
+  filter: drop-shadow(3px 4px 0 var(--shadow));
+  animation:
+    xm-chase 3.1s linear forwards,
+    ny-fade 1s ease-in 7.2s forwards;
+}
+.xm-chaser-bob {
+  transform-origin: bottom center;
+  /* Ten passes to 3.1s, then it stands there laughing. */
+  animation:
+    xm-bob 0.31s ease-in-out 10,
+    xm-laugh 0.62s ease-in-out 3.1s 6;
+}
+
+/* Halloween borrows the dark theme for the length of its scene, then hands it
+   back to whatever the reader had chosen.
+ *
+ * The swap has to be gradual, and every colour here resolves through a custom
+ * property, so the transition goes on the properties that read them rather than
+ * on the variables themselves — a variable is not an animatable value, but the
+ * background-color that resolves it is. `transform` stays in the list so the
+ * sticker hover keeps its spring while the fade is on.
+ *
+ * The drawn frames are border-image data URIs, which cannot transition; they
+ * change over on the frame the class lands. */
+.theme-xfade,
+.theme-xfade *,
+.theme-xfade *::before,
+.theme-xfade *::after {
+  transition:
+    background-color 700ms ease,
+    border-color 700ms ease,
+    color 700ms ease,
+    fill 700ms ease,
+    stroke 700ms ease,
+    box-shadow 700ms ease,
+    transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
