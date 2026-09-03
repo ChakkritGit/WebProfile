@@ -579,11 +579,15 @@
 }
 .festival-fall { animation-name: festival-fall; }
 
+/* The rising glyphs start parked just under the header and travel *up* through
+   it. The first attempt translated +900% from that same starting point, which
+   pushed them further down and out of the clipped box — they were only visible in
+   the last moments of each cycle, which read as no animation at all. */
 @keyframes festival-rise {
-  0% { transform: translate3d(0, 900%, 0) scale(0.7); opacity: 0; }
+  0% { transform: translate3d(0, 0, 0) scale(0.7); opacity: 0; }
   15% { opacity: 0.9; }
   85% { opacity: 0.9; }
-  100% { transform: translate3d(-12px, -140%, 0) scale(1.05); opacity: 0; }
+  100% { transform: translate3d(-14px, -900%, 0) scale(1.05); opacity: 0; }
 }
 .festival-rise { animation-name: festival-rise; top: auto; bottom: -18%; }
 
