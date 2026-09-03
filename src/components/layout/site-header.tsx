@@ -79,8 +79,10 @@ export function SiteHeader() {
       className={cn(
         'sticky top-0 z-50 transition-shadow duration-300',
         // A drawn rule rather than a hairline shadow, so the header's edge belongs
-        // to the same hand as everything below it.
-        scrolled && 'drawn-rule',
+        // to the same hand as everything below it — but not while the menu is
+        // open, because the panel draws its own rule at exactly this boundary and
+        // the two stacked into a double line.
+        scrolled && !open && 'drawn-rule',
       )}
       style={{ height: 'var(--header-h)' }}
     >
