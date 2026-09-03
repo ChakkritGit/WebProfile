@@ -704,7 +704,7 @@ function GhostPeek() {
 const AFTER_MS: Partial<Record<FestivalId, number>> = {
   halloween: 6000,
   'new-year': 7000,
-  valentine: 7000,
+  valentine: 8600,
   songkran: 7400,
   christmas: 8200,
 }
@@ -799,23 +799,80 @@ function FireworkFinale() {
 
 /* --- Valentine: a balloon on a string, until the knot gives --------------- */
 
+/** Pinks and reds for the bunch, so no two next to each other match. */
+const BALLOON_HUES = ['#ff5a6e', '#ff8fa5', '#e0362f', '#ff7ab8', '#ff4f8b']
+
 function HeartBalloon() {
+  // One side or the other, decided on mount — and a different bunch each time.
+  // Rolled here rather than written into the markup because nothing renders on
+  // the server (see `useFestival`), so there is no server output to disagree with.
+  const [bunch] = useState(() => {
+    const between = (min: number, max: number) => min + Math.random() * (max - min)
+    const onRight = Math.random() < 0.5
+    const narrow = window.innerWidth < 640
+    const count = narrow ? 3 : 4
+    const lane = (narrow ? 26 : 22) / count
+
+    return {
+      onRight,
+      balloons: Array.from({ length: count }, (_, i) => {
+        // Each gets a lane out from the edge and jitters inside it, so they
+        // never stack on top of one another however the sizes come out.
+        const offset = 3 + i * lane + between(0, lane * 0.55)
+        const width = Math.round(between(narrow ? 52 : 66, narrow ? 84 : 122))
+        const sway = between(1.8, 2.7)
+        // Whole cycles only: a sway still running when the balloon lets go would
+        // snap the transform from wherever it had got to — the same fault the
+        // peeking ghost had.
+        const arrive = between(0, 0.55)
+        return {
+          offset,
+          width,
+          sway,
+          arrive,
+          tilt: between(5, 10),
+          release: arrive + 0.9 + sway * 2,
+          drift: Math.round(between(40, 190)) * (onRight ? -1 : 1),
+          spin: Math.round(between(10, 30)) * (onRight ? -1 : 1),
+          hue: BALLOON_HUES[(i * 2 + (onRight ? 1 : 0)) % BALLOON_HUES.length],
+        }
+      }),
+    }
+  })
+
   return (
     <Stage>
-      <div className="vt-balloon absolute bottom-0 left-[7%] w-24 sm:w-28">
-        <svg viewBox="0 0 100 224" className="size-full">
-          <path d="M50 100q12 36-4 62t3 60" fill="none" stroke="var(--line)" strokeWidth="3" strokeLinecap="round" />
-          <path d="M36 220h28" stroke="var(--line)" strokeWidth="7" strokeLinecap="round" />
-          <path
-            d="M50 100 11 60a22 22 0 0 1 31-31l8 8 8-8a22 22 0 1 1 31 31L50 100Z"
-            fill="#ff5a6e"
-            stroke="var(--line)"
-            strokeWidth="4.5"
-            strokeLinejoin="round"
-          />
-          <path d="M28 46a13 13 0 0 1 10-12" fill="none" stroke="#fffcf7" strokeWidth="4.5" strokeLinecap="round" opacity="0.85" />
-        </svg>
-      </div>
+      {bunch.balloons.map((b, i) => (
+        <div
+          key={i}
+          className="vt-balloon absolute bottom-0"
+          style={
+            {
+              [bunch.onRight ? 'right' : 'left']: `${b.offset}%`,
+              width: b.width,
+              '--arrive': `${b.arrive.toFixed(2)}s`,
+              '--sway': `${b.sway.toFixed(2)}s`,
+              '--tilt': `${b.tilt.toFixed(1)}deg`,
+              '--release': `${b.release.toFixed(2)}s`,
+              '--drift': `${b.drift}px`,
+              '--spin': `${b.spin}deg`,
+            } as React.CSSProperties
+          }
+        >
+          <svg viewBox="0 0 100 224" className="size-full">
+            <path d="M50 100q12 36-4 62t3 60" fill="none" stroke="var(--line)" strokeWidth="3" strokeLinecap="round" />
+            <path d="M36 220h28" stroke="var(--line)" strokeWidth="7" strokeLinecap="round" />
+            <path
+              d="M50 100 11 60a22 22 0 0 1 31-31l8 8 8-8a22 22 0 1 1 31 31L50 100Z"
+              fill={b.hue}
+              stroke="var(--line)"
+              strokeWidth="4.5"
+              strokeLinejoin="round"
+            />
+            <path d="M28 46a13 13 0 0 1 10-12" fill="none" stroke="#fffcf7" strokeWidth="4.5" strokeLinecap="round" opacity="0.85" />
+          </svg>
+        </div>
+      ))}
     </Stage>
   )
 }

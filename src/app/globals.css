@@ -1058,26 +1058,31 @@
 
 /* --- Valentine: a balloon until the knot gives ------------------------- */
 
+/* Every balloon in the bunch carries its own timing, tilt and drift, so the
+   whole thing never moves as one object. The sway runs exactly two cycles and
+   ends on its resting pose at the frame the balloon lets go — an infinite sway
+   would still be running when the release took over, and the transform would
+   snap from wherever it had reached. */
 @keyframes vt-arrive {
-  0% { transform: translateY(105%) rotate(-14deg); opacity: 0; }
-  100% { transform: translateY(0) rotate(-7deg); opacity: 1; }
+  0% { transform: translateY(108%) rotate(calc(var(--tilt) * -2)); opacity: 0; }
+  100% { transform: translateY(0) rotate(calc(var(--tilt) * -1)); opacity: 1; }
 }
 @keyframes vt-sway {
-  0%, 100% { transform: rotate(-7deg); }
-  50% { transform: rotate(7deg); }
+  0%, 100% { transform: rotate(calc(var(--tilt) * -1)); }
+  50% { transform: rotate(var(--tilt)); }
 }
 @keyframes vt-away {
   0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
-  18% { transform: translate(-6px, 14px) rotate(-5deg); }
-  100% { transform: translate(120px, -130vh) rotate(20deg); opacity: 0; }
+  16% { transform: translate(calc(var(--drift) * -0.05), 15px) rotate(calc(var(--spin) * -0.25)); }
+  100% { transform: translate(var(--drift), -132vh) rotate(var(--spin)); opacity: 0; }
 }
 .vt-balloon {
   transform-origin: bottom center;
   filter: drop-shadow(3px 5px 0 var(--shadow));
   animation:
-    vt-arrive 0.9s cubic-bezier(0.22, 1, 0.36, 1) backwards,
-    vt-sway 2.4s ease-in-out 0.9s infinite,
-    vt-away 2s cubic-bezier(0.45, 0, 0.7, 0.35) 5s forwards;
+    vt-arrive 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--arrive) backwards,
+    vt-sway var(--sway) ease-in-out calc(var(--arrive) + 0.9s) 2,
+    vt-away 2.1s cubic-bezier(0.45, 0, 0.7, 0.35) var(--release) forwards;
 }
 
 /* --- Songkran: sand and flags ----------------------------------------- */
