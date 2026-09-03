@@ -46,7 +46,7 @@ export async function ArticleShell({
 
   return (
     <article className="pb-16">
-      <div className="border-line-soft paper-grain bg-paper-alt relative overflow-hidden border-b">
+      <div className="drawn-rule paper-grain bg-paper-alt relative overflow-hidden">
         {coverImage && (
           <div
             aria-hidden

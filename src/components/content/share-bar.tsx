@@ -24,7 +24,7 @@ export function ShareBar({ url, title }: { url: string; title: string }) {
   }
 
   return (
-    <div className="border-line-soft mt-12 flex flex-wrap items-center gap-3 border-t pt-6">
+    <div className="drawn-rule-top mt-12 flex flex-wrap items-center gap-3 pt-7">
       <button
         type="button"
         onClick={copy}

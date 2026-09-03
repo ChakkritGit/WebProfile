@@ -36,7 +36,7 @@ export function CodeBlock({
 
   return (
     <div className="sticker group relative my-7 overflow-hidden">
-      <div className="border-line-soft flex items-center justify-between border-b px-4 py-2">
+      <div className="drawn-rule flex items-center justify-between px-4 py-2">
         <span className="font-display text-muted text-xs font-bold tracking-[0.12em] uppercase">
           {language && language !== 'text' ? language : 'code'}
         </span>

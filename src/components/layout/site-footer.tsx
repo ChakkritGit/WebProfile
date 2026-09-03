@@ -127,7 +127,7 @@ export async function SiteFooter() {
             </div>
           </div>
 
-          <div className="border-line-soft mt-10 flex flex-col-reverse items-center justify-between gap-4 border-t pt-6 sm:flex-row">
+          <div className="drawn-rule-top mt-10 flex flex-col-reverse items-center justify-between gap-4 pt-7 sm:flex-row">
             <p className="text-muted text-center text-sm sm:text-left">
               {t('copyright', { year, name: tMeta('siteName') })}
             </p>

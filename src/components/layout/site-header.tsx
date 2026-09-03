@@ -154,7 +154,7 @@ export function SiteHeader() {
             animate={{ opacity: 1, y: 0 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: -12 }}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="bg-paper/98 border-line-soft absolute inset-x-0 top-full border-t backdrop-blur-xl md:hidden"
+            className="bg-paper/98 drawn-rule-top absolute inset-x-0 top-full backdrop-blur-xl md:hidden"
           >
             <ul className="mx-auto max-w-6xl space-y-1 px-4 py-4">
               {navItems.map((item) => (

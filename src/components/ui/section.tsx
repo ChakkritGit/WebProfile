@@ -70,7 +70,7 @@ export function PageHeader({
   children?: ReactNode
 }) {
   return (
-    <div className="border-line-soft paper-grain bg-paper-alt relative overflow-hidden border-b">
+    <div className="drawn-rule paper-grain bg-paper-alt relative overflow-hidden">
       <Container className="relative z-10 py-12 sm:py-16">
         <Reveal>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl">{title}</h1>
