@@ -217,49 +217,167 @@
    pressure all the way round a box, and a uniform 2px line is the clearest tell
    that a machine drew it. */
 @utility sticker {
-  border: solid var(--line);
-  border-width: 2px 2px 3px 2px;
-  border-radius: 22px 17px 24px 19px / 18px 24px 16px 23px;
+  /* `border-image-width` is deliberately far larger than `border-width`: the slice
+     that carries the drawn corner gets squeezed to the border's thickness
+     otherwise, and the overshoot that makes it look drawn disappears. The image
+     is drawn wide and pushed outward with `outset`; layout still follows the
+     3px border. `stretch`, not `round`: repeating the edge tile turned a long
+     side into a scalloped pattern, which reads as a texture rather than a line
+     someone drew. The corners carry the character instead. */
+  border: 3px solid transparent;
+  border-image-source: var(--sketch-frame);
+  border-image-slice: 28;
+  border-image-width: 18px;
+  border-image-outset: 7px;
+  border-image-repeat: stretch;
+  border-radius: 8px;
   box-shadow: 4px 4px 0 0 var(--shadow);
 }
 
 @utility sticker-sm {
-  border: solid var(--line);
-  border-width: 2px 2px 3px 2px;
-  border-radius: 13px 10px 14px 11px / 11px 14px 10px 13px;
+  /* Same treatment as `sticker`, scaled down. */
+  border: 2.5px solid transparent;
+  border-image-source: var(--sketch-frame);
+  border-image-slice: 28;
+  border-image-width: 13px;
+  border-image-outset: 5px;
+  border-image-repeat: stretch;
+  border-radius: 6px;
   box-shadow: 2px 2px 0 0 var(--shadow);
 }
 
 @utility sticker-lg {
-  border: solid var(--line);
-  border-width: 3px 3px 4px 3px;
-  border-radius: 30px 24px 33px 27px / 25px 33px 23px 31px;
+  /* Same treatment as `sticker`, scaled down. */
+  border: 4px solid transparent;
+  border-image-source: var(--sketch-frame);
+  border-image-slice: 28;
+  border-image-width: 22px;
+  border-image-outset: 9px;
+  border-image-repeat: stretch;
+  border-radius: 10px;
   box-shadow: 7px 7px 0 0 var(--shadow);
 }
 
-/* Pills and rounded boxes are frames too — chips, buttons, the navbar's active
-   pill, form fields. Matching on the radius *and* a visible border keeps this to
-   outlines and leaves undecorated rounded things (skeletons, blurred blobs) alone.
-   Oversized radii are clamped by the browser proportionally, so the corners stay
-   uneven however short the chip is. */
+/* ------------------------------------------------------------------ *
+ * Drawn frames
+ *
+ * The outline is an SVG cut into a `border-image`, so every framed element gets
+ * a box whose sides bow and whose corners overshoot and cross — the marks a pen
+ * leaves and a border-radius never can. It needs no markup change: the rules
+ * below reach cards, chips, buttons and fields through the classes they already
+ * carry. `border-image` ignores `border-radius`, so the corner rounding drops to
+ * a small value and the drawn line supplies the shape instead.
+ *
+ * The colour is baked into each data URI — SVG in a background cannot read a CSS
+ * variable — hence one per theme.
+ * ------------------------------------------------------------------ */
+:root {
+  --sketch-pill: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M32%206Q50%203.6%2070%206.4'/%3E%3Cpath%20d='M70%2094Q50%2096.6%2031%2093.6'/%3E%3Cpath%20d='M31%206.4C13%208%204%2026%204.6%2050%205.2%2074%2014%2092%2030%2093.8'/%3E%3Cpath%20d='M70%206.2C88%208%2096%2026%2095.4%2050%2094.8%2073%2087%2092%2069%2094'/%3E%3Cpath%20d='M27%207.4C16%2011%209%2027%209.4%2044'/%3E%3C/svg%3E");
+  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M23%205.8Q50%203.1%2078%206.2'/%3E%3Cpath%20d='M94.8%2023.5Q97%2050%2094%2077'/%3E%3Cpath%20d='M77%2094.4Q50%2096.9%2022.5%2093.8'/%3E%3Cpath%20d='M5.2%2076Q3.1%2050%206.2%2022'/%3E%3Cpath%20d='M75%205.6Q91.5%207.2%2094.4%2025.5'/%3E%3Cpath%20d='M94.4%2075.5Q92.4%2091.6%2079%2094.6'/%3E%3Cpath%20d='M24.5%2094.2Q9.2%2092%205.6%2077.5'/%3E%3Cpath%20d='M6%2024Q8.2%209%2024.5%205.4'/%3E%3Cpath%20d='M20%206.8Q9.8%2011%206.6%2020.5'/%3E%3C/svg%3E");
+}
+:root.dark {
+  --sketch-pill: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M32%206Q50%203.6%2070%206.4'/%3E%3Cpath%20d='M70%2094Q50%2096.6%2031%2093.6'/%3E%3Cpath%20d='M31%206.4C13%208%204%2026%204.6%2050%205.2%2074%2014%2092%2030%2093.8'/%3E%3Cpath%20d='M70%206.2C88%208%2096%2026%2095.4%2050%2094.8%2073%2087%2092%2069%2094'/%3E%3Cpath%20d='M27%207.4C16%2011%209%2027%209.4%2044'/%3E%3C/svg%3E");
+  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M23%205.8Q50%203.1%2078%206.2'/%3E%3Cpath%20d='M94.8%2023.5Q97%2050%2094%2077'/%3E%3Cpath%20d='M77%2094.4Q50%2096.9%2022.5%2093.8'/%3E%3Cpath%20d='M5.2%2076Q3.1%2050%206.2%2022'/%3E%3Cpath%20d='M75%205.6Q91.5%207.2%2094.4%2025.5'/%3E%3Cpath%20d='M94.4%2075.5Q92.4%2091.6%2079%2094.6'/%3E%3Cpath%20d='M24.5%2094.2Q9.2%2092%205.6%2077.5'/%3E%3Cpath%20d='M6%2024Q8.2%209%2024.5%205.4'/%3E%3Cpath%20d='M20%206.8Q9.8%2011%206.6%2020.5'/%3E%3C/svg%3E");
+}
+
+@utility drawn-frame {
+  border-style: solid;
+  border-color: transparent;
+  border-image-source: var(--sketch-frame);
+  border-image-slice: 20;
+  border-image-repeat: stretch;
+  border-radius: 6px;
+}
+
+/* Frames on everything else, split by the shape the element already is.
+   Forcing one radius on both was the bug behind icon tiles whose colour showed as
+   a circle inside a rounded-square outline: the drawn frame comes from the image,
+   but the *background* is still clipped by `border-radius`, so the two have to
+   agree. Pills get the capsule drawing and stay pills; boxes get the box drawing
+   and keep a box's rounding. */
 .rounded-full.border-2,
-.rounded-full.border,
+.rounded-full.border {
+  border-color: transparent;
+  border-image-source: var(--sketch-pill);
+  border-image-slice: 34;
+  border-image-width: 15px;
+  border-image-outset: 5px;
+  border-image-repeat: stretch;
+  border-radius: 999px;
+}
+
 .rounded-2xl.border-2,
 .rounded-xl.border-2,
 .rounded-xl.border {
-  border-radius: 26px 21px 25px 22px / 22px 26px 21px 25px;
+  border-color: transparent;
+  border-image-source: var(--sketch-frame);
+  border-image-slice: 28;
+  border-image-width: 14px;
+  border-image-outset: 5px;
+  border-image-repeat: stretch;
+  border-radius: 10px;
 }
-:nth-child(2n) > .rounded-full.border-2,
-.rounded-full.border-2:nth-child(2n),
-:nth-child(2n) > .rounded-xl.border-2,
-.rounded-xl.border-2:nth-child(2n) {
-  border-radius: 21px 26px 22px 25px / 26px 21px 25px 22px;
+
+/* ------------------------------------------------------------------ *
+ * Drawn frames
+ *
+ * The outline is an SVG cut into a `border-image`, so every framed element gets
+ * a box whose sides bow and whose corners overshoot and cross — the marks a pen
+ * leaves and a border-radius never can. It needs no markup change: the rules
+ * below reach cards, chips, buttons and fields through the classes they already
+ * carry. `border-image` ignores `border-radius`, so the corner rounding drops to
+ * a small value and the drawn line supplies the shape instead.
+ *
+ * The colour is baked into each data URI — SVG in a background cannot read a CSS
+ * variable — hence one per theme.
+ * ------------------------------------------------------------------ */
+:root {
+  --sketch-pill: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M32%206Q50%203.6%2070%206.4'/%3E%3Cpath%20d='M70%2094Q50%2096.6%2031%2093.6'/%3E%3Cpath%20d='M31%206.4C13%208%204%2026%204.6%2050%205.2%2074%2014%2092%2030%2093.8'/%3E%3Cpath%20d='M70%206.2C88%208%2096%2026%2095.4%2050%2094.8%2073%2087%2092%2069%2094'/%3E%3Cpath%20d='M27%207.4C16%2011%209%2027%209.4%2044'/%3E%3C/svg%3E");
+  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M23%205.8Q50%203.1%2078%206.2'/%3E%3Cpath%20d='M94.8%2023.5Q97%2050%2094%2077'/%3E%3Cpath%20d='M77%2094.4Q50%2096.9%2022.5%2093.8'/%3E%3Cpath%20d='M5.2%2076Q3.1%2050%206.2%2022'/%3E%3Cpath%20d='M75%205.6Q91.5%207.2%2094.4%2025.5'/%3E%3Cpath%20d='M94.4%2075.5Q92.4%2091.6%2079%2094.6'/%3E%3Cpath%20d='M24.5%2094.2Q9.2%2092%205.6%2077.5'/%3E%3Cpath%20d='M6%2024Q8.2%209%2024.5%205.4'/%3E%3Cpath%20d='M20%206.8Q9.8%2011%206.6%2020.5'/%3E%3C/svg%3E");
 }
-:nth-child(3n) > .rounded-full.border-2,
-.rounded-full.border-2:nth-child(3n),
-:nth-child(3n) > .rounded-xl.border-2,
-.rounded-xl.border-2:nth-child(3n) {
-  border-radius: 24px 22px 26px 21px / 21px 25px 22px 26px;
+:root.dark {
+  --sketch-pill: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M32%206Q50%203.6%2070%206.4'/%3E%3Cpath%20d='M70%2094Q50%2096.6%2031%2093.6'/%3E%3Cpath%20d='M31%206.4C13%208%204%2026%204.6%2050%205.2%2074%2014%2092%2030%2093.8'/%3E%3Cpath%20d='M70%206.2C88%208%2096%2026%2095.4%2050%2094.8%2073%2087%2092%2069%2094'/%3E%3Cpath%20d='M27%207.4C16%2011%209%2027%209.4%2044'/%3E%3C/svg%3E");
+  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M23%205.8Q50%203.1%2078%206.2'/%3E%3Cpath%20d='M94.8%2023.5Q97%2050%2094%2077'/%3E%3Cpath%20d='M77%2094.4Q50%2096.9%2022.5%2093.8'/%3E%3Cpath%20d='M5.2%2076Q3.1%2050%206.2%2022'/%3E%3Cpath%20d='M75%205.6Q91.5%207.2%2094.4%2025.5'/%3E%3Cpath%20d='M94.4%2075.5Q92.4%2091.6%2079%2094.6'/%3E%3Cpath%20d='M24.5%2094.2Q9.2%2092%205.6%2077.5'/%3E%3Cpath%20d='M6%2024Q8.2%209%2024.5%205.4'/%3E%3Cpath%20d='M20%206.8Q9.8%2011%206.6%2020.5'/%3E%3C/svg%3E");
+}
+
+@utility drawn-frame {
+  border-style: solid;
+  border-color: transparent;
+  border-image-source: var(--sketch-frame);
+  border-image-slice: 20;
+  border-image-repeat: stretch;
+  border-radius: 6px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Drawn frames
+ *
+ * The outline is an SVG cut into a `border-image`, so every framed element gets
+ * a box whose sides bow and whose corners overshoot and cross — the marks a pen
+ * leaves and a border-radius never can. It needs no markup change: the rules
+ * below reach cards, chips, buttons and fields through the classes they already
+ * carry. `border-image` ignores `border-radius`, so the corner rounding drops to
+ * a small value and the drawn line supplies the shape instead.
+ *
+ * The colour is baked into each data URI — SVG in a background cannot read a CSS
+ * variable — hence one per theme.
+ * ------------------------------------------------------------------ */
+:root {
+  --sketch-pill: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M32%206Q50%203.6%2070%206.4'/%3E%3Cpath%20d='M70%2094Q50%2096.6%2031%2093.6'/%3E%3Cpath%20d='M31%206.4C13%208%204%2026%204.6%2050%205.2%2074%2014%2092%2030%2093.8'/%3E%3Cpath%20d='M70%206.2C88%208%2096%2026%2095.4%2050%2094.8%2073%2087%2092%2069%2094'/%3E%3Cpath%20d='M27%207.4C16%2011%209%2027%209.4%2044'/%3E%3C/svg%3E");
+  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M23%205.8Q50%203.1%2078%206.2'/%3E%3Cpath%20d='M94.8%2023.5Q97%2050%2094%2077'/%3E%3Cpath%20d='M77%2094.4Q50%2096.9%2022.5%2093.8'/%3E%3Cpath%20d='M5.2%2076Q3.1%2050%206.2%2022'/%3E%3Cpath%20d='M75%205.6Q91.5%207.2%2094.4%2025.5'/%3E%3Cpath%20d='M94.4%2075.5Q92.4%2091.6%2079%2094.6'/%3E%3Cpath%20d='M24.5%2094.2Q9.2%2092%205.6%2077.5'/%3E%3Cpath%20d='M6%2024Q8.2%209%2024.5%205.4'/%3E%3Cpath%20d='M20%206.8Q9.8%2011%206.6%2020.5'/%3E%3C/svg%3E");
+}
+:root.dark {
+  --sketch-pill: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M32%206Q50%203.6%2070%206.4'/%3E%3Cpath%20d='M70%2094Q50%2096.6%2031%2093.6'/%3E%3Cpath%20d='M31%206.4C13%208%204%2026%204.6%2050%205.2%2074%2014%2092%2030%2093.8'/%3E%3Cpath%20d='M70%206.2C88%208%2096%2026%2095.4%2050%2094.8%2073%2087%2092%2069%2094'/%3E%3Cpath%20d='M27%207.4C16%2011%209%2027%209.4%2044'/%3E%3C/svg%3E");
+  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M23%205.8Q50%203.1%2078%206.2'/%3E%3Cpath%20d='M94.8%2023.5Q97%2050%2094%2077'/%3E%3Cpath%20d='M77%2094.4Q50%2096.9%2022.5%2093.8'/%3E%3Cpath%20d='M5.2%2076Q3.1%2050%206.2%2022'/%3E%3Cpath%20d='M75%205.6Q91.5%207.2%2094.4%2025.5'/%3E%3Cpath%20d='M94.4%2075.5Q92.4%2091.6%2079%2094.6'/%3E%3Cpath%20d='M24.5%2094.2Q9.2%2092%205.6%2077.5'/%3E%3Cpath%20d='M6%2024Q8.2%209%2024.5%205.4'/%3E%3Cpath%20d='M20%206.8Q9.8%2011%206.6%2020.5'/%3E%3C/svg%3E");
+}
+
+@utility drawn-frame {
+  border-style: solid;
+  border-color: transparent;
+  border-image-source: var(--sketch-frame);
+  border-image-slice: 20;
+  border-image-repeat: stretch;
+  border-radius: 6px;
 }
 
 /* Neighbours should not be tracings of each other, so the corners rotate through

@@ -42,18 +42,29 @@ function handCircle(cx: number, cy: number, r: number): string {
 /** A box drawn freehand: every corner a different roundness, sides never quite true. */
 function handRect(x: number, y: number, w: number, h: number, r: number): string {
   const n = (v: number) => Math.round(v * 100) / 100
-  const [tl, tr, br, bl] = [r * 1.18, r * 0.84, r * 1.12, r * 0.9]
-  const d = 0.4 // how far the sides wander
+  const [tl, tr, br, bl] = [r * 1.2, r * 0.8, r * 1.15, r * 0.88]
+  const o = Math.min(1.6, Math.max(w, h) * 0.09) // how far each corner overshoots
+
+  // Drawn as three strokes, not one closed loop: two long sides and a lid, each
+  // carrying a little past where it should stop. A single closed path always
+  // meets itself exactly, which is the thing a drawn box never does.
   return [
-    `M${n(x + tl)} ${n(y)}`,
-    `L${n(x + w - tr)} ${n(y - d * 0.5)}`,
-    `Q${n(x + w)} ${n(y - d * 0.2)} ${n(x + w + d * 0.4)} ${n(y + tr)}`,
-    `L${n(x + w)} ${n(y + h - br)}`,
-    `Q${n(x + w + d * 0.2)} ${n(y + h)} ${n(x + w - br)} ${n(y + h + d * 0.4)}`,
-    `L${n(x + bl)} ${n(y + h)}`,
-    `Q${n(x - d * 0.2)} ${n(y + h)} ${n(x - d * 0.4)} ${n(y + h - bl)}`,
-    `L${n(x)} ${n(y + tl)}`,
-    `Q${n(x)} ${n(y - d * 0.2)} ${n(x + tl + d * 1.6)} ${n(y + d * 0.3)}`,
+    // top edge, starting before the corner and running past the far one
+    `M${n(x + tl - o)} ${n(y + 0.3)}`,
+    `Q${n(x + w * 0.5)} ${n(y - 0.5)} ${n(x + w - tr + o * 0.6)} ${n(y)}`,
+    // right side down, overshooting the bottom corner
+    `M${n(x + w)} ${n(y + tr - o * 0.5)}`,
+    `Q${n(x + w + 0.5)} ${n(y + h * 0.5)} ${n(x + w - 0.2)} ${n(y + h - br + o * 0.5)}`,
+    // bottom edge back, and the left side up past the start
+    `M${n(x + w - br + o * 0.4)} ${n(y + h)}`,
+    `Q${n(x + w * 0.5)} ${n(y + h + 0.6)} ${n(x + bl - o * 0.5)} ${n(y + h - 0.2)}`,
+    `M${n(x + 0.2)} ${n(y + h - bl + o * 0.4)}`,
+    `Q${n(x - 0.5)} ${n(y + h * 0.5)} ${n(x)} ${n(y + tl - o)}`,
+    // the four corners, each a short curve joining the strokes it sits between
+    `M${n(x + tl - o)} ${n(y + 0.3)}Q${n(x)} ${n(y)} ${n(x)} ${n(y + tl - o)}`,
+    `M${n(x + w - tr + o * 0.6)} ${n(y)}Q${n(x + w)} ${n(y)} ${n(x + w)} ${n(y + tr - o * 0.5)}`,
+    `M${n(x + w - 0.2)} ${n(y + h - br + o * 0.5)}Q${n(x + w)} ${n(y + h)} ${n(x + w - br + o * 0.4)} ${n(y + h)}`,
+    `M${n(x + bl - o * 0.5)} ${n(y + h - 0.2)}Q${n(x)} ${n(y + h)} ${n(x + 0.2)} ${n(y + h - bl + o * 0.4)}`,
   ].join('')
 }
 
@@ -76,7 +87,7 @@ function Stroke({ children, ...props }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2}
+      strokeWidth={2.2}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -98,9 +109,15 @@ function Solid({ children, ...props }: IconProps) {
 /* ------------------------------- brand -------------------------------- */
 
 export const GitHubIcon = (p: IconProps) => (
-  <Solid {...p}>
-    <path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.35-1.3-1.71-1.3-1.71-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.5 3.17-1.18 3.17-1.18.63 1.59.24 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z" />
-  </Solid>
+  <Stroke {...p} strokeWidth={1.9}>
+    <HandCircle cx={12} cy={12} r={9.7} />
+    <path
+      fill="currentColor"
+      stroke="none"
+      d="M8.5 6.4c-.6-1-.6-2 0-3 1 .1 1.9.6 2.7 1.4a7.6 7.6 0 0 1 1.9 0c.8-.8 1.6-1.3 2.6-1.4.6 1 .6 2 .1 3 1 1 1.4 2.2 1.3 3.5-.1 2.8-1.8 4.2-4.4 4.7.5.4.7 1 .7 1.8v3c0 .4-.3.6-.7.5-.4 0-.6-.3-.6-.7v-2.7c0-.9-.3-1.4-.8-1.7-2.5-.5-4.2-1.9-4.3-4.7-.1-1.4.4-2.6 1.5-3.7Z"
+    />
+    <path d="M9.4 18.6q-2.2.5-3.1-1.5" />
+  </Stroke>
 )
 
 export const FacebookIcon = (p: IconProps) => (
@@ -134,7 +151,10 @@ export const MailIcon = (p: IconProps) => (
 
 export const PhoneIcon = (p: IconProps) => (
   <Stroke {...p}>
-    <path d="M6.2 3h2.9l1.6 4-2 1.4a12 12 0 0 0 5.9 5.9l1.4-2 4 1.6v2.9a2 2 0 0 1-2.2 2A16.9 16.9 0 0 1 4.2 5.2 2 2 0 0 1 6.2 3Z" />
+    <path d="M6.4 3.1q1.3-.2 2.6.1l1.5 3.8-1.9 1.5" />
+    <path d="M8.7 8.6a12.2 12.2 0 0 0 6 5.8" />
+    <path d="M14.5 14.2l1.4-1.9 3.9 1.5q.2 1.4 0 2.8a2 2 0 0 1-2.3 1.9" />
+    <path d="M17.4 18.5A17 17 0 0 1 4.3 5.4 2 2 0 0 1 6.4 3.1" />
   </Stroke>
 )
 
