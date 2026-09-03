@@ -1380,29 +1380,54 @@
 
 /* Crumpled paper.
  *
- * Fractal noise run through a diffuse light is what gives this its creases: the
- * noise is a height field and the light picks out its ridges, so the result has
- * real highlights and shadows rather than a flat pattern laid over the picture.
- * The lighting comes out clustered around mid grey, where soft-light does almost
- * nothing, so a component transfer stretches it either side of the middle first
- * — that step is the difference between a visible crumple and none at all.
+ * Two things together, because either alone falls short. Fractal noise run
+ * through a diffuse light gives the soft swelling between folds: the noise is a
+ * height field and the light picks out its ridges, so it has real highlights and
+ * shadows rather than a pattern laid over the picture. Its output clusters around
+ * mid grey, where a blend does almost nothing, so a component transfer stretches
+ * it either side of the middle first — that step is the difference between a
+ * visible crumple and none at all.
  *
- * The two long folds are drawn over the top, because a sheet that has been
- * screwed up has structure as well as grain. */
+ * On top of that, thirteen creases. Each is a bright edge with a dark one right
+ * against it, which is what a fold actually looks like: one face catches the
+ * light and the other is turned away from it. Noise alone was soft all over and
+ * read as a smudge; the straight lines are what say the sheet was screwed up. */
 .crumple {
   background-image:
-    linear-gradient(107deg, transparent 47%, rgb(255 255 255 / 0.5) 49.4%, rgb(0 0 0 / 0.24) 50.6%, transparent 53%),
-    linear-gradient(-64deg, transparent 61%, rgb(255 255 255 / 0.42) 63.2%, rgb(0 0 0 / 0.2) 64.4%, transparent 66.5%),
-    url("data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20width='520'%20height='520'><filter%20id='c'%20x='0'%20y='0'%20width='100%'%20height='100%'><feTurbulence%20type='fractalNoise'%20baseFrequency='0.008%200.0095'%20numOctaves='5'%20seed='19'%20result='n'/><feDiffuseLighting%20in='n'%20lighting-color='%23ffffff'%20surfaceScale='3.6'%20diffuseConstant='1'%20result='l'><feDistantLight%20azimuth='232'%20elevation='52'/></feDiffuseLighting><feComponentTransfer%20in='l'><feFuncR%20type='linear'%20slope='2.2'%20intercept='-0.6'/><feFuncG%20type='linear'%20slope='2.2'%20intercept='-0.6'/><feFuncB%20type='linear'%20slope='2.2'%20intercept='-0.6'/></feComponentTransfer></filter><rect%20width='520'%20height='520'%20filter='url%28%23c%29'/></svg>");
+    linear-gradient(116deg, transparent 84.2%, rgb(255 255 255 / 0.32) 87.3%, rgb(0 0 0 / 0.18) 88.0%, transparent 91.1%),
+    linear-gradient(20deg, transparent 78.5%, rgb(255 255 255 / 0.32) 81.1%, rgb(0 0 0 / 0.19) 81.8%, transparent 84.4%),
+    linear-gradient(134deg, transparent 68.0%, rgb(255 255 255 / 0.31) 70.0%, rgb(0 0 0 / 0.29) 70.7%, transparent 72.6%),
+    linear-gradient(29deg, transparent 57.7%, rgb(255 255 255 / 0.44) 61.7%, rgb(0 0 0 / 0.19) 62.4%, transparent 66.3%),
+    linear-gradient(169deg, transparent 43.8%, rgb(255 255 255 / 0.47) 47.3%, rgb(0 0 0 / 0.23) 48.0%, transparent 51.5%),
+    linear-gradient(16deg, transparent 48.6%, rgb(255 255 255 / 0.37) 52.3%, rgb(0 0 0 / 0.15) 53.0%, transparent 56.7%),
+    linear-gradient(173deg, transparent 68.2%, rgb(255 255 255 / 0.33) 71.3%, rgb(0 0 0 / 0.17) 72.0%, transparent 75.2%),
+    linear-gradient(65deg, transparent 22.5%, rgb(255 255 255 / 0.50) 25.1%, rgb(0 0 0 / 0.19) 25.8%, transparent 28.3%),
+    linear-gradient(16deg, transparent 68.4%, rgb(255 255 255 / 0.39) 71.1%, rgb(0 0 0 / 0.24) 71.8%, transparent 74.6%),
+    linear-gradient(91deg, transparent 42.7%, rgb(255 255 255 / 0.32) 45.8%, rgb(0 0 0 / 0.23) 46.5%, transparent 49.6%),
+    linear-gradient(112deg, transparent 58.6%, rgb(255 255 255 / 0.55) 61.4%, rgb(0 0 0 / 0.16) 62.1%, transparent 64.8%),
+    linear-gradient(162deg, transparent 27.2%, rgb(255 255 255 / 0.53) 30.0%, rgb(0 0 0 / 0.29) 30.7%, transparent 33.6%),
+    linear-gradient(134deg, transparent 69.1%, rgb(255 255 255 / 0.55) 72.1%, rgb(0 0 0 / 0.18) 72.8%, transparent 75.8%),
+    url("data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20width='520'%20height='520'><filter%20id='c'%20x='0'%20y='0'%20width='100%'%20height='100%'><feTurbulence%20type='fractalNoise'%20baseFrequency='0.006%200.0072'%20numOctaves='5'%20seed='19'%20result='n'/><feDiffuseLighting%20in='n'%20lighting-color='%23ffffff'%20surfaceScale='4.6'%20diffuseConstant='1'%20result='l'><feDistantLight%20azimuth='232'%20elevation='48'/></feDiffuseLighting><feComponentTransfer%20in='l'><feFuncR%20type='linear'%20slope='2.6'%20intercept='-0.78'/><feFuncG%20type='linear'%20slope='2.6'%20intercept='-0.78'/><feFuncB%20type='linear'%20slope='2.6'%20intercept='-0.78'/></feComponentTransfer></filter><rect%20width='520'%20height='520'%20filter='url%28%23c%29'/></svg>");
   background-size:
     100% 100%,
     100% 100%,
-    260px 260px;
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    300px 300px;
   mix-blend-mode: overlay;
-  opacity: 0.5;
+  opacity: 0.72;
 }
 
 /* Overlay bites harder on a dark photograph than a light one. */
 :root.dark .crumple {
-  opacity: 0.36;
+  opacity: 0.5;
 }

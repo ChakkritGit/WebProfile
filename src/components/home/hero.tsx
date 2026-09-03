@@ -24,8 +24,14 @@ function Tape({ className }: { className: string }) {
   return <span aria-hidden className={`tape pointer-events-none absolute h-6 w-24 ${className}`} />
 }
 
-/** Floating sticker chips that echo the old portfolio's badges. */
-function FloatingChip({
+/**
+ * The badges stuck to the photograph, echoing the old portfolio's.
+ *
+ * They do not bob any more. A sticker on a sheet of paper is stuck to it; the
+ * float was left over from when these hovered beside a framed picture rather
+ * than sitting on one.
+ */
+function StickerChip({
   children,
   className,
   delay = 0,
@@ -35,6 +41,7 @@ function FloatingChip({
 }: {
   children: React.ReactNode
   className?: string
+  /** How far into the entrance this one arrives. */
   delay?: number
   tone: string
   /** False after the first mount, so a locale switch doesn't replay the pop-in. */
@@ -51,10 +58,7 @@ function FloatingChip({
       className={className}
     >
       <div
-        // A sticker that has come unstuck does not bob — the float and the peel
-        // both write `transform`, and the animation would win every frame.
-        className={`sticker-sm font-display flex items-center gap-2 px-3.5 py-2 text-sm font-bold ${tone} ${peel ? 'sticker-peel' : reduce ? '' : 'animate-float'}`}
-        style={{ animationDelay: `${delay}s` }}
+        className={`sticker-sm font-display flex items-center gap-2 px-3.5 py-2 text-sm font-bold ${tone} ${peel ? 'sticker-peel' : ''}`}
       >
         {children}
       </div>
@@ -191,7 +195,7 @@ export function Hero({ roles }: { roles: string[] }) {
             <StarBurst className="animate-wobble absolute -top-7 right-10 size-9" />
             <StarBurst className="animate-wobble absolute bottom-8 -left-5 size-7" color="var(--mint)" />
 
-            <FloatingChip
+            <StickerChip
               className="absolute -top-5 -left-6 sm:-left-10"
               delay={0.5}
               tone="bg-sun-soft"
@@ -199,8 +203,8 @@ export function Hero({ roles }: { roles: string[] }) {
             >
               <CrownIcon className="text-sun size-4" />
               Software Engineer
-            </FloatingChip>
-            <FloatingChip
+            </StickerChip>
+            <StickerChip
               className="absolute -right-4 -bottom-4 sm:-right-8"
               delay={0.75}
               tone="bg-mint-soft"
@@ -209,7 +213,7 @@ export function Hero({ roles }: { roles: string[] }) {
             >
               <ThumbsUpIcon className="text-mint size-4" />
               Good at Programming
-            </FloatingChip>
+            </StickerChip>
           </motion.div>
         </div>
       </Container>
