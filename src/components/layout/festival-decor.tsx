@@ -556,9 +556,9 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
     return () => clearTimeout(timer)
   }, [])
 
-  // Two festivals borrow a theme for the length of their scene and hand it back
-  // afterwards: Halloween turns the lights out, Christmas turns them on for the
-  // snow. A reader already in the theme it wants gets nothing to undo, the
+  // Two festivals borrow the dark for the length of their scene and hand the
+  // reader's own theme back afterwards. It suits both: a haunting, and snow at
+  // night. A reader already in the theme it wants gets nothing to undo, the
   // original is restored rather than blindly cleared, and it comes off on unmount
   // as well as on the timer, so a navigation part way through cannot leave the
   // site stuck in a theme nobody chose.
@@ -733,10 +733,12 @@ function GhostPeek() {
 
 /* ---------------------------- the afterpieces ---------------------------- */
 
-/** The theme a scene borrows while it plays, if it wants one at all. */
+/** The theme a scene borrows while it plays, if it wants one at all. Snow and
+ *  ghosts both want the dark; white reads on it, and cream is where the snowmen
+ *  went nearly invisible. */
 const SCENE_THEME: Partial<Record<FestivalId, 'dark' | 'light'>> = {
   halloween: 'dark',
-  christmas: 'light',
+  christmas: 'dark',
 }
 
 /** How long each festival's closing scene runs before it unmounts for good. */
