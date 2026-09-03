@@ -1013,7 +1013,7 @@ function SnowmenChase() {
   return (
     <Stage>
       {/* The one in front, which does not make it. */}
-      <div className="xm-runner absolute bottom-2 left-0 w-24 sm:w-28">
+      <div className="xm-runner absolute bottom-2 left-0 w-24">
         <div className="xm-runner-bob">
           <svg viewBox="0 0 100 150" className="size-full overflow-visible">
             <g className="xm-base">
@@ -1037,7 +1037,7 @@ function SnowmenChase() {
       </div>
 
       {/* The one behind, which stops to enjoy it. */}
-      <div className="xm-chaser absolute bottom-2 left-0 w-24 sm:w-28">
+      <div className="xm-chaser absolute bottom-2 left-0 w-24">
         <div className="xm-chaser-bob">
           <svg viewBox="0 0 100 150" className="size-full overflow-visible">
             <SnowBall cx={50} cy={116} r={30} />

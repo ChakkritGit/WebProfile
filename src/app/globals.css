@@ -1146,38 +1146,69 @@
   animation: xm-bob 0.31s ease-in-out 9;
 }
 
-/* Head and middle go over the top and roll on; the base tips where it stood. */
+/* Head and middle go over the top, hit the ground and bounce along it; the base
+   jams where it stood.
+ *
+ * Two things make this read as falling rather than sliding. Each piece drops to
+ * the actual ground — the head's centre sits 95 viewBox units above where the
+ * base meets the floor, which is 91px at the 96px the snowmen are drawn at, so
+ * that is how far it has to come down. And every arc carries its own easing:
+ * `animation-timing-function` inside a keyframe applies to the segment that
+ * starts there, so the rises decelerate and the falls accelerate the way weight
+ * does. One easing across the whole animation gave a head floating along at head
+ * height at a constant speed.
+ *
+ * The runner is pinned to one width for the same reason: these are pixel
+ * distances, and a wider snowman on a larger screen would have landed short. */
 @keyframes xm-head-roll {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  16% { transform: translate(4vw, -70px) rotate(140deg); }
-  100% { transform: translate(30vw, 26px) rotate(920deg); }
+  0% { transform: translate(0, 0) rotate(0deg); animation-timing-function: ease-out; }
+  12% { transform: translate(3vw, -20px) rotate(120deg); animation-timing-function: ease-in; }
+  27% { transform: translate(8vw, 91px) rotate(265deg); animation-timing-function: ease-out; }
+  37% { transform: translate(12vw, 62px) rotate(350deg); animation-timing-function: ease-in; }
+  49% { transform: translate(17vw, 91px) rotate(470deg); animation-timing-function: ease-out; }
+  58% { transform: translate(20vw, 74px) rotate(545deg); animation-timing-function: ease-in; }
+  68% { transform: translate(23vw, 91px) rotate(620deg); animation-timing-function: ease-out; }
+  74% { transform: translate(25vw, 83px) rotate(660deg); animation-timing-function: ease-in; }
+  80% { transform: translate(26.5vw, 91px) rotate(690deg); animation-timing-function: cubic-bezier(0.1, 0.7, 0.2, 1); }
+  100% { transform: translate(29vw, 91px) rotate(726deg); }
 }
+
 @keyframes xm-mid-roll {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  18% { transform: translate(2vw, -34px) rotate(100deg); }
-  100% { transform: translate(19vw, 30px) rotate(640deg); }
+  0% { transform: translate(0, 0) rotate(0deg); animation-timing-function: ease-out; }
+  14% { transform: translate(2vw, -11px) rotate(65deg); animation-timing-function: ease-in; }
+  31% { transform: translate(6vw, 49px) rotate(195deg); animation-timing-function: ease-out; }
+  41% { transform: translate(9vw, 29px) rotate(260deg); animation-timing-function: ease-in; }
+  53% { transform: translate(12vw, 49px) rotate(338deg); animation-timing-function: ease-out; }
+  61% { transform: translate(14vw, 39px) rotate(388deg); animation-timing-function: ease-in; }
+  71% { transform: translate(16vw, 49px) rotate(428deg); animation-timing-function: cubic-bezier(0.1, 0.7, 0.2, 1); }
+  100% { transform: translate(18vw, 49px) rotate(452deg); }
 }
-/* The base is a circle, so rotating it would show nothing. It gets knocked
-   forward and squashes on each landing instead, which is what reads as toppled. */
+
+/* The base is a circle, so rotating it would show nothing. It jams where it
+   stood, squashing on each landing — which is what stops the fall reading as the
+   whole snowman simply sliding forward. */
 @keyframes xm-base-fall {
-  0% { transform: translate(0, 0) scale(1, 1); }
-  22% { transform: translate(12px, 7px) scale(1.14, 0.84); }
-  46% { transform: translate(24px, -4px) scale(0.93, 1.08); }
-  72% { transform: translate(32px, 5px) scale(1.07, 0.9); }
-  100% { transform: translate(38px, 2px) scale(1, 1); }
+  0% { transform: translate(0, 0) scale(1, 1); animation-timing-function: cubic-bezier(0.3, 0, 0.6, 1); }
+  15% { transform: translate(7px, 5px) scale(1.18, 0.8); animation-timing-function: ease-out; }
+  33% { transform: translate(15px, -7px) scale(0.93, 1.09); animation-timing-function: ease-in; }
+  51% { transform: translate(21px, 5px) scale(1.11, 0.89); animation-timing-function: ease-out; }
+  67% { transform: translate(25px, -3px) scale(0.97, 1.04); animation-timing-function: ease-in; }
+  81% { transform: translate(28px, 4px) scale(1.05, 0.95); }
+  100% { transform: translate(30px, 2px) scale(1, 1); }
 }
+
 .xm-head,
 .xm-mid,
 .xm-base {
   transform-box: fill-box;
   transform-origin: center;
 }
-.xm-head { animation: xm-head-roll 2.2s cubic-bezier(0.3, 0.4, 0.5, 1) 2.8s both; }
-.xm-mid { animation: xm-mid-roll 2.2s cubic-bezier(0.35, 0.35, 0.5, 1) 2.85s both; }
-.xm-base {
-  transform-origin: bottom center;
-  animation: xm-base-fall 1.3s cubic-bezier(0.4, 0, 0.55, 1) 2.8s both;
-}
+/* The base catches first, and the two above it come off in the order they were
+   stacked — that ordering is the trip. Linear overall, since every segment above
+   sets its own easing. */
+.xm-base { animation: xm-base-fall 1.5s linear 2.75s both; }
+.xm-mid { animation: xm-mid-roll 2.5s linear 2.82s both; }
+.xm-head { animation: xm-head-roll 2.8s linear 2.86s both; }
 
 /* The chaser stops just short of the mess and cannot keep it together. */
 @keyframes xm-chase {
@@ -1201,7 +1232,10 @@
   /* Ten passes to 3.1s, then it stands there laughing. */
   animation:
     xm-bob 0.31s ease-in-out 10,
-    xm-laugh 0.62s ease-in-out 3.1s 6;
+    /* Nine passes runs to 8.68s, past the end of the fade at 8.2s. Six stopped it
+       at 6.82s and left it standing there for the last second and a half — it
+       should still be laughing when it goes. */
+    xm-laugh 0.62s ease-in-out 3.1s 9;
 }
 
 /* Halloween borrows the dark theme for the length of its scene, then hands it
