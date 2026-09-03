@@ -133,10 +133,16 @@ const GLYPHS: Record<FestivalId, (key: number) => React.ReactNode> = {
 /** How many glyphs, and where. Fixed so the layout never shifts between renders. */
 const LANES = [4, 12, 19, 27, 35, 43, 51, 58, 66, 73, 81, 89, 95]
 
+/** Heights, as a share of the header, for the motions that do not travel through
+ *  it vertically. Kept inside the band the edge mask leaves fully opaque. */
+const BURST_LANES = [16, 38, 24, 50, 32]
+const DRIFT_LANES = [24, 44, 32, 52, 38]
+
 export function FestivalDecor({ festival }: { festival: Festival }) {
   const reduce = useReducedMotion()
   const glyph = GLYPHS[festival.id]
   const burst = festival.motion === 'burst'
+  const drift = festival.motion === 'drift'
 
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -159,10 +165,12 @@ export function FestivalDecor({ festival }: { festival: Festival }) {
               className={`festival-glyph festival-${burst ? 'launch' : festival.motion} absolute block`}
               style={{
                 left: `${left}%`,
-                // A firework ends up where it exploded, so each needs its own
-                // apex; the others are parked above or below the header by their
-                // motion class and travel the whole way across.
-                ...(burst ? { top: `${[16, 38, 24, 50, 32][i % 5]}%` } : null),
+                // A firework ends up where it exploded and a drifting glyph
+                // crosses at whatever height it was given, so both need a lane of
+                // their own. The falling and rising ones are parked above or
+                // below the header by their motion class and travel the whole way
+                // through it.
+                ...(burst || drift ? { top: `${(burst ? BURST_LANES : DRIFT_LANES)[i % 5]}%` } : null),
                 width: size,
                 height: size,
                 // A firework that took nine seconds to go up would not read as

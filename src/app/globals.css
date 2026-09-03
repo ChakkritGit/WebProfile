@@ -610,12 +610,20 @@
 }
 .festival-rise { animation-name: festival-rise; top: auto; bottom: -18%; }
 
+/* Drifting glyphs cross the header sideways, so their height is set by the lane
+   they are given and the keyframes only bob them a little.
+
+   The vertical part used to be a large translate, which could not do the job: a
+   `top` percentage is a share of the header, but a `translateY` percentage is a
+   share of the *glyph*, and the glyphs are a fifth of the header's height. The
+   -18% start offset was 13px down while 120% of a bat was 16px up, so the bats
+   spent the cycle glued to the top edge and half of it above it. */
 @keyframes festival-drift {
-  0% { transform: translate3d(-40px, 120%, 0) rotate(-8deg); opacity: 0; }
+  0% { transform: translate3d(-60px, 0, 0) rotate(-8deg); opacity: 0; }
   15% { opacity: 0.9; }
-  50% { transform: translate3d(24px, 40%, 0) rotate(9deg); }
+  50% { transform: translate3d(10px, -32%, 0) rotate(9deg); }
   85% { opacity: 0.9; }
-  100% { transform: translate3d(70px, 130%, 0) rotate(-6deg); opacity: 0; }
+  100% { transform: translate3d(80px, 12%, 0) rotate(-6deg); opacity: 0; }
 }
 .festival-drift { animation-name: festival-drift; }
 
