@@ -484,7 +484,9 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
     return () => clearTimeout(timer)
   }, [])
 
-  if (done || reduce) return null
+  // Reduced motion opts out of the whole flourish, the peeking ghost included.
+  if (reduce) return null
+  if (done) return festival.id === 'halloween' ? <GhostPeek /> : null
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-[70] grid place-items-center">
@@ -526,6 +528,47 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
           {t(festival.id)}
         </p>
       </div>
+    </div>
+  )
+}
+
+/**
+ * The ghost that stays behind, leaning out from the left edge of the screen.
+ *
+ * It is drawn facing the way it leans: the eyes and mouth sit in the right half
+ * of the box, because the left half is the part hanging off the screen. A
+ * centred face would have put one eye and half a smile on screen, which reads as
+ * a ghost cut in half rather than one looking round the corner.
+ */
+function GhostPeek() {
+  const [gone, setGone] = useState(false)
+
+  // Leans out, looks at you, blinks twice, ducks back — and that is the last of
+  // it. It unmounts on the same clock the retreat finishes on, so nothing is left
+  // sitting off-screen waiting to be found by a resize.
+  useEffect(() => {
+    const timer = setTimeout(() => setGone(true), 5200)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (gone) return null
+
+  return (
+    <div aria-hidden className="ghost-peek pointer-events-none fixed top-[46%] left-0 z-40 w-24 sm:w-32">
+      <svg viewBox="0 0 120 140" className="size-full">
+        <path
+          d="M60 8c24 0 41 19 41 44v70c0 4-4 6-7 3l-9-9-9 9c-2 2-5 2-7 0l-9-9-9 9c-2 2-5 2-7 0l-9-9-9 9c-3 3-7 1-7-3V52C19 27 36 8 60 8Z"
+          fill="#fffcf7"
+          stroke="var(--line)"
+          strokeWidth="4"
+          strokeLinejoin="round"
+        />
+        <g className="ghost-eyes">
+          <ellipse cx="74" cy="52" rx="7" ry="9" fill="var(--line)" />
+          <ellipse cx="99" cy="52" rx="6.4" ry="8.4" fill="var(--line)" />
+        </g>
+        <path d="M76 78c4 6 8 9 12 9s8-3 11-8" fill="none" stroke="var(--line)" strokeWidth="4" strokeLinecap="round" />
+      </svg>
     </div>
   )
 }
