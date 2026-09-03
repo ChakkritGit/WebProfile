@@ -1294,22 +1294,23 @@
 }
 
 /* Each one carries its own pace and its own roll, so the river never moves as a
-   single piece. They come in from off the left edge and are gone before they
-   reach the right — the fade is the point, not an exit. */
+   single piece. They drift rather than cross: the travel is short and the clock
+   is long, and none of them get near the far side before the river takes them. */
 @keyframes lk-drift {
-  0% { transform: translate(-26vw, 0) rotate(calc(var(--bob) * -1)); opacity: 0; }
-  9% { opacity: 1; }
-  27% { transform: translate(6vw, -5px) rotate(var(--bob)); }
-  48% { transform: translate(38vw, 3px) rotate(calc(var(--bob) * -1)); }
-  68% { transform: translate(70vw, -4px) rotate(var(--bob)); }
-  78% { opacity: 1; }
-  100% { transform: translate(104vw, 2px) rotate(calc(var(--bob) * -0.5)); opacity: 0; }
+  0% { transform: translate(-24vw, 0) rotate(calc(var(--bob) * -1)); opacity: 0; }
+  10% { opacity: 1; }
+  32% { transform: translate(-4vw, -5px) rotate(var(--bob)); }
+  56% { transform: translate(17vw, 3px) rotate(calc(var(--bob) * -1)); }
+  80% { transform: translate(39vw, -4px) rotate(var(--bob)); }
+  100% { transform: translate(58vw, 2px) rotate(calc(var(--bob) * -0.5)); opacity: 1; }
 }
+/* They go out with the river, not on their own schedule — the second animation
+   is the same fade the water runs, on the same clock. */
 .lk-boat {
   left: 0;
   opacity: 0;
   filter: drop-shadow(3px 5px 0 var(--shadow));
-  animation-name: lk-drift;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards;
+  animation-name: lk-drift, ny-fade;
+  animation-timing-function: linear, ease-in;
+  animation-fill-mode: forwards, forwards;
 }

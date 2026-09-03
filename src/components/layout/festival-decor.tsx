@@ -432,27 +432,56 @@ const GREETERS: Record<FestivalId, ReactNode> = {
   ),
   'loy-krathong': (
     <svg viewBox="0 0 120 140" className="size-full">
-      {/* lotus petals fanned out behind the float */}
-      <g stroke="var(--line)" strokeWidth="4" strokeLinejoin="round">
-        {[-62, -33, 0, 33, 62].map((deg) => (
-          <path key={deg} transform={`translate(60 96) rotate(${deg})`} d="M0 0Q-10-20 0-34Q10-20 0 0Z" fill="#8fd6a8" />
-        ))}
+      {/* Incense first, so everything else stands in front of it. */}
+      <g stroke="#caa227" strokeWidth="3.4" strokeLinecap="round">
+        <path d="M46 78V26M60 78V17M74 78V29" />
       </g>
-      {/* the candle it carries */}
-      <rect x="54" y="58" width="12" height="30" rx="3" fill="#fffcf7" stroke="var(--line)" strokeWidth="4" />
+      <circle cx="46" cy="24" r="3.2" fill="#e0362f" />
+      <circle cx="60" cy="15" r="3.2" fill="#e0362f" />
+      <circle cx="74" cy="27" r="3.2" fill="#e0362f" />
+
+      <rect x="76" y="52" width="12" height="30" rx="3" fill="#fffcf7" stroke="var(--line)" strokeWidth="4" />
       <path
-        d="M60 32c7 9 10 14 10 18a10 10 0 0 1-20 0c0-4 3-9 10-18Z"
+        d="M82 40c3.8 5.1 5.6 7.7 5.6 9.6a5.6 5.6 0 0 1-11.2 0c0-1.9 1.8-4.5 5.6-9.6Z"
         fill="#ffb02e"
+        stroke="var(--line)"
+        strokeWidth="3.4"
+        strokeLinejoin="round"
+      />
+
+      {/* Two rows of petals, the back one darker, exactly as the mark carries it. */}
+      {[-62, -33, 0, 33, 62].map((deg) => (
+        <path
+          key={`back-${deg}`}
+          transform={`translate(60 96) rotate(${deg})`}
+          d="M0 0Q-11-18 0-34Q11-18 0 0Z"
+          fill="#ec7fa8"
+          stroke="var(--line)"
+          strokeWidth="4"
+          strokeLinejoin="round"
+        />
+      ))}
+      {[-76, -46, -16, 16, 46, 76].map((deg) => (
+        <path
+          key={`front-${deg}`}
+          transform={`translate(60 100) rotate(${deg})`}
+          d="M0 0Q-10-14 0-28Q10-14 0 0Z"
+          fill="#f9b8ce"
+          stroke="var(--line)"
+          strokeWidth="4"
+          strokeLinejoin="round"
+        />
+      ))}
+      <path
+        d="M14 100c0 10 20 17 46 17s46-7 46-17Z"
+        fill="#e06a9a"
         stroke="var(--line)"
         strokeWidth="4"
         strokeLinejoin="round"
       />
-      {/* the banana-leaf bowl */}
-      <path d="M16 96c0 17 20 28 44 28s44-11 44-28Z" fill="#5fb885" stroke="var(--line)" strokeWidth="4.5" strokeLinejoin="round" />
-      <ellipse cx="60" cy="96" rx="44" ry="12" fill="#8fd6a8" stroke="var(--line)" strokeWidth="4.5" />
-      {/* the river it floats away on */}
+
       <path
-        d="M10 130q9-7 18 0t18 0t18 0t18 0t18 0"
+        d="M8 130q9-7 18 0t18 0t18 0t18 0t18 0"
         fill="none"
         stroke="#3fa0ff"
         strokeWidth="4"
@@ -570,34 +599,38 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
     return () => clearTimeout(timer)
   }, [])
 
-  // Three festivals borrow the dark, and they take it while the greeting's veil
-  // is lifting — so the page is already dark by the time there is nothing over
-  // it. Swapping at load was work nobody could see under a veil at full strength;
-  // swapping after it cleared put a colour change on a bare page.
+  // Three festivals borrow the dark, each at the moment that suits it: Halloween
+  // from the first frame, because the lights going out is part of the haunting,
+  // and the other two while the greeting's veil is lifting, so the page is
+  // already dark by the time there is nothing over it.
   //
   // The reader's own theme is handed back afterwards. One already in the dark
   // gets nothing to undo, the original is restored rather than blindly cleared,
   // and it comes off on unmount as well as on the timer, so a navigation part way
   // through cannot leave the site stuck in a theme nobody chose.
   useEffect(() => {
-    const want = SCENE_THEME[festival.id]
-    if (!want || reduce) return
+    const scheme = SCENE_THEME[festival.id]
+    if (!scheme || reduce) return
     const root = document.documentElement
     const wasDark = root.classList.contains('dark')
-    if (wasDark === (want === 'dark')) return
+    if (wasDark === (scheme.theme === 'dark')) return
 
     let frame = 0
     const enter = setTimeout(() => {
       root.classList.add('theme-xfade')
-      // A frame, then read the colour back, and only then change the theme.
+      // Two frames, then read the colour back, and only then change the theme.
       // Adding the class and the theme in one tick batches into a single style
-      // recalculation, which leaves the transition no previous value to move
-      // away from — and the lights go out in a single frame.
+      // recalculation, which leaves the transition no previous value to move away
+      // from. The second frame matters for Halloween, which takes its theme at
+      // hydration — that can land before the browser has painted at all, and a
+      // transition with nothing rendered to move away from does not run.
       frame = requestAnimationFrame(() => {
-        void getComputedStyle(document.body).backgroundColor
-        root.classList.toggle('dark', want === 'dark')
+        frame = requestAnimationFrame(() => {
+          void getComputedStyle(document.body).backgroundColor
+          root.classList.toggle('dark', scheme.theme === 'dark')
+        })
       })
-    }, SCENE_THEME_AT)
+    }, scheme.at)
 
     const scene = GREETING_MS + (AFTER_MS[festival.id] ?? 0)
     const back = setTimeout(() => root.classList.toggle('dark', wasDark), scene)
@@ -750,21 +783,22 @@ function GhostPeek() {
  *  over. Matches the animations in `globals.css`. */
 const GREETING_MS = 3400
 
-/** When a scene that borrows a theme starts taking it.
- *
- * The greeting's veil begins lifting at 55% of its run, so the swap goes under a
- * veil that is already thinning and is finished before it clears. Waiting for the
- * greeting to end put a 700ms colour change on an otherwise bare page, which is
- * the part that read as a jolt. */
-const SCENE_THEME_AT = Math.round(GREETING_MS * 0.55)
+/** The moment the greeting's veil begins to lift, at 55% of its run. A theme
+ *  taken here changes under a veil that is already thinning and is finished
+ *  before it clears. */
+const VEIL_LIFTS_AT = Math.round(GREETING_MS * 0.55)
 
 /** The theme a scene borrows while it plays, if it wants one at all. Snow and
  *  ghosts both want the dark; white reads on it, and cream is where the snowmen
  *  went nearly invisible. */
-const SCENE_THEME: Partial<Record<FestivalId, 'dark' | 'light'>> = {
-  halloween: 'dark',
-  christmas: 'dark',
-  'loy-krathong': 'dark',
+const SCENE_THEME: Partial<Record<FestivalId, { theme: 'dark' | 'light'; at: number }>> = {
+  // Halloween wants the dark from the first frame — the lights going out is part
+  // of the haunting, not a change of scene.
+  halloween: { theme: 'dark', at: 0 },
+  // These two want the page dark by the time there is nothing over it, so they
+  // take it while the veil is lifting.
+  christmas: { theme: 'dark', at: VEIL_LIFTS_AT },
+  'loy-krathong': { theme: 'dark', at: VEIL_LIFTS_AT },
 }
 
 /** How long each festival's closing scene runs before it unmounts for good. */
@@ -1209,8 +1243,10 @@ function KrathongDrift() {
     return Array.from({ length: narrow ? 4 : 6 }, (_, i) => ({
       width: Math.round(between(narrow ? 54 : 76, narrow ? 88 : 132)),
       // Staggered so they come past in ones and twos rather than as a line.
-      delay: i * between(0.85, 1.35),
-      duration: between(7.4, 9.6),
+      delay: i * between(0.5, 0.9),
+      // Long enough that they barely cover half the screen before the river takes
+      // them: a krathong that crosses in eight seconds is a boat, not a float.
+      duration: between(11, 14.5),
       lift: Math.round(between(2, 16)),
       bob: between(2.4, 4.6),
     }))
@@ -1226,8 +1262,11 @@ function KrathongDrift() {
           style={
             {
               bottom: 24 + boat.lift,
-              animationDelay: `${boat.delay.toFixed(2)}s`,
-              animationDuration: `${boat.duration.toFixed(2)}s`,
+              // Two animations, so two of each: a single value is reused for
+              // every animation in the list, which would have started the fade
+              // on the drift's clock.
+              animationDelay: `${boat.delay.toFixed(2)}s, 8.4s`,
+              animationDuration: `${boat.duration.toFixed(2)}s, 1.1s`,
               '--bob': `${boat.bob.toFixed(1)}deg`,
             } as React.CSSProperties
           }
