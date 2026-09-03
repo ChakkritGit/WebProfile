@@ -670,18 +670,99 @@
 }
 .fw-shell { animation-name: fw-shell; animation-timing-function: cubic-bezier(0.12, 0.85, 0.3, 1); }
 
-/* The festival greeting: in from below with a little overshoot, a beat to be
-   looked at, then up and away. */
+/* The festival greeting, in three beats over 3.4s: the character is wiped on as
+   though a pen were passing over it, it throws confetti, and the wish writes
+   itself underneath. The stage itself only holds and leaves — each beat is timed
+   inside its own keyframe against the same 3.4s clock. */
 @keyframes festival-greet {
-  0% { transform: translateY(26px) scale(0.7); opacity: 0; }
-  18% { transform: translateY(0) scale(1.06); opacity: 1; }
-  26% { transform: translateY(0) scale(1); }
-  62% { transform: translateY(-6px) scale(1); opacity: 1; }
-  100% { transform: translateY(-40px) scale(0.94); opacity: 0; }
+  0% { transform: translateY(18px); opacity: 0; }
+  8% { opacity: 1; }
+  76% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-34px); opacity: 0; }
 }
 .festival-greet {
-  animation: festival-greet 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: festival-greet 3.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Beat one. A soft-edged gradient mask sweeps across the character, so it arrives
+   stroke by stroke instead of fading in as a finished sticker. The mask is three
+   times the box so the transparent half is parked well outside it at each end,
+   and the whole thing settles out of a tilt as it lands.
+
+  The sweep runs 100% to 0%, not past either end: at 300% mask-size a position of
+  P offsets the image by P x -2W, so 0% is the only value that parks the opaque
+  half of the gradient over the whole box. Ending past it left the box sitting on
+  the empty space beyond the mask image, which erased the character entirely. */
+@keyframes greet-ink {
+  0% {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+    transform: scale(0.86) rotate(-7deg);
+  }
+  55% { transform: scale(1.03) rotate(1.5deg); }
+  70% {
+    -webkit-mask-position: 0% 0;
+    mask-position: 0% 0;
+  }
+  78% { transform: scale(1) rotate(0deg); }
+  100% {
+    -webkit-mask-position: 0% 0;
+    mask-position: 0% 0;
+    transform: scale(1) rotate(0deg);
+  }
+}
+.greet-ink {
+  -webkit-mask-image: linear-gradient(100deg, #000 0 42%, rgb(0 0 0 / 0) 62%);
+  mask-image: linear-gradient(100deg, #000 0 42%, rgb(0 0 0 / 0) 62%);
+  -webkit-mask-size: 300% 100%;
+  mask-size: 300% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: greet-ink 1.5s cubic-bezier(0.3, 0.9, 0.3, 1) forwards;
   filter: drop-shadow(0 10px 0 var(--shadow));
+}
+
+/* Beat two. Each piece carries its own vector and spin as custom properties. */
+@keyframes greet-confetti {
+  0% { transform: translate3d(0, 0, 0) scale(0.2) rotate(0deg); opacity: 0; }
+  14% { opacity: 1; }
+  70% { opacity: 0.9; }
+  100% {
+    transform: translate3d(var(--dx), var(--dy), 0) scale(1) rotate(var(--spin));
+    opacity: 0;
+  }
+}
+.greet-confetti {
+  opacity: 0;
+  animation: greet-confetti 1.7s cubic-bezier(0.1, 0.75, 0.3, 1) forwards;
+}
+
+/* Beat three. The wish is written in with the same sweep the character got, left
+   to right this time, because that is the direction it is read in. */
+@keyframes greet-wish {
+  0% {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  60%, 100% {
+    -webkit-mask-position: 0% 0;
+    mask-position: 0% 0;
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.greet-wish {
+  -webkit-mask-image: linear-gradient(90deg, #000 0 50%, rgb(0 0 0 / 0) 68%);
+  mask-image: linear-gradient(90deg, #000 0 50%, rgb(0 0 0 / 0) 68%);
+  -webkit-mask-size: 260% 100%;
+  mask-size: 260% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: greet-wish 1.5s cubic-bezier(0.25, 0.9, 0.3, 1) 0.85s backwards;
+  text-shadow: 0 3px 0 rgb(0 0 0 / 0.45);
 }
 
 /* The page dimmed behind it, so the character is not competing with the article
@@ -694,7 +775,7 @@
   100% { opacity: 0; }
 }
 .festival-veil {
-  animation: festival-veil 2.6s ease-out forwards;
+  animation: festival-veil 3.4s ease-out forwards;
 }
 
 /* Reader-set text size.

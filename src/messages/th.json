@@ -73,6 +73,14 @@
     "views": "{count, plural, =0 {ยังไม่มีผู้เข้าชม} other {# ครั้ง}}",
     "viewsShort": "{count}"
   },
+  "festival": {
+    "new-year": "สวัสดีปีใหม่",
+    "valentine": "สุขสันต์วันวาเลนไทน์",
+    "songkran": "สุขสันต์วันสงกรานต์",
+    "loy-krathong": "ลอยกระทงปลอดภัย",
+    "halloween": "แฮปปี้ฮาโลวีน",
+    "christmas": "สุขสันต์วันคริสต์มาส"
+  },
   "home": {
     "greeting": "สวัสดีครับ ผมชื่อ",
     "roles": [

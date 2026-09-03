@@ -73,6 +73,14 @@
     "resumeClose": "閉じる",
     "resumeFallback": "このブラウザではPDFを埋め込み表示できません。"
   },
+  "festival": {
+    "new-year": "あけましておめでとう",
+    "valentine": "ハッピーバレンタイン",
+    "songkran": "ソンクラーンおめでとう",
+    "loy-krathong": "ロイクラトン",
+    "halloween": "ハッピーハロウィン",
+    "christmas": "メリークリスマス"
+  },
   "home": {
     "greeting": "はじめまして、",
     "roles": [

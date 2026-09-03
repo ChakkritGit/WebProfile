@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, type ReactNode } from 'react'
+import { useTranslations } from 'next-intl'
 import { useReducedMotion } from 'motion/react'
 import { festivalById, festivalOn, type Festival, type FestivalId } from '@/config/festivals'
 import { useIsMounted } from '@/lib/hooks'
@@ -422,12 +423,64 @@ const GREETERS: Record<FestivalId, ReactNode> = {
  * afterwards rather than sitting there invisible, and never takes a pointer
  * event, so a click landing mid-greeting still reaches the page underneath.
  */
+/** What the burst throws out, one per festival. Small enough to read at 18px. */
+const CONFETTI: Record<FestivalId, ReactNode> = {
+  halloween: (
+    <path d="M1 6.4c1.6-.4 2.4-1.4 2.8-2.6.7 1.3 1.7 2 3 2 .5 0 .9.4 1.2 1 .3-.6.7-1 1.2-1 1.3 0 2.3-.7 3-2 .4 1.2 1.2 2.2 2.8 2.6-1.4.5-2 1.6-2.2 3-.9-.9-1.9-1.2-3-.9-.7.2-1.3.7-1.8 1.5-.5-.8-1.1-1.3-1.8-1.5-1.1-.3-2.1 0-3 .9-.2-1.4-.8-2.5-2.2-3Z" fill="#7c5cff" />
+  ),
+  valentine: (
+    <path d="M8 14 2.6 8.6a3.3 3.3 0 0 1 4.7-4.7l.7.7.7-.7a3.3 3.3 0 1 1 4.7 4.7L8 14Z" fill="#ff5a6e" />
+  ),
+  songkran: (
+    <path d="M8 1.8c2.9 3.7 4.4 6.3 4.4 8a4.4 4.4 0 0 1-8.8 0c0-1.7 1.5-4.3 4.4-8Z" fill="#3fa0ff" />
+  ),
+  christmas: (
+    <g stroke="#8fd0f5" strokeWidth="1.7" strokeLinecap="round">
+      <path d="M8 1.6v12.8M2.5 4.8l11 6.4M13.5 4.8l-11 6.4" />
+    </g>
+  ),
+  'new-year': (
+    <g stroke="#ffd166" strokeWidth="1.8" strokeLinecap="round">
+      <path d="M8 1.5v4M8 10.5v4M1.5 8h4M10.5 8h4" />
+    </g>
+  ),
+  'loy-krathong': (
+    <path d="M8 1.8c2.4 3 3.7 5.1 3.7 6.7a3.7 3.7 0 0 1-7.4 0c0-1.6 1.3-3.7 3.7-6.7Z" fill="#ffb02e" />
+  ),
+}
+
+/** Where each piece of confetti is thrown: [angle°, distance, size, spin°]. Hand
+ *  picked so the ring is uneven — an even fan reads as a machine, not a burst. */
+const THROW: [number, number, number, number][] = [
+  [-88, 214, 20, 40], [-58, 176, 14, -70], [-31, 232, 22, 25], [-6, 188, 16, 90],
+  [17, 240, 19, -35], [43, 170, 13, 60], [68, 226, 21, -20], [92, 182, 15, 75],
+  [117, 236, 18, -55], [141, 174, 12, 30], [166, 222, 20, -85], [-165, 190, 16, 45],
+  [-138, 234, 21, -30], [-113, 178, 14, 65],
+]
+
+/**
+ * A one-off hello in the middle of the screen when the page loads during a
+ * festival.
+ *
+ * Three beats rather than one entrance: the character is wiped on as though a pen
+ * were passing over it, it throws a handful of confetti, and the wish writes
+ * itself underneath. A single sticker sliding in was the whole thing before, and
+ * it read as decoration; a greeting that says something is what a festival
+ * actually wants from a page.
+ *
+ * It plays per page load, not per navigation: this lives in the header, which
+ * survives client-side route changes, so moving between pages does not replay
+ * it — only a real load or refresh does. It removes itself from the DOM
+ * afterwards rather than sitting there invisible, and never takes a pointer
+ * event, so a click landing mid-greeting still reaches the page underneath.
+ */
 export function FestivalGreeting({ festival }: { festival: Festival }) {
+  const t = useTranslations('festival')
   const reduce = useReducedMotion()
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    const timer = setTimeout(() => setDone(true), 2600)
+    const timer = setTimeout(() => setDone(true), 3400)
     return () => clearTimeout(timer)
   }, [])
 
@@ -436,7 +489,43 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-[70] grid place-items-center">
       <div className="festival-veil absolute inset-0 bg-black/45" />
-      <div className="festival-greet relative w-40 sm:w-52">{GREETERS[festival.id]}</div>
+
+      <div className="festival-greet relative flex flex-col items-center gap-5">
+        <div className="relative">
+          <div className="greet-ink w-40 sm:w-52">{GREETERS[festival.id]}</div>
+
+          {/* Thrown from behind the character, so the first frames are hidden by
+              it and the confetti appears to come out rather than start beside. */}
+          <div className="pointer-events-none absolute inset-0 -z-10 grid place-items-center">
+            {THROW.map(([deg, dist, size, spin], i) => {
+              const a = (deg * Math.PI) / 180
+              return (
+                <svg
+                  key={i}
+                  viewBox="0 0 16 16"
+                  className="greet-confetti absolute"
+                  style={
+                    {
+                      width: size,
+                      height: size,
+                      '--dx': `${Math.cos(a) * dist}px`,
+                      '--dy': `${Math.sin(a) * dist}px`,
+                      '--spin': `${spin}deg`,
+                      animationDelay: `${0.62 + (i % 5) * 0.045}s`,
+                    } as React.CSSProperties
+                  }
+                >
+                  {CONFETTI[festival.id]}
+                </svg>
+              )
+            })}
+          </div>
+        </div>
+
+        <p className="greet-wish font-display text-center text-2xl font-bold text-[#fffcf7] sm:text-3xl">
+          {t(festival.id)}
+        </p>
+      </div>
     </div>
   )
 }

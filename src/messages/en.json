@@ -73,6 +73,14 @@
     "views": "{count, plural, =0 {No views yet} one {# view} other {# views}}",
     "viewsShort": "{count}"
   },
+  "festival": {
+    "new-year": "Happy New Year",
+    "valentine": "Happy Valentine's Day",
+    "songkran": "Happy Songkran",
+    "loy-krathong": "Happy Loy Krathong",
+    "halloween": "Happy Halloween",
+    "christmas": "Merry Christmas"
+  },
   "home": {
     "greeting": "Hi, I'm",
     "roles": [
