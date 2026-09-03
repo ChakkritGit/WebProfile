@@ -751,18 +751,48 @@
 }
 .greet-in-float { animation: greet-in-float 2s cubic-bezier(0.25, 0.7, 0.3, 1) forwards; }
 
-/* Halloween. It flickers into being twice before it commits. */
+/* Halloween. It tries to appear three times, somewhere else and some other size
+   each time, before it manages to hold — and it only holds in the middle, at the
+   size it was meant to be.
+ *
+ * The three places come in as custom properties, rolled fresh on every load. The
+ * jumps are pairs of keyframes a hundredth of a percent apart: a transform is
+ * interpolated between the frames that state it, so without a matching value at
+ * the end of each appearance it would have slid between positions instead of
+ * being in one and then the other. It jumps while it is invisible, which is what
+ * makes it a haunting and not a journey. */
 @keyframes greet-in-haunt {
-  0% { transform: scale(1.32) skewX(-7deg); opacity: 0; filter: blur(7px); }
-  16% { opacity: 0.5; }
-  25% { opacity: 0.04; }
-  40% { opacity: 0.75; filter: blur(3px); }
-  49% { opacity: 0.1; }
-  72% { transform: scale(1.03) skewX(1.5deg); opacity: 1; filter: blur(0); }
-  86% { transform: scale(0.99) skewX(-1deg); }
-  100% { transform: scale(1) skewX(0deg); opacity: 1; filter: blur(0); }
+  0% { transform: translate(var(--hx1), var(--hy1)) scale(var(--hs1)); opacity: 0; filter: blur(9px); }
+  5% { opacity: 0.62; }
+  12% { opacity: 0.02; }
+  14% { transform: translate(var(--hx1), var(--hy1)) scale(var(--hs1)); filter: blur(6px); }
+  14.01% { transform: translate(var(--hx2), var(--hy2)) scale(var(--hs2)); }
+  21% { opacity: 0.78; }
+  29% { opacity: 0.02; }
+  32% { transform: translate(var(--hx2), var(--hy2)) scale(var(--hs2)); filter: blur(4px); }
+  32.01% { transform: translate(var(--hx3), var(--hy3)) scale(var(--hs3)); }
+  39% { opacity: 0.9; }
+  47% { opacity: 0.03; }
+  50% { transform: translate(var(--hx3), var(--hy3)) scale(var(--hs3)); filter: blur(2px); }
+  50.01% { transform: translate(0, 0) scale(1.14); }
+  64% { opacity: 1; filter: blur(0); }
+  80% { transform: translate(0, 0) scale(0.97); }
+  100% { transform: translate(0, 0) scale(1); opacity: 1; filter: blur(0); }
 }
-.greet-in-haunt { animation: greet-in-haunt 1.8s ease-out forwards; }
+.greet-in-haunt {
+  /* Sensible values if the properties are ever missing, so a failed appearance is
+     still an appearance somewhere rather than a no-op in the middle. */
+  --hx1: -14vw;
+  --hy1: -10vh;
+  --hs1: 0.7;
+  --hx2: 16vw;
+  --hy2: 8vh;
+  --hs2: 1.2;
+  --hx3: -11vw;
+  --hy3: 13vh;
+  --hs3: 0.9;
+  animation: greet-in-haunt 2.1s ease-out forwards;
+}
 
 /* Christmas. A soft-edged gradient mask passes over it, so it arrives stroke by
    stroke instead of fading in as a finished sticker. The mask is three times the
@@ -921,11 +951,16 @@
   50% { transform: translate(-19%, calc(-50% - 6px)) rotate(2.5deg); }
 }
 
-/* It leans in a touch further before it goes, the way you do when you have been
-   spotted, then ducks back past the edge for good. */
+/* Straight back behind the edge, no second look.
+ *
+ * It used to lean further out first, which measured as the ghost retreating to
+ * x=97, popping back to x=115 and only then leaving — a glitch, not a flourish.
+ * The sway underneath made it worse: it was still running when the retreat took
+ * over, so the transform snapped from wherever the sway had got to. The sway now
+ * runs a whole number of cycles and ends on its own resting pose, exactly as the
+ * retreat begins, so there is nothing to snap from. */
 @keyframes ghost-peek-out {
   0% { transform: translate(-24%, -50%) rotate(0deg); }
-  26% { transform: translate(-14%, calc(-50% - 5px)) rotate(4deg); }
   100% { transform: translate(-108%, -50%) rotate(-10deg); }
 }
 
@@ -950,8 +985,9 @@
   filter: drop-shadow(4px 6px 0 var(--shadow));
   animation:
     ghost-peek-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) both,
-    ghost-peek-idle 5s ease-in-out 1.1s infinite,
-    ghost-peek-out 0.85s cubic-bezier(0.5, 0, 0.75, 0) 4.35s forwards;
+    /* Two whole cycles: 1.1s + 2 x 2s lands on 5.1s, the frame the retreat starts. */
+    ghost-peek-idle 2s ease-in-out 1.1s 2,
+    ghost-peek-out 0.9s cubic-bezier(0.4, 0, 0.75, 0.15) 5.1s forwards;
 }
 
 /* ------------------------------------------------------------------ *

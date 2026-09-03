@@ -499,7 +499,7 @@ const STAGING: Record<FestivalId, { enter: string; fling: string; list: Fling[];
   valentine: { enter: 'greet-in-beat', fling: 'fling-rise', list: FLING_UP, wish: 0.95 },
   songkran: { enter: 'greet-in-drop', fling: 'fling-fall', list: FLING_DOWN, wish: 1.0 },
   'loy-krathong': { enter: 'greet-in-float', fling: 'fling-rise', list: FLING_UP, wish: 1.1 },
-  halloween: { enter: 'greet-in-haunt', fling: 'fling-out', list: FLING_OUT, wish: 1.2 },
+  halloween: { enter: 'greet-in-haunt', fling: 'fling-out', list: FLING_OUT, wish: 1.5 },
   christmas: { enter: 'greet-in-draw', fling: 'fling-fall', list: FLING_DOWN, wish: 0.85 },
 }
 
@@ -567,6 +567,32 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
     }
   }, [festival.id, reduce])
 
+  // Where the ghost shows up on each failed attempt at appearing. Rolled once, on
+  // mount, so it is a different haunting every load — and only here, because
+  // nothing renders on the server (see `useFestival`), so there is no markup for
+  // a random number to disagree with.
+  //
+  // The reach is worked out from the size it happens to be that time, not fixed
+  // in viewport units: a big appearance needs to stay closer to the middle than a
+  // small one, and a fixed range clipped it off the edge of a phone.
+  const [haunt] = useState(() => {
+    const between = (min: number, max: number) => min + Math.random() * (max - min)
+    const either = () => (Math.random() < 0.5 ? -1 : 1)
+    const box = window.innerWidth >= 640 ? 208 : 160 // the w-40 / sm:w-52 glyph
+    const tall = box * (140 / 120) // the greeters' viewBox is taller than it is wide
+
+    return Array.from({ length: 3 }, () => {
+      const scale = between(0.5, 1.45)
+      const reachX = Math.max(0, window.innerWidth / 2 - (box * scale) / 2 - 12)
+      const reachY = Math.max(0, window.innerHeight / 2 - (tall * scale) / 2 - 12)
+      return {
+        x: `${Math.round(either() * between(reachX * 0.4, reachX))}px`,
+        y: `${Math.round(either() * between(reachY * 0.35, reachY))}px`,
+        s: scale.toFixed(2),
+      }
+    })
+  })
+
   const stage = STAGING[festival.id]
 
   // Reduced motion opts out of the whole flourish, the afterpiece included.
@@ -584,7 +610,22 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
           {festival.id === 'new-year' && (
             <span className="greet-rocket absolute start-1/2 top-1/2 h-16 w-1.5 -translate-x-1/2 rounded-full bg-[#ffd166]" />
           )}
-          <div className={`greet-ink ${stage.enter} w-40 sm:w-52`}>{GREETERS[festival.id]}</div>
+          <div
+            className={`greet-ink ${stage.enter} w-40 sm:w-52`}
+            style={
+              festival.id === 'halloween'
+                ? (Object.fromEntries(
+                    haunt.flatMap((h, i) => [
+                      [`--hx${i + 1}`, h.x],
+                      [`--hy${i + 1}`, h.y],
+                      [`--hs${i + 1}`, h.s],
+                    ]),
+                  ) as React.CSSProperties)
+                : undefined
+            }
+          >
+            {GREETERS[festival.id]}
+          </div>
 
           {/* Thrown from behind the character, so the first frames are hidden by
               it and the confetti appears to come out rather than start beside. */}
@@ -634,18 +675,9 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
  * something leaning out from behind rather than a sticker parked in the corner.
  */
 function GhostPeek() {
-  const [gone, setGone] = useState(false)
-
   // Leans out, looks at you, blinks twice, ducks back — and that is the last of
-  // it. It unmounts on the same clock the retreat finishes on, so nothing is left
-  // sitting off-screen waiting to be found by a resize.
-  useEffect(() => {
-    const timer = setTimeout(() => setGone(true), 5200)
-    return () => clearTimeout(timer)
-  }, [])
-
-  if (gone) return null
-
+  // it. `FestivalAfter` owns how long it lives; a second timer here only made two
+  // clocks to keep in step with the CSS.
   return (
     <div aria-hidden className="ghost-peek pointer-events-none fixed top-[46%] left-0 z-40 w-24 sm:w-32">
       <svg viewBox="0 0 120 140" className="size-full">
@@ -670,7 +702,7 @@ function GhostPeek() {
 
 /** How long each festival's closing scene runs before it unmounts for good. */
 const AFTER_MS: Partial<Record<FestivalId, number>> = {
-  halloween: 5200,
+  halloween: 6000,
   'new-year': 7000,
   valentine: 7000,
   songkran: 7400,
