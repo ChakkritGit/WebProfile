@@ -234,7 +234,10 @@
   border-image-width: 18px;
   border-image-outset: 2px;
   border-image-repeat: stretch;
-  border-radius: 8px;
+  /* Matched to the drawn corner, not chosen for looks: the shadow is cast from
+     `border-radius`, so a radius squarer than the outline leaves the shadow
+     poking out at every corner. Roughly `border-image-width x 25/slice`. */
+  border-radius: 16px;
   box-shadow: 6px 6px 0 0 var(--shadow);
 }
 
@@ -250,7 +253,7 @@
   border-image-width: 17px;
   border-image-outset: 2px;
   border-image-repeat: stretch;
-  border-radius: 6px;
+  border-radius: 15px;
   box-shadow: 4px 4px 0 0 var(--shadow);
 }
 
@@ -266,7 +269,7 @@
   border-image-width: 22px;
   border-image-outset: 3px;
   border-image-repeat: stretch;
-  border-radius: 10px;
+  border-radius: 20px;
   box-shadow: 9px 9px 0 0 var(--shadow);
 }
 
@@ -334,9 +337,7 @@
      it. Drawn flush, the two read as one shape. */
   border-image-outset: 0;
   border-image-repeat: stretch;
-  /* Less than a capsule: a full semicircle read as machine-turned next to the
-     drawn line around it. */
-  border-radius: 16px;
+  border-radius: 15px;
 }
 
 .rounded-2xl.border-2,
@@ -352,7 +353,7 @@
   border-image-width: 18px;
   border-image-outset: 2px;
   border-image-repeat: stretch;
-  border-radius: 10px;
+  border-radius: 15px;
 }
 
 /* ------------------------------------------------------------------ *
