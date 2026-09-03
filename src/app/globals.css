@@ -228,10 +228,10 @@
   border-image-source: var(--sketch-frame);
   border-image-slice: 28;
   border-image-width: 18px;
-  border-image-outset: 7px;
+  border-image-outset: 2px;
   border-image-repeat: stretch;
   border-radius: 8px;
-  box-shadow: 4px 4px 0 0 var(--shadow);
+  box-shadow: 6px 6px 0 0 var(--shadow);
 }
 
 @utility sticker-sm {
@@ -240,10 +240,10 @@
   border-image-source: var(--sketch-frame);
   border-image-slice: 28;
   border-image-width: 13px;
-  border-image-outset: 5px;
+  border-image-outset: 2px;
   border-image-repeat: stretch;
   border-radius: 6px;
-  box-shadow: 2px 2px 0 0 var(--shadow);
+  box-shadow: 4px 4px 0 0 var(--shadow);
 }
 
 @utility sticker-lg {
@@ -252,10 +252,10 @@
   border-image-source: var(--sketch-frame);
   border-image-slice: 28;
   border-image-width: 22px;
-  border-image-outset: 9px;
+  border-image-outset: 3px;
   border-image-repeat: stretch;
   border-radius: 10px;
-  box-shadow: 7px 7px 0 0 var(--shadow);
+  box-shadow: 9px 9px 0 0 var(--shadow);
 }
 
 /* ------------------------------------------------------------------ *
@@ -272,12 +272,21 @@
  * variable — hence one per theme.
  * ------------------------------------------------------------------ */
 :root {
+  --sketch-rule: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='200'%20height='8'%20viewBox='0%200%20200%208'%20preserveAspectRatio='none'%20fill='none'%20stroke='%23241f2e'%20stroke-width='2.6'%20stroke-linecap='round'%3E%3Cpath%20d='M2%204.4Q46%202.2%2088%203.6'/%3E%3Cpath%20d='M98%203.4Q150%202%20198%204.2'/%3E%3C/svg%3E");
+  --sketch-rule: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='200'%20height='8'%20viewBox='0%200%20200%208'%20preserveAspectRatio='none'%20fill='none'%20stroke='%230a0812'%20stroke-width='2.6'%20stroke-linecap='round'%3E%3Cpath%20d='M2%204.4Q46%202.2%2088%203.6'/%3E%3Cpath%20d='M98%203.4Q150%202%20198%204.2'/%3E%3C/svg%3E");
   --sketch-pill: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M32%206Q50%203.6%2070%206.4'/%3E%3Cpath%20d='M70%2094Q50%2096.6%2031%2093.6'/%3E%3Cpath%20d='M31%206.4C13%208%204%2026%204.6%2050%205.2%2074%2014%2092%2030%2093.8'/%3E%3Cpath%20d='M70%206.2C88%208%2096%2026%2095.4%2050%2094.8%2073%2087%2092%2069%2094'/%3E%3Cpath%20d='M27%207.4C16%2011%209%2027%209.4%2044'/%3E%3C/svg%3E");
-  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M23%205.8Q50%203.1%2078%206.2'/%3E%3Cpath%20d='M94.8%2023.5Q97%2050%2094%2077'/%3E%3Cpath%20d='M77%2094.4Q50%2096.9%2022.5%2093.8'/%3E%3Cpath%20d='M5.2%2076Q3.1%2050%206.2%2022'/%3E%3Cpath%20d='M75%205.6Q91.5%207.2%2094.4%2025.5'/%3E%3Cpath%20d='M94.4%2075.5Q92.4%2091.6%2079%2094.6'/%3E%3Cpath%20d='M24.5%2094.2Q9.2%2092%205.6%2077.5'/%3E%3Cpath%20d='M6%2024Q8.2%209%2024.5%205.4'/%3E%3Cpath%20d='M20%206.8Q9.8%2011%206.6%2020.5'/%3E%3C/svg%3E");
+  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M22%206.4Q33%204.4%2043.5%204.8'/%3E%3Cpath%20d='M47%204.6Q64%203.4%2079%206.4'/%3E%3Cpath%20d='M94.9%2024Q96.9%2038%2095.9%2048.5'/%3E%3Cpath%20d='M95.6%2052Q96.4%2066%2093.8%2078'/%3E%3Cpath%20d='M78%2094.2Q50%2097.2%2027.5%2093.6'/%3E%3Cpath%20d='M5.1%2077Q3.4%2064%204.4%2052.5'/%3E%3Cpath%20d='M4.6%2049Q3.6%2034%206.4%2022'/%3E%3Cpath%20d='M79%206.4Q91.8%208.4%2094.9%2024'/%3E%3Cpath%20d='M93.8%2078Q91.4%2091.8%2078%2094.2'/%3E%3Cpath%20d='M27.5%2093.6Q9.4%2091.4%205.1%2077'/%3E%3Cpath%20d='M6.4%2022Q8.6%208.4%2022%206.4'/%3E%3Cpath%20d='M19%208.2Q10.4%2012.6%207.8%2021'/%3E%3C/svg%3E");
 }
 :root.dark {
   --sketch-pill: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M32%206Q50%203.6%2070%206.4'/%3E%3Cpath%20d='M70%2094Q50%2096.6%2031%2093.6'/%3E%3Cpath%20d='M31%206.4C13%208%204%2026%204.6%2050%205.2%2074%2014%2092%2030%2093.8'/%3E%3Cpath%20d='M70%206.2C88%208%2096%2026%2095.4%2050%2094.8%2073%2087%2092%2069%2094'/%3E%3Cpath%20d='M27%207.4C16%2011%209%2027%209.4%2044'/%3E%3C/svg%3E");
-  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M23%205.8Q50%203.1%2078%206.2'/%3E%3Cpath%20d='M94.8%2023.5Q97%2050%2094%2077'/%3E%3Cpath%20d='M77%2094.4Q50%2096.9%2022.5%2093.8'/%3E%3Cpath%20d='M5.2%2076Q3.1%2050%206.2%2022'/%3E%3Cpath%20d='M75%205.6Q91.5%207.2%2094.4%2025.5'/%3E%3Cpath%20d='M94.4%2075.5Q92.4%2091.6%2079%2094.6'/%3E%3Cpath%20d='M24.5%2094.2Q9.2%2092%205.6%2077.5'/%3E%3Cpath%20d='M6%2024Q8.2%209%2024.5%205.4'/%3E%3Cpath%20d='M20%206.8Q9.8%2011%206.6%2020.5'/%3E%3C/svg%3E");
+  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M22%206.4Q33%204.4%2043.5%204.8'/%3E%3Cpath%20d='M47%204.6Q64%203.4%2079%206.4'/%3E%3Cpath%20d='M94.9%2024Q96.9%2038%2095.9%2048.5'/%3E%3Cpath%20d='M95.6%2052Q96.4%2066%2093.8%2078'/%3E%3Cpath%20d='M78%2094.2Q50%2097.2%2027.5%2093.6'/%3E%3Cpath%20d='M5.1%2077Q3.4%2064%204.4%2052.5'/%3E%3Cpath%20d='M4.6%2049Q3.6%2034%206.4%2022'/%3E%3Cpath%20d='M79%206.4Q91.8%208.4%2094.9%2024'/%3E%3Cpath%20d='M93.8%2078Q91.4%2091.8%2078%2094.2'/%3E%3Cpath%20d='M27.5%2093.6Q9.4%2091.4%205.1%2077'/%3E%3Cpath%20d='M6.4%2022Q8.6%208.4%2022%206.4'/%3E%3Cpath%20d='M19%208.2Q10.4%2012.6%207.8%2021'/%3E%3C/svg%3E");
+}
+
+@utility drawn-rule {
+  /* A ruled line that was drawn, for the places a plain `border-b` used to sit —
+     the card covers, whose dead-straight edge was the last machine line left on
+     the card. Painted as an overlay because the cover image fills the box. */
+  position: relative;
 }
 
 @utility drawn-frame {
@@ -301,7 +310,7 @@
   border-image-source: var(--sketch-pill);
   border-image-slice: 34;
   border-image-width: 15px;
-  border-image-outset: 5px;
+  border-image-outset: 2px;
   border-image-repeat: stretch;
   border-radius: 999px;
 }
@@ -313,7 +322,7 @@
   border-image-source: var(--sketch-frame);
   border-image-slice: 28;
   border-image-width: 14px;
-  border-image-outset: 5px;
+  border-image-outset: 2px;
   border-image-repeat: stretch;
   border-radius: 10px;
 }
@@ -333,11 +342,18 @@
  * ------------------------------------------------------------------ */
 :root {
   --sketch-pill: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M32%206Q50%203.6%2070%206.4'/%3E%3Cpath%20d='M70%2094Q50%2096.6%2031%2093.6'/%3E%3Cpath%20d='M31%206.4C13%208%204%2026%204.6%2050%205.2%2074%2014%2092%2030%2093.8'/%3E%3Cpath%20d='M70%206.2C88%208%2096%2026%2095.4%2050%2094.8%2073%2087%2092%2069%2094'/%3E%3Cpath%20d='M27%207.4C16%2011%209%2027%209.4%2044'/%3E%3C/svg%3E");
-  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M23%205.8Q50%203.1%2078%206.2'/%3E%3Cpath%20d='M94.8%2023.5Q97%2050%2094%2077'/%3E%3Cpath%20d='M77%2094.4Q50%2096.9%2022.5%2093.8'/%3E%3Cpath%20d='M5.2%2076Q3.1%2050%206.2%2022'/%3E%3Cpath%20d='M75%205.6Q91.5%207.2%2094.4%2025.5'/%3E%3Cpath%20d='M94.4%2075.5Q92.4%2091.6%2079%2094.6'/%3E%3Cpath%20d='M24.5%2094.2Q9.2%2092%205.6%2077.5'/%3E%3Cpath%20d='M6%2024Q8.2%209%2024.5%205.4'/%3E%3Cpath%20d='M20%206.8Q9.8%2011%206.6%2020.5'/%3E%3C/svg%3E");
+  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M22%206.4Q33%204.4%2043.5%204.8'/%3E%3Cpath%20d='M47%204.6Q64%203.4%2079%206.4'/%3E%3Cpath%20d='M94.9%2024Q96.9%2038%2095.9%2048.5'/%3E%3Cpath%20d='M95.6%2052Q96.4%2066%2093.8%2078'/%3E%3Cpath%20d='M78%2094.2Q50%2097.2%2027.5%2093.6'/%3E%3Cpath%20d='M5.1%2077Q3.4%2064%204.4%2052.5'/%3E%3Cpath%20d='M4.6%2049Q3.6%2034%206.4%2022'/%3E%3Cpath%20d='M79%206.4Q91.8%208.4%2094.9%2024'/%3E%3Cpath%20d='M93.8%2078Q91.4%2091.8%2078%2094.2'/%3E%3Cpath%20d='M27.5%2093.6Q9.4%2091.4%205.1%2077'/%3E%3Cpath%20d='M6.4%2022Q8.6%208.4%2022%206.4'/%3E%3Cpath%20d='M19%208.2Q10.4%2012.6%207.8%2021'/%3E%3C/svg%3E");
 }
 :root.dark {
   --sketch-pill: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M32%206Q50%203.6%2070%206.4'/%3E%3Cpath%20d='M70%2094Q50%2096.6%2031%2093.6'/%3E%3Cpath%20d='M31%206.4C13%208%204%2026%204.6%2050%205.2%2074%2014%2092%2030%2093.8'/%3E%3Cpath%20d='M70%206.2C88%208%2096%2026%2095.4%2050%2094.8%2073%2087%2092%2069%2094'/%3E%3Cpath%20d='M27%207.4C16%2011%209%2027%209.4%2044'/%3E%3C/svg%3E");
-  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M23%205.8Q50%203.1%2078%206.2'/%3E%3Cpath%20d='M94.8%2023.5Q97%2050%2094%2077'/%3E%3Cpath%20d='M77%2094.4Q50%2096.9%2022.5%2093.8'/%3E%3Cpath%20d='M5.2%2076Q3.1%2050%206.2%2022'/%3E%3Cpath%20d='M75%205.6Q91.5%207.2%2094.4%2025.5'/%3E%3Cpath%20d='M94.4%2075.5Q92.4%2091.6%2079%2094.6'/%3E%3Cpath%20d='M24.5%2094.2Q9.2%2092%205.6%2077.5'/%3E%3Cpath%20d='M6%2024Q8.2%209%2024.5%205.4'/%3E%3Cpath%20d='M20%206.8Q9.8%2011%206.6%2020.5'/%3E%3C/svg%3E");
+  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M22%206.4Q33%204.4%2043.5%204.8'/%3E%3Cpath%20d='M47%204.6Q64%203.4%2079%206.4'/%3E%3Cpath%20d='M94.9%2024Q96.9%2038%2095.9%2048.5'/%3E%3Cpath%20d='M95.6%2052Q96.4%2066%2093.8%2078'/%3E%3Cpath%20d='M78%2094.2Q50%2097.2%2027.5%2093.6'/%3E%3Cpath%20d='M5.1%2077Q3.4%2064%204.4%2052.5'/%3E%3Cpath%20d='M4.6%2049Q3.6%2034%206.4%2022'/%3E%3Cpath%20d='M79%206.4Q91.8%208.4%2094.9%2024'/%3E%3Cpath%20d='M93.8%2078Q91.4%2091.8%2078%2094.2'/%3E%3Cpath%20d='M27.5%2093.6Q9.4%2091.4%205.1%2077'/%3E%3Cpath%20d='M6.4%2022Q8.6%208.4%2022%206.4'/%3E%3Cpath%20d='M19%208.2Q10.4%2012.6%207.8%2021'/%3E%3C/svg%3E");
+}
+
+@utility drawn-rule {
+  /* A ruled line that was drawn, for the places a plain `border-b` used to sit —
+     the card covers, whose dead-straight edge was the last machine line left on
+     the card. Painted as an overlay because the cover image fills the box. */
+  position: relative;
 }
 
 @utility drawn-frame {
@@ -364,11 +380,18 @@
  * ------------------------------------------------------------------ */
 :root {
   --sketch-pill: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M32%206Q50%203.6%2070%206.4'/%3E%3Cpath%20d='M70%2094Q50%2096.6%2031%2093.6'/%3E%3Cpath%20d='M31%206.4C13%208%204%2026%204.6%2050%205.2%2074%2014%2092%2030%2093.8'/%3E%3Cpath%20d='M70%206.2C88%208%2096%2026%2095.4%2050%2094.8%2073%2087%2092%2069%2094'/%3E%3Cpath%20d='M27%207.4C16%2011%209%2027%209.4%2044'/%3E%3C/svg%3E");
-  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M23%205.8Q50%203.1%2078%206.2'/%3E%3Cpath%20d='M94.8%2023.5Q97%2050%2094%2077'/%3E%3Cpath%20d='M77%2094.4Q50%2096.9%2022.5%2093.8'/%3E%3Cpath%20d='M5.2%2076Q3.1%2050%206.2%2022'/%3E%3Cpath%20d='M75%205.6Q91.5%207.2%2094.4%2025.5'/%3E%3Cpath%20d='M94.4%2075.5Q92.4%2091.6%2079%2094.6'/%3E%3Cpath%20d='M24.5%2094.2Q9.2%2092%205.6%2077.5'/%3E%3Cpath%20d='M6%2024Q8.2%209%2024.5%205.4'/%3E%3Cpath%20d='M20%206.8Q9.8%2011%206.6%2020.5'/%3E%3C/svg%3E");
+  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M22%206.4Q33%204.4%2043.5%204.8'/%3E%3Cpath%20d='M47%204.6Q64%203.4%2079%206.4'/%3E%3Cpath%20d='M94.9%2024Q96.9%2038%2095.9%2048.5'/%3E%3Cpath%20d='M95.6%2052Q96.4%2066%2093.8%2078'/%3E%3Cpath%20d='M78%2094.2Q50%2097.2%2027.5%2093.6'/%3E%3Cpath%20d='M5.1%2077Q3.4%2064%204.4%2052.5'/%3E%3Cpath%20d='M4.6%2049Q3.6%2034%206.4%2022'/%3E%3Cpath%20d='M79%206.4Q91.8%208.4%2094.9%2024'/%3E%3Cpath%20d='M93.8%2078Q91.4%2091.8%2078%2094.2'/%3E%3Cpath%20d='M27.5%2093.6Q9.4%2091.4%205.1%2077'/%3E%3Cpath%20d='M6.4%2022Q8.6%208.4%2022%206.4'/%3E%3Cpath%20d='M19%208.2Q10.4%2012.6%207.8%2021'/%3E%3C/svg%3E");
 }
 :root.dark {
   --sketch-pill: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M32%206Q50%203.6%2070%206.4'/%3E%3Cpath%20d='M70%2094Q50%2096.6%2031%2093.6'/%3E%3Cpath%20d='M31%206.4C13%208%204%2026%204.6%2050%205.2%2074%2014%2092%2030%2093.8'/%3E%3Cpath%20d='M70%206.2C88%208%2096%2026%2095.4%2050%2094.8%2073%2087%2092%2069%2094'/%3E%3Cpath%20d='M27%207.4C16%2011%209%2027%209.4%2044'/%3E%3C/svg%3E");
-  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M23%205.8Q50%203.1%2078%206.2'/%3E%3Cpath%20d='M94.8%2023.5Q97%2050%2094%2077'/%3E%3Cpath%20d='M77%2094.4Q50%2096.9%2022.5%2093.8'/%3E%3Cpath%20d='M5.2%2076Q3.1%2050%206.2%2022'/%3E%3Cpath%20d='M75%205.6Q91.5%207.2%2094.4%2025.5'/%3E%3Cpath%20d='M94.4%2075.5Q92.4%2091.6%2079%2094.6'/%3E%3Cpath%20d='M24.5%2094.2Q9.2%2092%205.6%2077.5'/%3E%3Cpath%20d='M6%2024Q8.2%209%2024.5%205.4'/%3E%3Cpath%20d='M20%206.8Q9.8%2011%206.6%2020.5'/%3E%3C/svg%3E");
+  --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M22%206.4Q33%204.4%2043.5%204.8'/%3E%3Cpath%20d='M47%204.6Q64%203.4%2079%206.4'/%3E%3Cpath%20d='M94.9%2024Q96.9%2038%2095.9%2048.5'/%3E%3Cpath%20d='M95.6%2052Q96.4%2066%2093.8%2078'/%3E%3Cpath%20d='M78%2094.2Q50%2097.2%2027.5%2093.6'/%3E%3Cpath%20d='M5.1%2077Q3.4%2064%204.4%2052.5'/%3E%3Cpath%20d='M4.6%2049Q3.6%2034%206.4%2022'/%3E%3Cpath%20d='M79%206.4Q91.8%208.4%2094.9%2024'/%3E%3Cpath%20d='M93.8%2078Q91.4%2091.8%2078%2094.2'/%3E%3Cpath%20d='M27.5%2093.6Q9.4%2091.4%205.1%2077'/%3E%3Cpath%20d='M6.4%2022Q8.6%208.4%2022%206.4'/%3E%3Cpath%20d='M19%208.2Q10.4%2012.6%207.8%2021'/%3E%3C/svg%3E");
+}
+
+@utility drawn-rule {
+  /* A ruled line that was drawn, for the places a plain `border-b` used to sit —
+     the card covers, whose dead-straight edge was the last machine line left on
+     the card. Painted as an overlay because the cover image fills the box. */
+  position: relative;
 }
 
 @utility drawn-frame {
@@ -415,7 +438,7 @@
     box-shadow 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
   &:hover {
     transform: translate(-2px, -2px);
-    box-shadow: 7px 7px 0 0 var(--shadow);
+    box-shadow: 9px 9px 0 0 var(--shadow);
   }
   &:active {
     transform: translate(2px, 2px);
@@ -537,4 +560,16 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+.drawn-rule::after {
+  content: '';
+  position: absolute;
+  inset-inline: -2px;
+  bottom: -3px;
+  height: 8px;
+  background-image: var(--sketch-rule);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  pointer-events: none;
 }

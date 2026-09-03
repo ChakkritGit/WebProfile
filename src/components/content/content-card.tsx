@@ -52,7 +52,7 @@ export async function PostCard({
       href={`/blog/${post.slug}`}
       className="sticker sticker-hover bg-surface group flex h-full flex-col overflow-hidden no-underline"
     >
-      <div className="border-line relative aspect-[16/9] overflow-hidden border-b-2">
+      <div className="drawn-rule relative aspect-[16/9] overflow-hidden">
         <CoverArt record={post} index={index} />
       </div>
 
@@ -112,7 +112,7 @@ export async function ProjectCard({
       href={`/projects/${project.slug}`}
       className="sticker sticker-hover bg-surface group flex h-full flex-col overflow-hidden no-underline"
     >
-      <div className="border-line relative aspect-[16/10] overflow-hidden border-b-2">
+      <div className="drawn-rule relative aspect-[16/10] overflow-hidden">
         <CoverArt record={project} index={index} />
         {project.year && (
           <span className="border-line bg-paper font-display absolute end-3 top-3 rounded-full border-2 px-2.5 py-1 text-xs font-bold">
