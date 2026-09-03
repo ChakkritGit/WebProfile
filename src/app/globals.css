@@ -399,33 +399,11 @@
   --sketch-frame: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='100'%20viewBox='0%200%20100%20100'%20fill='none'%20stroke='%230a0812'%20stroke-width='4'%20stroke-linecap='round'%3E%3Cpath%20d='M22%206.4Q33%204.4%2043.5%204.8'/%3E%3Cpath%20d='M47%204.6Q64%203.4%2079%206.4'/%3E%3Cpath%20d='M94.9%2024Q96.9%2038%2095.9%2048.5'/%3E%3Cpath%20d='M95.6%2052Q96.4%2066%2093.8%2078'/%3E%3Cpath%20d='M78%2094.2Q50%2097.2%2027.5%2093.6'/%3E%3Cpath%20d='M5.1%2077Q3.4%2064%204.4%2052.5'/%3E%3Cpath%20d='M4.6%2049Q3.6%2034%206.4%2022'/%3E%3Cpath%20d='M79%206.4Q91.8%208.4%2094.9%2024'/%3E%3Cpath%20d='M93.8%2078Q91.4%2091.8%2078%2094.2'/%3E%3Cpath%20d='M27.5%2093.6Q9.4%2091.4%205.1%2077'/%3E%3Cpath%20d='M6.4%2022Q8.6%208.4%2022%206.4'/%3E%3Cpath%20d='M19%208.2Q10.4%2012.6%207.8%2021'/%3E%3C/svg%3E");
 }
 
-/* Neighbours should not be tracings of each other, so the corners rotate through
-   a few shapes down a list of cards. */
-/* Matched through the card's *wrapper* as well as the card itself: in a grid or a
-   list the sticker is usually an only child of its own cell, so `:nth-child` on the
-   sticker alone always evaluates to 1 and every card came out identical. Sub-pixel
-   border widths were the other dead end — the browser rounds 2.5px back to 2px at
-   ordinary pixel density, so the weights differ by a whole pixel instead. */
-:nth-child(2n) > .sticker,
-.sticker:nth-child(2n) {
-  border-width: 3px 2px 2px 3px;
-  border-radius: 18px 24px 17px 25px / 24px 17px 23px 19px;
-}
-:nth-child(3n) > .sticker,
-.sticker:nth-child(3n) {
-  border-width: 2px 3px 2px 2px;
-  border-radius: 25px 19px 21px 23px / 19px 26px 20px 22px;
-}
-:nth-child(2n) > .sticker-sm,
-.sticker-sm:nth-child(2n) {
-  border-width: 3px 2px 2px 2px;
-  border-radius: 10px 14px 11px 13px / 14px 10px 13px 11px;
-}
-:nth-child(3n) > .sticker-sm,
-.sticker-sm:nth-child(3n) {
-  border-width: 2px 2px 3px 3px;
-  border-radius: 14px 11px 12px 13px / 11px 14px 12px 13px;
-}
+/* The per-neighbour corner variants that used to live here are gone. They were
+   written when the frame *was* the border-radius; now the outline comes from an
+   SVG and the radius only clips the fill and shapes the drop shadow. Varying it
+   left identical drawn outlines sitting on shadows of three different roundnesses,
+   which is what made a row of icon buttons look mismatched. */
 
 /* Lift-on-hover interaction shared by cards and buttons. */
 @utility sticker-hover {
