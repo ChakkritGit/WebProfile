@@ -32,7 +32,7 @@ export default async function StudioLayout({
   return (
     <StudioSession>
       <div className="pb-16">
-      <div className="border-line-soft bg-paper-alt border-b">
+      <div className="drawn-rule relative bg-paper-alt">
         <Container className="py-7">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>

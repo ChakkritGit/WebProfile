@@ -146,7 +146,7 @@ export function TableOfContents({ items, className }: { items: TocItem[]; classN
               className={cn('ms-auto size-4 transition-transform', open && 'rotate-180')}
             />
           </button>
-          {open && <div className="drawn-rule-top px-3 py-3">{list}</div>}
+          {open && <div className="drawn-rule-top relative px-3 py-3">{list}</div>}
         </div>
       </nav>
     </>

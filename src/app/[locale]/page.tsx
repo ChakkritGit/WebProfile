@@ -132,7 +132,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </Section>
 
       {/* ---------------------------- projects ----------------------------- */}
-      <Section className="bg-paper-alt border-line-soft border-y">
+      <Section className="bg-paper-alt drawn-rule drawn-rule-top relative">
         <SectionHeading
           eyebrow="Work"
           title={t('projectsTitle')}
@@ -185,7 +185,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* ---------------------------- most read ---------------------------- */}
       {popular.length > 0 && (
-        <Section className="bg-paper-alt border-line-soft border-y">
+        <Section className="bg-paper-alt drawn-rule drawn-rule-top relative">
           <SectionHeading
             eyebrow="Popular"
             title={t('popularTitle')}
