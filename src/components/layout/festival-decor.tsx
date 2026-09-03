@@ -24,8 +24,24 @@ export function useFestival(): Festival | null {
   const mounted = useIsMounted()
   if (!mounted) return null
 
-  const forced = new URLSearchParams(window.location.search).get('festival')
-  return forced ? festivalById(forced) : festivalOn(new Date())
+  return festivalById(forcedId()) ?? festivalOn(new Date())
+}
+
+/**
+ * The `festival` override, from wherever it ended up in the URL.
+ *
+ * It belongs in the query string, but a heading link on an article already ends
+ * in a `#fragment`, and appending `?festival=…` to that puts the whole thing
+ * inside the hash where `location.search` cannot see it. Since this only exists
+ * to preview a season out of season, it reads both rather than being right and
+ * unhelpful.
+ */
+function forcedId(): string {
+  const fromQuery = new URLSearchParams(window.location.search).get('festival')
+  if (fromQuery) return fromQuery
+  const hash = window.location.hash
+  const at = hash.indexOf('?')
+  return at === -1 ? '' : (new URLSearchParams(hash.slice(at + 1)).get('festival') ?? '')
 }
 
 /* ------------------------------ the glyphs ------------------------------ */
