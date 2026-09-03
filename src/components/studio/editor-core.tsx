@@ -19,10 +19,14 @@ import Warning from '@editorjs/warning'
 import Alert from 'editorjs-alert'
 import AlignmentTune from 'editorjs-text-alignment-blocktune'
 
+import { compressImage } from '@/lib/compress-image'
 import { CodeTool } from './tools/code-tool'
 import { HighlightTool, TextColourTool } from './tools/colour-tool'
 import type { EditorDocument } from '@/lib/editor'
 import './editor-theme.css'
+
+/** What `/api/upload` answers with, in the shape Editor.js expects. */
+type UploadResponse = { success: number; file: { url: string } }
 
 interface EditorCoreProps {
   initialData: EditorDocument
@@ -103,9 +107,29 @@ export default function EditorCore({ initialData, onChange, placeholder }: Edito
           image: {
             class: ImageTool as never,
             config: {
-              endpoints: { byFile: '/api/upload', byUrl: '/api/upload' },
               field: 'image',
               types: 'image/*',
+              // An uploader rather than `endpoints`, so a picture can be shrunk
+              // in the browser on its way out. A phone camera file is several
+              // megabytes of detail nobody will see at article width, and every
+              // byte of it would otherwise sit in storage and go down the wire
+              // to every reader.
+              uploader: {
+                async uploadByFile(file: File) {
+                  const body = new FormData()
+                  body.append('image', await compressImage(file))
+                  const response = await fetch('/api/upload', { method: 'POST', body })
+                  return (await response.json()) as UploadResponse
+                },
+                async uploadByUrl(url: string) {
+                  const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify({ url }),
+                  })
+                  return (await response.json()) as UploadResponse
+                },
+              },
             },
           },
           linkTool: {

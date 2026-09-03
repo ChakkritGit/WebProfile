@@ -169,7 +169,7 @@ export function Hero({ roles }: { roles: string[] }) {
                     cream page and a cream margin left the tear along the top and
                     left invisible, carried only by the shadow on the other two
                     sides. */}
-              <div className="torn-paper paper-grain bg-surface size-full p-[9px]">
+              <div className="torn-paper paper-grain bg-surface relative size-full p-[9px]">
                 <Image
                   src={profile.avatar}
                   alt={tMeta('siteName')}
@@ -179,6 +179,9 @@ export function Hero({ roles }: { roles: string[] }) {
                   sizes="(max-width: 640px) 15rem, (max-width: 1024px) 18rem, 20rem"
                   className="size-full object-cover"
                 />
+                {/* Creases over the whole sheet, photograph and margin alike —
+                    a piece of paper is crumpled all the way through. */}
+                <span aria-hidden className="crumple pointer-events-none absolute inset-0" />
               </div>
             </div>
 

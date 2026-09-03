@@ -1377,3 +1377,32 @@
   transform: perspective(420px) rotateY(19deg) rotate(-4deg);
   filter: drop-shadow(6px 8px 5px rgb(0 0 0 / 0.32));
 }
+
+/* Crumpled paper.
+ *
+ * Fractal noise run through a diffuse light is what gives this its creases: the
+ * noise is a height field and the light picks out its ridges, so the result has
+ * real highlights and shadows rather than a flat pattern laid over the picture.
+ * The lighting comes out clustered around mid grey, where soft-light does almost
+ * nothing, so a component transfer stretches it either side of the middle first
+ * — that step is the difference between a visible crumple and none at all.
+ *
+ * The two long folds are drawn over the top, because a sheet that has been
+ * screwed up has structure as well as grain. */
+.crumple {
+  background-image:
+    linear-gradient(107deg, transparent 47%, rgb(255 255 255 / 0.5) 49.4%, rgb(0 0 0 / 0.24) 50.6%, transparent 53%),
+    linear-gradient(-64deg, transparent 61%, rgb(255 255 255 / 0.42) 63.2%, rgb(0 0 0 / 0.2) 64.4%, transparent 66.5%),
+    url("data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20width='520'%20height='520'><filter%20id='c'%20x='0'%20y='0'%20width='100%'%20height='100%'><feTurbulence%20type='fractalNoise'%20baseFrequency='0.008%200.0095'%20numOctaves='5'%20seed='19'%20result='n'/><feDiffuseLighting%20in='n'%20lighting-color='%23ffffff'%20surfaceScale='3.6'%20diffuseConstant='1'%20result='l'><feDistantLight%20azimuth='232'%20elevation='52'/></feDiffuseLighting><feComponentTransfer%20in='l'><feFuncR%20type='linear'%20slope='2.2'%20intercept='-0.6'/><feFuncG%20type='linear'%20slope='2.2'%20intercept='-0.6'/><feFuncB%20type='linear'%20slope='2.2'%20intercept='-0.6'/></feComponentTransfer></filter><rect%20width='520'%20height='520'%20filter='url%28%23c%29'/></svg>");
+  background-size:
+    100% 100%,
+    100% 100%,
+    260px 260px;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+
+/* Overlay bites harder on a dark photograph than a light one. */
+:root.dark .crumple {
+  opacity: 0.36;
+}

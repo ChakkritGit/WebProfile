@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { CloseIcon, DownloadIcon } from '@/components/icons'
 import { Skeleton } from '@/components/ui/skeleton'
+import { compressImage } from '@/lib/compress-image'
 import { cn } from '@/lib/utils'
 
 /**
@@ -33,7 +34,7 @@ export function ImageField({
     setError(null)
     try {
       const body = new FormData()
-      body.append('image', file)
+      body.append('image', await compressImage(file))
       const response = await fetch('/api/upload', { method: 'POST', body })
       const json = (await response.json().catch(() => ({}))) as {
         success?: number
