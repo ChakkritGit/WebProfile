@@ -695,9 +695,24 @@
   font-family: var(--reading-font, var(--font-sans));
 }
 
-/* Headings take --font-display, which is the same handwriting stack, so swapping
-   the body face alone would have left every heading in the hand the reader just
+/* The choice has to reach everything the article is set in, not only its running
+   text. --font-display is the same handwriting stack as --font-sans, and it is
+   what dresses the headings, the table headers, the pull quotes, the code
+   block's language label and the list markers — each through its own class, so
+   swapping the body face alone left all of them in the hand the reader had just
    turned off. */
-.article-body :is(h1, h2, h3, h4, h5, h6) {
+.article-body :is(h1, h2, h3, h4, h5, h6, th, blockquote, figcaption, summary),
+.article-body .font-display,
+.article-body ::marker {
   font-family: var(--reading-font, var(--font-display));
+}
+
+/* Code stays monospace either way — that is what makes it readable as code. It
+   is the tail of the stack that follows the reader: the fallback the monospace
+   faces hand off to for anything they have no glyph for, Thai above all. */
+.article-body :is(code, pre, kbd, samp),
+.article-body .shiki-block {
+  font-family:
+    ui-monospace, 'SF Mono', 'JetBrains Mono', 'Cascadia Code', Menlo, Consolas,
+    var(--reading-font, var(--font-hand)), monospace;
 }
