@@ -10,6 +10,7 @@ import { CloseIcon, MenuIcon } from '@/components/icons'
 import { Logo } from '@/components/brand/logo'
 import { LocaleToggle } from './locale-toggle'
 import { ThemeToggle } from './theme-toggle'
+import { FestivalDecor, useFestival } from './festival-decor'
 import { useScrolledPast } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 
@@ -19,6 +20,7 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false)
   const scrolled = useScrolledPast(8)
   const reduce = useReducedMotion()
+  const festival = useFestival()
 
   // Close the sheet whenever the route changes — including via back/forward.
   // Adjusting state during render is React's documented alternative to an
@@ -86,10 +88,11 @@ export function SiteHeader() {
       )}
       style={{ height: 'var(--header-h)' }}
     >
-      <div className="bg-paper/85 h-full backdrop-blur-md">
+      <div className="bg-paper/85 relative h-full backdrop-blur-md">
+        {festival && <FestivalDecor festival={festival} />}
         <nav
           aria-label={t('menu')}
-          className="mx-auto flex h-full max-w-6xl items-center gap-3 px-4 sm:px-6"
+          className="relative z-10 mx-auto flex h-full max-w-6xl items-center gap-3 px-4 sm:px-6"
         >
           <Link href="/" className="group mr-auto flex items-center" aria-label={profile.brand}>
             <Logo label={profile.brand} className="[&>span:last-child]:hidden sm:[&>span:last-child]:inline" />

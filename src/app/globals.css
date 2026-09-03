@@ -555,3 +555,43 @@
   background-size: 100% 100%;
   pointer-events: none;
 }
+
+/* ------------------------------------------------------------------ *
+ * Festival dressing
+ *
+ * Plain CSS keyframes rather than a motion component: a dozen glyphs drifting
+ * behind the header is exactly the case where handing each one to JavaScript
+ * costs more than it buys. `will-change` keeps them off the main thread.
+ * ------------------------------------------------------------------ */
+.festival-glyph {
+  top: -18%;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes festival-fall {
+  0% { transform: translate3d(0, -120%, 0) rotate(0deg); opacity: 0; }
+  12% { opacity: 0.9; }
+  88% { opacity: 0.9; }
+  100% { transform: translate3d(14px, 900%, 0) rotate(220deg); opacity: 0; }
+}
+.festival-fall { animation-name: festival-fall; }
+
+@keyframes festival-rise {
+  0% { transform: translate3d(0, 900%, 0) scale(0.7); opacity: 0; }
+  15% { opacity: 0.9; }
+  85% { opacity: 0.9; }
+  100% { transform: translate3d(-12px, -140%, 0) scale(1.05); opacity: 0; }
+}
+.festival-rise { animation-name: festival-rise; top: auto; bottom: -18%; }
+
+@keyframes festival-drift {
+  0% { transform: translate3d(-40px, 120%, 0) rotate(-8deg); opacity: 0; }
+  15% { opacity: 0.9; }
+  50% { transform: translate3d(24px, 40%, 0) rotate(9deg); }
+  85% { opacity: 0.9; }
+  100% { transform: translate3d(70px, 130%, 0) rotate(-6deg); opacity: 0; }
+}
+.festival-drift { animation-name: festival-drift; }

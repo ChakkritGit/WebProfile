@@ -1,3 +1,6 @@
+'use client'
+
+import { FestivalOrnament, useFestival } from '@/components/layout/festival-decor'
 import { cn } from '@/lib/utils'
 
 /**
@@ -42,10 +45,12 @@ export function LogoMark({ className, size = 36 }: { className?: string; size?: 
 
 /** Full lockup used in the header. */
 export function Logo({ label, className }: { label: string; className?: string }) {
+  const festival = useFestival()
   return (
     <span className={cn('flex items-center gap-2.5', className)}>
-      <span className="transition-transform duration-300 group-hover:-rotate-12">
+      <span className="relative transition-transform duration-300 group-hover:-rotate-12">
         <LogoMark size={36} />
+        {festival && <FestivalOrnament id={festival.id} />}
       </span>
       <span className="font-display text-lg font-extrabold tracking-tight">{label}</span>
     </span>
