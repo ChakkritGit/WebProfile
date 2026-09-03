@@ -556,14 +556,18 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
     return () => clearTimeout(timer)
   }, [])
 
-  // Halloween turns the lights out for the length of its scene and puts them
-  // back afterwards. A reader already in the dark gets nothing to undo, and the
-  // class is removed on unmount as well as on the timer, so a navigation part way
-  // through cannot leave the site stuck in a theme nobody chose.
+  // Two festivals borrow a theme for the length of their scene and hand it back
+  // afterwards: Halloween turns the lights out, Christmas turns them on for the
+  // snow. A reader already in the theme it wants gets nothing to undo, the
+  // original is restored rather than blindly cleared, and it comes off on unmount
+  // as well as on the timer, so a navigation part way through cannot leave the
+  // site stuck in a theme nobody chose.
   useEffect(() => {
-    if (festival.id !== 'halloween' || reduce) return
+    const want = SCENE_THEME[festival.id]
+    if (!want || reduce) return
     const root = document.documentElement
-    if (root.classList.contains('dark')) return
+    const wasDark = root.classList.contains('dark')
+    if (wasDark === (want === 'dark')) return
 
     root.classList.add('theme-xfade')
 
@@ -578,19 +582,21 @@ export function FestivalGreeting({ festival }: { festival: Festival }) {
       requestAnimationFrame(() => {
         if (dropped) return
         void getComputedStyle(document.body).backgroundColor
-        root.classList.add('dark')
+        root.classList.toggle('dark', want === 'dark')
       }),
     )
 
-    const back = setTimeout(() => root.classList.remove('dark'), 3400 + (AFTER_MS.halloween ?? 0))
-    const settle = setTimeout(() => root.classList.remove('theme-xfade'), 4200 + (AFTER_MS.halloween ?? 0))
+    const scene = 3400 + (AFTER_MS[festival.id] ?? 0)
+    const back = setTimeout(() => root.classList.toggle('dark', wasDark), scene)
+    const settle = setTimeout(() => root.classList.remove('theme-xfade'), scene + 800)
 
     return () => {
       dropped = true
       cancelAnimationFrame(frame)
       clearTimeout(back)
       clearTimeout(settle)
-      root.classList.remove('dark', 'theme-xfade')
+      root.classList.toggle('dark', wasDark)
+      root.classList.remove('theme-xfade')
     }
   }, [festival.id, reduce])
 
@@ -726,6 +732,12 @@ function GhostPeek() {
 }
 
 /* ---------------------------- the afterpieces ---------------------------- */
+
+/** The theme a scene borrows while it plays, if it wants one at all. */
+const SCENE_THEME: Partial<Record<FestivalId, 'dark' | 'light'>> = {
+  halloween: 'dark',
+  christmas: 'light',
+}
 
 /** How long each festival's closing scene runs before it unmounts for good. */
 const AFTER_MS: Partial<Record<FestivalId, number>> = {
@@ -1009,11 +1021,30 @@ function SnowBall({ r, cx, cy, fill = '#fffcf7' }: { r: number; cx: number; cy: 
   return <circle cx={cx} cy={cy} r={r} fill={fill} stroke="var(--line)" strokeWidth="4" />
 }
 
+/** The bank they run along. Stretched to the width of the screen, so the wave is
+ *  drawn long and flat rather than tiled. */
+function SnowGround() {
+  const CREST = 'M0 30q75-16 150-3t150 5t150-9t150 7t150-5t150 9t150-7t150 3'
+  return (
+    <svg
+      viewBox="0 0 1200 90"
+      preserveAspectRatio="none"
+      className="xm-ground absolute inset-x-0 bottom-0 h-[54px] w-full sm:h-16"
+    >
+      <path d={`${CREST}V90H0Z`} fill="#e8f4ff" />
+      <path d="M0 54q100 8 200 2t200 6t200-4t200 8t200-2t200 6V90H0Z" fill="#c9e4fa" opacity="0.75" />
+      <path d={CREST} fill="none" stroke="#8fc4ea" strokeWidth="3" vectorEffect="non-scaling-stroke" />
+    </svg>
+  )
+}
+
 function SnowmenChase() {
   return (
     <Stage>
+      <SnowGround />
+
       {/* The one in front, which does not make it. */}
-      <div className="xm-runner absolute bottom-2 left-0 w-24">
+      <div className="xm-runner absolute bottom-11 left-0 w-24">
         <div className="xm-runner-bob">
           <svg viewBox="0 0 100 150" className="size-full overflow-visible">
             <g className="xm-base">
@@ -1037,7 +1068,7 @@ function SnowmenChase() {
       </div>
 
       {/* The one behind, which stops to enjoy it. */}
-      <div className="xm-chaser absolute bottom-2 left-0 w-24">
+      <div className="xm-chaser absolute bottom-11 left-0 w-24">
         <div className="xm-chaser-bob">
           <svg viewBox="0 0 100 150" className="size-full overflow-visible">
             <SnowBall cx={50} cy={116} r={30} />
