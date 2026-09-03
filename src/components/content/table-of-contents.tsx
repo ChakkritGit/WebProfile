@@ -17,6 +17,40 @@ const INDENT: Record<number, string> = { 2: 'ps-0', 3: 'ps-4', 4: 'ps-8' }
  * the screen — we also force the final item active once the page is scrolled
  * to the bottom.
  */
+/**
+ * Reading progress drawn as a squiggle instead of a filled bar.
+ *
+ * One SVG holds both states: the pale line is the whole path, the brand-coloured
+ * one is the same path clipped with `inset()`. Clipping rather than resizing keeps
+ * the wave the same size as it fills — a width-driven fill would have stretched
+ * every crest as the reader moved down the page.
+ */
+function ReadingSquiggle({ progress }: { progress: number }) {
+  const WAVE =
+    'M3 7.5q5.5 -5.4 11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0'
+  return (
+    <svg
+      viewBox="0 0 200 15"
+      preserveAspectRatio="none"
+      aria-hidden
+      className="text-brand mb-3 h-3.5 w-full"
+    >
+      <path d={WAVE} fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" opacity="0.2" />
+      <path
+        d={WAVE}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        style={{
+          clipPath: `inset(0 ${(1 - progress) * 100}% 0 0)`,
+          transition: 'clip-path 150ms linear',
+        }}
+      />
+    </svg>
+  )
+}
+
 export function TableOfContents({ items, className }: { items: TocItem[]; className?: string }) {
   const t = useTranslations('common')
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null)
@@ -118,12 +152,7 @@ export function TableOfContents({ items, className }: { items: TocItem[]; classN
               <ListIcon className="size-4" />
               {t('tableOfContents')}
             </p>
-            <div className="bg-line-soft mb-3 h-1 overflow-hidden rounded-full">
-              <div
-                className="bg-brand h-full rounded-full transition-[width] duration-150"
-                style={{ width: `${progress * 100}%` }}
-              />
-            </div>
+            <ReadingSquiggle progress={progress} />
           <div className="max-h-[calc(100vh-var(--header-h)-8rem)] overflow-y-auto pe-1">
             {list}
           </div>
