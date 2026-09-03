@@ -119,16 +119,24 @@ const GLYPHS: Record<FestivalId, (key: number) => React.ReactNode> = {
       />
     </svg>
   ),
-  songkran: (k) => (
-    // Golden shower blossom. April in Thailand is the month it flowers, and a
-    // falling one says Songkran the way a water drop only says water.
-    <svg key={k} viewBox="0 0 16 16" className="size-full text-[#f2c53d]">
-      {[0, 72, 144, 216, 288].map((deg) => (
-        <ellipse key={deg} cx="8" cy="3.9" rx="2.5" ry="3.5" transform={`rotate(${deg} 8 8)`} fill="currentColor" />
-      ))}
-      <circle cx="8" cy="8" r="1.6" fill="#e08b1a" />
-    </svg>
-  ),
+  // Blossom and water together: April is the month the golden shower flowers, and
+  // it is the water that makes it Songkran. Every third lane gets a drop, which
+  // on thirteen lanes comes out four to nine — enough water to read as water
+  // without the flowers losing the header.
+  songkran: (k) =>
+    k % 3 === 1 ? (
+      <svg key={k} viewBox="0 0 16 16" className="size-full text-[#3fa0ff]">
+        <path d="M8 1.8c2.9 3.7 4.4 6.3 4.4 8a4.4 4.4 0 0 1-8.8 0c0-1.7 1.5-4.3 4.4-8Z" fill="currentColor" />
+        <path d="M5.9 10.6c.1-1 .5-2 1.2-2.9" fill="none" stroke="#fffcf7" strokeWidth="1.3" strokeLinecap="round" opacity="0.75" />
+      </svg>
+    ) : (
+      <svg key={k} viewBox="0 0 16 16" className="size-full text-[#f2c53d]">
+        {[0, 72, 144, 216, 288].map((deg) => (
+          <ellipse key={deg} cx="8" cy="3.9" rx="2.5" ry="3.5" transform={`rotate(${deg} 8 8)`} fill="currentColor" />
+        ))}
+        <circle cx="8" cy="8" r="1.6" fill="#e08b1a" />
+      </svg>
+    ),
   'loy-krathong': (k) => (
     <svg key={k} viewBox="0 0 16 16" className="size-full text-[#e09a2c]">
       <path d="M8 2.4c1.7 2 2.6 3.5 2.6 4.6a2.6 2.6 0 0 1-5.2 0c0-1.1.9-2.6 2.6-4.6Z" fill="currentColor" />
