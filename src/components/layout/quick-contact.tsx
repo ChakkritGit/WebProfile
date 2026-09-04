@@ -1,7 +1,6 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { QUICK_CONTACT, socials, type SocialId } from '@/config/site'
 import { GitHubIcon, MailIcon, PhoneIcon } from '@/components/icons'
 import { useAtFooter, useScrolledPast } from '@/lib/hooks'
@@ -28,7 +27,6 @@ const DOCK_BAND = { column: 190, row: 116 }
  */
 export function QuickContactDock() {
   const t = useTranslations('footer')
-  const reduce = useReducedMotion()
 
   // Held back until the visitor has engaged with the page a little, and stood
   // down again at the foot of it, where the footer carries the same links.
@@ -41,41 +39,42 @@ export function QuickContactDock() {
   )
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.aside
-          aria-label={t('quickContact')}
-          initial={reduce ? false : { opacity: 0, y: 24, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={reduce ? { opacity: 0 } : { opacity: 0, y: 24, scale: 0.9 }}
-          transition={{ duration: 0.28, ease: [0.34, 1.4, 0.64, 1] }}
-          className="fixed right-4 bottom-4 z-40 sm:right-6 sm:bottom-6"
-        >
-          <ul className="sticker bg-paper/90 flex items-center gap-1.5 p-1.5 backdrop-blur-md sm:flex-col">
-            {links.map((link, i) => {
-              const Icon = ICONS[link.id]
-              const external = link.href.startsWith('http')
-              return (
-                <li key={link.id}>
-                  <a
-                    href={link.href}
-                    aria-label={`${link.label}: ${link.handle}`}
-                    title={`${link.label} — ${link.handle}`}
-                    {...(external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
-                    className={cn(
-                      'border-line grid size-11 place-items-center rounded-full border-2',
-                      'transition-transform duration-200 hover:-translate-y-0.5 hover:scale-110 active:scale-95',
-                      TONES[i % TONES.length],
-                    )}
-                  >
-                    {Icon ? <Icon className="size-5" /> : null}
-                  </a>
-                </li>
-              )
-            })}
-          </ul>
-        </motion.aside>
+    // Faded rather than unmounted, matching the festival picker in the opposite
+    // corner: the two floating controls come and go for the same reasons and had
+    // no business doing it differently. `inert` is what makes a faded control
+    // genuinely absent — opacity alone leaves it in the tab order and in the
+    // accessibility tree, reachable by people who cannot see that it has gone.
+    <aside
+      aria-label={t('quickContact')}
+      inert={!visible}
+      className={cn(
+        'fixed right-4 bottom-4 z-40 transition-all duration-500 sm:right-6 sm:bottom-6',
+        !visible && 'pointer-events-none translate-y-4 opacity-0',
       )}
-    </AnimatePresence>
+    >
+      <ul className="sticker bg-paper/90 flex items-center gap-1.5 p-1.5 backdrop-blur-md sm:flex-col">
+        {links.map((link, i) => {
+          const Icon = ICONS[link.id]
+          const external = link.href.startsWith('http')
+          return (
+            <li key={link.id}>
+              <a
+                href={link.href}
+                aria-label={`${link.label}: ${link.handle}`}
+                title={`${link.label} — ${link.handle}`}
+                {...(external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
+                className={cn(
+                  'border-line grid size-11 place-items-center rounded-full border-2',
+                  'transition-transform duration-200 hover:-translate-y-0.5 hover:scale-110 active:scale-95',
+                  TONES[i % TONES.length],
+                )}
+              >
+                {Icon ? <Icon className="size-5" /> : null}
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    </aside>
   )
 }

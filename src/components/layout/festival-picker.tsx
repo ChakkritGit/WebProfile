@@ -71,11 +71,13 @@ export function FestivalPicker() {
   }
 
   return (
-    // It steps out of the way while a scene plays and comes back when it is over.
-    // Faded rather than unmounted, so it does not pop in and out of existence and
-    // it keeps whatever it was told to remember.
+    // It steps out of the way while a scene plays or the footer arrives, and
+    // comes back afterwards. Faded rather than unmounted, so it does not pop in
+    // and out of existence — with `inert`, because opacity alone would leave it
+    // in the tab order and the accessibility tree the whole time it is gone.
     <div
       ref={box}
+      inert={hidden}
       className={cn(
         'fixed bottom-4 left-4 z-50 transition-all duration-500 sm:bottom-6 sm:left-6',
         hidden && 'pointer-events-none translate-y-4 opacity-0',
