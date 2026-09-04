@@ -113,6 +113,30 @@
   color: var(--muted);
 }
 
+/**
+ * The link field in the inline toolbar.
+ *
+ * Editor.js gives it a pale `#F8F8F8` of its own and sets no colour, so the text
+ * falls back to whatever the page is using — which in the dark theme is
+ * near-white. The URL you had just pasted was there the whole time, white on
+ * white, invisible. Both ends are stated here so neither can drift.
+ */
+.studio-editor .ce-inline-tool-input {
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  border-radius: 0.55rem;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+}
+.studio-editor .ce-inline-tool-input::placeholder {
+  color: var(--muted);
+}
+.studio-editor .ce-inline-tool-input:focus {
+  border-color: var(--brand);
+}
+
 .studio-editor .ce-block--selected .ce-block__content,
 .studio-editor .ce-inline-toolbar--showed {
   background: var(--brand-soft);
