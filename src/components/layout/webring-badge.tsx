@@ -33,18 +33,29 @@ export function WebringBadge({
       )}
     >
       {mono ? (
-        // Inlined rather than an <img> so it can inherit currentColor.
-        <svg width={size} height={size} viewBox="0 0 416 416" fill="none" aria-hidden="true">
+        // Inlined rather than an <img> so it can inherit currentColor — and drawn
+        // freehand, like every other icon on the site. The ring is a curve
+        // threaded through nine points whose radius wanders, so it comes out as a
+        // pen going round rather than a compass; the star that sits in its gap is
+        // likewise uneven, no two arms the same length.
+        <svg
+          width={size}
+          height={size}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
           <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M53 128.8l-16-8.2a192 192 0 1094.7-88.9l7.1 16.6A174 174 0 1153 128.8z"
-            fill="currentColor"
+            d="M19.88 9.12C19.25 8.47 17.61 6.14 16.11 5.26C14.61 4.38 12.54 3.61 10.88 3.82C9.23 4.03 7.41 5.29 6.18 6.53C4.94 7.77 3.68 9.59 3.46 11.25C3.25 12.92 4 15.03 4.91 16.52C5.82 18 7.33 19.54 8.9 20.16C10.47 20.79 12.65 20.74 14.32 20.27C15.99 19.8 18.15 17.82 18.92 17.33"
+            strokeWidth="2.6"
           />
           <path
-            d="M94.7 92.3L82 126.5 62.6 95.7l-36.4-1.4 23.3-28-9.9-35.1 33.9 13.5 30.3-20.3-2.4 36.4L130 83.3l-35.3 9z"
+            d="M20.4 2.2q.5 2.5 2.4 3.4q-2.3.6-3.1 2.9q-.7-2.4-2.8-3.1q2.4-.7 3.5-3.2Z"
             fill="currentColor"
-            opacity="0.55"
+            strokeWidth="0.9"
           />
         </svg>
       ) : (
