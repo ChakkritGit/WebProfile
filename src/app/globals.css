@@ -69,8 +69,13 @@
   --sky-soft: #223b55;
 
   --ring: #ff7a7e;
-  --selection: #6d3746;
-  --selection-ink: #fffaf6;
+  /* Bright, with dark ink on it — the same relationship the light theme has,
+     not its mirror image. A dark selection on a dark page is barely a selection:
+     the old #6d3746 sat within a few points of the surface it was drawn on, so
+     the highlight read as a smudge and thin Thai glyphs on it lost their
+     strokes. */
+  --selection: #ff8fa5;
+  --selection-ink: #241f2e;
   --grid-line: rgb(255 255 255 / 0.07);
   --star: #ffffff;
 }
