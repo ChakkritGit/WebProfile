@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Editor } from './editor'
@@ -10,7 +11,7 @@ import { ArrowRightIcon, CheckIcon, EyeIcon, TrashIcon } from '@/components/icon
 import { EMPTY_DOCUMENT, type EditorDocument } from '@/lib/editor'
 import { localeMeta, routing } from '@/i18n/routing'
 import { Select } from '@/components/ui/select'
-import { ConfirmDialog } from '@/components/ui/dialog'
+import { MorphingConfirmDialog } from '@/components/ui/morphing-dialog'
 import { ImageField } from './image-field'
 import { TagPicker } from './tag-picker'
 import { useToast } from '@/components/ui/toast'
@@ -81,6 +82,7 @@ export function ContentForm({
   const [savedAt, setSavedAt] = useState<number | null>(null)
   const [dirty, setDirty] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const deleteMorphId = useId()
 
   // The Editor.js instance is uncontrolled; its latest document lives here.
   const contentRef = useRef<EditorDocument>(values.content)
@@ -301,10 +303,14 @@ export function ContentForm({
 
           <div className="flex flex-wrap gap-2 pt-1">
             {recordId && (
-              <Button size="sm" variant="danger" onClick={() => setConfirmOpen(true)} disabled={saving}>
-                <TrashIcon className="size-4" />
-                {t('delete')}
-              </Button>
+              // The wrapper carries the shared id: the question unfolds from
+              // exactly this button's box.
+              <motion.div layoutId={deleteMorphId} className="inline-flex">
+                <Button size="sm" variant="danger" onClick={() => setConfirmOpen(true)} disabled={saving}>
+                  <TrashIcon className="size-4" />
+                  {t('delete')}
+                </Button>
+              </motion.div>
             )}
           </div>
         </StickerCard>
@@ -409,7 +415,8 @@ export function ContentForm({
         )}
       </aside>
 
-      <ConfirmDialog
+      <MorphingConfirmDialog
+        layoutId={deleteMorphId}
         open={confirmOpen}
         title={t('confirmDeleteTitle')}
         description={t('confirmDeleteBody', { title: values.title })}

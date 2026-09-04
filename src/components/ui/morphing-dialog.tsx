@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'motion/react'
 import { useTranslations } from 'next-intl'
+import { Button } from './button'
 import { CloseIcon } from '@/components/icons'
 import { useIsMounted } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
@@ -31,6 +32,7 @@ export function MorphingDialog({
   open,
   onClose,
   title,
+  description,
   children,
   footer,
   className,
@@ -39,6 +41,7 @@ export function MorphingDialog({
   open: boolean
   onClose: () => void
   title: string
+  description?: ReactNode
   children?: ReactNode
   footer?: ReactNode
   className?: string
@@ -148,6 +151,9 @@ export function MorphingDialog({
                   <h2 id={`${id}-title`} className="pe-12 text-xl">
                     {title}
                   </h2>
+                  {description && (
+                    <div className="text-muted mt-2 text-sm leading-relaxed">{description}</div>
+                  )}
                   {children && <div className="mt-4">{children}</div>}
                   {footer && <div className="mt-6 flex flex-wrap justify-end gap-2">{footer}</div>}
                 </motion.div>
@@ -158,5 +164,66 @@ export function MorphingDialog({
       </AnimatePresence>
     </MotionConfig>,
     document.body,
+  )
+}
+
+/**
+ * A confirmation that grows out of the control that asked for it.
+ *
+ * The same morph as `MorphingDialog`, with the two buttons a confirmation
+ * needs. Worth having here rather than as a variant of the plain `ConfirmDialog`:
+ * the destructive answer is the one people are about to give by reflex, and
+ * watching the question unfold from the very button they pressed is a beat of
+ * hesitation the native dialog does not buy.
+ */
+export function MorphingConfirmDialog({
+  open,
+  title,
+  description,
+  confirmLabel,
+  cancelLabel,
+  danger = false,
+  pending = false,
+  onConfirm,
+  onClose,
+  layoutId,
+  className,
+}: {
+  open: boolean
+  title: string
+  description?: ReactNode
+  confirmLabel: string
+  cancelLabel: string
+  danger?: boolean
+  pending?: boolean
+  onConfirm: () => void
+  onClose: () => void
+  layoutId: string
+  className?: string
+}) {
+  return (
+    <MorphingDialog
+      open={open}
+      onClose={onClose}
+      title={title}
+      description={description}
+      layoutId={layoutId}
+      className={cn('w-[min(92vw,30rem)]', className)}
+      footer={
+        <>
+          <Button variant="secondary" size="sm" onClick={onClose} disabled={pending}>
+            {cancelLabel}
+          </Button>
+          <Button
+            variant={danger ? 'danger' : 'primary'}
+            size="sm"
+            onClick={onConfirm}
+            disabled={pending}
+          >
+            {confirmLabel}
+          </Button>
+        </>
+      }
+    />
   )
 }

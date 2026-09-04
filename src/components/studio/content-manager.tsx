@@ -1,13 +1,14 @@
 'use client'
 
 import { useMemo, useState, useTransition } from 'react'
+import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { StickerCard } from '@/components/ui/sticker-card'
-import { ConfirmDialog } from '@/components/ui/dialog'
+import { MorphingConfirmDialog } from '@/components/ui/morphing-dialog'
 import { Select } from '@/components/ui/select'
 import {
   ArrowRightIcon,
@@ -219,16 +220,21 @@ export function ContentManager({
                         <EyeIcon className="size-4" />
                         {published ? t('unpublish') : t('publish')}
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        disabled={busy}
-                        aria-label={t('delete')}
-                        className="px-3"
-                        onClick={() => setToDelete(item)}
-                      >
-                        <TrashIcon className="size-4" />
-                      </Button>
+                      {/* One id per row, so the question unfolds from whichever
+                          row was actually pressed rather than from a single
+                          shared box. */}
+                      <motion.div layoutId={`delete-${item.id}`} className="inline-flex">
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          disabled={busy}
+                          aria-label={t('delete')}
+                          className="px-3"
+                          onClick={() => setToDelete(item)}
+                        >
+                          <TrashIcon className="size-4" />
+                        </Button>
+                      </motion.div>
                     </div>
                   </div>
                 </li>
@@ -273,7 +279,8 @@ export function ContentManager({
         </>
       )}
 
-      <ConfirmDialog
+      <MorphingConfirmDialog
+        layoutId={toDelete ? `delete-${toDelete.id}` : 'delete-none'}
         open={toDelete !== null}
         title={t('confirmDeleteTitle')}
         description={
