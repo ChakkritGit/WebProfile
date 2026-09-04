@@ -36,8 +36,8 @@ export function WebringBadge({
         // Inlined rather than an <img> so it can inherit currentColor — and drawn
         // freehand, like every other icon on the site. The ring is a curve
         // threaded through nine points whose radius wanders, so it comes out as a
-        // pen going round rather than a compass; the star that sits in its gap is
-        // likewise uneven, no two arms the same length.
+        // pen going round rather than a compass. The gap and the star sit at the
+        // upper left, where the original badge puts them.
         <svg
           width={size}
           height={size}
@@ -49,11 +49,11 @@ export function WebringBadge({
           aria-hidden="true"
         >
           <path
-            d="M19.88 9.12C19.25 8.47 17.61 6.14 16.11 5.26C14.61 4.38 12.54 3.61 10.88 3.82C9.23 4.03 7.41 5.29 6.18 6.53C4.94 7.77 3.68 9.59 3.46 11.25C3.25 12.92 4 15.03 4.91 16.52C5.82 18 7.33 19.54 8.9 20.16C10.47 20.79 12.65 20.74 14.32 20.27C15.99 19.8 18.15 17.82 18.92 17.33"
+            d="M7.75 4.94C8.64 4.82 11.35 4 13.06 4.22C14.78 4.44 16.87 5.09 18.05 6.25C19.22 7.42 19.9 9.51 20.13 11.23C20.36 12.95 20.28 15.15 19.45 16.6C18.62 18.05 16.76 19.28 15.16 19.92C13.55 20.57 11.44 20.89 9.81 20.46C8.19 20.03 6.47 18.71 5.42 17.35C4.36 15.99 3.82 13.14 3.5 12.3"
             strokeWidth="2.6"
           />
           <path
-            d="M20.4 2.2q.5 2.5 2.4 3.4q-2.3.6-3.1 2.9q-.7-2.4-2.8-3.1q2.4-.7 3.5-3.2Z"
+            d="M4.5 2.5q.6 2.7 2.7 3.5q-2.5.8-3.4 3.2q-.8-2.6-3-3.3q2.6-.8 3.7-3.4Z"
             fill="currentColor"
             strokeWidth="0.9"
           />

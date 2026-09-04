@@ -353,7 +353,10 @@ export const ThumbsUpIcon = (p: IconProps) => (
 
 export const RssIcon = (p: IconProps) => (
   <Stroke {...p}>
-    <path d="M4.5 11.5a8 8 0 0 1 8 8M4.5 5.5a14 14 0 0 1 14 14" />
+    {/* Two waves, each threaded through points whose radius wanders. The `a8 8`
+        arcs they replace were the one machine-perfect pair left in the set. */}
+    <path d="M4.5 11.5C5.02 11.55 6.71 11.43 7.64 11.82C8.56 12.22 9.33 13.1 10.05 13.85C10.78 14.6 11.58 15.38 11.98 16.3C12.38 17.23 12.37 18.88 12.45 19.4" />
+    <path d="M4.5 5.6C5.41 5.71 8.32 5.6 9.93 6.28C11.55 6.97 12.91 8.43 14.19 9.71C15.46 11 16.87 12.37 17.57 13.99C18.28 15.6 18.26 18.5 18.4 19.4" />
     <HandCircle cx={5.2} cy={18.8} r={1.7} fill="currentColor" stroke="none" />
   </Stroke>
 )
