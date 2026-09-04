@@ -107,7 +107,18 @@ export function Hero({ roles }: { roles: string[] }) {
               initial={from({ opacity: 0, y: 16 })}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.08 }}
-              className="relative mt-2 text-5xl sm:text-6xl lg:text-7xl"
+              // Fluid below the `sm` breakpoint so the name holds one line. The
+              // Thai name is the long one: it needs 419px at 48px, and a phone
+              // column is 288 to 398px, so it broke across two lines at every
+              // phone width and the scribble had to loop around both. 10vw is
+              // measured to fit it from 280px up, with the fixed sizes taking
+              // over at 640 where it fits at full size anyway.
+              //
+              // Fluid again from `lg`, where the layout splits into two columns
+              // and the text loses half the width: at 1024 the column is 603px
+              // and the name needs 628px at 72px, so it broke there too. It
+              // reaches full size by about 1120, where there is room for it.
+              className="relative mt-2 text-[clamp(1.75rem,10vw,3rem)] sm:text-6xl lg:text-[clamp(4rem,6.4vw,4.5rem)]"
             >
               <span className="relative inline-block">
                 {tMeta('siteName')}
