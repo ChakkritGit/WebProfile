@@ -15,6 +15,10 @@ type Slot = {
   /** Frame this slot starts churning, and the one it settles on. */
   start: number
   end: number
+  /** The step the character in `char` was drawn for, so it is only re-drawn
+   *  when that step advances rather than on every frame. */
+  step: number
+  char: string
 }
 
 /**
@@ -66,6 +70,8 @@ export function TextScramble({
           to: b[i] ?? '',
           start,
           end: start + 6 + Math.floor(Math.random() * 14),
+          step: -1,
+          char: '',
         }
       })
 
@@ -88,10 +94,17 @@ export function TextScramble({
               return slot.to
             }
             if (frame.current < slot.start) return slot.from
-            // A fresh character every few frames, not every one: churning at the
-            // full frame rate is a blur rather than something being read.
-            const seed = Math.floor((frame.current - slot.start) / 2)
-            return NOISE[(seed * 7 + slot.start * 13 + slot.end * 3) % NOISE.length]
+            // A fresh character every other frame, not every one: churning at the
+            // full frame rate is a blur rather than something being read. Drawn
+            // rather than derived — the first version hashed the frame against
+            // the slot's own timings, which meant two runs that happened to draw
+            // the same start and end played back the very same characters.
+            const step = Math.floor((frame.current - slot.start) / 2)
+            if (step !== slot.step) {
+              slot.step = step
+              slot.char = NOISE[Math.floor(Math.random() * NOISE.length)]
+            }
+            return slot.char
           })
           .join('')
 
