@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
-import { Dialog } from '@/components/ui/dialog'
+import { motion } from 'motion/react'
+import { MorphingDialog } from '@/components/ui/morphing-dialog'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { DownloadIcon, ExternalLinkIcon } from '@/components/icons'
 import { profile } from '@/config/site'
@@ -30,24 +31,30 @@ export function ResumeButton({
 }) {
   const t = useTranslations('common')
   const [open, setOpen] = useState(false)
+  const morphId = useId()
 
   return (
     <>
-      <Button
-        variant={variant}
-        size={size}
-        className={className}
-        onClick={() => {
-          const inlineCapable =
-            typeof window !== 'undefined' && window.matchMedia('(min-width: 640px)').matches
-          if (inlineCapable) setOpen(true)
-          else window.open(profile.resume, '_blank', 'noopener')
-        }}
-      >
-        {children}
-      </Button>
+      {/* The wrapper carries the shared id rather than the button itself: the
+          panel morphs out of this box, and this box is exactly the button. */}
+      <motion.div layoutId={morphId} className="inline-flex">
+        <Button
+          variant={variant}
+          size={size}
+          className={className}
+          onClick={() => {
+            const inlineCapable =
+              typeof window !== 'undefined' && window.matchMedia('(min-width: 640px)').matches
+            if (inlineCapable) setOpen(true)
+            else window.open(profile.resume, '_blank', 'noopener')
+          }}
+        >
+          {children}
+        </Button>
+      </motion.div>
 
-      <Dialog
+      <MorphingDialog
+        layoutId={morphId}
         open={open}
         onClose={() => setOpen(false)}
         title={t('resumeTitle')}
@@ -72,7 +79,7 @@ export function ResumeButton({
             </div>
           </object>
         </div>
-      </Dialog>
+      </MorphingDialog>
     </>
   )
 }
