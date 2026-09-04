@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { FESTIVALS, type FestivalId } from '@/config/festivals'
 import { CloseIcon } from '@/components/icons'
 import { playFestival, useSceneRunning } from './festival-decor'
-import { useIsMounted } from '@/lib/hooks'
+import { useAtFooter, useIsMounted } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 
 /** A dab of each festival's colour, so the list reads at a glance. */
@@ -34,6 +34,10 @@ export function FestivalPicker() {
   const tName = useTranslations('festival.name')
   const mounted = useIsMounted()
   const playing = useSceneRunning()
+  // The button and its chip are about 90px of the bottom-left corner, and the
+  // footer has its own things to say down there.
+  const atFooter = useAtFooter(92)
+  const hidden = playing || atFooter
   const [open, setOpen] = useState(false)
   const [current, setCurrent] = useState('')
   const box = useRef<HTMLDivElement>(null)
@@ -41,7 +45,7 @@ export function FestivalPicker() {
   useEffect(() => {
     // Nothing to dismiss while a scene is on screen — the panel is not rendered
     // then, and the control cannot be reached to open one.
-    if (!open || playing) return
+    if (!open || hidden) return
     const away = (event: PointerEvent) => {
       if (!box.current?.contains(event.target as Node)) setOpen(false)
     }
@@ -56,7 +60,7 @@ export function FestivalPicker() {
       document.removeEventListener('pointerdown', away)
       document.removeEventListener('keydown', esc)
     }
-  }, [open, playing])
+  }, [open, hidden])
 
   if (!mounted) return null
 
@@ -74,10 +78,10 @@ export function FestivalPicker() {
       ref={box}
       className={cn(
         'fixed bottom-4 left-4 z-50 transition-all duration-500 sm:bottom-6 sm:left-6',
-        playing && 'pointer-events-none translate-y-4 opacity-0',
+        hidden && 'pointer-events-none translate-y-4 opacity-0',
       )}
     >
-      {open && !playing && (
+      {open && !hidden && (
         <div className="sticker bg-surface absolute bottom-full left-0 mb-3 w-52 p-2">
           <p className="font-display text-muted px-2 py-1 text-xs font-bold tracking-wide uppercase">
             {t('pick')}
