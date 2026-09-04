@@ -18,7 +18,8 @@ type Slot = {
 }
 
 /**
- * Cycles through phrases, scrambling from one to the next.
+ * Cycles through phrases, scrambling from one to the next — and scrambles the
+ * first one in on arrival, out of noise, rather than showing it already settled.
  *
  * Each character gets its own window: it holds the outgoing letter until its
  * start frame, churns through noise until its end frame, then settles on the
@@ -41,12 +42,16 @@ export function TextScramble({
 }) {
   const reduce = useReducedMotion()
   const [index, setIndex] = useState(0)
+  // The settled first phrase, matching what the server sent. The scramble takes
+  // over on the next frame; generating noise during render would be a different
+  // string on the client than in the markup, which is a hydration error.
   const [text, setText] = useState(phrases[0] ?? '')
+  const [revealed, setRevealed] = useState(false)
   const frame = useRef(0)
   const raf = useRef(0)
 
   useEffect(() => {
-    if (reduce || phrases.length < 2) return
+    if (reduce || phrases.length === 0) return
 
     let cancelled = false
 
@@ -100,6 +105,21 @@ export function TextScramble({
       raf.current = requestAnimationFrame(step)
     }
 
+    // The first phrase is scrambled in as well, from noise, with no wait — the
+    // line should be resolving as the page arrives rather than sitting there
+    // already settled for two seconds.
+    if (!revealed) {
+      const target = phrases[0] ?? ''
+      const noise = Array.from(target, () => NOISE[Math.floor(Math.random() * NOISE.length)]).join('')
+      run(noise, target, () => setRevealed(true))
+      return () => {
+        cancelled = true
+        cancelAnimationFrame(raf.current)
+      }
+    }
+
+    if (phrases.length < 2) return
+
     const next = (index + 1) % phrases.length
     const hold = setTimeout(() => {
       run(phrases[index] ?? '', phrases[next] ?? '', () => setIndex(next))
@@ -110,10 +130,10 @@ export function TextScramble({
       clearTimeout(hold)
       cancelAnimationFrame(raf.current)
     }
-  }, [index, phrases, reduce, holdMs])
+  }, [index, revealed, phrases, reduce, holdMs])
 
-  // Reduced motion, or a single phrase: just say it.
-  if (reduce || phrases.length < 2) return <span className={className}>{phrases[0]}</span>
+  // Reduced motion: just say it.
+  if (reduce) return <span className={className}>{phrases[0]}</span>
 
   return (
     <span className={className}>
