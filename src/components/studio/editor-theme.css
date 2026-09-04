@@ -114,6 +114,29 @@
 }
 
 /**
+ * Editor.js's own selection colour.
+ *
+ * When the inline toolbar opens, Editor.js does not rely on the browser's
+ * selection: it runs `execCommand('backColor', '#a8d6ff')` and paints a real
+ * light-blue background into the document, so that the highlight survives the
+ * caret moving into the toolbar. That is a genuine inline style on a real
+ * element, which is why changing `::selection` did nothing to it and the
+ * selection turned blue the moment the toolbar appeared.
+ *
+ * Matched on the inline style itself, in both the forms a browser may serialise
+ * it as. `removeFakeBackground` sets it to `transparent`, which stops matching
+ * on its own — so nothing here has to undo anything.
+ */
+.studio-editor [style*='168, 214, 255'],
+.studio-editor [style*='168,214,255'],
+.studio-editor [style*='a8d6ff'],
+.studio-editor [style*='A8D6FF'] {
+  background-color: var(--selection) !important;
+  color: var(--selection-ink) !important;
+  border-radius: 0.15rem;
+}
+
+/**
  * The link field in the inline toolbar.
  *
  * Editor.js gives it a pale `#F8F8F8` of its own and sets no colour, so the text
