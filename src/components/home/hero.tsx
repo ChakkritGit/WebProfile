@@ -6,7 +6,10 @@ import { useTranslations } from 'next-intl'
 import { motion, useReducedMotion } from 'motion/react'
 import { profile } from '@/config/site'
 import { ButtonLink } from '@/components/ui/button'
-import { Typewriter } from '@/components/motion/typewriter'
+// The typewriter is kept, not deleted — it is the fallback if the scramble
+// wears thin.
+// import { Typewriter } from '@/components/motion/typewriter'
+import { TextScramble } from '@/components/motion/text-scramble'
 import { CircleScribble, StarBurst, StarGrid } from '@/components/ui/decor'
 import {
   ArrowRightIcon,
@@ -135,7 +138,8 @@ export function Hero({ roles }: { roles: string[] }) {
               transition={{ duration: 0.55, delay: 0.16 }}
               className="font-display mt-4 text-2xl font-bold sm:text-3xl"
             >
-              <Typewriter phrases={roles} className="text-brand" />
+              {/* <Typewriter phrases={roles} className="text-brand" /> */}
+              <TextScramble phrases={roles} className="text-brand" />
             </motion.div>
 
             <motion.p
