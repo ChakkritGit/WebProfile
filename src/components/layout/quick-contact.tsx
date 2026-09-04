@@ -16,6 +16,15 @@ const ICONS: Partial<Record<SocialId, typeof MailIcon>> = {
 const TONES = ['bg-sun-soft', 'bg-mint-soft', 'bg-sky-soft']
 
 /**
+ * How much of the bottom of the screen the dock takes up, offset included.
+ *
+ * Two numbers because it has two shapes: a column of three on a wide screen and
+ * a row of three on a narrow one. One value for both hid it a third of the way
+ * up a phone, long before anything was in its way.
+ */
+const DOCK_BAND = { column: 190, row: 116 }
+
+/**
  * Always-reachable contact dock. One tap goes straight to GitHub, the phone
  * dialler or the mail client — no intermediate page.
  */
@@ -24,12 +33,29 @@ export function QuickContactDock() {
   const reduce = useReducedMotion()
   const [visible, setVisible] = useState(false)
 
-  // Hold it back until the visitor has engaged with the page a little.
+  // Held back until the visitor has engaged with the page a little, and stood
+  // down again at the foot of it: the footer carries the same links and its own
+  // back-to-top button, and down there the dock only sits on top of them.
+  //
+  // Measured against the footer rather than the document height, so it does not
+  // need to know how tall the footer happens to be on a given page — it hides
+  // once the footer has risen into the band the dock occupies.
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 240)
+    const onScroll = () => {
+      const footer = document.querySelector('footer')
+      const band = window.innerWidth >= 640 ? DOCK_BAND.column : DOCK_BAND.row
+      const reachedFoot = footer
+        ? footer.getBoundingClientRect().top < window.innerHeight - band
+        : false
+      setVisible(window.scrollY > 240 && !reachedFoot)
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
   }, [])
 
   const links = QUICK_CONTACT.map((id) => socials.find((s) => s.id === id)).filter(
