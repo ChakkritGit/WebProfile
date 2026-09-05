@@ -41,6 +41,11 @@ declare module '@editorjs/embed' {
   export default Embed
 }
 
+declare module '@editorjs/attaches' {
+  const Attaches: new (...args: unknown[]) => unknown
+  export default Attaches
+}
+
 declare module 'editorjs-alert' {
   const Alert: new (...args: unknown[]) => unknown
   export default Alert

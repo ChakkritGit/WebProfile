@@ -14,8 +14,10 @@ import Delimiter from '@editorjs/delimiter'
 import Table from '@editorjs/table'
 import ImageTool from '@editorjs/image'
 import LinkTool from '@editorjs/link'
+import Attaches from '@editorjs/attaches'
 import Embed from '@editorjs/embed'
 import { EmbedPrompt } from './embed-tool'
+import { History, bindHistoryKeys } from './history'
 import Warning from '@editorjs/warning'
 import Alert from 'editorjs-alert'
 import AlignmentTune from 'editorjs-text-alignment-blocktune'
@@ -67,6 +69,8 @@ export default function EditorCore({ initialData, onChange, placeholder }: Edito
 
     let cancelled = false
     let instance: EditorJS | null = null
+    let history: History | null = null
+    let unbindHistory: (() => void) | null = null
 
     const ready = (async () => {
       // Serialise against any in-flight teardown (see note 1 above).
@@ -154,17 +158,39 @@ export default function EditorCore({ initialData, onChange, placeholder }: Edito
           // answers a pasted link — so this is the one that appears in the `+`
           // menu, and it hands over to `embed` as soon as it has a URL.
           embedLink: { class: EmbedPrompt as never },
+          attaches: {
+            class: Attaches as never,
+            // Its own endpoint rather than the image one: this answers with the
+            // name, size and extension the download card is built from.
+            config: {
+              endpoint: '/api/attach',
+              field: 'file',
+              buttonText: 'เลือกไฟล์ หรือลากมาวาง',
+              errorMessage: 'อัปโหลดไฟล์ไม่สำเร็จ',
+            },
+          },
           inlineCode: InlineCode as never,
           marker: Marker as never,
           underline: Underline as never,
           color: { class: TextColourTool as never },
           highlight: { class: HighlightTool as never },
         },
+        /**
+         * Undo, which Editor.js does not have — see `history.ts` for why it is
+         * written here rather than taken off the shelf. `CMD+Z` back,
+         * `CMD+SHIFT+Z` or `CMD+Y` forward.
+         */
+        onReady() {
+          if (!instance) return
+          history = new History(instance, initialData as OutputData)
+          unbindHistory = bindHistoryKeys(holder, history)
+        },
         async onChange(api) {
           if (debounceRef.current) clearTimeout(debounceRef.current)
           debounceRef.current = setTimeout(async () => {
             try {
               const saved = await api.saver.save()
+              history?.record(saved)
               onChangeRef.current(saved as EditorDocument)
             } catch {
               // A block can fail to serialise while it is mid-edit; the next
@@ -184,6 +210,7 @@ export default function EditorCore({ initialData, onChange, placeholder }: Edito
 
     return () => {
       cancelled = true
+      unbindHistory?.()
       if (debounceRef.current) clearTimeout(debounceRef.current)
       editorRef.current = null
       teardownRef.current = ready

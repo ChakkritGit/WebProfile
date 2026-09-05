@@ -3,7 +3,7 @@ import type { AnnotatedBlock } from '@/lib/toc'
 import { cn } from '@/lib/utils'
 import { RichText } from './rich-text'
 import { CodeBlock } from './code-block'
-import { DelimiterMark } from '@/components/icons'
+import { DelimiterMark, DownloadIcon } from '@/components/icons'
 
 /* --------------------------- block data shapes -------------------------- */
 
@@ -123,6 +123,18 @@ function Checklist({ items }: { items: ListItem[] }) {
 /* ------------------------------- renderer ------------------------------- */
 
 /** Reads the alignment block-tune, which the editor stores alongside the data. */
+/** Bytes as a person reads them. `1024`, not `1000`: this is a file on a disk. */
+function formatBytes(bytes: number) {
+  const units = ['B', 'KB', 'MB', 'GB']
+  let value = bytes
+  let unit = 0
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024
+    unit += 1
+  }
+  return `${value >= 10 || unit === 0 ? Math.round(value) : value.toFixed(1)} ${units[unit]}`
+}
+
 function alignmentOf(block: AnnotatedBlock): string {
   const tune = block.tunes?.alignment as { alignment?: string } | undefined
   const value = tune?.alignment ?? (block.data as { alignment?: string }).alignment
@@ -350,6 +362,45 @@ function Block({ block }: { block: AnnotatedBlock }) {
               <RichText html={String(data.caption)} />
             </figcaption>
           ) : null}
+        </figure>
+      )
+    }
+
+    case 'attaches': {
+      const file = (data.file ?? {}) as {
+        url?: string
+        name?: string
+        size?: number
+        extension?: string
+      }
+      if (!file.url) return null
+
+      // The tool stores the caption as `title` and leaves it empty when the
+      // author does not write one, in which case the file's own name is the
+      // only name it has.
+      const label = String(data.title || file.name || 'Download')
+      const extension = (file.extension ?? '').toUpperCase().slice(0, 4)
+
+      return (
+        <figure className="my-8">
+          <a
+            href={file.url}
+            download
+            className="sticker sticker-hover bg-surface hover:bg-surface-2 flex items-center gap-4 p-4 no-underline transition-colors"
+          >
+            <span className="border-line bg-sun-soft text-ink font-display grid size-12 shrink-0 place-items-center rounded-xl border-2 text-[0.7rem] font-bold">
+              {extension || <DownloadIcon className="size-5" />}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="font-display text-ink block truncate text-[0.95em] font-bold">
+                {label}
+              </span>
+              {file.size ? (
+                <span className="text-muted block text-[0.8em]">{formatBytes(file.size)}</span>
+              ) : null}
+            </span>
+            <DownloadIcon className="text-muted size-5 shrink-0" />
+          </a>
         </figure>
       )
     }
