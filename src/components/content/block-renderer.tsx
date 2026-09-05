@@ -123,6 +123,15 @@ function Checklist({ items }: { items: ListItem[] }) {
 /* ------------------------------- renderer ------------------------------- */
 
 /** Reads the alignment block-tune, which the editor stores alongside the data. */
+/** A short, stable id from a string. Not a hash for anything but naming. */
+function stableKey(input: string) {
+  let hash = 0
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) | 0
+  }
+  return Math.abs(hash).toString(36)
+}
+
 /** Bytes as a person reads them. `1024`, not `1000`: this is a file on a disk. */
 function formatBytes(bytes: number) {
   const units = ['B', 'KB', 'MB', 'GB']
@@ -405,6 +414,33 @@ function Block({ block }: { block: AnnotatedBlock }) {
       )
     }
 
+    case 'accordion': {
+      const items = (data.items ?? []) as { title?: string; content?: string }[]
+      if (!items.length) return null
+
+      // `name` makes the browser close the others when one opens — an accordion
+      // rather than a column of independent toggles, and no script to do it. It
+      // has to be the same string on the server and in the browser, and unique
+      // among any other groups on the page, so it comes from the block rather
+      // than from a random number.
+      const name = `accordion-${block.id ?? stableKey(items.map((item) => item.title ?? '').join('\u0000'))}`
+
+      return (
+        <div className="my-8 grid gap-2">
+          {items.map((item, index) => (
+            <details key={index} name={name} className="sticker bg-surface px-5 py-4">
+              <summary className="font-display text-ink cursor-pointer list-none font-bold">
+                <RichText html={String(item.title ?? '')} />
+              </summary>
+              <div className="mt-3">
+                <RichText html={String(item.content ?? '')} />
+              </div>
+            </details>
+          ))}
+        </div>
+      )
+    }
+
     case 'alert': {
       const tones: Record<string, string> = {
         primary: 'bg-sky-soft',
@@ -445,11 +481,48 @@ function Block({ block }: { block: AnnotatedBlock }) {
 }
 
 export function BlockRenderer({ blocks }: { blocks: AnnotatedBlock[] }) {
-  return (
-    <div className="article-body text-ink">
-      {blocks.map((block, i) => (
-        <Block key={block.id ?? i} block={block} />
-      ))}
-    </div>
-  )
+  return <div className="article-body text-ink">{group(blocks)}</div>
+}
+
+/**
+ * Blocks, with the toggles closed around what belongs to them.
+ *
+ * A toggle does not contain its contents: it records how many of the blocks
+ * after it are its own, and they sit in the document as ordinary siblings. That
+ * is fine inside the editor, where the tool tracks them by a key it writes into
+ * the DOM, but a page rendered from the saved array has to do the counting — so
+ * this walks the list rather than mapping over it, and hands each toggle the
+ * slice that follows it.
+ */
+function group(blocks: AnnotatedBlock[]) {
+  const out: React.ReactNode[] = []
+
+  for (let i = 0; i < blocks.length; i += 1) {
+    const block = blocks[i]
+
+    if (block.type === 'toggle') {
+      const data = block.data as { text?: string; status?: string; items?: number }
+      const count = Math.max(0, Math.min(Number(data.items ?? 0), blocks.length - i - 1))
+      const children = blocks.slice(i + 1, i + 1 + count)
+      i += count
+
+      out.push(
+        <details
+          key={block.id ?? i}
+          className="sticker bg-surface my-6 px-5 py-4"
+          open={data.status !== 'closed'}
+        >
+          <summary className="font-display text-ink cursor-pointer list-none font-bold">
+            <RichText html={String(data.text ?? '')} />
+          </summary>
+          {children.length ? <div className="mt-3">{group(children)}</div> : null}
+        </details>,
+      )
+      continue
+    }
+
+    out.push(<Block key={block.id ?? i} block={block} />)
+  }
+
+  return out
 }

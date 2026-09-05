@@ -46,6 +46,11 @@ declare module '@editorjs/attaches' {
   export default Attaches
 }
 
+declare module 'editorjs-toggle-block' {
+  const ToggleBlock: new (...args: unknown[]) => unknown
+  export default ToggleBlock
+}
+
 declare module 'editorjs-alert' {
   const Alert: new (...args: unknown[]) => unknown
   export default Alert
