@@ -13,11 +13,9 @@ import { TextScramble } from '@/components/motion/text-scramble'
 import { CircleScribble, StarBurst, StarGrid } from '@/components/ui/decor'
 import {
   ArrowRightIcon,
-  CrownIcon,
   EyeIcon,
   MailIcon,
   SparkleIcon,
-  ThumbsUpIcon,
 } from '@/components/icons'
 import { Container } from '@/components/ui/section'
 import { ResumeButton } from '@/components/content/resume-button'
@@ -27,47 +25,6 @@ function Tape({ className }: { className: string }) {
   return <span aria-hidden className={`tape pointer-events-none absolute h-6 w-24 ${className}`} />
 }
 
-/**
- * The badges stuck to the photograph, echoing the old portfolio's.
- *
- * They do not bob any more. A sticker on a sheet of paper is stuck to it; the
- * float was left over from when these hovered beside a framed picture rather
- * than sitting on one.
- */
-function StickerChip({
-  children,
-  className,
-  delay = 0,
-  tone,
-  playIntro,
-  peel = false,
-}: {
-  children: React.ReactNode
-  className?: string
-  /** How far into the entrance this one arrives. */
-  delay?: number
-  tone: string
-  /** False after the first mount, so a locale switch doesn't replay the pop-in. */
-  playIntro: boolean
-  /** Coming away from the paper at its right edge, with a shadow under the lift. */
-  peel?: boolean
-}) {
-  const reduce = useReducedMotion()
-  return (
-    <motion.div
-      initial={reduce || !playIntro ? false : { opacity: 0, scale: 0.6, y: 16 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ delay, type: 'spring', stiffness: 260, damping: 18 }}
-      className={className}
-    >
-      <div
-        className={`sticker-sm font-display flex items-center gap-2 px-3.5 py-2 text-sm font-bold ${tone} ${peel ? 'sticker-peel' : ''}`}
-      >
-        {children}
-      </div>
-    </motion.div>
-  )
-}
 
 /**
  * The entrance animation should play once per session, not every time the tree
@@ -210,28 +167,17 @@ export function Hero({ roles }: { roles: string[] }) {
             <Tape className="-top-4 -right-6 rotate-[42deg]" />
             <Tape className="-bottom-4 -left-6 rotate-[42deg]" />
 
-            <StarBurst className="animate-wobble absolute -top-7 right-10 size-9" />
-            <StarBurst className="animate-wobble absolute bottom-8 -left-5 size-7" color="var(--mint)" />
-
-            <StickerChip
-              className="absolute -top-5 -left-6 sm:-left-10"
-              delay={0.5}
-              tone="bg-sun-soft"
-              playIntro={playIntro}
-            >
-              <CrownIcon className="text-sun size-4" />
-              Software Engineer
-            </StickerChip>
-            <StickerChip
-              className="absolute -right-4 -bottom-4 sm:-right-8"
-              delay={0.75}
-              tone="bg-mint-soft"
-              playIntro={playIntro}
-              peel
-            >
-              <ThumbsUpIcon className="text-mint size-4" />
-              Good at Programming
-            </StickerChip>
+            {/* The stars take the corners the two badges used to hold, and keep
+                their colours: the yellow one where the yellow badge was, the mint
+                one where the mint was. A photograph pinned to a board wants
+                marking, not captioning — the job the badges were doing is done by
+                the line of text beside them, which says it once instead of three
+                times. */}
+            <StarBurst className="animate-wobble absolute -top-6 -left-6 size-10 sm:-left-10" />
+            <StarBurst
+              className="animate-wobble absolute -right-4 -bottom-5 size-8 sm:-right-8"
+              color="var(--mint)"
+            />
           </motion.div>
         </div>
       </Container>
