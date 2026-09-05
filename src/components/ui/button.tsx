@@ -13,7 +13,7 @@ const variants: Record<Variant, string> = {
   secondary: 'bg-surface text-ink',
   outline: 'bg-transparent text-ink',
   ghost: 'bg-transparent text-ink border-transparent shadow-none hover:bg-surface-2',
-  danger: 'bg-[#e0362f] text-white',
+  danger: 'bg-brand text-brand-ink',
 }
 
 const sizes: Record<Size, string> = {
@@ -23,7 +23,7 @@ const sizes: Record<Size, string> = {
 }
 
 const base =
-  'inline-flex items-center justify-center rounded-full border-2 border-line font-display font-semibold ' +
+  'inline-flex items-center justify-center rounded-sm border border-line font-display font-medium ' +
   'whitespace-nowrap select-none disabled:pointer-events-none ' +
   // A flat grey reads as "not available" far more clearly than a faded version
   // of the enabled colour.
@@ -34,7 +34,7 @@ function classes(variant: Variant, size: Size, className?: string) {
     base,
     sizes[size],
     variants[variant],
-    variant !== 'ghost' && 'shadow-[3px_3px_0_0_var(--shadow)] sticker-hover',
+    variant !== 'ghost' && 'sticker-hover',
     variant === 'outline' && 'hover:bg-surface-2',
     className,
   )

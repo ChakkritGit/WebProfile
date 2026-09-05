@@ -10,7 +10,7 @@ import { ButtonLink } from '@/components/ui/button'
 // wears thin.
 // import { Typewriter } from '@/components/motion/typewriter'
 import { TextScramble } from '@/components/motion/text-scramble'
-import { CircleScribble, StarBurst, StarGrid } from '@/components/ui/decor'
+import { StarGrid } from '@/components/ui/decor'
 import {
   ArrowRightIcon,
   CrownIcon,
@@ -21,11 +21,6 @@ import {
 } from '@/components/icons'
 import { Container } from '@/components/ui/section'
 import { ResumeButton } from '@/components/content/resume-button'
-
-/** A strip of masking tape, torn at both ends, holding a corner down. */
-function Tape({ className }: { className: string }) {
-  return <span aria-hidden className={`tape pointer-events-none absolute h-6 w-24 ${className}`} />
-}
 
 /**
  * The badges stuck to the photograph, echoing the old portfolio's.
@@ -123,13 +118,9 @@ export function Hero({ roles }: { roles: string[] }) {
               // reaches full size by about 1120, where there is room for it.
               className="relative mt-2 text-[clamp(1.75rem,10vw,3rem)] sm:text-6xl lg:text-[clamp(4rem,6.4vw,4.5rem)]"
             >
-              <span className="relative inline-block">
-                {tMeta('siteName')}
-                <CircleScribble
-                  className="absolute -inset-x-4 -inset-y-3 -z-10 h-[calc(100%+1.5rem)] w-[calc(100%+2rem)] opacity-40"
-                  color="var(--brand)"
-                />
-              </span>
+              {/* The circled name went with the pen that drew it. A name set
+                  large enough does not need to be pointed at. */}
+              {tMeta('siteName')}
             </motion.h1>
 
             <motion.div
@@ -172,46 +163,25 @@ export function Hero({ roles }: { roles: string[] }) {
             </motion.div>
           </div>
 
-          {/* The photo, torn out of a sheet and taped down. */}
+          {/* The photo, framed and left alone. The entrance is untouched — it is
+              the arrival that carries the page, not the paper it arrives on. */}
           <motion.div
             initial={from({ opacity: 0, scale: 0.9 })}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.2, type: 'spring', stiffness: 90 }}
             className="relative mx-auto w-full max-w-[15rem] sm:max-w-[17rem] lg:max-w-[20rem]"
           >
-            {/* Two elements, not one: the clip has to sit on the inner box and the
-                shadow on the outer, because a filter is applied before the clip
-                and a shadow drawn on the same element would be cut away with the
-                edge it is meant to follow. */}
-            <div className="torn-shadow relative aspect-square">
-              {/* The sheet is `--surface`, not the page colour: on the light theme a
-                    cream page and a cream margin left the tear along the top and
-                    left invisible, carried only by the shadow on the other two
-                    sides. */}
-              <div className="torn-paper paper-grain bg-surface relative size-full p-[9px]">
-                <Image
-                  src={profile.avatar}
-                  alt={tMeta('siteName')}
-                  width={860}
-                  height={860}
-                  priority
-                  sizes="(max-width: 640px) 15rem, (max-width: 1024px) 18rem, 20rem"
-                  className="size-full object-cover"
-                />
-                {/* Over the whole sheet, photograph and margin alike — a piece
-                    of paper is crumpled all the way through. Two layers, because
-                    the broad swelling and the sharp folds want different blends;
-                    see `globals.css`. */}
-                <span aria-hidden className="crumple pointer-events-none absolute inset-0" />
-                <span aria-hidden className="crumple-folds pointer-events-none absolute inset-0" />
-              </div>
+            <div className="border-line bg-surface relative aspect-square overflow-hidden rounded-sm border">
+              <Image
+                src={profile.avatar}
+                alt={tMeta('siteName')}
+                width={860}
+                height={860}
+                priority
+                sizes="(max-width: 640px) 15rem, (max-width: 1024px) 18rem, 20rem"
+                className="size-full object-cover"
+              />
             </div>
-
-            <Tape className="-top-4 -right-6 rotate-[42deg]" />
-            <Tape className="-bottom-4 -left-6 rotate-[42deg]" />
-
-            <StarBurst className="animate-wobble absolute -top-7 right-10 size-9" />
-            <StarBurst className="animate-wobble absolute bottom-8 -left-5 size-7" color="var(--mint)" />
 
             <StickerChip
               className="absolute -top-5 -left-6 sm:-left-10"

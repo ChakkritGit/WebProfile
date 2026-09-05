@@ -12,7 +12,6 @@ import {
   SitemapIcon,
   TikTokIcon,
 } from '@/components/icons'
-import { WaveDivider } from '@/components/ui/decor'
 import { WebringBadge } from './webring-badge'
 import { BackToTop } from './back-to-top'
 
@@ -32,14 +31,12 @@ export async function SiteFooter() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="mt-24">
-      <WaveDivider className="text-surface-2 h-12" />
-
-      {/* `-mt-px`: the wave is an SVG and the body a div, so their edge meets at
-          whatever fraction of a pixel the layout lands on. Overlapping by one
-          pixel means a hairline cannot open up between them at any zoom or
-          device pixel ratio. */}
-      <div className="bg-surface-2 paper-grain -mt-px">
+    <footer className="border-line mt-24 border-t">
+      {/* The wave is gone. A drawn curve announces the end of the page in the
+          voice of the old language; a rule says the same thing without raising
+          it. `WaveDivider` is still exported and still used nowhere else — left
+          in place so switching back is one import away. */}
+      <div className="bg-surface-2">
         <div className="relative z-10 mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div className="lg:col-span-2">

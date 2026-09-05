@@ -117,7 +117,7 @@ export function SiteHeader() {
               {pill && (
                 <motion.span
                   aria-hidden
-                  className="bg-brand-soft border-line absolute top-0 left-0 -z-10 rounded-full border-2"
+                  className="border-ink absolute top-0 left-0 -z-10 rounded-none border-b-2"
                   initial={false}
                   animate={{ x: pill.x, y: pill.y, width: pill.width, height: pill.height }}
                   transition={
@@ -181,8 +181,8 @@ export function SiteHeader() {
                       className={cn(
                         'font-display block rounded-2xl px-4 py-3 text-base font-semibold transition-colors',
                         isActive(item.href)
-                          ? 'bg-brand-soft border-line border-2'
-                          : 'hover:bg-surface-2',
+                          ? 'bg-surface-2 text-ink'
+                          : 'text-muted hover:bg-surface-2',
                       )}
                     >
                       {t(item.key)}
