@@ -4,19 +4,6 @@ import { FestivalOrnament, useFestival } from '@/components/layout/festival-deco
 import { cn } from '@/lib/utils'
 
 /**
- * The "C" mark, drawn by hand.
- *
- * A stroked arc rather than a typeface glyph, so it stays identical wherever it
- * is used and needs no font present; colours come from the theme tokens so it
- * inverts correctly in the dark.
- *
- * Nothing here is true. The tile is one closed path with four corners of
- * different roundness and sides that bow slightly — a `rect` with a single `rx`
- * was the one perfectly machined shape left on a site where every other frame,
- * rule and icon is out of round. It has to be a closed path rather than the
- * open multi-stroke `handRect` the icons use, because this one is filled.
- */
-/**
  * The "C" mark.
  *
  * The same letter as before, drawn with a compass instead of a pen: one ring,
