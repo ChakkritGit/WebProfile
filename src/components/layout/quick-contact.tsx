@@ -1,12 +1,18 @@
 'use client'
 
+import type { ComponentType, SVGProps } from 'react'
 import { useTranslations } from 'next-intl'
 import { QUICK_CONTACT, socials, type SocialId } from '@/config/site'
 import { GitHubIcon, MailIcon, PhoneIcon } from '@/components/icons'
 import { useAtFooter, useScrolledPast } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 
-const ICONS: Partial<Record<SocialId, typeof MailIcon>> = {
+/* Typed on what an icon *is* rather than on one particular icon: the set mixes
+   Lucide components with the brand marks drawn by hand, and the two are not the
+   same type. */
+type Icon = ComponentType<SVGProps<SVGSVGElement>>
+
+const ICONS: Partial<Record<SocialId, Icon>> = {
   github: GitHubIcon,
   email: MailIcon,
   phone: PhoneIcon,

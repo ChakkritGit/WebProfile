@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { AnimatePresence, motion, useReducedMotion } from '@/lib/motion-shim'
 import { Link, usePathname } from '@/i18n/navigation'
@@ -47,39 +47,6 @@ export function SiteHeader() {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href)
 
-  const listRef = useRef<HTMLUListElement>(null)
-  const [pill, setPill] = useState<{
-    x: number
-    y: number
-    width: number
-    height: number
-  } | null>(null)
-
-  const measurePill = useCallback(() => {
-    const active = listRef.current?.querySelector<HTMLElement>('a[aria-current="page"]')
-    // The link's own box, all four numbers. Stretching the pill to the list's
-    // height instead made it 24px tall against a 37px link — the list is shorter
-    // than the links it holds.
-    setPill(
-      active
-        ? {
-            x: active.offsetLeft,
-            y: active.offsetTop,
-            width: active.offsetWidth,
-            height: active.offsetHeight,
-          }
-        : null,
-    )
-  }, [])
-
-  // Layout effect so the pill is already in place on the first paint of a new
-  // route; the label widths change with the language, hence the resize listener.
-  useLayoutEffect(measurePill, [measurePill, pathname, t])
-  useEffect(() => {
-    window.addEventListener('resize', measurePill)
-    void document.fonts?.ready.then(measurePill)
-    return () => window.removeEventListener('resize', measurePill)
-  }, [measurePill])
 
   return (
     <>
@@ -96,42 +63,37 @@ export function SiteHeader() {
           scrolled && !open && 'drawn-rule',
         )}
       >
-        <div className="bg-paper/85 relative h-full backdrop-blur-md">
+        <div className="bg-paper/85 border-line relative h-full border-b-2 backdrop-blur-md">
           {festival && <FestivalDecor festival={festival} />}
           <nav
             aria-label={t('menu')}
-            className="relative z-10 mx-auto flex h-full max-w-6xl items-center gap-3 px-4 sm:px-6"
+            /* A real height rather than `h-full`. The bar had nothing to be full of —
+                 the header sets no height, so it collapsed onto the tallest control and
+                 left two pixels above the language and theme buttons, which read as the
+                 page starting at the very top edge. A browser chrome of this period was
+                 a chunky ruled band, so it gets one. */
+              className="relative z-10 mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:h-16 sm:px-6"
           >
             <Link href="/" className="group mr-auto flex items-center" aria-label={profile.brand}>
               <Logo label={profile.brand} className="[&>span:last-child]:hidden sm:[&>span:last-child]:inline" />
             </Link>
 
-            <ul ref={listRef} className="relative hidden items-center gap-1 md:flex">
-              {/* One pill, positioned from the active link's own measurements.
-                  A `layoutId` shared element read its position from the document, so
-                  the page's scroll counted as movement: leaving a listing scrolled
-                  1200px down for an article made the pill fly up from off-screen.
-                  Measuring inside the list removes scroll from the equation, and
-                  `initial={false}` means a fresh page renders it already in place. */}
-              {pill && (
-                <motion.span
-                  aria-hidden
-                  className="bg-brand-soft border-line absolute top-0 left-0 -z-10 rounded-full border-2"
-                  initial={false}
-                  animate={{ x: pill.x, y: pill.y, width: pill.width, height: pill.height }}
-                  transition={
-                    reduce ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34 }
-                  }
-                />
-              )}
+            <ul className="relative hidden items-center gap-1 md:flex">
               {navItems.map((item) => (
                 <li key={item.key}>
                   <Link
                     href={item.href}
                     aria-current={isActive(item.href) ? 'page' : undefined}
                     className={cn(
-                      'font-display relative rounded-full px-3.5 py-2 text-sm font-semibold transition-colors',
-                      isActive(item.href) ? 'text-ink' : 'text-muted hover:text-ink',
+                      /* The page you are on is marked on the link itself. The pill
+                         that used to slide between them was a measured box moved by
+                         an animation this branch does not run, so it collapsed to a
+                         four-pixel speck in the corner of the list. A bar under the
+                         word is what a navigation bar of this vintage did anyway. */
+                      'font-display relative px-3.5 py-2 text-sm',
+                      isActive(item.href)
+                        ? 'text-ink border-b-2 border-current font-bold'
+                        : 'text-muted hover:text-ink font-semibold',
                     )}
                   >
                     {t(item.key)}
