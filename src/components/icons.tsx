@@ -1,84 +1,53 @@
 import type { SVGProps } from 'react'
 
 /**
- * Inline icon set — no icon dependency. Stroke icons share a chunky 2px cap so
- * they sit next to the sticker outlines without looking thin.
+ * Inline icon set — no icon dependency.
  *
- * The hand-drawn quality comes from the geometry, not from a filter. A displacement
- * filter was tried first and it only made the lines fuzzy — blurring a perfect
- * circle does not produce a drawn one. So the two shapes a pen is worst at, circles
- * and boxes, are built here as paths that are out of round, uneven at the corners,
- * and close slightly past where they started.
+ * These used to be drawn rather than constructed: `handCircle` walked four
+ * quadrants at four different radii and carried the last curve past its own
+ * start, and `handRect` drew a box as three overshooting strokes, because the
+ * two shapes a pen is worst at are circles and boxes. That was the point when
+ * the rest of the site was drawn too.
+ *
+ * Now they are what they claim to be. The call sites did not change — the two
+ * builders below did, and twenty-four icons came true with them.
  */
 type IconProps = SVGProps<SVGSVGElement>
 
-/** A circle the way a pen draws one: out of round, and closing past its own start. */
-function handCircle(cx: number, cy: number, r: number): string {
-  const K = 0.5523 // circle-to-cubic constant
-  const ANGLES = [-Math.PI / 2, 0, Math.PI / 2, Math.PI]
-  const SQUASH = [1.03, 0.96, 1.04, 0.97] // no two quadrants share a radius
-  const n = (v: number) => Math.round(v * 100) / 100
-  const at = (i: number) => {
-    const a = ANGLES[i % 4]
-    const m = SQUASH[i % 4] * r
-    return { x: cx + Math.cos(a) * m, y: cy + Math.sin(a) * m, a, m }
-  }
-
-  let d = ''
-  for (let i = 0; i < 4; i++) {
-    const from = at(i)
-    const to = at(i + 1)
-    const c1 = { x: from.x - Math.sin(from.a) * from.m * K, y: from.y + Math.cos(from.a) * from.m * K }
-    const c2 = { x: to.x + Math.sin(to.a) * to.m * K, y: to.y - Math.cos(to.a) * to.m * K }
-    if (i === 0) d += `M${n(from.x)} ${n(from.y)}`
-    d += `C${n(c1.x)} ${n(c1.y)} ${n(c2.x)} ${n(c2.y)} ${n(to.x)} ${n(to.y)}`
-  }
-  // Carry on a little past the join so the seam shows, the way a real loop does.
-  const end = { x: cx + Math.cos(-Math.PI / 2 + 0.5) * r, y: cy + Math.sin(-Math.PI / 2 + 0.5) * r }
-  d += `C${n(cx - r * 0.3)} ${n(cy - r * 1.04)} ${n(cx + r * 0.1)} ${n(cy - r * 1.06)} ${n(end.x)} ${n(end.y)}`
-  return d
+/** A circle, as a path, so it can sit in the same `<path>` slot as everything else. */
+function circlePath(cx: number, cy: number, r: number): string {
+  return `M${cx - r} ${cy}a${r} ${r} 0 1 0 ${r * 2} 0a${r} ${r} 0 1 0 ${-r * 2} 0`
 }
 
-/** A box drawn freehand: every corner a different roundness, sides never quite true. */
-function handRect(x: number, y: number, w: number, h: number, r: number): string {
-  const n = (v: number) => Math.round(v * 100) / 100
-  const [tl, tr, br, bl] = [r * 1.2, r * 0.8, r * 1.15, r * 0.88]
-  const o = Math.min(1.6, Math.max(w, h) * 0.09) // how far each corner overshoots
-
-  // Drawn as three strokes, not one closed loop: two long sides and a lid, each
-  // carrying a little past where it should stop. A single closed path always
-  // meets itself exactly, which is the thing a drawn box never does.
+/** A rounded rectangle, closed, with one radius on all four corners. */
+function roundedRect(x: number, y: number, w: number, h: number, r: number): string {
+  const k = Math.min(r, w / 2, h / 2)
   return [
-    // top edge, starting before the corner and running past the far one
-    `M${n(x + tl - o)} ${n(y + 0.3)}`,
-    `Q${n(x + w * 0.5)} ${n(y - 0.5)} ${n(x + w - tr + o * 0.6)} ${n(y)}`,
-    // right side down, overshooting the bottom corner
-    `M${n(x + w)} ${n(y + tr - o * 0.5)}`,
-    `Q${n(x + w + 0.5)} ${n(y + h * 0.5)} ${n(x + w - 0.2)} ${n(y + h - br + o * 0.5)}`,
-    // bottom edge back, and the left side up past the start
-    `M${n(x + w - br + o * 0.4)} ${n(y + h)}`,
-    `Q${n(x + w * 0.5)} ${n(y + h + 0.6)} ${n(x + bl - o * 0.5)} ${n(y + h - 0.2)}`,
-    `M${n(x + 0.2)} ${n(y + h - bl + o * 0.4)}`,
-    `Q${n(x - 0.5)} ${n(y + h * 0.5)} ${n(x)} ${n(y + tl - o)}`,
-    // the four corners, each a short curve joining the strokes it sits between
-    `M${n(x + tl - o)} ${n(y + 0.3)}Q${n(x)} ${n(y)} ${n(x)} ${n(y + tl - o)}`,
-    `M${n(x + w - tr + o * 0.6)} ${n(y)}Q${n(x + w)} ${n(y)} ${n(x + w)} ${n(y + tr - o * 0.5)}`,
-    `M${n(x + w - 0.2)} ${n(y + h - br + o * 0.5)}Q${n(x + w)} ${n(y + h)} ${n(x + w - br + o * 0.4)} ${n(y + h)}`,
-    `M${n(x + bl - o * 0.5)} ${n(y + h - 0.2)}Q${n(x)} ${n(y + h)} ${n(x + 0.2)} ${n(y + h - bl + o * 0.4)}`,
+    `M${x + k} ${y}`,
+    `H${x + w - k}`,
+    `A${k} ${k} 0 0 1 ${x + w} ${y + k}`,
+    `V${y + h - k}`,
+    `A${k} ${k} 0 0 1 ${x + w - k} ${y + h}`,
+    `H${x + k}`,
+    `A${k} ${k} 0 0 1 ${x} ${y + h - k}`,
+    `V${y + k}`,
+    `A${k} ${k} 0 0 1 ${x + k} ${y}`,
+    'Z',
   ].join('')
 }
 
-type CircleProps = { cx: number; cy: number; r: number } & Omit<SVGProps<SVGPathElement>, 'd'>
-const HandCircle = ({ cx, cy, r, ...rest }: CircleProps) => (
-  <path d={handCircle(cx, cy, r)} {...rest} />
-)
+type CircleProps = Omit<SVGProps<SVGPathElement>, 'd'> & { cx: number; cy: number; r: number }
+const Circle = ({ cx, cy, r, ...rest }: CircleProps) => <path d={circlePath(cx, cy, r)} {...rest} />
 
-type RectProps = { x: number; y: number; width: number; height: number; rx: number } & Omit<
-  SVGProps<SVGPathElement>,
-  'd'
->
-const HandRect = ({ x, y, width, height, rx, ...rest }: RectProps) => (
-  <path d={handRect(x, y, width, height, rx)} {...rest} />
+type BoxProps = Omit<SVGProps<SVGPathElement>, 'd'> & {
+  x: number
+  y: number
+  width: number
+  height: number
+  rx: number
+}
+const Box = ({ x, y, width, height, rx, ...rest }: BoxProps) => (
+  <path d={roundedRect(x, y, width, height, rx)} {...rest} />
 )
 
 function Stroke({ children, ...props }: IconProps) {
@@ -87,7 +56,7 @@ function Stroke({ children, ...props }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2.2}
+      strokeWidth={1.8}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -110,7 +79,7 @@ function Solid({ children, ...props }: IconProps) {
 
 export const GitHubIcon = (p: IconProps) => (
   <Stroke {...p} strokeWidth={1.9}>
-    <HandCircle cx={12} cy={12} r={9.7} />
+    <Circle cx={12} cy={12} r={9.7} />
     <path
       fill="currentColor"
       stroke="none"
@@ -128,9 +97,9 @@ export const FacebookIcon = (p: IconProps) => (
 
 export const InstagramIcon = (p: IconProps) => (
   <Stroke {...p}>
-    <HandRect x={2.5} y={2.5} width={19} height={19} rx={5.5} />
-    <HandCircle cx={12} cy={12} r={4} />
-    <HandCircle cx={17.6} cy={6.4} r={1.1} fill="currentColor" stroke="none" />
+    <Box x={2.5} y={2.5} width={19} height={19} rx={5.5} />
+    <Circle cx={12} cy={12} r={4} />
+    <Circle cx={17.6} cy={6.4} r={1.1} fill="currentColor" stroke="none" />
   </Stroke>
 )
 
@@ -144,7 +113,7 @@ export const TikTokIcon = (p: IconProps) => (
 
 export const MailIcon = (p: IconProps) => (
   <Stroke {...p}>
-    <HandRect x={2.5} y={4.5} width={19} height={15} rx={3} />
+    <Box x={2.5} y={4.5} width={19} height={15} rx={3} />
     <path d="m3.5 7 7.6 5.3a1.6 1.6 0 0 0 1.8 0L20.5 7" />
   </Stroke>
 )
@@ -161,7 +130,7 @@ export const PhoneIcon = (p: IconProps) => (
 export const MapPinIcon = (p: IconProps) => (
   <Stroke {...p}>
     <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" />
-    <HandCircle cx={12} cy={10} r={2.6} />
+    <Circle cx={12} cy={10} r={2.6} />
   </Stroke>
 )
 
@@ -169,7 +138,7 @@ export const MapPinIcon = (p: IconProps) => (
 
 export const SunIcon = (p: IconProps) => (
   <Stroke {...p}>
-    <HandCircle cx={12} cy={12} r={4.2} />
+    <Circle cx={12} cy={12} r={4.2} />
     <path d="M12.1 2.4v2.2M11.9 19.6v2M2.4 12.1h2.1M19.6 11.9h2.2M5.1 5.3l1.6 1.4M17.4 17.2l1.4 1.7M18.9 5.1l-1.6 1.6M6.8 17.4l-1.7 1.4" />
   </Stroke>
 )
@@ -182,14 +151,14 @@ export const MoonIcon = (p: IconProps) => (
 
 export const MonitorIcon = (p: IconProps) => (
   <Stroke {...p}>
-    <HandRect x={2.5} y={4} width={19} height={13} rx={2.5} />
+    <Box x={2.5} y={4} width={19} height={13} rx={2.5} />
     <path d="M8.4 21.1q3.5-.3 7.1-.1M12.1 17q-.2 2 0 4" />
   </Stroke>
 )
 
 export const GlobeIcon = (p: IconProps) => (
   <Stroke {...p}>
-    <HandCircle cx={12} cy={12} r={9.2} />
+    <Circle cx={12} cy={12} r={9.2} />
     <path d="M2.9 12.1q9.2-.4 18.3-.2M12 2.8c2.5 2.6 3.7 5.7 3.6 9.3-.1 3.4-1.3 6.5-3.7 9.1-2.3-2.6-3.5-5.7-3.5-9.2 0-3.4 1.2-6.5 3.6-9.2Z" />
   </Stroke>
 )
@@ -239,7 +208,7 @@ export const SparkleIcon = (p: IconProps) => (
 
 export const CopyIcon = (p: IconProps) => (
   <Stroke {...p}>
-    <HandRect x={8.5} y={8.5} width={12} height={12} rx={2.5} />
+    <Box x={8.5} y={8.5} width={12} height={12} rx={2.5} />
     <path d="M15.5 5.5v-.7a2.3 2.3 0 0 0-2.3-2.3H5.8a2.3 2.3 0 0 0-2.3 2.3v7.4a2.3 2.3 0 0 0 2.3 2.3h.7" />
   </Stroke>
 )
@@ -252,21 +221,21 @@ export const CheckIcon = (p: IconProps) => (
 
 export const ClockIcon = (p: IconProps) => (
   <Stroke {...p}>
-    <HandCircle cx={12} cy={12} r={9.2} />
+    <Circle cx={12} cy={12} r={9.2} />
     <path d="M12.1 6.7q-.2 2.7-.1 5.4 1.8 1 3.4 2.2" />
   </Stroke>
 )
 
 export const CalendarIcon = (p: IconProps) => (
   <Stroke {...p}>
-    <HandRect x={3} y={5} width={18} height={16} rx={3} />
+    <Box x={3} y={5} width={18} height={16} rx={3} />
     <path d="M3.1 10.1q8.9-.4 17.8-.2M8.1 2.9q-.2 2-.1 4.1M15.9 3.1q.2 2 .1 4" />
   </Stroke>
 )
 
 export const BriefcaseIcon = (p: IconProps) => (
   <Stroke {...p}>
-    <HandRect x={2.5} y={7} width={19} height={13} rx={3} />
+    <Box x={2.5} y={7} width={19} height={13} rx={3} />
     <path d="M8.6 7V5.5A2 2 0 0 1 10.6 3.5h2.9a2 2 0 0 1 2 2.1V7M2.6 12.6q9.4-.4 18.7-.2" />
   </Stroke>
 )
@@ -319,7 +288,7 @@ export const TrashIcon = (p: IconProps) => (
 export const EyeIcon = (p: IconProps) => (
   <Stroke {...p}>
     <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
-    <HandCircle cx={12} cy={12} r={3.2} />
+    <Circle cx={12} cy={12} r={3.2} />
   </Stroke>
 )
 
@@ -338,16 +307,16 @@ export const CrownIcon = (p: IconProps) => (
   <Stroke {...p}>
     <path d="M3.5 8.5 6.8 13 12 5.5 17.2 13l3.3-4.5v8.2a1.8 1.8 0 0 1-1.8 1.8H5.3a1.8 1.8 0 0 1-1.8-1.8V8.5Z" />
     <path d="M3.5 15.5h17" />
-    <HandCircle cx={3.5} cy={7} r={1.3} />
-    <HandCircle cx={20.5} cy={7} r={1.3} />
-    <HandCircle cx={12} cy={4} r={1.3} />
+    <Circle cx={3.5} cy={7} r={1.3} />
+    <Circle cx={20.5} cy={7} r={1.3} />
+    <Circle cx={12} cy={4} r={1.3} />
   </Stroke>
 )
 
 export const ThumbsUpIcon = (p: IconProps) => (
   <Stroke {...p}>
     <path d="M7 10.5 11 3a2.2 2.2 0 0 1 2.2 2.2V9h4.6a2 2 0 0 1 2 2.4l-1.3 6a2 2 0 0 1-2 1.6H7" />
-    <HandRect x={3} y={10} width={4} height={9.5} rx={1.4} />
+    <Box x={3} y={10} width={4} height={9.5} rx={1.4} />
   </Stroke>
 )
 
@@ -357,22 +326,22 @@ export const RssIcon = (p: IconProps) => (
         arcs they replace were the one machine-perfect pair left in the set. */}
     <path d="M4.5 11.5C5.02 11.55 6.71 11.43 7.64 11.82C8.56 12.22 9.33 13.1 10.05 13.85C10.78 14.6 11.58 15.38 11.98 16.3C12.38 17.23 12.37 18.88 12.45 19.4" />
     <path d="M4.5 5.6C5.41 5.71 8.32 5.6 9.93 6.28C11.55 6.97 12.91 8.43 14.19 9.71C15.46 11 16.87 12.37 17.57 13.99C18.28 15.6 18.26 18.5 18.4 19.4" />
-    <HandCircle cx={5.2} cy={18.8} r={1.7} fill="currentColor" stroke="none" />
+    <Circle cx={5.2} cy={18.8} r={1.7} fill="currentColor" stroke="none" />
   </Stroke>
 )
 
 export const SitemapIcon = (p: IconProps) => (
   <Stroke {...p}>
-    <HandRect x={9} y={2.8} width={6} height={5} rx={1.6} />
-    <HandRect x={2.5} y={16.2} width={6} height={5} rx={1.6} />
-    <HandRect x={15.5} y={16.2} width={6} height={5} rx={1.6} />
+    <Box x={9} y={2.8} width={6} height={5} rx={1.6} />
+    <Box x={2.5} y={16.2} width={6} height={5} rx={1.6} />
+    <Box x={15.5} y={16.2} width={6} height={5} rx={1.6} />
     <path d="M12 7.8v3.4M5.5 16.2v-2.2a1.2 1.2 0 0 1 1.2-1.2h10.6a1.2 1.2 0 0 1 1.2 1.2v2.2" />
   </Stroke>
 )
 
 export const SearchIcon = (p: IconProps) => (
   <Stroke {...p}>
-    <HandCircle cx={10.8} cy={10.8} r={7} />
+    <Circle cx={10.8} cy={10.8} r={7} />
     <path d="m16 16 4.5 4.5" />
   </Stroke>
 )
@@ -380,7 +349,7 @@ export const SearchIcon = (p: IconProps) => (
 export const TagIcon = (p: IconProps) => (
   <Stroke {...p}>
     <path d="M3.5 11.3V4.8a1.3 1.3 0 0 1 1.3-1.3h6.5a1.3 1.3 0 0 1 .9.4l8 8a1.3 1.3 0 0 1 0 1.8l-6.5 6.5a1.3 1.3 0 0 1-1.8 0l-8-8a1.3 1.3 0 0 1-.4-.9Z" />
-    <HandCircle cx={8} cy={8} r={1.6} />
+    <Circle cx={8} cy={8} r={1.6} />
   </Stroke>
 )
 
