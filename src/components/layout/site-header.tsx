@@ -11,7 +11,6 @@ import { Logo } from '@/components/brand/logo'
 import { LocaleToggle } from './locale-toggle'
 import { ThemeToggle } from './theme-toggle'
 import { FestivalDecor, FestivalGreeting, useFestival, useFestivalPlayKey } from './festival-decor'
-import { FestivalPicker } from './festival-picker'
 import { useScrolledPast } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 
@@ -84,7 +83,8 @@ export function SiteHeader() {
 
   return (
     <>
-      {atHome && <FestivalPicker />}
+      {/* The picker goes with it: a control for a system that does nothing
+          is a control that lies about what it does. */}
       {atHome && festival && <FestivalGreeting key={playKey} festival={festival} />}
       <header
         className={cn(

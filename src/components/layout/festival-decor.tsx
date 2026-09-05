@@ -1,5 +1,10 @@
 'use client'
 
+/* eslint-disable @typescript-eslint/no-unused-vars -- `festivalOn`, `forcedId`
+   and `useIsMounted` are the three pieces `useFestival` needs the moment anyone
+   wants the seasons back. Deleting them would make switching the system on a
+   rewrite instead of the two lines it is now. */
+
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { useReducedMotion } from '@/lib/motion-shim'
@@ -20,13 +25,23 @@ import { useIsMounted } from '@/lib/hooks'
  * December in April.
  */
 export function useFestival(): Festival | null {
-  // The existing hydration-safe flag rather than an effect that sets state: the
-  // server snapshot is `false`, so the markup React renders on both sides matches
-  // and the dressing only appears once the client's own clock is available.
-  const mounted = useIsMounted()
-  if (!mounted) return null
-
-  return festivalById(forcedId()) ?? festivalOn(new Date())
+  /**
+   * Off.
+   *
+   * A page of this vintage had no seasons — and the dressing is ghosts, lanterns
+   * and fireworks, which is a different century of drawing from the one this
+   * branch is set in.
+   *
+   * Switched off here, in the one function everything else asks, rather than by
+   * deleting the fourteen hundred lines behind it. Every consumer already guards
+   * on `festival &&`, so returning nothing turns the whole system off, and
+   * putting the two lines below back turns it on again.
+   *
+   *   const mounted = useIsMounted()
+   *   if (!mounted) return null
+   *   return festivalById(forcedId()) ?? festivalOn(new Date())
+   */
+  return null
 }
 
 /* ------------------------- playing one on demand ------------------------- */
