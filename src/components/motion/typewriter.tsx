@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { createElement, useEffect, useState } from 'react'
 import { useReducedMotion } from '@/lib/motion-shim'
 import { Link } from '@/i18n/navigation'
 import { tagSlug } from '@/lib/search'
@@ -72,41 +72,52 @@ export function Typewriter({
   )
 }
 
+/**
+ * A marquee. The actual element.
+ *
+ * `<marquee>` was deprecated two decades ago and every browser still runs it,
+ * which is the single most period-correct fact available here. It also sidesteps
+ * the branch's own rule against animation: this is not a CSS animation that a
+ * blanket `animation: none` could switch off, it is the element doing what the
+ * element does.
+ *
+ * Written through `createElement` because React's JSX types have no `marquee`
+ * in them — it predates every type definition anyone has written — and adding
+ * one to the global namespace for a single tag is a worse trade than this.
+ *
+ * The duplicated half is gone with the CSS loop that needed it: `<marquee>`
+ * wraps by itself.
+ */
 export function MarqueeRow({
   items,
   className,
+  duration = 32,
   reverse = false,
 }: {
   items: string[]
   className?: string
-  /** Kept in the signature so both call sites still compile; nothing scrolls. */
   duration?: number
   reverse?: boolean
 }) {
-  /**
-   * A list, not a marquee.
-   *
-   * The scrolling row was two inline styles — a mask fading both ends and the
-   * animation itself — and both are exactly what a page with no stylesheet
-   * cannot have. The second copy of the items went with it: it existed only so
-   * the loop could seam invisibly, and there is no loop.
-   *
-   * A real page from that era would have used `<marquee>`, which is the one
-   * period-correct answer React will not let anybody write.
-   */
-  const list = reverse ? [...items].reverse() : items
+  // `scrollamount` is pixels per tick, not seconds per lap. A longer duration
+  // asked for a slower row, so it has to invert.
+  const speed = Math.max(2, Math.round(180 / duration))
 
-  return (
-    <ul className={className}>
-      {list.map((item) => (
-        <li key={item}>
-          <Link href={`/topics/${tagSlug(item)}`}>
-            <TechIcon name={item} />
-            {item}
-          </Link>
-        </li>
-      ))}
-    </ul>
+  return createElement(
+    'marquee',
+    {
+      className,
+      direction: reverse ? 'right' : 'left',
+      scrollamount: speed,
+      behavior: 'scroll',
+    },
+    items.map((item) => (
+      <Link key={item} href={`/topics/${tagSlug(item)}`} className="sticker-sm mx-1 inline-flex items-center gap-2 px-3 py-1">
+        <TechIcon name={item} />
+        {item}
+      </Link>
+    )),
   )
 }
+
 

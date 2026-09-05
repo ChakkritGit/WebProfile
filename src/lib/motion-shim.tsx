@@ -1,6 +1,6 @@
 'use client'
 
-import { createElement, type ReactNode } from 'react'
+import { createElement, useSyncExternalStore, type ReactNode } from 'react'
 
 /**
  * A stand-in for `motion/react`, so this branch has no animation and no inline
@@ -89,12 +89,33 @@ export function MotionConfig({ children }: { children?: ReactNode } & AnyProps) 
 }
 
 /**
- * Always true.
+ * The real answer, from the real media query.
  *
- * Every caller uses this to decide whether to skip an animation, so answering
- * "yes, reduce" takes the quiet path through code that was already written to
- * handle somebody who had asked for less movement.
+ * This returned `true` for everybody at first, on the reasoning that a page from
+ * 1998 does not move. It moved too much: the callers that ask this are not only
+ * the ones running CSS animations — which are off regardless — but the two that
+ * are pure JavaScript text effects, and `TextScramble` reads it and returns the
+ * phrase standing still. Answering "reduce" for everyone silently switched the
+ * scramble off for people who had never asked for that.
+ *
+ * A scrambling headline is period-correct anyway. Text effects written in
+ * JavaScript are exactly what pages of that era did, and the ones that did not
+ * want them said so — which is what this now reports.
  */
+const QUERY = '(prefers-reduced-motion: reduce)'
+
+function subscribe(notify: () => void) {
+  const media = matchMedia(QUERY)
+  media.addEventListener('change', notify)
+  return () => media.removeEventListener('change', notify)
+}
+
 export function useReducedMotion() {
-  return true
+  return useSyncExternalStore(
+    subscribe,
+    () => matchMedia(QUERY).matches,
+    // On the server nobody has expressed a preference; assume none, which is
+    // what the browser will report for most people a moment later.
+    () => false,
+  )
 }
