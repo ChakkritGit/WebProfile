@@ -78,108 +78,122 @@ export default function EditorCore({ initialData, onChange, placeholder }: Edito
       await teardownRef.current
       if (cancelled) return
 
+      /**
+       * The tools, as a value rather than inline, so the collapsible sections
+       * can be handed a subset of them to offer inside a section.
+       */
+      const tools: Record<string, unknown> = {
+        alignment: {
+          class: AlignmentTune as never,
+          config: {
+            default: 'left',
+            blocks: { header: 'left', paragraph: 'left', quote: 'left' },
+          },
+        },
+        header: {
+          class: Header as never,
+          inlineToolbar: true,
+          config: { levels: [2, 3, 4], defaultLevel: 2 },
+        },
+        paragraph: { class: Paragraph as never, inlineToolbar: true },
+        list: { class: List as never, inlineToolbar: true, config: { defaultStyle: 'unordered' } },
+        checklist: {
+          class: Checklist as never,
+          inlineToolbar: true,
+          // `list` already offers a Checklist; this stays registered only so
+          // existing `type: "checklist"` blocks keep loading.
+          toolbox: false,
+        },
+        quote: { class: Quote as never, inlineToolbar: true },
+        code: { class: CodeTool as never },
+        delimiter: Delimiter as never,
+        table: { class: Table as never, inlineToolbar: true },
+        image: {
+          class: ImageTool as never,
+          config: {
+            field: 'image',
+            types: 'image/*',
+            // An uploader rather than `endpoints`, so a picture can be shrunk
+            // in the browser on its way out. A phone camera file is several
+            // megabytes of detail nobody will see at article width, and every
+            // byte of it would otherwise sit in storage and go down the wire
+            // to every reader.
+            uploader: {
+              async uploadByFile(file: File) {
+                const body = new FormData()
+                body.append('image', await compressImage(file))
+                const response = await fetch('/api/upload', { method: 'POST', body })
+                return (await response.json()) as UploadResponse
+              },
+              async uploadByUrl(url: string) {
+                const response = await fetch('/api/upload', {
+                  method: 'POST',
+                  headers: { 'content-type': 'application/json' },
+                  body: JSON.stringify({ url }),
+                })
+                return (await response.json()) as UploadResponse
+              },
+            },
+          },
+        },
+        linkTool: {
+          class: LinkTool as never,
+          // Without an endpoint the tool can only report "Couldn't get this
+          // link data" — it has no way to resolve a title or preview itself.
+          config: { endpoint: '/api/link-preview' },
+        },
+        warning: {
+          class: Warning as never,
+          inlineToolbar: true,
+          config: { titlePlaceholder: 'Title', messagePlaceholder: 'Message' },
+        },
+        alert: {
+          class: Alert as never,
+          inlineToolbar: true,
+          config: { defaultType: 'primary', messagePlaceholder: 'Alert message' },
+        },
+        embed: { class: Embed as never, inlineToolbar: true },
+        // The tool above has no toolbox entry of its own — it only ever
+        // answers a pasted link — so this is the one that appears in the `+`
+        // menu, and it hands over to `embed` as soon as it has a URL.
+        embedLink: { class: EmbedPrompt as never },
+        attaches: {
+          class: Attaches as never,
+          // Its own endpoint rather than the image one: this answers with the
+          // name, size and extension the download card is built from.
+          config: {
+            endpoint: '/api/attach',
+            field: 'file',
+            buttonText: 'เลือกไฟล์ หรือลากมาวาง',
+            errorMessage: 'อัปโหลดไฟล์ไม่สำเร็จ',
+          },
+        },
+        inlineCode: InlineCode as never,
+        marker: Marker as never,
+        underline: Underline as never,
+        color: { class: TextColourTool as never },
+        highlight: { class: HighlightTool as never },
+      }
+
+      /**
+       * What a section may contain. Not everything: a toggle inside a toggle is
+       * a place to lose a paragraph in, and an attachment or an embed inside one
+       * is a card inside a card.
+       */
+      const nested = ['header', 'paragraph', 'list', 'quote', 'code', 'delimiter', 'image', 'table', 'inlineCode', 'marker', 'underline']
+      const nestedTools = Object.fromEntries(
+        nested.filter((name) => name in tools).map((name) => [name, tools[name]]),
+      )
+      tools.toggle = { class: ToggleTool as never, config: { tools: nestedTools } }
+      tools.accordion = { class: AccordionTool as never, config: { tools: nestedTools } }
+
       instance = new EditorJS({
         holder,
         placeholder,
         autofocus: false,
         data: initialData.blocks.length ? (initialData as OutputData) : undefined,
         tunes: ['alignment'],
-        tools: {
-          alignment: {
-            class: AlignmentTune as never,
-            config: {
-              default: 'left',
-              blocks: { header: 'left', paragraph: 'left', quote: 'left' },
-            },
-          },
-          header: {
-            class: Header as never,
-            inlineToolbar: true,
-            config: { levels: [2, 3, 4], defaultLevel: 2 },
-          },
-          paragraph: { class: Paragraph as never, inlineToolbar: true },
-          list: { class: List as never, inlineToolbar: true, config: { defaultStyle: 'unordered' } },
-          checklist: {
-            class: Checklist as never,
-            inlineToolbar: true,
-            // `list` already offers a Checklist; this stays registered only so
-            // existing `type: "checklist"` blocks keep loading.
-            toolbox: false,
-          },
-          quote: { class: Quote as never, inlineToolbar: true },
-          code: { class: CodeTool as never },
-          delimiter: Delimiter as never,
-          table: { class: Table as never, inlineToolbar: true },
-          image: {
-            class: ImageTool as never,
-            config: {
-              field: 'image',
-              types: 'image/*',
-              // An uploader rather than `endpoints`, so a picture can be shrunk
-              // in the browser on its way out. A phone camera file is several
-              // megabytes of detail nobody will see at article width, and every
-              // byte of it would otherwise sit in storage and go down the wire
-              // to every reader.
-              uploader: {
-                async uploadByFile(file: File) {
-                  const body = new FormData()
-                  body.append('image', await compressImage(file))
-                  const response = await fetch('/api/upload', { method: 'POST', body })
-                  return (await response.json()) as UploadResponse
-                },
-                async uploadByUrl(url: string) {
-                  const response = await fetch('/api/upload', {
-                    method: 'POST',
-                    headers: { 'content-type': 'application/json' },
-                    body: JSON.stringify({ url }),
-                  })
-                  return (await response.json()) as UploadResponse
-                },
-              },
-            },
-          },
-          linkTool: {
-            class: LinkTool as never,
-            // Without an endpoint the tool can only report "Couldn't get this
-            // link data" — it has no way to resolve a title or preview itself.
-            config: { endpoint: '/api/link-preview' },
-          },
-          warning: {
-            class: Warning as never,
-            inlineToolbar: true,
-            config: { titlePlaceholder: 'Title', messagePlaceholder: 'Message' },
-          },
-          alert: {
-            class: Alert as never,
-            inlineToolbar: true,
-            config: { defaultType: 'primary', messagePlaceholder: 'Alert message' },
-          },
-          embed: { class: Embed as never, inlineToolbar: true },
-          // The tool above has no toolbox entry of its own — it only ever
-          // answers a pasted link — so this is the one that appears in the `+`
-          // menu, and it hands over to `embed` as soon as it has a URL.
-          embedLink: { class: EmbedPrompt as never },
-          // One collapsible section, and a set of them. Both keep their content
-          // inside the block — see `sections-tool.ts` for what that fixes.
-          toggle: { class: ToggleTool as never, inlineToolbar: true },
-          accordion: { class: AccordionTool as never, inlineToolbar: true },
-          attaches: {
-            class: Attaches as never,
-            // Its own endpoint rather than the image one: this answers with the
-            // name, size and extension the download card is built from.
-            config: {
-              endpoint: '/api/attach',
-              field: 'file',
-              buttonText: 'เลือกไฟล์ หรือลากมาวาง',
-              errorMessage: 'อัปโหลดไฟล์ไม่สำเร็จ',
-            },
-          },
-          inlineCode: InlineCode as never,
-          marker: Marker as never,
-          underline: Underline as never,
-          color: { class: TextColourTool as never },
-          highlight: { class: HighlightTool as never },
-        },
+        tools: tools as never,
         /**
          * Undo, which Editor.js does not have — see `history.ts` for why it is
          * written here rather than taken off the shelf. `CMD+Z` back,

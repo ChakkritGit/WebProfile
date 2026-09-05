@@ -101,6 +101,12 @@ export function bindHistoryKeys(holder: HTMLElement, history: History) {
   const onKeyDown = (event: KeyboardEvent) => {
     if (!(event.metaKey || event.ctrlKey)) return
 
+    // A collapsible section is an editor of its own, and this stack holds
+    // snapshots of the outer document. Undoing the whole article because
+    // somebody pressed it inside a section would be a surprising way to lose
+    // work, so the keystroke is left alone in there.
+    if ((event.target as HTMLElement | null)?.closest?.('.sections-tool__body')) return
+
     const key = event.key.toLowerCase()
     const isUndo = key === 'z' && !event.shiftKey
     const isRedo = (key === 'z' && event.shiftKey) || key === 'y'

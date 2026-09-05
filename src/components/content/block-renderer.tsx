@@ -436,7 +436,12 @@ function Block({ block }: { block: AnnotatedBlock }) {
 
     case 'toggle':
     case 'accordion': {
-      const items = (data.items ?? []) as { title?: string; content?: string }[]
+      const items = (data.items ?? []) as {
+        title?: string
+        blocks?: AnnotatedBlock[]
+        /** What a section held before it could hold blocks. */
+        content?: string
+      }[]
       if (!items.length) return null
 
       // `name` makes the browser close the others when one opens — an accordion
@@ -455,10 +460,14 @@ function Block({ block }: { block: AnnotatedBlock }) {
       return (
         <div className="my-8 grid gap-2">
           {items.map((item, index) => (
-            <details key={index} name={name} className="sticker bg-surface group px-5 py-4">
+            <details key={index} name={name} className="sticker bg-surface disclosure group px-5 py-4">
               <DisclosureSummary html={String(item.title ?? '')} />
               <div className="mt-3 ps-6.5">
-                <RichText html={String(item.content ?? '')} />
+                {item.blocks?.length ? (
+                  group(item.blocks)
+                ) : (
+                  <RichText html={String(item.content ?? '')} />
+                )}
               </div>
             </details>
           ))}
@@ -537,7 +546,7 @@ function group(blocks: AnnotatedBlock[]) {
       out.push(
         <details
           key={block.id ?? i}
-          className="sticker bg-surface group my-6 px-5 py-4"
+          className="sticker bg-surface disclosure group my-6 px-5 py-4"
           open={data.status !== 'closed'}
         >
           <DisclosureSummary html={String(data.text ?? '')} />

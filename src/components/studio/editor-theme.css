@@ -802,3 +802,36 @@
   border-color: var(--brand);
   color: var(--ink);
 }
+
+/**
+ * A section's own editor.
+ *
+ * Editor.js sizes itself for a page: three hundred pixels of empty space under
+ * the last block so there is always somewhere to click, and a wide right margin
+ * for the block tunes. Inside a section both are wrong — the space is a hole in
+ * the middle of an article, and the margin pushes the text off centre.
+ */
+.studio-editor .sections-tool__body .codex-editor {
+  min-height: 0;
+}
+
+.studio-editor .sections-tool__body .codex-editor__redactor {
+  padding-bottom: 0 !important;
+}
+
+.studio-editor .sections-tool__body .ce-block__content,
+.studio-editor .sections-tool__body .ce-toolbar__content {
+  max-width: none;
+  margin: 0;
+}
+
+/* The nested toolbar sits inside a narrower column, so its plus and handle need
+   to come back inside rather than hang off the left edge of the section. */
+.studio-editor .sections-tool__body .ce-toolbar__actions {
+  right: auto;
+  left: -3.1rem;
+}
+
+.studio-editor .sections-tool__body .ce-block:first-of-type .ce-paragraph {
+  padding-top: 0;
+}
