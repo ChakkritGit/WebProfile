@@ -815,8 +815,18 @@
   min-height: 0;
 }
 
+/**
+ * Room to click, and not much more.
+ *
+ * Editor.js reserves three hundred pixels under the last block so there is
+ * always somewhere to click to carry on typing. Inside a section that is a hole
+ * in the middle of an article — but taking it away altogether left no way in
+ * either: the only route to a new paragraph was the `+` on the block above.
+ * A strip is enough for both.
+ */
 .studio-editor .sections-tool__body .codex-editor__redactor {
-  padding-bottom: 0 !important;
+  padding-bottom: 1.75rem !important;
+  cursor: text;
 }
 
 .studio-editor .sections-tool__body .ce-block__content,
