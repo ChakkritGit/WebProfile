@@ -1,17 +1,270 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 /**
- * Nothing.
+ * The site of 1998.
  *
- * This branch is the site with its stylesheet taken away: the markup, the
- * headings, the lists and the links exactly as they are written, drawn by the
- * browser's own defaults the way every page did before anybody shipped a
- * stylesheet. Times for the text, blue and underlined for the links, a bullet
- * for a list item.
+ * Tailwind stays, and that is the whole trick: every layout class the markup
+ * carries keeps working, so the arrangement is identical to the real site by
+ * construction — same columns, same rows, same widths, same order. Nothing had
+ * to be re-laid out to look old.
  *
- * Tailwind's import is gone from here, which takes Preflight with it — and
- * Preflight is the reset that removes the margins, the bullets and the
- * underlines. Without it the browser puts them all back, which is the point.
- *
- * The `className` attributes are left on every element on purpose. They name
- * nothing now, but they are what makes this branch a stylesheet away from the
- * real site rather than a rewrite of it.
+ * What changes is only what a page could *not* do then. Times instead of a
+ * webfont. Blue underlined links. Beveled panels instead of rounded cards.
+ * Square corners, no shadows, no gradients, no animation. The silver of a
+ * dialog box, because that is what a raised surface looked like when a raised
+ * surface was a novelty.
  */
+:root {
+  /* System grey, from the days when an interface was one. */
+  --paper: #ffffff;
+  --paper-alt: #f4f4f4;
+  --surface: #f0f0f0;
+  --surface-2: #e4e4e4;
+  --ink: #000000;
+  --ink-soft: #1a1a1a;
+  --muted: #444444;
+  --line: #808080;
+  --line-soft: #c0c0c0;
+  --shadow: transparent;
+  --shadow-strength: 0;
+
+  /* Link blue and visited purple, the two colours everyone knew by heart. */
+  --brand: #0000ee;
+  --brand-ink: #ffffff;
+  --brand-soft: #d4d0c8;
+
+  --mint: #008080;
+  --mint-soft: #d4d0c8;
+  --sun: #808000;
+  --sun-soft: #d4d0c8;
+  --violet: #551a8b;
+  --violet-soft: #d4d0c8;
+  --sky: #000080;
+  --sky-soft: #d4d0c8;
+
+  --ring: #000000;
+  --selection: #000080;
+  --selection-ink: #ffffff;
+  --grid-line: #e4e4e4;
+  --star: #000000;
+
+  --radius-sticker: 0;
+  --header-h: 4.5rem;
+
+  /* The face of the raised box and the face of the sunken one. */
+  --bevel: #d4d0c8;
+}
+
+/**
+ * The other way a page was set then: white on black, cyan links, yellow once
+ * they had been followed. Reached through the same toggle the real site uses.
+ */
+:root.dark {
+  --paper: #000000;
+  --paper-alt: #0a0a0a;
+  --surface: #101010;
+  --surface-2: #1a1a1a;
+  --ink: #ffffff;
+  --ink-soft: #e0e0e0;
+  --muted: #a0a0a0;
+  --line: #808080;
+  --line-soft: #404040;
+  --shadow: transparent;
+  --shadow-strength: 0;
+
+  --brand: #00ffff;
+  --brand-ink: #000000;
+  --brand-soft: #202020;
+
+  --mint: #00ff00;
+  --mint-soft: #202020;
+  --sun: #ffff00;
+  --sun-soft: #202020;
+  --violet: #ff00ff;
+  --violet-soft: #202020;
+  --sky: #00ffff;
+  --sky-soft: #202020;
+
+  --ring: #ffffff;
+  --selection: #00ffff;
+  --selection-ink: #000000;
+  --grid-line: #202020;
+  --star: #ffffff;
+
+  --radius-sticker: 0;
+  --header-h: 4.5rem;
+  --bevel: #404040;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-alt: var(--paper-alt);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-mint: var(--mint);
+  --color-mint-soft: var(--mint-soft);
+  --color-sun: var(--sun);
+  --color-sun-soft: var(--sun-soft);
+  --color-violet: var(--violet);
+  --color-violet-soft: var(--violet-soft);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
+
+  /* One family for everything. There was no second one to switch to. */
+  --font-display: 'Times New Roman', Times, serif;
+  --font-sans: 'Times New Roman', Times, serif;
+  --font-mono: 'Courier New', Courier, monospace;
+  --font-plain: 'Times New Roman', Times, serif;
+
+  --radius-sticker: 0;
+}
+
+@layer base {
+  html {
+    scroll-behavior: auto;
+    scroll-padding-top: calc(var(--header-h) + 1.5rem);
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+  }
+
+  /* Preflight flattens headings to the body size, which is a modern habit.
+     A document had a visible outline, and these are the sizes it had. */
+  h1 { font-size: 2em; font-weight: bold; }
+  h2 { font-size: 1.5em; font-weight: bold; }
+  h3 { font-size: 1.17em; font-weight: bold; }
+  h4 { font-size: 1em; font-weight: bold; }
+  h5 { font-size: 0.83em; font-weight: bold; }
+  h6 { font-size: 0.67em; font-weight: bold; }
+
+  ::selection {
+    background-color: var(--selection);
+    color: var(--selection-ink);
+  }
+
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  summary,
+  label[for],
+  select:not(:disabled) {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 1px dotted var(--ring);
+    outline-offset: 1px;
+  }
+
+  /**
+   * Blue, purple once followed, red while held — the three states everybody
+   * knew without being told.
+   *
+   * In `base` rather than unlayered, and that distinction is load-bearing: the
+   * primary button is an `<a>` carrying `bg-brand text-brand-ink`, and an
+   * unlayered rule here beat the utility that gives it its white label. The
+   * result was blue text on a blue button, which is to say a solid blue block.
+   * From `base`, a component that states its own colour still wins.
+   */
+  a {
+    color: var(--brand);
+    text-decoration: underline;
+  }
+  a:visited {
+    color: var(--violet);
+  }
+  a:active {
+    color: #ff0000;
+  }
+}
+
+/**
+ * The two shapes an interface was made of.
+ *
+ * `outset` for anything raised and `inset` for anything you type into. Both are
+ * borders the browser draws itself from a single colour — the whole reason
+ * every program looked like this is that it cost nothing.
+ */
+@layer components {
+  .sticker,
+  .sticker-sm,
+  .sticker-lg {
+    border: 2px outset var(--bevel);
+    background-color: var(--surface);
+  }
+
+  .sticker-hover:active {
+    border-style: inset;
+  }
+
+  .drawn-rule {
+    border-top: 1px solid var(--line);
+  }
+
+  .drawn-rule-top {
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Textures, gone. There is nothing here to grain. */
+  .paper-grain,
+  .star-grid,
+  .underline-doodle {
+    background-image: none;
+  }
+}
+
+/**
+ * Unlayered, and last, so it beats every utility in the markup.
+ *
+ * This is the part that makes the page look its age. The layout classes are
+ * left alone — this reaches only for the things that had not been invented:
+ * rounded corners, drop shadows, gradients, transitions, and a link that does
+ * not announce itself with an underline.
+ */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  transition: none !important;
+  animation: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+}
+
+button,
+input[type='submit'],
+input[type='button'] {
+  background-color: var(--bevel);
+  color: var(--ink);
+  border: 2px outset var(--bevel);
+}
+button:active,
+input[type='submit']:active {
+  border-style: inset;
+}
+
+input[type='text'],
+input[type='search'],
+input[type='email'],
+input[type='url'],
+textarea,
+select {
+  background-color: var(--paper);
+  color: var(--ink);
+  border: 2px inset var(--bevel);
+}
