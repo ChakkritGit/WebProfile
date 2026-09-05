@@ -15,6 +15,7 @@ import Table from '@editorjs/table'
 import ImageTool from '@editorjs/image'
 import LinkTool from '@editorjs/link'
 import Embed from '@editorjs/embed'
+import { EmbedPrompt } from './embed-tool'
 import Warning from '@editorjs/warning'
 import Alert from 'editorjs-alert'
 import AlignmentTune from 'editorjs-text-alignment-blocktune'
@@ -149,6 +150,10 @@ export default function EditorCore({ initialData, onChange, placeholder }: Edito
             config: { defaultType: 'primary', messagePlaceholder: 'Alert message' },
           },
           embed: { class: Embed as never, inlineToolbar: true },
+          // The tool above has no toolbox entry of its own — it only ever
+          // answers a pasted link — so this is the one that appears in the `+`
+          // menu, and it hands over to `embed` as soon as it has a URL.
+          embedLink: { class: EmbedPrompt as never },
           inlineCode: InlineCode as never,
           marker: Marker as never,
           underline: Underline as never,

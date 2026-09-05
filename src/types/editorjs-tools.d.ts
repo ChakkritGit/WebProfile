@@ -20,7 +20,24 @@ declare module '@editorjs/link' {
 }
 
 declare module '@editorjs/embed' {
-  const Embed: new (...args: unknown[]) => unknown
+  /**
+   * One entry of the service table the tool assembles in `prepare` — the same
+   * shape the package documents for `config.services`. Declared here because
+   * `embed-tool.ts` reads the table to turn a pasted URL into embed data rather
+   * than keeping a second copy of seventeen services' URL patterns.
+   */
+  export interface EmbedServiceConfig {
+    regex: RegExp
+    embedUrl: string
+    html: string
+    height?: number
+    width?: number
+    id?: (groups: string[]) => string
+  }
+  const Embed: {
+    new (...args: unknown[]): unknown
+    services: Record<string, EmbedServiceConfig>
+  }
   export default Embed
 }
 

@@ -598,7 +598,7 @@
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 600;
-  padding: 14px 34px 14px 18px;
+  padding: 14px 42px 14px 18px;
   /* Editor.js fixes the panel at 220px, which broke a one-line message across
      two. The app's toasts size to their text between the same two bounds. */
   width: auto;
@@ -606,17 +606,14 @@
   max-width: 24rem;
 }
 
-/* The fill is what tells the two apart in the app's toasts; it does the same
-   here, and the stripe Editor.js draws down the left edge picks up the ink that
-   the app puts in its icon. */
+/* The fill is what tells the two apart in the app's toasts, and it is enough
+   here too. Editor.js also draws a stripe down the left edge; inside a drawn
+   frame it read as a second border rather than as a signal, so it goes. */
 .cdx-notifies .cdx-notify--error {
   background: var(--toast-error) !important;
 }
-.cdx-notifies .cdx-notify--error::before {
-  background: var(--toast-error-ink) !important;
-}
-.cdx-notifies .cdx-notify--success::before {
-  background: var(--mint) !important;
+.cdx-notifies .cdx-notify::before {
+  content: none;
 }
 
 /* The cross is two bars in a fixed slate grey, which vanishes on a dark panel
@@ -626,7 +623,9 @@
      it above the text and half inside the drawn border. The app puts its close
      button on the middle of the right edge, so this one goes there too. */
   top: 50%;
-  right: 9px;
+  /* Far enough in to sit off the drawn border: its centre lands 24px from the
+     panel edge, where the app's close button sits. */
+  right: 14px;
   transform: translateY(-50%);
   border-radius: 8px;
   opacity: 1;
@@ -651,5 +650,36 @@
   color: var(--ink);
 }
 .cdx-notifies .cdx-notify__input::placeholder {
+  color: var(--muted);
+}
+
+/**
+ * The embed prompt.
+ *
+ * One field, dressed as the editor's own text rather than as a form: it is a
+ * question the block asks once and then stops existing, so it should not arrive
+ * looking like a permanent control.
+ */
+.studio-editor .embed-prompt {
+  padding: 0.4rem 0;
+}
+
+.studio-editor .embed-prompt__input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 2px dashed var(--line-soft);
+  border-radius: 0.75rem;
+  background: var(--surface-2);
+  color: var(--ink);
+  font: inherit;
+  outline: none;
+}
+
+.studio-editor .embed-prompt__input:focus {
+  border-style: solid;
+  border-color: var(--brand);
+}
+
+.studio-editor .embed-prompt__input::placeholder {
   color: var(--muted);
 }
