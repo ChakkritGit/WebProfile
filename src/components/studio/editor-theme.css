@@ -114,6 +114,26 @@
 }
 
 /**
+ * The selection you actually see while writing.
+ *
+ * Editor.js ships `.codex-editor ::selection { background-color: #d4ecff }` as a
+ * hard-coded literal inside its own bundle — not through the
+ * `--inlineSelectionColor` variable it also defines, so re-pointing that
+ * variable does nothing. Its one class beats a bare `::selection` in the site's
+ * base layer, so the editor kept its pale blue while the page's `color` for
+ * selected text still applied: on the retro theme that meant white letters on a
+ * light blue band, which is a contrast of about 1.4:1.
+ *
+ * Two classes here rather than one, so this outranks it on specificity alone and
+ * does not depend on which stylesheet the browser inserted last.
+ */
+.studio-editor .codex-editor ::selection,
+.studio-editor .codex-editor ::-moz-selection {
+  background-color: var(--selection);
+  color: var(--selection-ink);
+}
+
+/**
  * Editor.js's own selection colour.
  *
  * When the inline toolbar opens, Editor.js does not rely on the browser's
