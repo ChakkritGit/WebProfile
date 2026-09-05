@@ -622,15 +622,27 @@
 /* The cross is two bars in a fixed slate grey, which vanishes on a dark panel
    for the same reason the message did. */
 .cdx-notifies .cdx-notify__cross {
+  /* Editor.js pins it to the top right corner, which on a one-line panel leaves
+     it above the text and half inside the drawn border. The app puts its close
+     button on the middle of the right edge, so this one goes there too. */
+  top: 50%;
+  right: 9px;
+  transform: translateY(-50%);
+  border-radius: 8px;
   opacity: 1;
   color: var(--muted);
 }
 .cdx-notifies .cdx-notify__cross:hover {
   color: var(--ink);
+  background: var(--surface-2);
 }
 .cdx-notifies .cdx-notify__cross::before,
 .cdx-notifies .cdx-notify__cross::after {
   background: currentColor;
+  /* The two bars are 12px in a 20px box, offset 5px from the top — one pixel
+     low, which is visible once the whole control is centred against a line of
+     text rather than parked in a corner. */
+  top: 4px;
 }
 
 /* Prompt-style notifications carry an input with pale defaults of its own. */
