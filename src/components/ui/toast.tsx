@@ -75,13 +75,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               transition={{ type: 'spring', stiffness: 460, damping: 34 }}
               className={cn(
                 'sticker pointer-events-auto flex w-full max-w-sm items-center gap-3 p-3 pe-2.5 sm:w-auto sm:min-w-[16rem]',
-                toast.tone === 'error' ? 'bg-[#ffe9e8]' : 'bg-surface',
+                toast.tone === 'error' ? 'bg-toast-error' : 'bg-surface',
               )}
             >
               <span
                 className={cn(
                   'border-line grid size-8 shrink-0 place-items-center rounded-xl border-2',
-                  toast.tone === 'error' ? 'bg-[#ffd0cd] text-[#a1231d]' : 'bg-mint-soft text-ink',
+                  toast.tone === 'error'
+                    ? 'bg-toast-error-chip text-toast-error-ink'
+                    : 'bg-mint-soft text-ink',
                 )}
               >
                 {toast.tone === 'error' ? (

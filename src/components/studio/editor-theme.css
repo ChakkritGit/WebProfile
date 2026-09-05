@@ -560,31 +560,60 @@
 .studio-editor .ce-block__content { isolation: isolate; }
 
 /**
- * The toast.
+ * The toast, wearing the site's own.
  *
- * Editor.js paints the panel a near-white `#fffbfb` and never sets a text
- * colour, so the message inherits the page's ink — which in the dark theme is
- * cream. Cream on near-white measured 1.1:1: the words were there the whole
- * time, just not visible. Its backgrounds are `!important`, so these have to be
- * too; two classes beat its one, so the cascade needs nothing else.
+ * Editor.js paints the panel a near-white `#fffbfb` and sets no text colour, so
+ * the message inherited the page's ink — cream, in the dark theme. Measured off
+ * the reported screenshot: 1.1:1. The words were there the whole time.
  *
- * The notifier is appended to `<body>`, not into the editor, so none of this can
- * be scoped under `.studio-editor`. Unscoped is safe here: this stylesheet only
- * loads with the editor, and nothing else on the site uses these class names.
+ * Rather than repair the colours in isolation, it takes the frame and the fill
+ * the site's own toasts use, so a message from the editor and a message from the
+ * app are the same object. The drawn border is the `sticker` treatment copied
+ * out of `globals.css` — a Tailwind `@utility` cannot be applied to markup this
+ * stylesheet does not own, so the declarations are repeated here rather than
+ * shared. Values track the same variables, so a change to the frame or the
+ * palette reaches both.
+ *
+ * Editor.js marks its backgrounds `!important`, so these are too; two classes
+ * beat its one, and the cascade needs nothing further.
+ *
+ * None of it can be scoped under `.studio-editor`: the notifier is appended to
+ * `<body>` and never enters the editor. Unscoped is safe — this stylesheet only
+ * loads with the editor, and nothing else on the site uses these names.
  */
 .cdx-notifies .cdx-notify,
 .cdx-notifies .cdx-notify--error,
 .cdx-notifies .cdx-notify--success {
   background: var(--surface) !important;
+  background-clip: padding-box;
   color: var(--ink);
-  border: 1px solid var(--line-soft);
-  box-shadow: 0 12px 28px rgb(0 0 0 / 0.2);
+  border: 3px solid transparent;
+  border-image-source: var(--sketch-frame);
+  border-image-slice: 28;
+  border-image-width: 18px;
+  border-image-outset: 2px;
+  border-image-repeat: stretch;
+  border-radius: 16px;
+  box-shadow: 6px 6px 0 0 var(--shadow);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 14px 34px 14px 18px;
+  /* Editor.js fixes the panel at 220px, which broke a one-line message across
+     two. The app's toasts size to their text between the same two bounds. */
+  width: auto;
+  min-width: 16rem;
+  max-width: 24rem;
 }
 
-/* The stripe down the left edge is the only thing that says which kind of
-   message this is, so it goes on saying it in the theme's own colours. */
+/* The fill is what tells the two apart in the app's toasts; it does the same
+   here, and the stripe Editor.js draws down the left edge picks up the ink that
+   the app puts in its icon. */
+.cdx-notifies .cdx-notify--error {
+  background: var(--toast-error) !important;
+}
 .cdx-notifies .cdx-notify--error::before {
-  background: var(--brand) !important;
+  background: var(--toast-error-ink) !important;
 }
 .cdx-notifies .cdx-notify--success::before {
   background: var(--mint) !important;
@@ -592,6 +621,13 @@
 
 /* The cross is two bars in a fixed slate grey, which vanishes on a dark panel
    for the same reason the message did. */
+.cdx-notifies .cdx-notify__cross {
+  opacity: 1;
+  color: var(--muted);
+}
+.cdx-notifies .cdx-notify__cross:hover {
+  color: var(--ink);
+}
 .cdx-notifies .cdx-notify__cross::before,
 .cdx-notifies .cdx-notify__cross::after {
   background: currentColor;

@@ -33,6 +33,12 @@
   --sky-soft: #ddeeff;
 
   --ring: #ff5a5f;
+  /* The error toast. It was three literals inside the component, which meant it
+     had one theme: cream ink on a pale pink panel is 1.03:1, so in the dark the
+     message was there and unreadable. Tokens, so the dark theme can answer. */
+  --toast-error: #ffe9e8;
+  --toast-error-chip: #ffd0cd;
+  --toast-error-ink: #a1231d;
   --selection: #ffd0cd;
   --selection-ink: #241f2e;
   --grid-line: rgb(36 31 46 / 0.07);
@@ -69,6 +75,12 @@
   --sky-soft: #223b55;
 
   --ring: #ff7a7e;
+  /* A dark panel with a red cast rather than the light one inverted: the toast
+     sits on a dark page and a pale pink rectangle on it reads as a hole. Same
+     family as `--brand-soft`, one shade down. */
+  --toast-error: #3a2229;
+  --toast-error-chip: #5a2f38;
+  --toast-error-ink: #ffb3b6;
   /* Bright, with dark ink on it — the same relationship the light theme has,
      not its mirror image. A dark selection on a dark page is barely a selection:
      the old #6d3746 sat within a few points of the surface it was drawn on, so
@@ -94,6 +106,9 @@
   --color-brand: var(--brand);
   --color-brand-ink: var(--brand-ink);
   --color-brand-soft: var(--brand-soft);
+  --color-toast-error: var(--toast-error);
+  --color-toast-error-chip: var(--toast-error-chip);
+  --color-toast-error-ink: var(--toast-error-ink);
   --color-mint: var(--mint);
   --color-mint-soft: var(--mint-soft);
   --color-sun: var(--sun);
