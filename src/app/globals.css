@@ -7,86 +7,94 @@
  * offset shadows (sticker look) and a small set of candy accents.
  * ------------------------------------------------------------------ */
 :root {
-  /* Neutral, not cream. The old paper was warm on purpose — it was the page the
-     cartoon was drawn on. Minimal has no drawing to support, and a tinted ground
-     under grey type reads as a decision nobody made. */
-  --paper: #fcfcfb;
-  --paper-alt: #f6f6f4;
+  /**
+   * Warm graphite and brick.
+   *
+   * The neutrals carry a slight warm bias rather than being true grey — a pure
+   * mid-grey is what you get when nobody chose, and it goes cold under a photo.
+   * These sit a few points toward yellow, which is enough to read as a decision
+   * and not enough to read as cream.
+   *
+   * The accent is the old coral, taken down and deepened into brick. It is the
+   * one thread kept from the drawn language: still recognisably this site's red,
+   * no longer a highlighter. Everything else — the four category colours — stops
+   * being a fill and becomes ink, in the same warm family, so a page with all
+   * five on it still looks like one page.
+   */
+  --paper: #faf9f7;
+  --paper-alt: #f3f2ef;
   --surface: #ffffff;
-  --surface-2: #f7f7f5;
-  --ink: #191a1c;
-  --ink-soft: #3d3f44;
-  --muted: #74767c;
-  /* `--line` was near-black, because a drawn outline is ink. Here it is a
-     hairline, and every border in the app follows it without being touched. */
-  --line: #e3e3e0;
-  --line-soft: rgb(25 26 28 / 0.09);
-  /* The hard offset shadow is the single loudest thing in the old language, and
-     nine components set one inline as `shadow-[6px_6px_0_0_var(--shadow)]`.
-     Making the colour transparent switches all nine off without editing them. */
+  --surface-2: #f5f4f1;
+  --ink: #1b1a19;
+  --ink-soft: #3e3c39;
+  /* Dark enough to clear 4.5:1 on the panel colour, not just on the page —
+     secondary text sits on `--surface-2` as often as on `--paper`, and the
+     lighter value that passed on one failed on the other. */
+  --muted: #6e6b65;
+  --line: #e3e1dc;
+  --line-soft: rgb(27 26 25 / 0.09);
+  /* Nine components set a hard offset shadow inline as
+     `shadow-[6px_6px_0_0_var(--shadow)]`. Making the colour transparent turns
+     all nine off without editing any of them. */
   --shadow: transparent;
   --shadow-strength: 0;
 
-  /* The brand red stays — it is the one colour anyone would recognise — but it
-     stops being a fill and becomes a mark: links, the current item, one button. */
-  --brand: #e04347;
+  --brand: #a3352f;
   --brand-ink: #ffffff;
-  --brand-soft: #f4f4f2;
+  --brand-soft: #f3f1ed;
 
-  /* The candy accents survive at a fraction of their old saturation, and only as
-     ink — the `-soft` washes they used to fill cards with are now one neutral.
-     In the old language a card said what it was by being pink; here it says so
-     with its label, which was always the more reliable of the two. */
-  --mint: #2e8f83;
-  --mint-soft: #f4f4f2;
-  --sun: #9a6b12;
-  --sun-soft: #f4f4f2;
-  --violet: #6a5acd;
-  --violet-soft: #f4f4f2;
-  --sky: #2f7fc4;
-  --sky-soft: #f4f4f2;
+  --mint: #2f6b5e;
+  --mint-soft: #f3f1ed;
+  --sun: #8a6a18;
+  --sun-soft: #f3f1ed;
+  --violet: #5b4e93;
+  --violet-soft: #f3f1ed;
+  --sky: #2c5f8a;
+  --sky-soft: #f3f1ed;
 
-  --ring: #191a1c;
-  --selection: #ffd9d8;
-  --selection-ink: #191a1c;
-  --grid-line: rgb(25 26 28 / 0.05);
-  --star: #191a1c;
+  --ring: #1b1a19;
+  --selection: #f0d7d4;
+  --selection-ink: #1b1a19;
+  --grid-line: rgb(27 26 25 / 0.05);
+  --star: #1b1a19;
 
   /* Rounding is the other tell. 20px on everything is a cartoon; 4px is a
-     document. One value, used everywhere, so nothing looks hand-placed. */
+     document. One value everywhere, so nothing looks hand-placed. */
   --radius-sticker: 0.25rem;
   --header-h: 4rem;
 }
 
 :root.dark {
-  --paper: #101113;
-  --paper-alt: #141518;
-  --surface: #17181b;
-  --surface-2: #1d1e22;
-  --ink: #e9eaec;
-  --ink-soft: #c2c4c9;
-  --muted: #92959d;
-  --line: #2a2b30;
+  /* A warm near-black, not a blue one. The light theme leans warm, and a dark
+     theme that leans the other way reads as a different site after sunset. */
+  --paper: #131211;
+  --paper-alt: #171615;
+  --surface: #1a1918;
+  --surface-2: #201f1d;
+  --ink: #edeae5;
+  --ink-soft: #c6c2bb;
+  --muted: #8f8b84;
+  --line: #2c2a28;
   --line-soft: rgb(255 255 255 / 0.10);
   --shadow: transparent;
   --shadow-strength: 0;
 
-  --brand: #ff7a7e;
-  --brand-ink: #17181b;
-  --brand-soft: #212227;
+  --brand: #e8756d;
+  --brand-ink: #1a1918;
+  --brand-soft: #232120;
 
-  --mint: #57c9bb;
-  --mint-soft: #212227;
-  --sun: #d9a94e;
-  --sun-soft: #212227;
-  --violet: #9d92ee;
-  --violet-soft: #212227;
-  --sky: #6bb0e8;
-  --sky-soft: #212227;
+  --mint: #6fbfae;
+  --mint-soft: #232120;
+  --sun: #d3a851;
+  --sun-soft: #232120;
+  --violet: #9b90d8;
+  --violet-soft: #232120;
+  --sky: #74aad6;
+  --sky-soft: #232120;
 
-  --ring: #e9eaec;
-  --selection: #ff8fa5;
-  --selection-ink: #191a1c;
+  --ring: #edeae5;
+  --selection: #e8756d;
+  --selection-ink: #1a1918;
   --grid-line: rgb(255 255 255 / 0.05);
   --star: #ffffff;
 
