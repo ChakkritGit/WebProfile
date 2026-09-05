@@ -85,14 +85,15 @@ export function SiteHeader() {
                     href={item.href}
                     aria-current={isActive(item.href) ? 'page' : undefined}
                     className={cn(
-                      /* The page you are on is marked on the link itself. The pill
-                         that used to slide between them was a measured box moved by
-                         an animation this branch does not run, so it collapsed to a
-                         four-pixel speck in the corner of the list. A bar under the
-                         word is what a navigation bar of this vintage did anyway. */
+                      /* The page you are on is marked by weight and ink, with no
+                         mark under it. The pill that used to slide between these
+                         was a measured box moved by an animation this branch does
+                         not run, so it collapsed to a four-pixel speck in the
+                         corner of the list; the rule that replaced it was one
+                         decoration too many under a bar that already has one. */
                       'font-display relative px-3.5 py-2 text-sm',
                       isActive(item.href)
-                        ? 'text-ink border-b-2 border-current font-bold'
+                        ? 'text-ink font-bold'
                         : 'text-muted hover:text-ink font-semibold',
                     )}
                   >
