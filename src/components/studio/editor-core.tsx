@@ -16,8 +16,7 @@ import ImageTool from '@editorjs/image'
 import LinkTool from '@editorjs/link'
 import Attaches from '@editorjs/attaches'
 import Embed from '@editorjs/embed'
-import ToggleBlock from 'editorjs-toggle-block'
-import { AccordionTool } from './accordion-tool'
+import { AccordionTool, ToggleTool } from './sections-tool'
 import { EmbedPrompt } from './embed-tool'
 import { History, bindHistoryKeys } from './history'
 import Warning from '@editorjs/warning'
@@ -160,10 +159,9 @@ export default function EditorCore({ initialData, onChange, placeholder }: Edito
           // answers a pasted link — so this is the one that appears in the `+`
           // menu, and it hands over to `embed` as soon as it has a URL.
           embedLink: { class: EmbedPrompt as never },
-          // One collapsible section that owns the blocks after it.
-          toggle: { class: ToggleBlock as never, inlineToolbar: true },
-          // A set of them that belongs together, kept inside one block so the
-          // group can be moved and copied in one piece.
+          // One collapsible section, and a set of them. Both keep their content
+          // inside the block — see `sections-tool.ts` for what that fixes.
+          toggle: { class: ToggleTool as never, inlineToolbar: true },
           accordion: { class: AccordionTool as never, inlineToolbar: true },
           attaches: {
             class: Attaches as never,

@@ -685,52 +685,89 @@
 }
 
 /**
- * The accordion tool.
+ * The collapsible sections tool — one section is a toggle, several an accordion.
  *
- * Each section is a framed row with its title above its body, which is close
- * enough to how the published group reads that nothing has to be imagined while
- * writing. The placeholders are `::before` on empty contenteditables, the same
+ * Each section is a framed row with its title above its body, close enough to
+ * how the published group reads that nothing has to be imagined while writing.
+ * The caret only folds a section away in the editor and is never used to hide
+ * one: a collapsed section here would be a piece of the article the author
+ * cannot find. Placeholders are `::before` on empty contenteditables, the same
  * trick Editor.js uses for its own.
  */
-.studio-editor .accordion-tool {
+.studio-editor .sections-tool {
   display: grid;
   gap: 0.5rem;
   padding: 0.35rem 0;
 }
 
-.studio-editor .accordion-tool__item {
+.studio-editor .sections-tool__item {
   border: 2px solid var(--line-soft);
   border-radius: 0.75rem;
   padding: 0.75rem 0.9rem;
   background: var(--surface);
 }
 
-.studio-editor .accordion-tool__head {
+.studio-editor .sections-tool__head {
   display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.4rem;
 }
 
-.studio-editor .accordion-tool__title {
+.studio-editor .sections-tool__toggle {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.studio-editor .sections-tool__toggle:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+/* Down when the section is open, right when it is folded. On the icon rather
+   than the button, so the hover background does not turn with it. */
+.studio-editor .sections-tool__caret {
+  transition: rotate 0.18s ease;
+  rotate: 90deg;
+}
+
+.studio-editor .sections-tool__item--closed .sections-tool__caret {
+  rotate: 0deg;
+}
+
+.studio-editor .sections-tool__item--closed .sections-tool__body {
+  display: none;
+}
+
+.studio-editor .sections-tool__title {
   flex: 1;
   min-width: 0;
   font-weight: 700;
   outline: none;
 }
 
-.studio-editor .accordion-tool__body {
-  margin-top: 0.4rem;
+.studio-editor .sections-tool__body {
+  /* Indented to the title, not to the caret. */
+  margin: 0.4rem 0 0 1.9rem;
   outline: none;
 }
 
-.studio-editor .accordion-tool__title:empty::before,
-.studio-editor .accordion-tool__body:empty::before {
+.studio-editor .sections-tool__title:empty::before,
+.studio-editor .sections-tool__body:empty::before {
   content: attr(data-placeholder);
   color: var(--muted);
   cursor: text;
 }
 
-.studio-editor .accordion-tool__remove {
+.studio-editor .sections-tool__remove {
   flex-shrink: 0;
   width: 1.6rem;
   height: 1.6rem;
@@ -743,12 +780,12 @@
   cursor: pointer;
 }
 
-.studio-editor .accordion-tool__remove:hover {
+.studio-editor .sections-tool__remove:hover {
   background: var(--surface-2);
   color: var(--ink);
 }
 
-.studio-editor .accordion-tool__add {
+.studio-editor .sections-tool__add {
   justify-self: start;
   border: 2px dashed var(--line-soft);
   border-radius: 0.6rem;
@@ -760,25 +797,8 @@
   cursor: pointer;
 }
 
-.studio-editor .accordion-tool__add:hover {
+.studio-editor .sections-tool__add:hover {
   border-style: solid;
   border-color: var(--brand);
   color: var(--ink);
-}
-
-/**
- * The toggle tool ships its own light-only chrome: a fixed grey caret and an
- * input whose placeholder is a pale grey chosen against white.
- */
-.studio-editor .toggle-block__item,
-.studio-editor .toggle-block__input {
-  color: var(--ink);
-}
-
-.studio-editor .toggle-block__icon svg {
-  fill: var(--muted);
-}
-
-.studio-editor .toggle-block__input:empty::before {
-  color: var(--muted);
 }

@@ -434,6 +434,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
       )
     }
 
+    case 'toggle':
     case 'accordion': {
       const items = (data.items ?? []) as { title?: string; content?: string }[]
       if (!items.length) return null
@@ -443,7 +444,13 @@ function Block({ block }: { block: AnnotatedBlock }) {
       // has to be the same string on the server and in the browser, and unique
       // among any other groups on the page, so it comes from the block rather
       // than from a random number.
-      const name = `accordion-${block.id ?? stableKey(items.map((item) => item.title ?? '').join('\u0000'))}`
+      // A shared `name` is what makes a browser close the others when one
+      // opens. Only the accordion wants that; a toggle is on its own, and
+      // grouping it with anything would close a section somebody else opened.
+      const name =
+        block.type === 'accordion'
+          ? `accordion-${block.id ?? stableKey(items.map((item) => item.title ?? '').join('\u0000'))}`
+          : undefined
 
       return (
         <div className="my-8 grid gap-2">
@@ -518,7 +525,10 @@ function group(blocks: AnnotatedBlock[]) {
   for (let i = 0; i < blocks.length; i += 1) {
     const block = blocks[i]
 
-    if (block.type === 'toggle') {
+    // The old toggle plugin's shape, where `items` is a count of the blocks
+    // after it rather than the sections inside it. Kept so anything written
+    // before the tool was replaced still renders.
+    if (block.type === 'toggle' && typeof block.data.items === 'number') {
       const data = block.data as { text?: string; status?: string; items?: number }
       const count = Math.max(0, Math.min(Number(data.items ?? 0), blocks.length - i - 1))
       const children = blocks.slice(i + 1, i + 1 + count)
