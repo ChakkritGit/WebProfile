@@ -2,7 +2,7 @@
 
 import { useId, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
-import { motion } from 'motion/react'
+import { motion } from '@/lib/motion-shim'
 import { MorphingDialog } from '@/components/ui/morphing-dialog'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { DownloadIcon, ExternalLinkIcon } from '@/components/icons'

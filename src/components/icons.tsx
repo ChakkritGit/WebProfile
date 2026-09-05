@@ -85,6 +85,8 @@ function Stroke({ children, ...props }: IconProps) {
   return (
     <svg
       viewBox="0 0 24 24"
+      width="20"
+      height="20"
       fill="none"
       stroke="currentColor"
       strokeWidth={2.2}
@@ -100,7 +102,7 @@ function Stroke({ children, ...props }: IconProps) {
 
 function Solid({ children, ...props }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" {...props}>
       {children}
     </svg>
   )

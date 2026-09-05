@@ -1,163 +1,41 @@
-import { cn } from '@/lib/utils'
-
 /**
- * Purely decorative shapes. All are aria-hidden and pointer-events-none so they
- * never interfere with reading order or hit targets.
+ * The ornaments, all of them, drawing nothing.
+ *
+ * Every one of these was pure decoration: a blob behind a heading, a scribble
+ * round the name, sparkles beside a photograph, a squiggle over a card, a wave
+ * above the footer, a starfield across the hero. A document with no stylesheet
+ * has none of that, and several of them were built out of inline positioning —
+ * the one thing a missing stylesheet cannot take away, so it is taken away here.
+ *
+ * The functions stay, with their signatures, so nothing that calls them has to
+ * change. The difference between this branch and the real site is meant to be a
+ * stylesheet, not a rewrite. Each still declares the props it used to take, so
+ * a call site that passes a colour or a delay still type-checks.
  */
 
-export function Blob({
-  className,
-  color = 'var(--brand)',
-  delay = 0,
-}: {
-  className?: string
-  color?: string
-  delay?: number
-}) {
-  return (
-    <div
-      aria-hidden
-      className={cn('animate-blob pointer-events-none absolute rounded-full blur-3xl', className)}
-      style={{ background: color, animationDelay: `${delay}s` }}
-    />
-  )
+/* eslint-disable @typescript-eslint/no-unused-vars -- the props are the contract;
+   nothing draws them any more. */
+
+export function Blob(_props: { className?: string; color?: string; delay?: number }) {
+  return null
 }
 
-export function Squiggle({ className, color = 'var(--brand)' }: { className?: string; color?: string }) {
-  return (
-    <svg
-      aria-hidden
-      viewBox="-4 -4 128 28"
-      fill="none"
-      className={cn('pointer-events-none', className)}
-      preserveAspectRatio="none"
-    >
-      <path
-        d="M2 14C12 4 22 4 32 14s20 10 30 0 20-10 30 0 20 10 26 4"
-        stroke={color}
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
+export function Squiggle(_props: { className?: string; color?: string }) {
+  return null
 }
 
-export function StarBurst({ className, color = 'var(--sun)' }: { className?: string; color?: string }) {
-  return (
-    <svg aria-hidden viewBox="0 0 40 40" className={cn('pointer-events-none', className)}>
-      <path
-        d="M20 2c1.2 9.6 8.2 16.6 17.8 17.8C28.2 21 21.2 28 20 37.6 18.8 28 11.8 21 2.2 19.8 11.8 18.6 18.8 11.6 20 2Z"
-        fill={color}
-      />
-    </svg>
-  )
+export function StarBurst(_props: { className?: string; color?: string }) {
+  return null
 }
 
-/** Hand-drawn-ish circle used to ring a word or an avatar. */
-export function CircleScribble({ className, color = 'var(--brand)' }: { className?: string; color?: string }) {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 200 90"
-      fill="none"
-      // Stretch to the box instead of fitting inside it: with the aspect ratio
-      // preserved the loop shrank to the middle of the name and circled two
-      // syllables. The uneven scaling also thickens the vertical strokes, which
-      // suits a pen mark.
-      preserveAspectRatio="none"
-      className={cn('pointer-events-none', className)}
-    >
-      {/* Drawn like a pen loop rather than an ellipse: the radii are uneven, the
-          line is slightly off-axis, and it overshoots the start and crosses back
-          over itself. A closed symmetric path read as a shape, not a scribble. */}
-      <g stroke={color} strokeLinecap="round" strokeLinejoin="round" fill="none">
-        <path
-          d="M66 13C34 16 9 29 10 47c1 21 46 34 96 34s85-14 84-34C189 27 151 13 103 11c-17-.7-32 .6-46 4.5-6 1.7-11 4-15 6.6"
-          strokeWidth="3.6"
-          opacity="0.92"
-        />
-        {/* A second, lighter pass riding just inside the first — the way a real
-            pen doubles back when one loop does not look closed enough. */}
-        <path
-          d="M20 40c-2 4-2 8-1 11 4 15 44 26 88 26 42 0 76-11 79-25"
-          strokeWidth="2.2"
-          opacity="0.4"
-        />
-      </g>
-    </svg>
-  )
+export function CircleScribble(_props: { className?: string; color?: string }) {
+  return null
 }
 
-/** Chunky wave used as a section divider, echoing the old portfolio's footer. */
-export function WaveDivider({ className, flip = false }: { className?: string; flip?: boolean }) {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 1440 80"
-      preserveAspectRatio="none"
-      className={cn('pointer-events-none block w-full', flip && 'rotate-180', className)}
-    >
-      <path
-        d="M0 40c120-32 240-32 360 0s240 32 360 0 240-32 360 0 240 32 360 0v40H0Z"
-        fill="currentColor"
-      />
-    </svg>
-  )
+export function WaveDivider(_props: { className?: string; flip?: boolean }) {
+  return null
 }
 
-/**
- * Star positions are a fixed table rather than randomised: a random layout
- * would differ between the server and client render and trip hydration.
- * [leftPercent, topPercent, sizePx, delaySeconds, isSparkle]
- */
-const STARS: [number, number, number, number, boolean][] = [
-  [6, 18, 3, 0, false], [14, 62, 2, 1.6, false], [21, 30, 10, 0.8, true],
-  [28, 78, 3, 2.4, false], [35, 12, 2, 1.1, false], [42, 52, 8, 3.1, true],
-  [49, 86, 2, 0.4, false], [56, 24, 3, 2.0, false], [63, 68, 11, 1.3, true],
-  [70, 40, 2, 2.8, false], [77, 16, 3, 0.6, false], [84, 74, 9, 1.9, true],
-  [91, 34, 2, 3.4, false], [96, 58, 3, 1.2, false], [11, 44, 7, 2.6, true],
-  [45, 92, 2, 0.9, false], [67, 6, 2, 3.7, false], [88, 48, 3, 0.2, false],
-]
-
-function Sparkle({ size }: { size: number }) {
-  return (
-    <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor">
-      <path d="M12 0c.9 6.4 4.7 10.2 11.1 11.1C16.7 12 12.9 15.8 12 22.2c-.9-6.4-4.7-10.2-11.1-11.1C7.3 10.2 11.1 6.4 12 0Z" />
-    </svg>
-  )
-}
-
-/**
- * Backdrop: a faint graph grid with a scattering of quietly twinkling stars.
- * Purely decorative and hidden from assistive tech.
- */
-export function StarGrid({ className }: { className?: string }) {
-  return (
-    <div aria-hidden className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}>
-      <div className="star-grid absolute inset-0" />
-      <div className="text-[var(--star)] absolute inset-0">
-        {STARS.map(([left, top, size, delay, sparkle], i) => (
-          <span
-            key={i}
-            className="animate-twinkle absolute block"
-            style={{
-              left: `${left}%`,
-              top: `${top}%`,
-              animationDelay: `${delay}s`,
-              opacity: 0.35,
-            }}
-          >
-            {sparkle ? (
-              <Sparkle size={size} />
-            ) : (
-              <span
-                className="block rounded-full bg-current"
-                style={{ width: size, height: size }}
-              />
-            )}
-          </span>
-        ))}
-      </div>
-    </div>
-  )
+export function StarGrid(_props: { className?: string }) {
+  return null
 }

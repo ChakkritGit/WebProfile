@@ -153,7 +153,7 @@ export function FestivalPicker() {
 /** A painter's palette, drawn like the rest of the set. */
 function PaletteIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" {...props}>
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" {...props}>
       <path
         d="M12 3.2c5 0 8.9 3.4 8.9 7.6 0 2.6-2 3.6-3.6 3.6h-1.5c-1.2 0-2 .8-2 1.8 0 .5.2.9.4 1.3.3.4.4.8.4 1.2 0 1-.9 1.9-2.4 1.9-4.9 0-8.9-3.6-8.9-8.6S7 3.2 12 3.2Z"
         stroke="currentColor"

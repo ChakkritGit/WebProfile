@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next'
 import { notFound } from 'next/navigation'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { getTranslations } from 'next-intl/server'
-import { Mali } from 'next/font/google'
 
 import '../globals.css'
 import { routing } from '@/i18n/routing'
@@ -15,24 +14,13 @@ import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 
 /**
- * Handwriting for Thai and Latin.
+ * No webfont.
  *
- * Mali was chosen over the rounder Thai options because it ships real weights —
- * a single-weight face leaves headings to synthetic bold, which reads as a smudge
- * rather than a heavier pen.
- *
- * Japanese cannot come through here: `next/font/google` self-hosts by subset and
- * offers no `japanese` subset for any family, because Google serves CJK through
- * dynamic unicode-range subsetting that a build-time download cannot reproduce.
- * The Japanese face is linked from Google instead, and only on the pages that
- * render kana — see below.
+ * Both faces are gone — the handwriting that was self-hosted and the Japanese
+ * one that was linked from Google. A page with no stylesheet has no business
+ * downloading a typeface: whatever the browser reaches for by default is the
+ * face this branch is set in, which for most people is Times.
  */
-const mali = Mali({
-  subsets: ['latin', 'thai'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-hand',
-  display: 'swap',
-})
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -106,23 +94,7 @@ export default async function LocaleLayout({
   const t = await getTranslations({ locale, namespace: 'nav' })
 
   return (
-    <html lang={locale} suppressHydrationWarning className={mali.variable}>
-      {locale === 'ja' && (
-        // Only on Japanese pages: a CJK face is megabytes of glyphs, and Google
-        // serves it in unicode-range slices so a reader downloads just the ranges
-        // their page uses. Nothing here loads it for Thai or English.
-        <head>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-          {/* eslint-disable-next-line @next/next/no-page-custom-font -- the rule
-              is written for the pages router's `_document`, which this app does
-              not have; loading it per locale is the point. */}
-          <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Zen+Kurenaido&display=swap"
-          />
-        </head>
-      )}
+    <html lang={locale} suppressHydrationWarning>
       <body className="min-h-dvh antialiased">
         <NextIntlClientProvider>
           <Providers>

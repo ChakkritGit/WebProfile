@@ -1,11 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useReducedMotion } from 'motion/react'
+import { useReducedMotion } from '@/lib/motion-shim'
 import { Link } from '@/i18n/navigation'
 import { tagSlug } from '@/lib/search'
 import { TechIcon } from '@/components/brand/tech-icons'
-import { cn } from '@/lib/utils'
 
 /**
  * Cycles through phrases, typing and deleting. Uses Array.from so Thai
@@ -76,51 +75,38 @@ export function Typewriter({
 export function MarqueeRow({
   items,
   className,
-  duration = 32,
   reverse = false,
 }: {
   items: string[]
   className?: string
+  /** Kept in the signature so both call sites still compile; nothing scrolls. */
   duration?: number
   reverse?: boolean
 }) {
-  // Duplicated once so the -50% keyframe loops seamlessly.
-  const doubled = [...items, ...items]
+  /**
+   * A list, not a marquee.
+   *
+   * The scrolling row was two inline styles — a mask fading both ends and the
+   * animation itself — and both are exactly what a page with no stylesheet
+   * cannot have. The second copy of the items went with it: it existed only so
+   * the loop could seam invisibly, and there is no loop.
+   *
+   * A real page from that era would have used `<marquee>`, which is the one
+   * period-correct answer React will not let anybody write.
+   */
+  const list = reverse ? [...items].reverse() : items
+
   return (
-    <div
-      // overflow-hidden is required for the loop; the vertical padding gives
-      // each chip's 2px offset shadow room inside the clipping box.
-      className={cn('group relative overflow-hidden py-1.5', className)}
-      // Fade the ends so chips leaving the row read as intentional rather
-      // than sliced by the container edge.
-      style={{
-        maskImage:
-          'linear-gradient(to right, transparent, #000 3rem, #000 calc(100% - 3rem), transparent)',
-        WebkitMaskImage:
-          'linear-gradient(to right, transparent, #000 3rem, #000 calc(100% - 3rem), transparent)',
-      }}
-    >
-      <div
-        className="flex w-max gap-3 will-change-transform group-hover:[animation-play-state:paused]"
-        style={{
-          animation: `marquee ${duration}s linear infinite`,
-          animationDirection: reverse ? 'reverse' : 'normal',
-        }}
-      >
-        {doubled.map((item, i) => (
-          <Link
-            key={`${item}-${i}`}
-            href={`/topics/${tagSlug(item)}`}
-            // The duplicate half is decorative; hide it from assistive tech.
-            aria-hidden={i >= items.length}
-            tabIndex={i >= items.length ? -1 : undefined}
-            className="sticker-sm sticker-hover bg-surface font-display inline-flex shrink-0 items-center gap-2 px-4 py-2 text-sm font-semibold no-underline"
-          >
-            <TechIcon name={item} className="size-4 shrink-0" />
+    <ul className={className}>
+      {list.map((item) => (
+        <li key={item}>
+          <Link href={`/topics/${tagSlug(item)}`}>
+            <TechIcon name={item} />
             {item}
           </Link>
-        ))}
-      </div>
-    </div>
+        </li>
+      ))}
+    </ul>
   )
 }
+

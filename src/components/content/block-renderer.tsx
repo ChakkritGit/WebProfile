@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from '@/components/ui/plain-image'
 import type { AnnotatedBlock } from '@/lib/toc'
 import { cn } from '@/lib/utils'
 import { RichText } from './rich-text'

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import Image from 'next/image'
+import Image from '@/components/ui/plain-image'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/ui/section'

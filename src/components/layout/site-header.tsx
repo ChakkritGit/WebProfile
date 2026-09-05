@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion, useReducedMotion } from '@/lib/motion-shim'
 import { Link, usePathname } from '@/i18n/navigation'
 import { navItems } from '@/config/nav'
 import { profile } from '@/config/site'
@@ -95,7 +95,6 @@ export function SiteHeader() {
           // the two stacked into a double line.
           scrolled && !open && 'drawn-rule',
         )}
-        style={{ height: 'var(--header-h)' }}
       >
         <div className="bg-paper/85 relative h-full backdrop-blur-md">
           {festival && <FestivalDecor festival={festival} />}

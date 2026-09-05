@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, MotionConfig, motion, useReducedMotion } from '@/lib/motion-shim'
 import { useTranslations } from 'next-intl'
 import { Button } from './button'
 import { CloseIcon } from '@/components/icons'

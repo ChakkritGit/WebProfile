@@ -1,9 +1,9 @@
 'use client'
 
-import Image from 'next/image'
+import Image from '@/components/ui/plain-image'
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { motion, useReducedMotion } from 'motion/react'
+import { motion, useReducedMotion } from '@/lib/motion-shim'
 import { profile } from '@/config/site'
 import { ButtonLink } from '@/components/ui/button'
 // The typewriter is kept, not deleted — it is the fallback if the scramble

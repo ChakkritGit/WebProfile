@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useReducedMotion } from 'motion/react'
+import { useReducedMotion } from '@/lib/motion-shim'
 
 /** What a character churns through before it settles. */
 const NOISE = Array.from('!<>-_\\/[]{}=+*^?#%$&@01')

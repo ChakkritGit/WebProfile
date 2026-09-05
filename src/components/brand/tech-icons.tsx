@@ -11,8 +11,11 @@ import type { SVGProps } from 'react'
 
 type P = SVGProps<SVGSVGElement>
 
+/* `width` and `height` as attributes, not classes: with no stylesheet an SVG
+   without them is 300x150, and a page of them is a mile long. This is how a
+   document sized an image before CSS existed. */
 const Svg = ({ children, ...p }: P) => (
-  <svg viewBox="0 0 24 24" aria-hidden="true" {...p}>
+  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" {...p}>
     {children}
   </svg>
 )

@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion, useReducedMotion } from '@/lib/motion-shim'
 import { CheckIcon, CloseIcon } from '@/components/icons'
 import { cn } from '@/lib/utils'
 

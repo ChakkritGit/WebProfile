@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
-import { motion } from 'motion/react'
+import { motion } from '@/lib/motion-shim'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Editor } from './editor'

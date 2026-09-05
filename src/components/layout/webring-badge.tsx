@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from '@/components/ui/plain-image'
 import { WEBRING_DOMAIN } from '@/config/site'
 import { cn } from '@/lib/utils'
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
-import { useReducedMotion } from 'motion/react'
+import { useReducedMotion } from '@/lib/motion-shim'
 import { festivalById, festivalOn, type Festival, type FestivalId } from '@/config/festivals'
 import { useIsMounted } from '@/lib/hooks'
 

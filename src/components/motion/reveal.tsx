@@ -1,7 +1,7 @@
 'use client'
 
 import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react'
-import { motion, useReducedMotion } from 'motion/react'
+import { motion, useReducedMotion } from '@/lib/motion-shim'
 
 type Direction = 'up' | 'down' | 'left' | 'right' | 'none'
 
