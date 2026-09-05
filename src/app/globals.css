@@ -1480,3 +1480,33 @@
     block-size: auto;
   }
 }
+
+/**
+ * The theme changing, rather than being replaced.
+ *
+ * The class is on `<html>` only for as long as the change takes, which is what
+ * makes a blanket `*` rule safe here: outside that moment nothing carries these
+ * transitions, so a hover or a card animation is unaffected. Inside it, every
+ * element that takes a colour from the palette moves to its new one together.
+ *
+ * `!important` because it has to beat the per-element transitions components
+ * already declare, several of which name `colors` and would otherwise run at
+ * their own speed while the page around them ran at this one.
+ *
+ * Colours only. Fading a shadow or a filter here would drag the drawn frames
+ * through a repaint on every element at once, which is where a switch starts to
+ * feel slow rather than smooth.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html.theme-fading,
+  html.theme-fading *,
+  html.theme-fading *::before,
+  html.theme-fading *::after {
+    transition:
+      background-color 320ms ease,
+      border-color 320ms ease,
+      color 320ms ease,
+      fill 320ms ease,
+      stroke 320ms ease !important;
+  }
+}

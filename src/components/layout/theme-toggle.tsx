@@ -4,6 +4,7 @@ import { useTheme } from 'next-themes'
 import { useTranslations } from 'next-intl'
 import { MonitorIcon, MoonIcon, SunIcon } from '@/components/icons'
 import { useIsMounted } from '@/lib/hooks'
+import { fadeTheme } from '@/lib/theme-fade'
 import { cn } from '@/lib/utils'
 
 const ORDER = ['light', 'dark', 'system'] as const
@@ -25,7 +26,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   return (
     <button
       type="button"
-      onClick={() => setTheme(ORDER[(ORDER.indexOf(mode) + 1) % ORDER.length])}
+      onClick={() => fadeTheme(() => setTheme(ORDER[(ORDER.indexOf(mode) + 1) % ORDER.length]))}
       aria-label={`${t('toggleTheme')} — ${label}`}
       title={`${t('toggleTheme')} — ${label}`}
       className={cn(
