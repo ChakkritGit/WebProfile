@@ -3,7 +3,7 @@ import type { AnnotatedBlock } from '@/lib/toc'
 import { cn } from '@/lib/utils'
 import { RichText } from './rich-text'
 import { CodeBlock } from './code-block'
-import { DelimiterMark, DownloadIcon } from '@/components/icons'
+import { ChevronDownIcon, DelimiterMark, DownloadIcon } from '@/components/icons'
 
 /* --------------------------- block data shapes -------------------------- */
 
@@ -123,6 +123,26 @@ function Checklist({ items }: { items: ListItem[] }) {
 /* ------------------------------- renderer ------------------------------- */
 
 /** Reads the alignment block-tune, which the editor stores alongside the data. */
+/**
+ * The line you click to open one of these.
+ *
+ * `list-none` takes away the browser's own disclosure triangle, which the frame
+ * around these needs — but nothing was put back, so a closed section looked like
+ * a heading in a box and gave no sign it could be opened. The caret is drawn
+ * here instead, and turns with the section: the `open` attribute is on the
+ * `<details>`, so `group-open` is what reaches it.
+ */
+function DisclosureSummary({ html }: { html: string }) {
+  return (
+    <summary className="font-display text-ink flex cursor-pointer list-none items-center gap-2.5 font-bold [&::-webkit-details-marker]:hidden">
+      <ChevronDownIcon className="text-muted size-4 shrink-0 -rotate-90 transition-transform duration-200 group-open:rotate-0" />
+      <span className="min-w-0 flex-1">
+        <RichText html={html} />
+      </span>
+    </summary>
+  )
+}
+
 /** A short, stable id from a string. Not a hash for anything but naming. */
 function stableKey(input: string) {
   let hash = 0
@@ -428,11 +448,9 @@ function Block({ block }: { block: AnnotatedBlock }) {
       return (
         <div className="my-8 grid gap-2">
           {items.map((item, index) => (
-            <details key={index} name={name} className="sticker bg-surface px-5 py-4">
-              <summary className="font-display text-ink cursor-pointer list-none font-bold">
-                <RichText html={String(item.title ?? '')} />
-              </summary>
-              <div className="mt-3">
+            <details key={index} name={name} className="sticker bg-surface group px-5 py-4">
+              <DisclosureSummary html={String(item.title ?? '')} />
+              <div className="mt-3 ps-6.5">
                 <RichText html={String(item.content ?? '')} />
               </div>
             </details>
@@ -509,13 +527,11 @@ function group(blocks: AnnotatedBlock[]) {
       out.push(
         <details
           key={block.id ?? i}
-          className="sticker bg-surface my-6 px-5 py-4"
+          className="sticker bg-surface group my-6 px-5 py-4"
           open={data.status !== 'closed'}
         >
-          <summary className="font-display text-ink cursor-pointer list-none font-bold">
-            <RichText html={String(data.text ?? '')} />
-          </summary>
-          {children.length ? <div className="mt-3">{group(children)}</div> : null}
+          <DisclosureSummary html={String(data.text ?? '')} />
+          {children.length ? <div className="mt-3 ps-6.5">{group(children)}</div> : null}
         </details>,
       )
       continue
