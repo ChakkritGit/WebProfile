@@ -558,3 +558,50 @@
   z-index: 1000;
 }
 .studio-editor .ce-block__content { isolation: isolate; }
+
+/**
+ * The toast.
+ *
+ * Editor.js paints the panel a near-white `#fffbfb` and never sets a text
+ * colour, so the message inherits the page's ink — which in the dark theme is
+ * cream. Cream on near-white measured 1.1:1: the words were there the whole
+ * time, just not visible. Its backgrounds are `!important`, so these have to be
+ * too; two classes beat its one, so the cascade needs nothing else.
+ *
+ * The notifier is appended to `<body>`, not into the editor, so none of this can
+ * be scoped under `.studio-editor`. Unscoped is safe here: this stylesheet only
+ * loads with the editor, and nothing else on the site uses these class names.
+ */
+.cdx-notifies .cdx-notify,
+.cdx-notifies .cdx-notify--error,
+.cdx-notifies .cdx-notify--success {
+  background: var(--surface) !important;
+  color: var(--ink);
+  border: 1px solid var(--line-soft);
+  box-shadow: 0 12px 28px rgb(0 0 0 / 0.2);
+}
+
+/* The stripe down the left edge is the only thing that says which kind of
+   message this is, so it goes on saying it in the theme's own colours. */
+.cdx-notifies .cdx-notify--error::before {
+  background: var(--brand) !important;
+}
+.cdx-notifies .cdx-notify--success::before {
+  background: var(--mint) !important;
+}
+
+/* The cross is two bars in a fixed slate grey, which vanishes on a dark panel
+   for the same reason the message did. */
+.cdx-notifies .cdx-notify__cross::before,
+.cdx-notifies .cdx-notify__cross::after {
+  background: currentColor;
+}
+
+/* Prompt-style notifications carry an input with pale defaults of its own. */
+.cdx-notifies .cdx-notify__input {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.cdx-notifies .cdx-notify__input::placeholder {
+  color: var(--muted);
+}
