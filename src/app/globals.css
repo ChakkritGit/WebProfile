@@ -15,11 +15,18 @@
    * These sit a few points toward yellow, which is enough to read as a decision
    * and not enough to read as cream.
    *
-   * The accent is the old coral, taken down and deepened into brick. It is the
-   * one thread kept from the drawn language: still recognisably this site's red,
-   * no longer a highlighter. Everything else — the four category colours — stops
-   * being a fill and becomes ink, in the same warm family, so a page with all
-   * five on it still looks like one page.
+   * The accent is a deep blue on warm paper — ink on a sheet rather than a
+   * highlighter over it. Warm ground against a cool mark is the pairing, not an
+   * accident: matching them would have made the page one temperature and the
+   * accent would have stopped being an accent.
+   *
+   * Not the blue everything else uses. `#2563eb` clears 4.9:1 on this paper,
+   * which is a link that is legible rather than one that is comfortable; this
+   * one sits at 8:1 and still reads as blue rather than as navy.
+   *
+   * The four category colours stop being fills and become ink in the same
+   * family, with `sky` pushed to teal so it cannot be mistaken for the accent
+   * used slightly wrong.
    */
   --paper: #faf9f7;
   --paper-alt: #f3f2ef;
@@ -39,7 +46,7 @@
   --shadow: transparent;
   --shadow-strength: 0;
 
-  --brand: #a3352f;
+  --brand: #1d4e89;
   --brand-ink: #ffffff;
   --brand-soft: #f3f1ed;
 
@@ -49,11 +56,11 @@
   --sun-soft: #f3f1ed;
   --violet: #5b4e93;
   --violet-soft: #f3f1ed;
-  --sky: #2c5f8a;
+  --sky: #1f6b73;
   --sky-soft: #f3f1ed;
 
   --ring: #1b1a19;
-  --selection: #f0d7d4;
+  --selection: #d3e2f2;
   --selection-ink: #1b1a19;
   --grid-line: rgb(27 26 25 / 0.05);
   --star: #1b1a19;
@@ -79,7 +86,7 @@
   --shadow: transparent;
   --shadow-strength: 0;
 
-  --brand: #e8756d;
+  --brand: #7fb2e5;
   --brand-ink: #1a1918;
   --brand-soft: #232120;
 
@@ -89,11 +96,11 @@
   --sun-soft: #232120;
   --violet: #9b90d8;
   --violet-soft: #232120;
-  --sky: #74aad6;
+  --sky: #5fb8b8;
   --sky-soft: #232120;
 
   --ring: #edeae5;
-  --selection: #e8756d;
+  --selection: #7fb2e5;
   --selection-ink: #1a1918;
   --grid-line: rgb(255 255 255 / 0.05);
   --star: #ffffff;
