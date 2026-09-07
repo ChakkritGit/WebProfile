@@ -1529,12 +1529,23 @@
  * `:lang(th)` follows the document's own language, which the two locales already
  * declare on `<html>` — so an English heading keeps the tighter setting.
  *
- * 1.55, measured rather than chosen. In this face a line carrying a full stack —
- * `ผู้`, with a tone mark above and a sara u below — inks 1.49 times the font
- * size at 36px and 1.47 at 48px. So 1.45 still overlapped by about a pixel in
- * the worst case, where one line's sara u sits directly above the next line's
- * mai tho; 1.55 leaves 2.3px at 36px and 3.9px at 48px.
+ * 1.9, measured rather than chosen, and the measuring had to be repeated: the
+ * first attempt used `ผู้` on both lines, where the mark above sits directly on
+ * the consonant. Thai stacks higher than that. `นี้`, `ตั้ง` and `ที่` put a tone
+ * mark above a vowel above the consonant, and `ผู้` hangs a sara u below — so in
+ * this face the ink of one line spans 1.88 times the font size at both 36px and
+ * 48px, measured, and anything less overlaps wherever the two extremes meet in
+ * the same column. 1.55 was clear for the simpler pair and 11.7px into the next
+ * line for this one.
+ *
+ * It is the same figure the article body arrived at independently: prose here is
+ * set on 1.85, for exactly this reason.
+ *
+ * 1.9 clears the worst column by about a pixel — they no longer meet, but only
+ * just. It is as far as a heading can reasonably go: this is a property of the
+ * face rather than of the setting, since these marks are tall and this sara u is
+ * deep, and a Thai face cut for tighter setting would need far less.
  */
 :is(h1, h2, h3, h4, h5, h6):lang(th) {
-  line-height: 1.55;
+  line-height: 1.9;
 }
