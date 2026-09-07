@@ -1528,7 +1528,13 @@
  *
  * `:lang(th)` follows the document's own language, which the two locales already
  * declare on `<html>` — so an English heading keeps the tighter setting.
+ *
+ * 1.55, measured rather than chosen. In this face a line carrying a full stack —
+ * `ผู้`, with a tone mark above and a sara u below — inks 1.49 times the font
+ * size at 36px and 1.47 at 48px. So 1.45 still overlapped by about a pixel in
+ * the worst case, where one line's sara u sits directly above the next line's
+ * mai tho; 1.55 leaves 2.3px at 36px and 3.9px at 48px.
  */
 :is(h1, h2, h3, h4, h5, h6):lang(th) {
-  line-height: 1.45;
+  line-height: 1.55;
 }
