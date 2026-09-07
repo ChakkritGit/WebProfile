@@ -1510,3 +1510,25 @@
       stroke 320ms ease !important;
   }
 }
+
+/**
+ * Thai headings need the room the Latin ones do not.
+ *
+ * A display line-height of 1.15 is right for an alphabet whose marks stay inside
+ * the line: the ascenders and descenders are the whole of it. Thai stacks — a
+ * vowel above the consonant and a tone mark above that, and vowels below as well
+ * — so a second line's marks arrive in the space the first line's descenders are
+ * already using. On a title long enough to wrap, they collided, and the browser
+ * clipped whichever lost.
+ *
+ * Unlayered rather than in `@layer base`, because a heading that asks for
+ * `leading-snug` is asking within the utilities layer, and a layer beats
+ * specificity: the base rule would never reach a card title. This one has to,
+ * since the constraint is the writing system rather than the design.
+ *
+ * `:lang(th)` follows the document's own language, which the two locales already
+ * declare on `<html>` — so an English heading keeps the tighter setting.
+ */
+:is(h1, h2, h3, h4, h5, h6):lang(th) {
+  line-height: 1.45;
+}
