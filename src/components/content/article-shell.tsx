@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation'
 import { Container } from '@/components/ui/section'
 import { TagLink } from './tag-link'
 import { BlockRenderer } from './block-renderer'
+import { ImageLightbox } from './image-lightbox'
 import { TableOfContents } from './table-of-contents'
 import { ReadingFont, ReadingSize, ReadingPrefsScript } from './reading-prefs'
 import { ShareBar } from './share-bar'
@@ -117,6 +118,7 @@ export async function ArticleShell({
             {aside}
 
             <BlockRenderer blocks={blocks} lang={lang} />
+            <ImageLightbox />
 
             <ShareBar url={shareUrl} title={title} />
           </div>

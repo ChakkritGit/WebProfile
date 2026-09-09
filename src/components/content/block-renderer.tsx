@@ -295,6 +295,9 @@ function Block({ block }: { block: AnnotatedBlock }) {
             )}
           >
             <Image
+              // Picked up by `ImageLightbox`, which listens on the article
+              // rather than wrapping every picture in a client component.
+              data-zoom=""
               src={url}
               alt={caption || ''}
               width={file.width ?? 1280}
