@@ -177,7 +177,11 @@
   background: var(--surface-2);
   border: 1px solid var(--line-soft);
   border-radius: 0.35rem;
-  color: var(--brand);
+  /* Ink, not the brand red. Inline code reads as ink on the published page —
+     the only colour there is the box around it — and the editor showing the
+     accent instead made the same words look like a different kind of thing
+     while writing them. */
+  color: var(--ink);
   font-family: var(--font-mono);
   padding: 0.1em 0.35em;
 }
