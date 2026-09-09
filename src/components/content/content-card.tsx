@@ -69,7 +69,9 @@ export async function PostCard({
           ))}
         </div>
 
-        <h3 className="text-lg leading-snug font-bold sm:text-xl">{post.title}</h3>
+        <h3 lang={post.locale} className="text-lg leading-snug font-bold sm:text-xl">
+          {post.title}
+        </h3>
 
         {post.summary && (
           <p className="text-muted mt-2 line-clamp-3 text-sm leading-relaxed">{post.summary}</p>
@@ -122,7 +124,9 @@ export async function ProjectCard({
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="text-lg leading-snug font-bold sm:text-xl">{project.title}</h3>
+        <h3 lang={project.locale} className="text-lg leading-snug font-bold sm:text-xl">
+          {project.title}
+        </h3>
 
         {project.role && (
           <p className="text-brand font-display mt-1 text-xs font-semibold">

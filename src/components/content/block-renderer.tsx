@@ -514,8 +514,14 @@ function Block({ block }: { block: AnnotatedBlock }) {
   }
 }
 
-export function BlockRenderer({ blocks }: { blocks: AnnotatedBlock[] }) {
-  return <div className="article-body text-ink">{group(blocks)}</div>
+export function BlockRenderer({ blocks, lang }: { blocks: AnnotatedBlock[]; lang?: string }) {
+  // On the wrapper, so every heading and paragraph inside inherits the language
+  // the piece was written in rather than the one the site is being read in.
+  return (
+    <div lang={lang} className="article-body text-ink">
+      {group(blocks)}
+    </div>
+  )
 }
 
 /**

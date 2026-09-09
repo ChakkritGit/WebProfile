@@ -18,7 +18,7 @@ import Attaches from '@editorjs/attaches'
 import Embed from '@editorjs/embed'
 import { AccordionTool, ToggleTool } from './sections-tool'
 import { EmbedPrompt } from './embed-tool'
-import { History, bindHistoryKeys } from './history'
+import { History, bindHistoryKeys, bindQuoteLineBreaks } from './history'
 import Warning from '@editorjs/warning'
 import Alert from 'editorjs-alert'
 import AlignmentTune from 'editorjs-text-alignment-blocktune'
@@ -202,7 +202,12 @@ export default function EditorCore({ initialData, onChange, placeholder }: Edito
         onReady() {
           if (!instance) return
           history = new History(instance, initialData as OutputData)
-          unbindHistory = bindHistoryKeys(holder, history)
+          const unbindKeys = bindHistoryKeys(holder, history)
+          const unbindQuotes = bindQuoteLineBreaks(holder)
+          unbindHistory = () => {
+            unbindKeys()
+            unbindQuotes()
+          }
         },
         async onChange(api) {
           if (debounceRef.current) clearTimeout(debounceRef.current)

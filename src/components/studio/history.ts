@@ -121,3 +121,28 @@ export function bindHistoryKeys(holder: HTMLElement, history: History) {
   holder.addEventListener('keydown', onKeyDown, true)
   return () => holder.removeEventListener('keydown', onKeyDown, true)
 }
+
+/**
+ * Enter inside a quote, as a line break rather than a paragraph.
+ *
+ * The quote tool turns off block-splitting, so Enter stays inside the quote —
+ * but what the browser inserts is a `<div>`, and the tool's own sanitiser keeps
+ * only `<br>`. The div was stripped on save and took the line break with it, so
+ * a two-line quote arrived on the page as one line with the words run together.
+ *
+ * Capture phase, so this runs before Editor.js sees the key; `insertLineBreak`
+ * is what produces the `<br>` the sanitiser already allows.
+ */
+export function bindQuoteLineBreaks(holder: HTMLElement) {
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key !== 'Enter' || event.shiftKey || event.metaKey || event.ctrlKey) return
+    if (!(event.target as HTMLElement | null)?.closest?.('.cdx-quote__text, .cdx-quote__caption')) {
+      return
+    }
+    event.preventDefault()
+    document.execCommand('insertLineBreak')
+  }
+
+  holder.addEventListener('keydown', onKeyDown, true)
+  return () => holder.removeEventListener('keydown', onKeyDown, true)
+}

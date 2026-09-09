@@ -95,6 +95,7 @@ export default async function ProjectPage({
       />
       <ArticleShell
         title={project.title}
+        lang={project.locale}
         content={project.content}
         tags={project.tags}
         backHref="/projects"

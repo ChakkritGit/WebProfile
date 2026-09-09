@@ -20,6 +20,7 @@ import { ArrowRightIcon } from '@/components/icons'
  */
 export async function ArticleShell({
   title,
+  lang,
   content,
   meta,
   tags,
@@ -30,6 +31,13 @@ export async function ArticleShell({
   coverImage,
 }: {
   title: string
+  /**
+   * The language the record is written in, which is not the language of the
+   * page it is being read on: a Thai article opened from the English site is
+   * still Thai, and the leading its marks need follows the writing system, not
+   * the interface. Everything below that renders the author's words carries it.
+   */
+  lang?: string
   content: EditorDocument
   meta?: ReactNode
   tags?: string[]
@@ -78,7 +86,9 @@ export async function ArticleShell({
             {t('backTo', { page: tNav(backLabelKey) })}
           </Link>
 
-          <h1 className="max-w-3xl text-3xl sm:text-4xl lg:text-5xl">{title}</h1>
+          <h1 lang={lang} className="max-w-3xl text-3xl sm:text-4xl lg:text-5xl">
+            {title}
+          </h1>
 
           {meta && <div className="text-muted mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">{meta}</div>}
 
@@ -106,7 +116,7 @@ export async function ArticleShell({
 
             {aside}
 
-            <BlockRenderer blocks={blocks} />
+            <BlockRenderer blocks={blocks} lang={lang} />
 
             <ShareBar url={shareUrl} title={title} />
           </div>

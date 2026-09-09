@@ -98,6 +98,7 @@ export default async function BlogPostPage({
       />
       <ArticleShell
         title={post.title}
+        lang={post.locale}
         content={post.content}
         tags={post.tags}
         backHref="/blog"
