@@ -13,7 +13,16 @@ import { ButtonLink } from '@/components/ui/button'
 import { ExternalLinkIcon, EyeIcon, GitHubIcon } from '@/components/icons'
 import { decodeParam } from '@/lib/slug'
 
-export const revalidate = 3600
+/**
+ * A minute, not an hour.
+ *
+ * The view count is rendered into this page, and it changes on every visit. At
+ * an hour the same article showed six on a card, five on its own page and one
+ * after a refresh — three copies of different ages, none of them wrong when they
+ * were made. A minute keeps the number a cached snapshot rather than a live
+ * counter, which is what it is, without it being visibly from another sitting.
+ */
+export const revalidate = 60
 
 export async function generateStaticParams() {
   const params: { locale: string; slug: string }[] = []

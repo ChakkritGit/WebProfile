@@ -12,6 +12,16 @@ import { SearchBox } from '@/components/content/search-box'
 import { Pagination } from '@/components/content/pagination'
 import { EmptyResults } from '@/components/content/empty-results'
 
+/**
+ * Static, but not for ever.
+ *
+ * These pages list content that changes when something is published, and a
+ * publish clears them directly (see `revalidateContent`). This is the floor
+ * under that: if a purge is ever missed, the page repairs itself within the
+ * minute instead of serving the same copy until the next deploy.
+ */
+export const revalidate = 60
+
 const PER_PAGE = 9
 
 export async function generateMetadata({

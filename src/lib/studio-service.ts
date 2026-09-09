@@ -87,19 +87,31 @@ export async function uniqueSlugFor(
   return `${root}-${Date.now().toString(36)}`
 }
 
-/** Refreshes every cached route that could show this record. */
+/**
+ * Refreshes every cached route that could show this record.
+ *
+ * Both spellings of every path, because there are two and only one of them is
+ * the URL. `localePrefix: 'as-needed'` means Thai — the default locale — lives
+ * at `/` and `/blog`, while the rendered entry Next knows about is `/th` and
+ * `/th/blog`. Revalidating one form left the other serving whatever it had:
+ * measured on production, the home page answered a `HIT` five hours old with a
+ * post published since. Both forms cost one call each and remove the guess.
+ */
 export function revalidateContent(kind: ContentKindParam, slug?: string) {
   const section = kind === 'posts' ? 'blog' : 'projects'
 
   for (const locale of routing.locales) {
-    // Cache keys carry the locale segment even when the URL does not: with
-    // `localePrefix: 'as-needed'` the proxy rewrites `/` to `/th`, so the
-    // prerendered entry is `/th`. Revalidating the pretty path alone left the
-    // home page showing stale content after a publish.
-    revalidatePath(`/${locale}`)
-    revalidatePath(`/${locale}/${section}`)
-    revalidatePath(`/${locale}/topics`)
-    if (slug) revalidatePath(`/${locale}/${section}/${slug}`)
+    // The prefix the visitor sees, which is nothing at all for the default.
+    const seen = locale === routing.defaultLocale ? '' : `/${locale}`
+    // The prefix the cache entry carries, which is always there.
+    const internal = `/${locale}`
+
+    for (const prefix of new Set([seen, internal])) {
+      revalidatePath(prefix || '/')
+      revalidatePath(`${prefix}/${section}`)
+      revalidatePath(`${prefix}/topics`)
+      if (slug) revalidatePath(`${prefix}/${section}/${slug}`)
+    }
   }
 
   // Tag pages list posts and projects, and the affected tags are not known here
