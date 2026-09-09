@@ -39,6 +39,31 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     listProjects({ locale: locale as Locale, orderBy: 'views' }),
   ])
 
+  /**
+   * Every published piece, as one graph.
+   *
+   * `popularPosts` and `popularProjects` are already the full lists — they are
+   * ordered by views for the strip below, but nothing is left out — so the graph
+   * costs no extra query. Order does not matter to it; the layout comes from the
+   * tags.
+   */
+  const graph = [
+    ...popularPosts.map((item) => ({
+      id: `post:${item.slug}`,
+      title: item.title,
+      kind: 'post' as const,
+      href: `/blog/${item.slug}`,
+      tags: item.tags ?? [],
+    })),
+    ...popularProjects.map((item) => ({
+      id: `project:${item.slug}`,
+      title: item.title,
+      kind: 'project' as const,
+      href: `/projects/${item.slug}`,
+      tags: item.tags ?? [],
+    })),
+  ]
+
   // One combined "most read" strip: whichever three items have the most views,
   // regardless of kind. Anything never opened is left out entirely.
   const popular = [
@@ -62,7 +87,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <>
-      <Hero roles={roles} />
+      <Hero roles={roles} graph={graph} />
 
       {/* ------------------------------ stats ------------------------------ */}
       <Section className="pt-0 sm:pt-0">

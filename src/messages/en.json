@@ -125,7 +125,10 @@
     "webringBody": "This site is a member of วงแหวนเว็บ — a ring of personal sites by Thai artists, designers and developers. Follow the badge to discover the neighbours.",
     "webringCta": "Explore the ring",
     "popularTitle": "Most read",
-    "popularSubtitle": "What visitors are opening the most right now"
+    "popularSubtitle": "What visitors are opening the most right now",
+    "graphExpand": "Expand to full screen",
+    "graphExit": "Leave full screen",
+    "graphHint": "Hover a node to see what it connects to, drag to turn, click to open"
   },
   "about": {
     "title": "Profile",

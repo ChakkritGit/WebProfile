@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { motion, useReducedMotion } from 'motion/react'
@@ -10,7 +9,8 @@ import { ButtonLink } from '@/components/ui/button'
 // wears thin.
 // import { Typewriter } from '@/components/motion/typewriter'
 import { TextScramble } from '@/components/motion/text-scramble'
-import { CircleScribble, StarBurst, StarGrid } from '@/components/ui/decor'
+import { CircleScribble, StarGrid } from '@/components/ui/decor'
+import { KnowledgeGraph, type GraphNode } from './knowledge-graph'
 import {
   ArrowRightIcon,
   EyeIcon,
@@ -20,11 +20,6 @@ import {
 import { Container } from '@/components/ui/section'
 import { ResumeButton } from '@/components/content/resume-button'
 
-/** A strip of masking tape, torn at both ends, holding a corner down. */
-function Tape({ className }: { className: string }) {
-  return <span aria-hidden className={`tape pointer-events-none absolute h-6 w-24 ${className}`} />
-}
-
 
 /**
  * The entrance animation should play once per session, not every time the tree
@@ -33,7 +28,7 @@ function Tape({ className }: { className: string }) {
  */
 let heroHasEntered = false
 
-export function Hero({ roles }: { roles: string[] }) {
+export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) {
   const t = useTranslations('home')
   const tMeta = useTranslations('meta')
   const reduce = useReducedMotion()
@@ -129,55 +124,16 @@ export function Hero({ roles }: { roles: string[] }) {
             </motion.div>
           </div>
 
-          {/* The photo, torn out of a sheet and taped down. */}
+          {/* The work as a graph, where the photograph used to be.
+              A picture of the author says who made these; this says what they
+              are about, which is the question a portfolio is actually asked. */}
           <motion.div
-            initial={from({ opacity: 0, scale: 0.9 })}
+            initial={from({ opacity: 0, scale: 0.95 })}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.2, type: 'spring', stiffness: 90 }}
-            className="relative mx-auto w-full max-w-[15rem] sm:max-w-[17rem] lg:max-w-[20rem]"
+            className="relative mx-auto w-full max-w-[19rem] sm:max-w-[22rem] lg:max-w-[26rem]"
           >
-            {/* Two elements, not one: the clip has to sit on the inner box and the
-                shadow on the outer, because a filter is applied before the clip
-                and a shadow drawn on the same element would be cut away with the
-                edge it is meant to follow. */}
-            <div className="torn-shadow relative aspect-square">
-              {/* The sheet is `--surface`, not the page colour: on the light theme a
-                    cream page and a cream margin left the tear along the top and
-                    left invisible, carried only by the shadow on the other two
-                    sides. */}
-              <div className="torn-paper paper-grain bg-surface relative size-full p-[9px]">
-                <Image
-                  src={profile.avatar}
-                  alt={tMeta('siteName')}
-                  width={860}
-                  height={860}
-                  priority
-                  sizes="(max-width: 640px) 15rem, (max-width: 1024px) 18rem, 20rem"
-                  className="size-full object-cover"
-                />
-                {/* Over the whole sheet, photograph and margin alike — a piece
-                    of paper is crumpled all the way through. Two layers, because
-                    the broad swelling and the sharp folds want different blends;
-                    see `globals.css`. */}
-                <span aria-hidden className="crumple pointer-events-none absolute inset-0" />
-                <span aria-hidden className="crumple-folds pointer-events-none absolute inset-0" />
-              </div>
-            </div>
-
-            <Tape className="-top-4 -right-6 rotate-[42deg]" />
-            <Tape className="-bottom-4 -left-6 rotate-[42deg]" />
-
-            {/* The stars take the corners the two badges used to hold, and keep
-                their colours: the yellow one where the yellow badge was, the mint
-                one where the mint was. A photograph pinned to a board wants
-                marking, not captioning — the job the badges were doing is done by
-                the line of text beside them, which says it once instead of three
-                times. */}
-            <StarBurst className="animate-wobble absolute -top-6 -left-6 size-10 sm:-left-10" />
-            <StarBurst
-              className="animate-wobble absolute -right-4 -bottom-5 size-8 sm:-right-8"
-              color="var(--mint)"
-            />
+            <KnowledgeGraph nodes={graph} />
           </motion.div>
         </div>
       </Container>
