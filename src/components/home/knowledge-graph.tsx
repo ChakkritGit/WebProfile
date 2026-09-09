@@ -90,6 +90,18 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
   const spin = useRef({ angle: 0, tilt: -0.22, drag: null as null | { x: number; y: number } })
 
   /**
+   * How far the pointer travelled between press and release.
+   *
+   * Turning the graph and opening a piece are the same gesture until this is
+   * measured: press on a node, move a little, let go, and without it the click
+   * lands. Measured before it existed — a 4px drag and a 10px drag both
+   * navigated, and only a 25px one got away, because escaping meant leaving the
+   * node's hit radius rather than meaning anything. Six pixels is the usual
+   * tolerance for a click that was not quite still.
+   */
+  const travel = useRef(0)
+
+  /**
    * Full screen twice over.
    *
    * The Fullscreen API is asked first, because on a desktop it gives the real
@@ -398,6 +410,7 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
     pointer.current = { x: event.clientX - rect.left, y: event.clientY - rect.top }
     const held = spin.current.drag
     if (held) {
+      travel.current += Math.hypot(event.clientX - held.x, event.clientY - held.y)
       spin.current.angle += (event.clientX - held.x) * 0.006
       spin.current.tilt = Math.max(-1.1, Math.min(1.1, spin.current.tilt + (event.clientY - held.y) * 0.005))
       spin.current.drag = { x: event.clientX, y: event.clientY }
@@ -423,6 +436,7 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
         onPointerDown={(event) => {
           event.currentTarget.setPointerCapture(event.pointerId)
           spin.current.drag = { x: event.clientX, y: event.clientY }
+          travel.current = 0
         }}
         onPointerUp={() => {
           spin.current.drag = null
@@ -432,8 +446,8 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
           spin.current.drag = null
         }}
         onClick={() => {
-          const id = hoverRef.current
-          const target = nodes.find((node) => node.id === id)
+          if (travel.current > 6) return
+          const target = nodes.find((node) => node.id === hoverRef.current)
           if (target) router.push(target.href)
         }}
       />
