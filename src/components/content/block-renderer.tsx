@@ -40,7 +40,12 @@ function Heading({ block, align }: { block: AnnotatedBlock; align: string }) {
   return (
     <Tag
       id={block.anchor}
-      className={cn('group scroll-mt-28 font-bold', headingStyles[clamped], align)}
+            /* No `scroll-mt` of its own. The scrolling element already carries
+         `scroll-padding-top` for the header, and the two added up: a heading
+         landed 208px down the viewport, 136px clear of a 72px header, which
+         reads as overshooting the thing you asked for. One mechanism, and the
+         heading arrives 24px under the header. */
+      className={cn('group font-bold', headingStyles[clamped], align)}
     >
       <span>
         <RichText html={text} />

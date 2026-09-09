@@ -1549,3 +1549,27 @@
 :is(h1, h2, h3, h4, h5, h6):lang(th) {
   line-height: 1.9;
 }
+
+/**
+ * Long things that cannot break, breaking.
+ *
+ * A bare URL in a list — `https://developer.chrome.com/...` — is one word with
+ * nowhere to wrap, so on a phone it pushed the page 132px past the viewport and
+ * everything scrolled sideways under a fixed header. A file path in inline code
+ * does the same.
+ *
+ * `break-word` on the body is the general case: only words that do not fit are
+ * broken, so ordinary prose wraps exactly as before. `anywhere` on the elements
+ * that carry unbreakable strings is the specific one, since a URL offers no
+ * break opportunity for the milder rule to find.
+ *
+ * Measured on the published article at 390px: document scrollWidth 522 before,
+ * 390 after, with nothing left overflowing that no ancestor clips.
+ */
+.article-body {
+  overflow-wrap: break-word;
+}
+
+.article-body :is(a, code, kbd, samp) {
+  overflow-wrap: anywhere;
+}
