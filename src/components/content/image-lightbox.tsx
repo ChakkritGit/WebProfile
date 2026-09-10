@@ -193,7 +193,10 @@ export function ImageLightbox() {
             type="button"
             onClick={() => setShot(null)}
             aria-label="Close"
-            className="text-paper hover:bg-paper/15 absolute end-3 top-3 grid size-11 place-items-center rounded-full"
+            // White, fixed, for the same reason the ground behind it is a fixed
+            // near-black: `--paper` flips with the theme, so the icon measured
+            // rgb(20,18,28) in dark mode — near-black on near-black, invisible.
+            className="absolute end-3 top-3 grid size-11 place-items-center rounded-full text-[#fffcf7] hover:bg-[#fffcf7]/15"
           >
             <CloseIcon className="size-6" />
           </button>
