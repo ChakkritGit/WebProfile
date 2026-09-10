@@ -1,5 +1,7 @@
+import { notFound } from 'next/navigation'
+import { hasLocale } from 'next-intl'
 import { getTranslations } from 'next-intl/server'
-import type { Locale } from '@/i18n/routing'
+import { routing, type Locale } from '@/i18n/routing'
 import type { PostRecord, ProjectRecord } from '@/lib/content-types'
 import { listPosts, listProjects } from '@/lib/content'
 import { skillGroups, yearsOfExperience } from '@/config/site'
@@ -27,6 +29,11 @@ export const revalidate = 60
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
+  // `[locale]` matches any single segment, so this is where a URL like
+  // `/nope.txt` — one that skipped the proxy and never had a locale — arrives.
+  // Refusing it here rather than in the layout is what lets the site's own
+  // not-found page render, inside the site's own layout.
+  if (!hasLocale(routing.locales, locale)) notFound()
 
   const t = await getTranslations('home')
   const tCommon = await getTranslations('common')

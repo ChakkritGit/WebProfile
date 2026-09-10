@@ -25,10 +25,15 @@ const nextConfig: NextConfig = {
      * `global-not-found` is the convention for exactly this case: a root layout
      * defined under a top-level dynamic segment.
      *
-     * It was not the whole fix. The 500 survived this flag because the crash was
-     * in our own code: the `[locale]` page is still evaluated on the way here,
-     * with no locale, and `contentLocalePreference` returned `undefined` for it.
-     * See the guard in `src/i18n/routing.ts`.
+     * It has never actually rendered, though. `[locale]` matches any single
+     * segment and `[locale]/[...rest]` matches everything deeper, so every URL
+     * reaches a route and the site's own `[locale]/not-found.tsx` is what a
+     * visitor sees. Two other things had to be true for that: the layout treats
+     * an unknown locale as the default one instead of calling `notFound()` — from
+     * a layout there is no boundary above it, which is what made Next serve its
+     * own bare 404 — and the proxy only skips paths whose *last* segment names a
+     * file. This stays as the backstop for a route shape that manages to miss
+     * both.
      */
     globalNotFound: true,
   },

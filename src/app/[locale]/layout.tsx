@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next'
-import { notFound } from 'next/navigation'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { getTranslations } from 'next-intl/server'
 import { Mali } from 'next/font/google'
@@ -51,7 +50,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
-  const { locale } = await params
+  const { locale: requested } = await params
+  const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale
   const t = await getTranslations({ locale, namespace: 'meta' })
 
   return {
@@ -99,15 +99,25 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
-  if (!hasLocale(routing.locales, locale)) notFound()
+  /**
+   * An unknown locale is rendered as the default one, and refused by the page.
+   *
+   * `notFound()` here reached no not-found boundary — this layout *is* the top of
+   * the tree — so Next answered with its own built-in 404 instead of the site's.
+   * Anything with a dot in it skips the proxy's matcher and arrives with the
+   * filename as its locale (`/nope.txt`), which is what made that visible. The
+   * page below refuses it, and that `notFound()` lands inside this layout, where
+   * `[locale]/not-found.tsx` is waiting.
+   */
+  const active = hasLocale(routing.locales, locale) ? locale : routing.defaultLocale
 
   // Opts every page under this layout into static rendering.
 
-  const t = await getTranslations({ locale, namespace: 'nav' })
+  const t = await getTranslations({ locale: active, namespace: 'nav' })
 
   return (
-    <html lang={locale} suppressHydrationWarning className={mali.variable}>
-      {locale === 'ja' && (
+    <html lang={active} suppressHydrationWarning className={mali.variable}>
+      {active === 'ja' && (
         // Only on Japanese pages: a CJK face is megabytes of glyphs, and Google
         // serves it in unicode-range slices so a reader downloads just the ranges
         // their page uses. Nothing here loads it for Thai or English.
