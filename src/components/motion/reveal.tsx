@@ -14,8 +14,16 @@ const offsets: Record<Direction, { x: number; y: number }> = {
 }
 
 /**
- * Scroll-triggered entrance. Motion is dropped entirely (not just shortened)
- * when the visitor prefers reduced motion, so content appears immediately.
+ * Scroll-triggered entrance.
+ *
+ * The element is always a motion element, on both sides of hydration. Swapping
+ * it for a plain `<div>` when the visitor prefers reduced motion left every
+ * revealed card permanently invisible: the server, which cannot know the
+ * preference, renders `initial` as an inline `opacity: 0`, and React does not
+ * patch attribute mismatches — so the style stayed and nothing ever animated it
+ * away. Reduced motion now means a zero-length transition, and the CSS rule
+ * under `prefers-reduced-motion` in `globals.css` un-hides `[data-reveal]`
+ * before any of this loads.
  */
 export function Reveal({
   children,
@@ -33,15 +41,14 @@ export function Reveal({
   const reduce = useReducedMotion()
   const { x, y } = offsets[direction]
 
-  if (reduce) return <div className={className}>{children}</div>
-
   const animated = (
     <motion.div
+      data-reveal
       className={className}
       initial={{ opacity: 0, x, y }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once, amount: 0 }}
-      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={reduce ? { duration: 0 } : { duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
@@ -81,25 +88,36 @@ export function RevealItem({
   children,
   className,
   index = 0,
+  instant = false,
 }: {
   children: ReactNode
   className?: string
   /** Position in the group; drives the stagger delay. Injected by RevealGroup. */
   index?: number
+  /**
+   * Skip the entrance for items that are on screen at first paint.
+   *
+   * A reveal is invisible until React has hydrated and the observer has fired,
+   * so an above-the-fold card cannot be the page's largest paint until then:
+   * measured on `/en/blog`, the listing's LCP was 984ms with the entrance and
+   * 364ms without it. `initial={false}` mounts at the finished state on both
+   * sides of hydration, so nothing is hidden and nothing animates.
+   */
+  instant?: boolean
 }) {
   const reduce = useReducedMotion()
-  if (reduce) return <div className={className}>{children}</div>
 
   return (
     <motion.div
+      data-reveal
       className={className}
-      initial={{ opacity: 0, y: 22, scale: 0.97 }}
+      initial={instant ? false : { opacity: 0, y: 22, scale: 0.97 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, amount: 0 }}
       transition={{
-        duration: 0.5,
+        duration: reduce ? 0 : 0.5,
         // Cap the cascade so a long list never leaves the last card waiting.
-        delay: Math.min(index, 8) * 0.07,
+        delay: reduce ? 0 : Math.min(index, 8) * 0.07,
         ease: [0.34, 1.4, 0.64, 1],
       }}
     >

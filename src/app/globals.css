@@ -560,6 +560,15 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+
+  /* Scroll reveals are rendered hidden and animated in by JavaScript, so a
+     visitor who wants no motion would otherwise wait for hydration to see any
+     content at all — and saw none when the reveal fell back to a plain div.
+     This shows it from the first paint, before any script runs. */
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 /* `::before`, not `::after`: `paper-grain` already defines `::after` on the same
