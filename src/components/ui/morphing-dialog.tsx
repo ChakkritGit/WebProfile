@@ -37,6 +37,7 @@ export function MorphingDialog({
   footer,
   className,
   layoutId,
+  onOpened,
 }: {
   open: boolean
   onClose: () => void
@@ -47,6 +48,9 @@ export function MorphingDialog({
   className?: string
   /** Shared with the trigger, and the whole point of this component. */
   layoutId: string
+  /** Fires once the panel has finished growing — for contents too expensive to
+      render while it is still in flight. */
+  onOpened?: () => void
 }) {
   const t = useTranslations('common')
   const mounted = useIsMounted()
@@ -123,6 +127,7 @@ export function MorphingDialog({
               <motion.div
                 ref={panel}
                 layoutId={layoutId}
+                onLayoutAnimationComplete={onOpened}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby={`${id}-title`}

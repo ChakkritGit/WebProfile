@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { motion } from 'motion/react'
 import { MorphingDialog } from '@/components/ui/morphing-dialog'
 import { Button, ButtonLink } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { DownloadIcon, ExternalLinkIcon } from '@/components/icons'
 import { profile } from '@/config/site'
 
@@ -31,6 +32,10 @@ export function ResumeButton({
 }) {
   const t = useTranslations('common')
   const [open, setOpen] = useState(false)
+  // The PDF viewer is only mounted once the panel has finished growing. Booting
+  // it at button size makes it lay a page out at ~28% of the final width and
+  // then be dragged through the whole morph, which is what the stutter was.
+  const [grown, setGrown] = useState(false)
   const morphId = useId()
 
   return (
@@ -56,7 +61,11 @@ export function ResumeButton({
       <MorphingDialog
         layoutId={morphId}
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={() => {
+          setOpen(false)
+          setGrown(false)
+        }}
+        onOpened={() => setGrown(true)}
         title={t('resumeTitle')}
         className="w-[min(94vw,56rem)]"
         footer={
@@ -73,11 +82,18 @@ export function ResumeButton({
         }
       >
         <div className="sticker-sm bg-surface-2 h-[70vh] overflow-hidden">
-          <object data={profile.resume} type="application/pdf" className="size-full">
-            <div className="grid h-full place-items-center p-6 text-center">
-              <p className="text-muted text-sm">{t('resumeFallback')}</p>
+          {grown ? (
+            <object data={profile.resume} type="application/pdf" className="size-full">
+              <div className="grid h-full place-items-center p-6 text-center">
+                <p className="text-muted text-sm">{t('resumeFallback')}</p>
+              </div>
+            </object>
+          ) : (
+            <div role="status" aria-busy="true" className="size-full">
+              <span className="sr-only">{t('loading')}</span>
+              <Skeleton className="size-full rounded-none" />
             </div>
-          </object>
+          )}
         </div>
       </MorphingDialog>
     </>
