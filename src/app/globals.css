@@ -1589,6 +1589,13 @@
   }
 }
 
+/* Both pages opting in is what lets the browser morph one into the other on a
+   real navigation — no script, and it holds the old page until the new one is
+   ready rather than freezing anything. */
+@view-transition {
+  navigation: auto;
+}
+
 /* The container transform, timed. The browser's default is a 250ms linear
    cross-fade; Material's emphasised curve over a little longer is what makes a
    card look like it grew into the page rather than dissolved into it. */

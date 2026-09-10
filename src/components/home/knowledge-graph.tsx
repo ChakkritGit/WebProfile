@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 
@@ -400,7 +401,7 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
 
   if (nodes.length === 0) return null
 
-  return (
+  const view = (
     <div
       ref={frame}
       className={
@@ -451,4 +452,19 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
       </p>
     </div>
   )
+
+  /**
+   * Expanded, it hangs off the body.
+   *
+   * `position: fixed` and a z-index are only as tall as the stacking context
+   * they are in, and this one lives inside the hero — which framer-motion gives
+   * a transform, and a transform makes a context. Measured: expanded on a phone,
+   * the close button sat at (342, 12) underneath the site header, which is
+   * `z-50` but at the top level. A portal takes it out of the box it was in.
+   *
+   * The canvas re-mounts on the way through and the layout settles again, which
+   * costs a hundred and twenty steps before the first frame and looks like the
+   * graph arriving rather than moving.
+   */
+  return full ? createPortal(view, document.body) : view
 }
