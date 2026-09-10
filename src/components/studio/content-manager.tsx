@@ -1,14 +1,13 @@
 'use client'
 
 import { useMemo, useState, useTransition } from 'react'
-import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { StickerCard } from '@/components/ui/sticker-card'
-import { MorphingConfirmDialog } from '@/components/ui/morphing-dialog'
+import { MorphingConfirmDialog, MorphingTrigger } from '@/components/ui/morphing-dialog'
 import { Select } from '@/components/ui/select'
 import {
   ArrowRightIcon,
@@ -223,7 +222,10 @@ export function ContentManager({
                       {/* One id per row, so the question unfolds from whichever
                           row was actually pressed rather than from a single
                           shared box. */}
-                      <motion.div layoutId={`delete-${item.id}`} className="inline-flex">
+                      <MorphingTrigger
+                        layoutId={`delete-${item.id}`}
+                        open={toDelete?.id === item.id}
+                      >
                         <Button
                           size="sm"
                           variant="danger"
@@ -234,7 +236,7 @@ export function ContentManager({
                         >
                           <TrashIcon className="size-4" />
                         </Button>
-                      </motion.div>
+                      </MorphingTrigger>
                     </div>
                   </div>
                 </li>

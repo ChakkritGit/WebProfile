@@ -2,8 +2,7 @@
 
 import { useId, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
-import { motion } from 'motion/react'
-import { MorphingDialog } from '@/components/ui/morphing-dialog'
+import { MorphingDialog, MorphingTrigger } from '@/components/ui/morphing-dialog'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DownloadIcon, ExternalLinkIcon } from '@/components/icons'
@@ -40,9 +39,7 @@ export function ResumeButton({
 
   return (
     <>
-      {/* The wrapper carries the shared id rather than the button itself: the
-          panel morphs out of this box, and this box is exactly the button. */}
-      <motion.div layoutId={morphId} className="inline-flex">
+      <MorphingTrigger layoutId={morphId} open={open}>
         <Button
           variant={variant}
           size={size}
@@ -56,7 +53,7 @@ export function ResumeButton({
         >
           {children}
         </Button>
-      </motion.div>
+      </MorphingTrigger>
 
       <MorphingDialog
         layoutId={morphId}

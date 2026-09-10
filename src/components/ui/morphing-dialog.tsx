@@ -13,6 +13,39 @@ import { cn } from '@/lib/utils'
 const MORPH = { type: 'spring', stiffness: 200, damping: 24 } as const
 
 /**
+ * The control a `MorphingDialog` grows out of.
+ *
+ * It carries the shared `layoutId` — the panel morphs out of this box, and this
+ * box is exactly the control — and it hides itself while the panel is up.
+ * Without that it comes back: Motion projects the trigger onto the panel for the
+ * morph and then, the moment the layout animation ends, hands it back to its own
+ * box at full opacity. Measured on the résumé button: the panel opened over
+ * ~800ms and at 865ms the button reappeared behind the backdrop, still open.
+ */
+export function MorphingTrigger({
+  layoutId,
+  open,
+  children,
+  className,
+}: {
+  layoutId: string
+  open: boolean
+  children: ReactNode
+  className?: string
+}) {
+  return (
+    <motion.div
+      layoutId={layoutId}
+      animate={{ opacity: open ? 0 : 1 }}
+      transition={{ duration: 0.18 }}
+      className={cn('inline-flex', className)}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+/**
  * A dialog that grows out of the control that opened it.
  *
  * The trigger and the panel carry the same `layoutId`, so Motion measures both

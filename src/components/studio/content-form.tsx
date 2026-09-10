@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
-import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Editor } from './editor'
@@ -11,7 +10,7 @@ import { ArrowRightIcon, CheckIcon, EyeIcon, TrashIcon } from '@/components/icon
 import { EMPTY_DOCUMENT, type EditorDocument } from '@/lib/editor'
 import { localeMeta, routing } from '@/i18n/routing'
 import { Select } from '@/components/ui/select'
-import { MorphingConfirmDialog } from '@/components/ui/morphing-dialog'
+import { MorphingConfirmDialog, MorphingTrigger } from '@/components/ui/morphing-dialog'
 import { ImageField } from './image-field'
 import { TagPicker } from './tag-picker'
 import { useToast } from '@/components/ui/toast'
@@ -305,12 +304,12 @@ export function ContentForm({
             {recordId && (
               // The wrapper carries the shared id: the question unfolds from
               // exactly this button's box.
-              <motion.div layoutId={deleteMorphId} className="inline-flex">
+              <MorphingTrigger layoutId={deleteMorphId} open={confirmOpen}>
                 <Button size="sm" variant="danger" onClick={() => setConfirmOpen(true)} disabled={saving}>
                   <TrashIcon className="size-4" />
                   {t('delete')}
                 </Button>
-              </motion.div>
+              </MorphingTrigger>
             )}
           </div>
         </StickerCard>
