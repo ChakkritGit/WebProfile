@@ -194,15 +194,26 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
     let width = 0
     let height = 0
 
+    /**
+     * `clientWidth`, not `getBoundingClientRect()`.
+     *
+     * The rect includes transforms, and this box is transformed twice: the hero
+     * scales it from 0.95 on the way in, and Motion morphs it between the card
+     * and full screen. A resize is observed the instant the *layout* box changes,
+     * which is before either transform has finished, so the rect read then is a
+     * size the box only looks like. Measured: expanded to 1280x860 the canvas was
+     * sized 375x373 and drew the graph in the top-left corner; closed again it
+     * was 1279x860 inside a 370px card. The layout box has neither problem.
+     *
+     * Nothing writes a CSS size onto the canvas either — it is `absolute inset-0`
+     * and already fills the box, at whatever size the box is mid-flight.
+     */
     const resize = () => {
-      const rect = box.getBoundingClientRect()
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      width = rect.width
-      height = rect.height
+      width = box.clientWidth
+      height = box.clientHeight
       surface.width = Math.round(width * dpr)
       surface.height = Math.round(height * dpr)
-      surface.style.width = `${width}px`
-      surface.style.height = `${height}px`
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
     resize()
