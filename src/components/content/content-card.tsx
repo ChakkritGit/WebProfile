@@ -1,9 +1,9 @@
 import Image from 'next/image'
+import { Link } from '@/i18n/navigation'
 import { getTranslations } from 'next-intl/server'
 import { Badge, toneFor } from '@/components/ui/badge'
 import { TechIcon } from '@/components/brand/tech-icons'
 import { ArrowRightIcon, ClockIcon, EyeIcon } from '@/components/icons'
-import { TransitionLink } from './transition-link'
 import { formatDate } from '@/lib/utils'
 import type { PostRecord, ProjectRecord } from '@/lib/content-types'
 import { cn } from '@/lib/utils'
@@ -48,9 +48,8 @@ export async function PostCard({
   const t = await getTranslations('common')
 
   return (
-    <TransitionLink
+    <Link
       href={`/blog/${post.slug}`}
-      name={`card-post-${post.slug}`}
       className="sticker sticker-hover bg-surface group flex h-full flex-col overflow-hidden no-underline"
     >
       <div className="drawn-rule relative aspect-[16/9] overflow-hidden">
@@ -96,7 +95,7 @@ export async function PostCard({
           <ArrowRightIcon className="text-brand ms-auto size-4 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
-    </TransitionLink>
+    </Link>
   )
 }
 
@@ -111,9 +110,8 @@ export async function ProjectCard({
   const tCommon = await getTranslations('common')
 
   return (
-    <TransitionLink
+    <Link
       href={`/projects/${project.slug}`}
-      name={`card-project-${project.slug}`}
       className="sticker sticker-hover bg-surface group flex h-full flex-col overflow-hidden no-underline"
     >
       <div className="drawn-rule relative aspect-[16/10] overflow-hidden">
@@ -158,6 +156,6 @@ export async function ProjectCard({
           <ArrowRightIcon className="ms-auto size-4 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
-    </TransitionLink>
+    </Link>
   )
 }

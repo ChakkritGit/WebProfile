@@ -1580,30 +1580,4 @@
   overflow-wrap: anywhere;
 }
 
-/* A view transition is motion, and some people have asked for none. */
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
-    animation: none !important;
-  }
-}
 
-/* Both pages opting in is what lets the browser morph one into the other on a
-   real navigation — no script, and it holds the old page until the new one is
-   ready rather than freezing anything. */
-@view-transition {
-  navigation: auto;
-}
-
-/* The container transform, timed. The browser's default is a 250ms linear
-   cross-fade; Material's emphasised curve over a little longer is what makes a
-   card look like it grew into the page rather than dissolved into it. */
-::view-transition-group(*) {
-  animation-duration: 380ms;
-  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
-}
-::view-transition-old(*),
-::view-transition-new(*) {
-  animation-duration: 260ms;
-}

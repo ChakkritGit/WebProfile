@@ -22,7 +22,6 @@ import { ArrowRightIcon } from '@/components/icons'
 export async function ArticleShell({
   title,
   lang,
-  vt,
   content,
   meta,
   tags,
@@ -40,8 +39,6 @@ export async function ArticleShell({
    * the interface. Everything below that renders the author's words carries it.
    */
   lang?: string
-  /** Shared with the card this was opened from, so the title flies across. */
-  vt?: string
   content: EditorDocument
   meta?: ReactNode
   tags?: string[]
@@ -81,13 +78,7 @@ export async function ArticleShell({
           </div>
         )}
 
-        {/* The far side of the container transform: the card grows into this
-            block, so the name belongs here and not on the heading inside it. */}
-        <Container
-          data-vt={vt}
-          style={vt ? { viewTransitionName: vt } : undefined}
-          className="relative z-10 py-10 sm:py-14"
-        >
+        <Container className="relative z-10 py-10 sm:py-14">
           <Link
             href={backHref}
             className="text-muted hover:text-brand font-display mb-5 inline-flex items-center gap-2 text-sm font-semibold transition-colors"
