@@ -24,6 +24,11 @@ const nextConfig: NextConfig = {
      *
      * `global-not-found` is the convention for exactly this case: a root layout
      * defined under a top-level dynamic segment.
+     *
+     * It was not the whole fix. The 500 survived this flag because the crash was
+     * in our own code: the `[locale]` page is still evaluated on the way here,
+     * with no locale, and `contentLocalePreference` returned `undefined` for it.
+     * See the guard in `src/i18n/routing.ts`.
      */
     globalNotFound: true,
   },
