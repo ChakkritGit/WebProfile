@@ -452,7 +452,10 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
       className={
         full
           ? 'bg-surface fixed inset-0 z-[100] isolate h-dvh w-screen overflow-hidden'
-          : 'sticker bg-surface relative isolate aspect-square w-full overflow-hidden'
+          // No fill in the card: the hero's star grid runs through the graph, which
+          // is the sky the thing is drawn in. Expanded it keeps a solid surface —
+          // full-screen over a page that is still there behind it needs one.
+          : 'sticker relative isolate aspect-square w-full overflow-hidden'
       }
     >
       <canvas

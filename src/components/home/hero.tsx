@@ -41,6 +41,11 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
   // `false` tells Motion to mount at the target values with no transition.
   const from = (values: Record<string, number>) => (reduce || !playIntro ? false : values)
 
+  // The text slides in but never fades: an element at `opacity: 0` is not
+  // painted, and the intro paragraph is this page's largest paint — fading it in
+  // after hydration put the home page's LCP at 936ms when first contentful paint
+  // was 92ms. The buttons and the graph still fade; neither is ever the LCP.
+
   return (
     <section className="relative overflow-hidden">
       <StarGrid />
@@ -49,7 +54,7 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
         <div className="grid items-center gap-12 lg:grid-cols-[1.3fr_0.7fr]">
           <div>
             <motion.p
-              initial={from({ opacity: 0, y: 12 })}
+              initial={from({ y: 12 })}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className="font-display text-muted flex items-center gap-2 text-lg font-semibold"
@@ -59,7 +64,7 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
             </motion.p>
 
             <motion.h1
-              initial={from({ opacity: 0, y: 16 })}
+              initial={from({ y: 16 })}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.08 }}
               // Fluid below the `sm` breakpoint so the name holds one line. The
@@ -85,7 +90,7 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
             </motion.h1>
 
             <motion.div
-              initial={from({ opacity: 0, y: 16 })}
+              initial={from({ y: 16 })}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.16 }}
               className="font-display mt-4 text-2xl font-bold sm:text-3xl"
@@ -95,7 +100,7 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
             </motion.div>
 
             <motion.p
-              initial={from({ opacity: 0, y: 16 })}
+              initial={from({ y: 16 })}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.24 }}
               className="text-muted mt-6 max-w-xl text-lg leading-relaxed text-pretty"
