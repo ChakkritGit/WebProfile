@@ -86,8 +86,8 @@ export default async function ProjectsPage({
           <>
             <RevealGroup className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {items.map((project, i) => (
-                <RevealItem key={project.id} className="h-full">
-                  <ProjectCard project={project} index={i} />
+                <RevealItem key={project.id} className="h-full" instant={i < 3}>
+                  <ProjectCard project={project} index={i} priority={i < 3} />
                 </RevealItem>
               ))}
             </RevealGroup>

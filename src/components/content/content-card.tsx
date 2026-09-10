@@ -4,13 +4,22 @@ import { getTranslations } from 'next-intl/server'
 import { Badge, toneFor } from '@/components/ui/badge'
 import { TechIcon } from '@/components/brand/tech-icons'
 import { ArrowRightIcon, ClockIcon, EyeIcon } from '@/components/icons'
+import { storagePathFromUrl } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 import type { PostRecord, ProjectRecord } from '@/lib/content-types'
 import { cn } from '@/lib/utils'
 
 const ACCENTS = ['bg-mint-soft', 'bg-sun-soft', 'bg-violet-soft', 'bg-sky-soft', 'bg-brand-soft']
 
-function CoverArt({ record, index }: { record: { coverImage: string | null; title: string }; index: number }) {
+function CoverArt({
+  record,
+  index,
+  priority = false,
+}: {
+  record: { coverImage: string | null; title: string }
+  index: number
+  priority?: boolean
+}) {
   if (record.coverImage) {
     return (
       <Image
@@ -18,9 +27,13 @@ function CoverArt({ record, index }: { record: { coverImage: string | null; titl
         alt=""
         width={640}
         height={360}
-        // Unoptimised: a cover can be pasted in as a link to any host, and the
-        // optimiser answers 400 for anything outside next.config's remotePatterns.
-        unoptimized
+        // Our own uploads go through the optimiser — a card slot is 640px wide
+        // and the originals are ~600KB. Anything else was pasted in as a link to
+        // a host outside next.config's remotePatterns, where it answers 400.
+        unoptimized={!storagePathFromUrl(record.coverImage)}
+        // The first row of a listing is the LCP element; lazy-loading it is what
+        // made it late.
+        priority={priority}
         className="size-full object-cover"
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
       />
@@ -40,10 +53,13 @@ export async function PostCard({
   post,
   index = 0,
   locale,
+  priority = false,
 }: {
   post: PostRecord
   index?: number
   locale: string
+  /** Set on the cards a listing paints above the fold. */
+  priority?: boolean
 }) {
   const t = await getTranslations('common')
 
@@ -53,7 +69,7 @@ export async function PostCard({
       className="sticker sticker-hover bg-surface group flex h-full flex-col overflow-hidden no-underline"
     >
       <div className="drawn-rule relative aspect-[16/9] overflow-hidden">
-        <CoverArt record={post} index={index} />
+        <CoverArt record={post} index={index} priority={priority} />
       </div>
 
       <div className="flex flex-1 flex-col p-5">
@@ -102,9 +118,12 @@ export async function PostCard({
 export async function ProjectCard({
   project,
   index = 0,
+  priority = false,
 }: {
   project: ProjectRecord
   index?: number
+  /** Set on the cards a listing paints above the fold. */
+  priority?: boolean
 }) {
   const t = await getTranslations('projects')
   const tCommon = await getTranslations('common')
@@ -115,7 +134,7 @@ export async function ProjectCard({
       className="sticker sticker-hover bg-surface group flex h-full flex-col overflow-hidden no-underline"
     >
       <div className="drawn-rule relative aspect-[16/10] overflow-hidden">
-        <CoverArt record={project} index={index} />
+        <CoverArt record={project} index={index} priority={priority} />
         {project.year && (
           <span className="border-line bg-paper font-display absolute end-3 top-3 rounded-full border-2 px-2.5 py-1 text-xs font-bold">
             {project.year}
