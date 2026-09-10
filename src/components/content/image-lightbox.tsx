@@ -93,7 +93,12 @@ export function ImageLightbox() {
       onClose={() => setShot(null)}
       onCancel={() => setShot(null)}
       aria-label={shot?.alt || undefined}
-      className="bg-ink/85 fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none p-0 backdrop:bg-transparent"
+      // A fixed near-black, not `--ink`: that token is the *text* colour and it
+      // flips with the theme, so in dark mode the ground behind a photograph came
+      // out white at 85%. Measured: oklab lightness 0.96 in dark, 0.25 in light,
+      // from one class. It is the same colour `MorphingDialog` puts behind its
+      // panel, and light mode looks exactly as it did.
+      className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none bg-[#241f2e]/85 p-0 backdrop:bg-transparent"
     >
       {shot && (
         <div
