@@ -103,6 +103,39 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
   const travel = useRef(0)
 
   /**
+   * Touch has no hover, so a tap has to do both jobs in turn.
+   *
+   * On a phone the first tap on a node lights it and its neighbours — the thing
+   * the graph is for — and only a second tap on the same node opens it. With one
+   * tap doing both, the connections could never be seen at all: the page had
+   * already changed.
+   */
+  const armed = useRef<string | null>(null)
+  const touching = useRef(false)
+
+  /**
+   * What is under a point, answered now rather than next frame.
+   *
+   * The draw loop used to be the only thing that hit-tested, which is fine for a
+   * mouse — it has been moving for frames before you click — and useless for a
+   * tap, which can begin and end inside a single frame. Measured: a tap on a
+   * node did nothing at all, neither lighting it nor opening it.
+   */
+  const hitAt = useCallback((x: number, y: number) => {
+    let best = Infinity
+    let found: string | null = null
+    for (const body of bodies.current) {
+      const d = Math.hypot(body.sx - x, body.sy - y)
+      // A finger is blunter than a cursor, so it gets a wider target.
+      if (d < body.r + 16 && d < best) {
+        best = d
+        found = body.node.id
+      }
+    }
+    return found
+  }, [])
+
+  /**
    * Bigger, without leaving the page.
    *
    * The Fullscreen API was asked for first and has been dropped: on a desktop it
@@ -301,7 +334,10 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
         setHovered(found)
       }
 
-      const lit = hoverRef.current
+      // A finger leaves as soon as it lifts, so on touch the selection is what
+      // keeps a node lit; a mouse just hovers. Without this the highlight
+      // appeared for the length of the tap and went out again.
+      const lit = hoverRef.current ?? armed.current
       const near = lit ? neighbours.get(lit) : null
       const related = (id: string) => !lit || id === lit || Boolean(near?.has(id))
 
@@ -358,7 +394,10 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
           const label =
             body.node.title.length > 38 ? `${body.node.title.slice(0, 36)}…` : body.node.title
           const w = ctx.measureText(label).width
-          const x = body.sx + body.r + 7
+          // Right of the node normally, left when that would run off the edge —
+          // a label half off the screen names nothing.
+          const flip = body.sx + body.r + 7 + w > width - 6
+          const x = flip ? Math.max(6, body.sx - body.r - 7 - w) : body.sx + body.r + 7
           const y = body.sy
           // The one being pointed at always gets its name; the rest take a turn
           // only if nothing is already there. All of them at once was a page of
@@ -385,7 +424,13 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
       cancelAnimationFrame(raf)
       observer.disconnect()
     }
-  }, [nodes])
+    // `full` is a dependency because expanding moves this through a portal: React
+    // takes the old canvas out of the document and puts a new one in, so the refs
+    // this effect captured point at a node nobody can see any more. Without it the
+    // loop went on drawing into the detached canvas — the graph came up blank and
+    // nothing could be tapped, since hit-testing reads the positions that loop
+    // writes.
+  }, [nodes, full])
 
   const onPointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect()
@@ -419,6 +464,14 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
           event.currentTarget.setPointerCapture(event.pointerId)
           spin.current.drag = { x: event.clientX, y: event.clientY }
           travel.current = 0
+          touching.current = event.pointerType === 'touch'
+          const rect = event.currentTarget.getBoundingClientRect()
+          const at = { x: event.clientX - rect.left, y: event.clientY - rect.top }
+          pointer.current = at
+          // Answered here, because a tap can be over before the next frame runs.
+          const id = hitAt(at.x, at.y)
+          hoverRef.current = id
+          setHovered(id ?? armed.current)
         }}
         onPointerUp={() => {
           spin.current.drag = null
@@ -429,7 +482,19 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
         }}
         onClick={() => {
           if (travel.current > 6) return
-          const target = nodes.find((node) => node.id === hoverRef.current)
+          const id = hoverRef.current
+          if (!id) {
+            // A tap on nothing puts the graph back to all of it.
+            armed.current = null
+            setHovered(null)
+            return
+          }
+          if (touching.current && armed.current !== id) {
+            armed.current = id
+            setHovered(id)
+            return
+          }
+          const target = nodes.find((node) => node.id === id)
           if (target) router.push(target.href)
         }}
       />

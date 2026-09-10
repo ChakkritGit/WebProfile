@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { CloseIcon } from '@/components/icons'
+import { cn } from '@/lib/utils'
 
 /**
  * Opening a picture in an article.
@@ -37,6 +38,9 @@ export function ImageLightbox() {
   const pointers = useRef(new Map<number, { x: number; y: number }>())
   const pinch = useRef<{ distance: number; scale: number } | null>(null)
   const drag = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null)
+  /** How far this gesture moved, so a drag does not end in a tap. */
+  const travel = useRef(0)
+  const [moving, setMoving] = useState(false)
 
   const reset = useCallback(() => {
     setScale(1)
@@ -108,6 +112,8 @@ export function ImageLightbox() {
             } else if (scale > 1) {
               drag.current = { x: event.clientX, y: event.clientY, ox: offset.x, oy: offset.y }
             }
+            travel.current = 0
+            setMoving(true)
           }}
           onPointerMove={(event) => {
             if (!pointers.current.has(event.pointerId)) return
@@ -122,16 +128,25 @@ export function ImageLightbox() {
             }
 
             if (drag.current) {
-              setOffset({
-                x: drag.current.ox + (event.clientX - drag.current.x),
-                y: drag.current.oy + (event.clientY - drag.current.y),
-              })
+              const dx = event.clientX - drag.current.x
+              const dy = event.clientY - drag.current.y
+              travel.current = Math.hypot(dx, dy)
+              setOffset({ x: drag.current.ox + dx, y: drag.current.oy + dy })
             }
           }}
           onPointerUp={(event) => {
             pointers.current.delete(event.pointerId)
             if (pointers.current.size < 2) pinch.current = null
             drag.current = null
+            setMoving(false)
+          }}
+          // A touch that the browser takes over — a scroll gesture it decides is
+          // its own — fires this and not pointerup, and the drag stayed armed.
+          onPointerCancel={(event) => {
+            pointers.current.delete(event.pointerId)
+            pinch.current = null
+            drag.current = null
+            setMoving(false)
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -146,8 +161,22 @@ export function ImageLightbox() {
             // A tap toggles, rather than a tap in and a double tap out: a
             // double tap is two taps, so the pair fought each other — in, then
             // straight back out, which measured as never zooming at all.
-            onClick={() => (scale > 1 ? reset() : zoomBy(2.5))}
-            className="max-h-[92dvh] max-w-[94vw] object-contain transition-transform duration-100 select-none"
+            // A tap toggles between fit and 2.5×; a drag is not a tap. Dragging a
+            // zoomed picture ended in a click, and the click read `scale > 1` and
+            // put it back where it started — which is why panning kept snapping
+            // to the beginning.
+            onClick={() => {
+              if (travel.current > 6) return
+              if (scale > 1) reset()
+              else zoomBy(2.5)
+            }}
+            // No transition while a finger is down. Animating every frame of a
+            // drag over 100ms means each new position starts from a stale one,
+            // which is the judder.
+            className={cn(
+              'max-h-[92dvh] max-w-[94vw] object-contain select-none',
+              !moving && 'transition-transform duration-100',
+            )}
           />
 
           <button
