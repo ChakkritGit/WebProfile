@@ -1,9 +1,9 @@
 import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
-import { Link } from '@/i18n/navigation'
 import { Badge, toneFor } from '@/components/ui/badge'
 import { TechIcon } from '@/components/brand/tech-icons'
 import { ArrowRightIcon, ClockIcon, EyeIcon } from '@/components/icons'
+import { TransitionLink } from './transition-link'
 import { formatDate } from '@/lib/utils'
 import type { PostRecord, ProjectRecord } from '@/lib/content-types'
 import { cn } from '@/lib/utils'
@@ -48,8 +48,9 @@ export async function PostCard({
   const t = await getTranslations('common')
 
   return (
-    <Link
+    <TransitionLink
       href={`/blog/${post.slug}`}
+      name={`title-post-${post.slug}`}
       className="sticker sticker-hover bg-surface group flex h-full flex-col overflow-hidden no-underline"
     >
       <div className="drawn-rule relative aspect-[16/9] overflow-hidden">
@@ -69,7 +70,12 @@ export async function PostCard({
           ))}
         </div>
 
-        <h3 lang={post.locale} className="text-lg leading-snug font-bold sm:text-xl">
+        <h3
+          lang={post.locale}
+          data-vt={`title-post-${post.slug}`}
+          style={{ viewTransitionName: `title-post-${post.slug}` }}
+          className="text-lg leading-snug font-bold sm:text-xl"
+        >
           {post.title}
         </h3>
 
@@ -95,7 +101,7 @@ export async function PostCard({
           <ArrowRightIcon className="text-brand ms-auto size-4 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
-    </Link>
+    </TransitionLink>
   )
 }
 
@@ -110,8 +116,9 @@ export async function ProjectCard({
   const tCommon = await getTranslations('common')
 
   return (
-    <Link
+    <TransitionLink
       href={`/projects/${project.slug}`}
+      name={`title-project-${project.slug}`}
       className="sticker sticker-hover bg-surface group flex h-full flex-col overflow-hidden no-underline"
     >
       <div className="drawn-rule relative aspect-[16/10] overflow-hidden">
@@ -124,7 +131,12 @@ export async function ProjectCard({
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <h3 lang={project.locale} className="text-lg leading-snug font-bold sm:text-xl">
+        <h3
+          lang={project.locale}
+          data-vt={`title-project-${project.slug}`}
+          style={{ viewTransitionName: `title-project-${project.slug}` }}
+          className="text-lg leading-snug font-bold sm:text-xl"
+        >
           {project.title}
         </h3>
 
@@ -156,6 +168,6 @@ export async function ProjectCard({
           <ArrowRightIcon className="ms-auto size-4 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
-    </Link>
+    </TransitionLink>
   )
 }

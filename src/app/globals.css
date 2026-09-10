@@ -480,15 +480,21 @@
 /* ------------------------------------------------------------------ *
  * Shiki output — dual themes selected by CSS variable
  * ------------------------------------------------------------------ */
-.shiki-block .shiki,
+/* The syntax colours are the highlighter's; the paper and the plain text are
+   ours. Left alone a block sat on GitHub's #0d1117 in GitHub's #e6edf3 —
+   measured on the published page — which is another theme parked inside this
+   one. The block takes the site's surface and ink; the spans keep the token
+   colours, since colouring those by hand would be writing a syntax theme. */
+.shiki-block .shiki {
+  color: var(--ink);
+  background-color: var(--surface-2) !important;
+}
 .shiki-block .shiki span {
   color: var(--shiki-light);
-  background-color: var(--shiki-light-bg);
+  background-color: transparent;
 }
-:root.dark .shiki-block .shiki,
 :root.dark .shiki-block .shiki span {
   color: var(--shiki-dark);
-  background-color: var(--shiki-dark-bg);
 }
 .shiki-block .shiki {
   margin: 0;
@@ -1572,4 +1578,13 @@
 
 .article-body :is(a, code, kbd, samp) {
   overflow-wrap: anywhere;
+}
+
+/* A view transition is motion, and some people have asked for none. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

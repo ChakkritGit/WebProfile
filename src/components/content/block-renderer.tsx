@@ -70,7 +70,7 @@ function NestedList({ items, ordered, depth = 0 }: { items: ListItem[]; ordered:
     <Tag
       className={cn(
         'my-4 space-y-2 ps-6',
-        ordered ? 'list-decimal marker:font-display marker:font-bold' : 'list-none',
+        ordered ? 'list-decimal marker:font-display marker:font-bold marker:text-brand' : 'list-none',
         depth > 0 && 'my-2',
       )}
     >

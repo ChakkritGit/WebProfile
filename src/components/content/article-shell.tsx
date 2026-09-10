@@ -22,6 +22,7 @@ import { ArrowRightIcon } from '@/components/icons'
 export async function ArticleShell({
   title,
   lang,
+  vt,
   content,
   meta,
   tags,
@@ -39,6 +40,8 @@ export async function ArticleShell({
    * the interface. Everything below that renders the author's words carries it.
    */
   lang?: string
+  /** Shared with the card this was opened from, so the title flies across. */
+  vt?: string
   content: EditorDocument
   meta?: ReactNode
   tags?: string[]
@@ -87,7 +90,12 @@ export async function ArticleShell({
             {t('backTo', { page: tNav(backLabelKey) })}
           </Link>
 
-          <h1 lang={lang} className="max-w-3xl text-3xl sm:text-4xl lg:text-5xl">
+          <h1
+            lang={lang}
+            data-vt={vt}
+            style={vt ? { viewTransitionName: vt } : undefined}
+            className="max-w-3xl text-3xl sm:text-4xl lg:text-5xl"
+          >
             {title}
           </h1>
 
