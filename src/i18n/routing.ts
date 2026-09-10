@@ -41,8 +41,17 @@ const FALLBACK_ORDER: Record<Locale, readonly ContentLocale[]> = {
   ja: ['ja', 'en', 'th'],
 }
 
+/**
+ * The argument is typed `Locale`, and at runtime it is sometimes not one.
+ *
+ * A URL that matches no route — `/nope.txt`, anything with a dot, which the
+ * proxy's matcher skips — still gets the `[locale]` page evaluated on the way to
+ * `global-not-found`, with no locale to pass. `FALLBACK_ORDER[undefined]` is
+ * `undefined`, and `preferLocale` mapped over it: the whole 500 that
+ * `globalNotFound` was supposed to have fixed was this line, not the routing.
+ */
 export function contentLocalePreference(locale: Locale): readonly ContentLocale[] {
-  return FALLBACK_ORDER[locale]
+  return FALLBACK_ORDER[locale] ?? FALLBACK_ORDER[routing.defaultLocale]
 }
 
 export const localeMeta: Record<Locale, { label: string; htmlLang: string; short: string }> = {
