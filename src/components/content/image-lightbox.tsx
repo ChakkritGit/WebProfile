@@ -87,6 +87,26 @@ export function ImageLightbox() {
 
   const dismiss = useCallback(() => setClosing(true), [])
 
+  /**
+   * The picture on the page, hidden while it is the one on the screen.
+   *
+   * The opened picture is that picture — it grows out of its box and lands back
+   * in it — so leaving the original showing underneath meant two of them, and the
+   * one on the page sat there through the whole preview. It is hidden rather than
+   * removed so the article does not reflow, and given back the moment the exit
+   * lands on it. The scroll lock is what makes that box still be there.
+   */
+  const source = useRef<HTMLImageElement | null>(null)
+
+  const release = useCallback(() => {
+    if (source.current) source.current.style.visibility = ''
+    source.current = null
+  }, [])
+
+  // A picture left hidden by a navigation away from the article would stay that
+  // way for as long as the client router keeps the page.
+  useEffect(() => release, [release])
+
   const reset = useCallback(() => {
     setScale(1)
     setOffset({ x: 0, y: 0 })
@@ -105,11 +125,14 @@ export function ImageLightbox() {
       reset()
       setClosing(false)
       setShot({ src: image.currentSrc || image.src, alt: image.alt, from: fromRect(image) })
+      release()
+      source.current = image
+      image.style.visibility = 'hidden'
     }
 
     document.addEventListener('click', onClick)
     return () => document.removeEventListener('click', onClick)
-  }, [reset])
+  }, [release, reset])
 
   useEffect(() => {
     const node = dialog.current
@@ -200,6 +223,7 @@ export function ImageLightbox() {
             onExitComplete={() => {
               setShot(null)
               setClosing(false)
+              release()
             }}
           >
             {!closing && (
