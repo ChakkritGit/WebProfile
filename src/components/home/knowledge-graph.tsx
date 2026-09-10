@@ -1,7 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { motion, useReducedMotion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 
@@ -82,6 +83,10 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const [hovered, setHovered] = useState<string | null>(null)
   const [full, setFull] = useState(false)
+  const reduce = useReducedMotion()
+  // Shared by the card and the expanded surface: the same box in two places, so
+  // Motion animates one into the other instead of cutting between them.
+  const morphId = useId()
 
   // Everything the animation touches lives in refs: it runs sixty times a
   // second and must not re-render React to do it.
@@ -447,8 +452,10 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
   if (nodes.length === 0) return null
 
   const view = (
-    <div
+    <motion.div
       ref={frame}
+      layoutId={morphId}
+      transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 210, damping: 26 }}
       className={
         full
           ? 'bg-surface fixed inset-0 z-[100] isolate h-dvh w-screen overflow-hidden'
@@ -460,7 +467,13 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
     >
       <canvas
         ref={canvas}
-        className="size-full touch-none"
+        // Out of flow on purpose. `resize()` writes the box's pixel size onto
+        // the canvas, and in flow that size is the container's min-content: after
+        // one trip through full screen the canvas came back carrying 1280px, the
+        // hero's grid gave its column the 26rem cap to fit it, and the card sat
+        // 46px wider than it started for the rest of the session. Measured on the
+        // live site before this line existed: 370px before, 416px after.
+        className="absolute inset-0 size-full touch-none"
         style={{ cursor: hovered ? 'pointer' : 'grab' }}
         onPointerMove={onPointerMove}
         onPointerDown={(event) => {
@@ -518,7 +531,7 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
       <p className="text-muted pointer-events-none absolute inset-x-3 bottom-3 text-center text-xs">
         {t('graphHint')}
       </p>
-    </div>
+    </motion.div>
   )
 
   /**
@@ -534,5 +547,15 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
    * costs a hundred and twenty steps before the first frame and looks like the
    * graph arriving rather than moving.
    */
-  return full ? createPortal(view, document.body) : view
+  if (!full) return view
+
+  return (
+    <>
+      {/* The card's own space, held while its contents are away: without it the
+          hero column collapses, the page behind reflows, and the box the graph
+          has to come home to is somewhere else by the time it is closed. */}
+      <div aria-hidden className="aspect-square w-full" />
+      {createPortal(view, document.body)}
+    </>
+  )
 }
