@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { motion, useReducedMotion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { useScrollLock } from '@/lib/hooks'
 
 /**
  * The work as a graph: every piece a node, every shared tag an edge.
@@ -151,6 +152,10 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
    * button meant, and it is the same everywhere.
    */
   const onFullscreen = useCallback(() => setFull((open) => !open), [])
+
+  // Expanded it covers the screen, and the page underneath was still taking the
+  // wheel.
+  useScrollLock(full)
 
   // Escape closes it, since there is no browser control to leave by.
   useEffect(() => {

@@ -6,7 +6,7 @@ import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'motion/
 import { useTranslations } from 'next-intl'
 import { Button } from './button'
 import { CloseIcon } from '@/components/icons'
-import { useIsMounted } from '@/lib/hooks'
+import { useIsMounted, useScrollLock } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 
 /** The spring the panel grows on. */
@@ -92,6 +92,8 @@ export function MorphingDialog({
   const restoreTo = useRef<HTMLElement | null>(null)
   const id = useId()
 
+  useScrollLock(open)
+
   useEffect(() => {
     if (!open) return
 
@@ -119,13 +121,6 @@ export function MorphingDialog({
       }
     }
 
-    // The scrollbar's width is padded back on so the page behind does not shift
-    // sideways as it disappears.
-    const { overflow, paddingRight } = document.body.style
-    const scrollbar = window.innerWidth - document.documentElement.clientWidth
-    document.body.style.overflow = 'hidden'
-    if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`
-
     document.addEventListener('keydown', onKey)
     const focusFirst = window.setTimeout(() => {
       panel.current?.querySelector<HTMLElement>('button, [href]')?.focus()
@@ -134,8 +129,6 @@ export function MorphingDialog({
     return () => {
       document.removeEventListener('keydown', onKey)
       window.clearTimeout(focusFirst)
-      document.body.style.overflow = overflow
-      document.body.style.paddingRight = paddingRight
       restoreTo.current?.focus()
     }
   }, [open, onClose])

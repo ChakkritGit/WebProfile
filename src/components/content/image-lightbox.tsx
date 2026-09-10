@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useScrollLock } from '@/lib/hooks'
 import { CloseIcon } from '@/components/icons'
 import { cn } from '@/lib/utils'
 
@@ -41,6 +42,10 @@ export function ImageLightbox() {
   /** How far this gesture moved, so a drag does not end in a tap. */
   const travel = useRef(0)
   const [moving, setMoving] = useState(false)
+
+  // `showModal()` puts the dialog in the top layer but leaves the document
+  // behind it scrollable.
+  useScrollLock(shot !== null)
 
   const reset = useCallback(() => {
     setScale(1)

@@ -64,3 +64,31 @@ export function useAtFooter(band: number, narrow = band): boolean {
 
   return atFooter
 }
+
+/**
+ * Holds the page still while something is on top of it.
+ *
+ * A preview that fills the screen still leaves the document behind it scrollable:
+ * measured on an article, opening the image lightbox and turning the wheel moved
+ * the page 700px underneath, and the graph did the same expanded. The scrollbar's
+ * width is padded back on so the page does not shift sideways as it disappears.
+ *
+ * Restores whatever the body carried before rather than clearing the properties,
+ * because two of these can overlap — a dialog opened from a page that already
+ * locked.
+ */
+export function useScrollLock(active: boolean): void {
+  useEffect(() => {
+    if (!active) return
+
+    const { overflow, paddingRight } = document.body.style
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth
+    document.body.style.overflow = 'hidden'
+    if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`
+
+    return () => {
+      document.body.style.overflow = overflow
+      document.body.style.paddingRight = paddingRight
+    }
+  }, [active])
+}
