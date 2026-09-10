@@ -13,6 +13,19 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ['motion'],
+    /**
+     * A 404 for URLs that match no route at all.
+     *
+     * The root layout lives under `[locale]`, so a request that never enters
+     * that segment — anything with a dot in it, which the proxy's matcher skips
+     * — had no layout to render and answered 500. Measured on production:
+     * `/nope.txt` and `/nope.json` both returned "A server error occurred",
+     * which is also what `/llms-full.txt` did before it existed.
+     *
+     * `global-not-found` is the convention for exactly this case: a root layout
+     * defined under a top-level dynamic segment.
+     */
+    globalNotFound: true,
   },
 }
 
