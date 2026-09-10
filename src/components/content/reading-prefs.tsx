@@ -155,8 +155,8 @@ export function ReadingFont({ className }: { className?: string }) {
       aria-pressed={plain === isPlain}
       style={{ fontFamily: font }}
       className={cn(
-        'flex-1 rounded-lg px-2 py-1.5 text-sm font-semibold transition-colors',
-        plain === isPlain ? 'bg-brand-soft text-ink' : 'text-muted hover:text-ink',
+        'relative z-10 rounded-lg px-2 py-1.5 text-sm font-semibold transition-colors',
+        plain === isPlain ? 'text-ink' : 'text-muted hover:text-ink',
       )}
     >
       {label}
@@ -169,7 +169,15 @@ export function ReadingFont({ className }: { className?: string }) {
         <PencilIcon className="size-4" />
         {t('font')}
       </p>
-      <div className="border-line flex gap-1 rounded-xl border-2 p-1">
+      {/* One background that slides, rather than a colour that moves from one
+          button to the other: the two halves are equal, so the pill is half the
+          width and travels exactly its own width. */}
+      <div className="border-line relative grid grid-cols-2 rounded-xl border-2 p-1">
+        <span
+          aria-hidden
+          style={{ transform: plain ? 'translateX(100%)' : 'none' }}
+          className="bg-brand-soft absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-lg transition-transform duration-300 ease-out motion-reduce:transition-none"
+        />
         {option(false, t('fontHand'), 'var(--font-sans)')}
         {option(true, t('fontPlain'), 'var(--font-plain)')}
       </div>

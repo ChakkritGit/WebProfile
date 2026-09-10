@@ -102,47 +102,22 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
   const travel = useRef(0)
 
   /**
-   * Full screen twice over.
+   * Bigger, without leaving the page.
    *
-   * The Fullscreen API is asked first, because on a desktop it gives the real
-   * thing — the browser chrome goes too. It is not available for an ordinary
-   * element on iOS, and it can be refused anywhere, so the state that makes this
-   * fill the window is set regardless and the API is treated as a bonus. That
-   * way the button does what it says on every device, and on the ones that can
-   * do better, it does better.
+   * The Fullscreen API was asked for first and has been dropped: on a desktop it
+   * takes over the whole screen and hides the browser with it, which is a larger
+   * thing to happen than pressing an expand button on a widget suggests, and on
+   * iOS it is not available for an ordinary element at all — so the two devices
+   * did different things from the same button. Filling the window is what the
+   * button meant, and it is the same everywhere.
    */
-  const onFullscreen = useCallback(() => {
-    const node = frame.current
-    setFull((open) => {
-      if (open) {
-        if (document.fullscreenElement) void document.exitFullscreen().catch(() => {})
-        return false
-      }
-      void node?.requestFullscreen?.().catch(() => {})
-      return true
-    })
-  }, [])
+  const onFullscreen = useCallback(() => setFull((open) => !open), [])
 
-  useEffect(() => {
-    // Leaving by Escape or the browser's own control has to bring the state back
-    // with it, or the overlay would stay behind on its own.
-    const onChange = () => {
-      if (!document.fullscreenElement) setFull(false)
-    }
-    document.addEventListener('fullscreenchange', onChange)
-    return () => document.removeEventListener('fullscreenchange', onChange)
-  }, [])
-
-  // Escape closes it, whichever kind of full screen it turned out to be. The
-  // browser handles the key itself when the API is in play, but only when the
-  // API is in play — leaving it to that alone left the overlay open on every
-  // device that had fallen back to it.
+  // Escape closes it, since there is no browser control to leave by.
   useEffect(() => {
     if (!full) return
     const onKey = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      if (document.fullscreenElement) void document.exitFullscreen().catch(() => {})
-      setFull(false)
+      if (event.key === 'Escape') setFull(false)
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
@@ -270,6 +245,12 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
     const style = getComputedStyle(document.documentElement)
     const token = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback
 
+    // The page's own stack, not a guess at one. A canvas resolves `font` against
+    // nothing but the string it is given, so a hard-coded `system-ui` had no
+    // Thai face behind it and the labels came out in whatever the system chose —
+    // which is not the face the rest of the page is set in.
+    const family = getComputedStyle(document.body).fontFamily || 'system-ui, sans-serif'
+
     const draw = () => {
       const list = bodies.current
       const ink = token('--ink', '#241f2e')
@@ -372,7 +353,7 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
           if (!related(body.node.id)) continue
           const isLit = body.node.id === lit
           const size = Math.max(11, 13 * (body.r / 7))
-          ctx.font = `${isLit ? 700 : 500} ${size}px ui-sans-serif, system-ui, sans-serif`
+          ctx.font = `${isLit ? 700 : 500} ${size}px ${family}`
           const label =
             body.node.title.length > 38 ? `${body.node.title.slice(0, 36)}…` : body.node.title
           const w = ctx.measureText(label).width
