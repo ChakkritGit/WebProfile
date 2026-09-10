@@ -10,9 +10,11 @@ import { Link, useRouter } from '@/i18n/navigation'
  * A link that hands the old page to the new one.
  *
  * The browser can morph an element from one page into its counterpart on the
- * next — a card's title flying into the article's heading — as long as both
- * carry the same `view-transition-name` and the navigation happens inside
- * `startViewTransition`. Next 16.3 and React 19.2 have no integration for it
+ * next as long as both carry the same `view-transition-name` and the navigation
+ * happens inside `startViewTransition`. The name goes on the card itself rather
+ * than on anything inside it: what should expand is the container — Material's
+ * container transform, a card growing into the page it opens — and naming the
+ * title alone got a line of text flying over a page that had already changed. Next 16.3 and React 19.2 have no integration for it
  * yet, so the navigation is wrapped here.
  *
  * The wait is the whole trick. `startViewTransition` takes its "after" snapshot
@@ -43,6 +45,8 @@ export function TransitionLink({
     <Link
       href={href}
       className={className}
+      data-vt={name}
+      style={{ viewTransitionName: name }}
       onClick={(event) => {
         // Let the browser have the ones it should: new tabs, downloads, and any
         // click with a modifier held.
@@ -52,7 +56,7 @@ export function TransitionLink({
         event.preventDefault()
         document.startViewTransition(async () => {
           router.push(href)
-          await arrival(name)
+          await arrival(href)
         })
       }}
       {...rest}
@@ -63,30 +67,34 @@ export function TransitionLink({
 }
 
 /**
- * Resolves once the named element is on the page, or after a moment either way.
+ * Resolves once the browser is actually somewhere else.
  *
- * The timeout is not a fallback so much as a promise to the browser: a view
- * transition freezes the page while it waits, so a navigation that never
- * completes must not freeze it for ever.
+ * It waited for the named element to appear, which was useless the moment the
+ * name moved onto the card: the card it was clicked from carries that name too,
+ * so the wait was already satisfied and the transition ended before the new page
+ * had rendered — a morph from the page to itself, which is to say none.
+ * The address is the thing that only changes on arrival.
+ *
+ * The timeout is a promise to the browser rather than a fallback: a view
+ * transition freezes the page while it waits, so a navigation that never lands
+ * must not freeze it for ever.
  */
-function arrival(name: string) {
+function arrival(href: string) {
   return new Promise<void>((resolve) => {
-    const found = () => document.querySelector(`[data-vt="${CSS.escape(name)}"]`)
-    if (found()) return resolve()
+    const target = new URL(href, location.origin).pathname
+    const arrived = () => decodeURIComponent(location.pathname).startsWith(decodeURIComponent(target))
 
-    const observer = new MutationObserver(() => {
-      if (!found()) return
-      stop()
-    })
-    const timer = setTimeout(stop, 700)
+    const timer = setTimeout(stop, 900)
+    const tick = setInterval(() => {
+      if (arrived()) stop()
+    }, 30)
 
     function stop() {
       clearTimeout(timer)
-      observer.disconnect()
-      // One frame, so the new element is laid out before it is photographed.
-      requestAnimationFrame(() => resolve())
+      clearInterval(tick)
+      // Two frames: one for the new tree to commit, one for it to be laid out
+      // before the browser photographs it.
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
     }
-
-    observer.observe(document.body, { childList: true, subtree: true })
   })
 }

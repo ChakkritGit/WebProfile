@@ -99,7 +99,7 @@ export default async function BlogPostPage({
       <ArticleShell
         title={post.title}
         lang={post.locale}
-        vt={`title-post-${post.slug}`}
+        vt={`card-post-${post.slug}`}
         content={post.content}
         tags={post.tags}
         backHref="/blog"

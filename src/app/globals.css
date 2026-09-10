@@ -1588,3 +1588,15 @@
     animation: none !important;
   }
 }
+
+/* The container transform, timed. The browser's default is a 250ms linear
+   cross-fade; Material's emphasised curve over a little longer is what makes a
+   card look like it grew into the page rather than dissolved into it. */
+::view-transition-group(*) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 260ms;
+}

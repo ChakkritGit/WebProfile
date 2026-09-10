@@ -2,8 +2,16 @@ import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { Reveal } from '@/components/motion/reveal'
 
-export function Container({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('mx-auto w-full max-w-6xl px-4 sm:px-6', className)}>{children}</div>
+export function Container({
+  children,
+  className,
+  ...rest
+}: { children: ReactNode; className?: string } & React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div className={cn('mx-auto w-full max-w-6xl px-4 sm:px-6', className)} {...rest}>
+      {children}
+    </div>
+  )
 }
 
 export function Section({

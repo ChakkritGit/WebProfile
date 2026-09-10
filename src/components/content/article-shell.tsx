@@ -81,7 +81,13 @@ export async function ArticleShell({
           </div>
         )}
 
-        <Container className="relative z-10 py-10 sm:py-14">
+        {/* The far side of the container transform: the card grows into this
+            block, so the name belongs here and not on the heading inside it. */}
+        <Container
+          data-vt={vt}
+          style={vt ? { viewTransitionName: vt } : undefined}
+          className="relative z-10 py-10 sm:py-14"
+        >
           <Link
             href={backHref}
             className="text-muted hover:text-brand font-display mb-5 inline-flex items-center gap-2 text-sm font-semibold transition-colors"
@@ -90,12 +96,7 @@ export async function ArticleShell({
             {t('backTo', { page: tNav(backLabelKey) })}
           </Link>
 
-          <h1
-            lang={lang}
-            data-vt={vt}
-            style={vt ? { viewTransitionName: vt } : undefined}
-            className="max-w-3xl text-3xl sm:text-4xl lg:text-5xl"
-          >
+          <h1 lang={lang} className="max-w-3xl text-3xl sm:text-4xl lg:text-5xl">
             {title}
           </h1>
 

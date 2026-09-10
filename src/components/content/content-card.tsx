@@ -50,7 +50,7 @@ export async function PostCard({
   return (
     <TransitionLink
       href={`/blog/${post.slug}`}
-      name={`title-post-${post.slug}`}
+      name={`card-post-${post.slug}`}
       className="sticker sticker-hover bg-surface group flex h-full flex-col overflow-hidden no-underline"
     >
       <div className="drawn-rule relative aspect-[16/9] overflow-hidden">
@@ -70,12 +70,7 @@ export async function PostCard({
           ))}
         </div>
 
-        <h3
-          lang={post.locale}
-          data-vt={`title-post-${post.slug}`}
-          style={{ viewTransitionName: `title-post-${post.slug}` }}
-          className="text-lg leading-snug font-bold sm:text-xl"
-        >
+        <h3 lang={post.locale} className="text-lg leading-snug font-bold sm:text-xl">
           {post.title}
         </h3>
 
@@ -118,7 +113,7 @@ export async function ProjectCard({
   return (
     <TransitionLink
       href={`/projects/${project.slug}`}
-      name={`title-project-${project.slug}`}
+      name={`card-project-${project.slug}`}
       className="sticker sticker-hover bg-surface group flex h-full flex-col overflow-hidden no-underline"
     >
       <div className="drawn-rule relative aspect-[16/10] overflow-hidden">
@@ -131,12 +126,7 @@ export async function ProjectCard({
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <h3
-          lang={project.locale}
-          data-vt={`title-project-${project.slug}`}
-          style={{ viewTransitionName: `title-project-${project.slug}` }}
-          className="text-lg leading-snug font-bold sm:text-xl"
-        >
+        <h3 lang={project.locale} className="text-lg leading-snug font-bold sm:text-xl">
           {project.title}
         </h3>
 
