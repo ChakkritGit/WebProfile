@@ -1,7 +1,9 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useScrollLock } from '@/lib/hooks'
+import { MORPH } from '@/components/ui/morphing-dialog'
 import { CloseIcon } from '@/components/icons'
 import { cn } from '@/lib/utils'
 
@@ -26,7 +28,34 @@ import { cn } from '@/lib/utils'
 const MIN = 1
 const MAX = 6
 
-type Shot = { src: string; alt: string }
+/** Where the picture starts from, so it grows out of the one on the page. */
+type From = { x: number; y: number; scale: number }
+
+type Shot = { src: string; alt: string; from: From }
+
+/**
+ * The thumbnail's box, expressed as an offset from where the opened picture will
+ * land.
+ *
+ * Measured rather than animated blind: the opened picture is centred and sized
+ * `object-contain` inside 94vw x 92dvh, which is `min(1, …)` of its natural size,
+ * so the box it will occupy is known before it is rendered and no first frame has
+ * to be painted to find out. A picture that has not loaded (no natural size) is
+ * taken at the size it is on the page.
+ */
+function fromRect(image: HTMLImageElement): From {
+  const rect = image.getBoundingClientRect()
+  const naturalW = image.naturalWidth || rect.width
+  const naturalH = image.naturalHeight || rect.height
+  const fit = Math.min(1, (window.innerWidth * 0.94) / naturalW, (window.innerHeight * 0.92) / naturalH)
+  const landedW = naturalW * fit || rect.width
+
+  return {
+    x: rect.left + rect.width / 2 - window.innerWidth / 2,
+    y: rect.top + rect.height / 2 - window.innerHeight / 2,
+    scale: rect.width / landedW,
+  }
+}
 
 export function ImageLightbox() {
   const dialog = useRef<HTMLDialogElement>(null)
@@ -42,10 +71,21 @@ export function ImageLightbox() {
   /** How far this gesture moved, so a drag does not end in a tap. */
   const travel = useRef(0)
   const [moving, setMoving] = useState(false)
+  /**
+   * The picture is on its way out, but still here.
+   *
+   * A native `<dialog>` is gone the moment it is closed, so the shrink back into
+   * the page has nowhere to play. The dialog stays open through the exit and is
+   * closed by `onExitComplete`.
+   */
+  const [closing, setClosing] = useState(false)
+  const reduce = useReducedMotion()
 
   // `showModal()` puts the dialog in the top layer but leaves the document
   // behind it scrollable.
   useScrollLock(shot !== null)
+
+  const dismiss = useCallback(() => setClosing(true), [])
 
   const reset = useCallback(() => {
     setScale(1)
@@ -63,7 +103,8 @@ export function ImageLightbox() {
       if (image.closest('a')) return
       event.preventDefault()
       reset()
-      setShot({ src: image.currentSrc || image.src, alt: image.alt })
+      setClosing(false)
+      setShot({ src: image.currentSrc || image.src, alt: image.alt, from: fromRect(image) })
     }
 
     document.addEventListener('click', onClick)
@@ -91,22 +132,18 @@ export function ImageLightbox() {
     <dialog
       ref={dialog}
       onClose={() => setShot(null)}
-      onCancel={() => setShot(null)}
+      // Escape is the browser closing the dialog outright, which would cut the
+      // exit. Refused here and answered the same way the close button is.
+      onCancel={(event) => {
+        event.preventDefault()
+        dismiss()
+      }}
       aria-label={shot?.alt || undefined}
-      // A fixed near-black, not `--ink`: that token is the *text* colour and it
-      // flips with the theme, so in dark mode the ground behind a photograph came
-      // out white at 85%. Measured: oklab lightness 0.96 in dark, 0.25 in light,
-      // from one class. It is the same colour `MorphingDialog` puts behind its
-      // panel, and light mode looks exactly as it did.
-      className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none bg-[#241f2e]/85 p-0 backdrop:bg-transparent"
+      className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none bg-transparent p-0 backdrop:bg-transparent"
     >
       {shot && (
         <div
           className="relative grid h-full w-full touch-none place-items-center overflow-hidden"
-          // A click on the ground, not on the picture, closes it.
-          onClick={(event) => {
-            if (event.target === event.currentTarget) setShot(null)
-          }}
           onWheel={(event) => {
             // A trackpad pinch is a wheel event with `ctrlKey`; a plain wheel is
             // a scroll, and there is nothing here to scroll.
@@ -159,6 +196,41 @@ export function ImageLightbox() {
             setMoving(false)
           }}
         >
+          <AnimatePresence
+            onExitComplete={() => {
+              setShot(null)
+              setClosing(false)
+            }}
+          >
+            {!closing && (
+              <motion.div
+                key="ground"
+                aria-hidden
+                // The ground closes it, which is where the click that misses the
+                // picture lands now that the ground is a layer of its own.
+                onClick={dismiss}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reduce ? 0 : 0.22 }}
+                // A fixed near-black, not `--ink`: that token is the *text* colour
+                // and flips with the theme, so in dark mode the ground behind a
+                // photograph came out white at 85%.
+                className="absolute inset-0 bg-[#241f2e]/85"
+              />
+            )}
+            {!closing && (
+              <motion.div
+                key="shot"
+                // Out of the picture on the page and back into it, the way the
+                // résumé panel grows out of its button. `from` is that picture's
+                // box as an offset from where this one lands.
+                initial={shot.from}
+                animate={{ x: 0, y: 0, scale: 1 }}
+                exit={shot.from}
+                transition={reduce ? { duration: 0 } : MORPH}
+                className="relative"
+              >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={shot.src}
@@ -188,10 +260,13 @@ export function ImageLightbox() {
               !moving && 'transition-transform duration-100',
             )}
           />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <button
             type="button"
-            onClick={() => setShot(null)}
+            onClick={dismiss}
             aria-label="Close"
             // White, fixed, for the same reason the ground behind it is a fixed
             // near-black: `--paper` flips with the theme, so the icon measured

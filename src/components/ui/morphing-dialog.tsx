@@ -9,8 +9,9 @@ import { CloseIcon } from '@/components/icons'
 import { useIsMounted, useScrollLock } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 
-/** The spring the panel grows on. */
-const MORPH = { type: 'spring', stiffness: 200, damping: 24 } as const
+/** The spring a morph runs on. Shared, so everything that grows out of
+    something else moves the same way. */
+export const MORPH = { type: 'spring', stiffness: 200, damping: 24 } as const
 
 /**
  * The control a `MorphingDialog` grows out of.
