@@ -123,6 +123,10 @@ export function revalidateContent(kind: ContentKindParam, slug?: string) {
 
   revalidatePath('/sitemap.xml')
   revalidatePath('/feed.xml')
+  // Both are written from the database. Without this they carry a publish only
+  // when their own hour expires, while every page above shows it immediately.
+  revalidatePath('/llms.txt')
+  revalidatePath('/llms-full.txt')
 }
 
 /** Fields the server always derives rather than trusting from the client. */
