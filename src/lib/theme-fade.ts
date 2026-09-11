@@ -9,10 +9,16 @@
  * turned on for every element for as long as the switch takes and turned off
  * again: see `.theme-fading` in `globals.css`.
  *
- * A class rather than the View Transitions API, which would cross-fade a
- * snapshot of the whole page more cheaply — but only in the browsers that have
- * it, and only by freezing the page for the duration. This works everywhere and
- * leaves the page live while it changes.
+ * The list of properties is the whole trick. It used to name only
+ * background-color, border-color, color, fill and stroke, so everything else
+ * changed instantly underneath the fade: the grid, which is a background *image*
+ * of two gradients, and every sticker shadow. Half the page crossfading over
+ * 320ms while the other half snapped is what "not smooth" was — it was never
+ * dropped frames, which measured none at full speed.
+ *
+ * Not the View Transitions API: it does arrive all at once, but it freezes the
+ * page to do it. Measured here, one 417ms frame, which the stars and the meteors
+ * spend standing still.
  */
 
 const DURATION = 320

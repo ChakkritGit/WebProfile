@@ -111,6 +111,22 @@ export function WaveDivider({ className, flip = false }: { className?: string; f
  * [leftPercent, topPercent, sizePx, delaySeconds, isSparkle]
  */
 /**
+ * Mulberry32: a hash-based generator, because the four-line congruential one it
+ * replaced lays consecutive pairs on a lattice — as positions, that is stars in
+ * faint diagonal rows.
+ */
+function generator(seed: number) {
+  let state = (Math.floor(seed * 4294967296) || 1) >>> 0
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0
+    let t = state
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+/**
  * A sky, scattered from a number.
  *
  * The positions used to be a hand-written table, which meant every visitor saw
@@ -124,13 +140,7 @@ export function WaveDivider({ className, flip = false }: { className?: string; f
  * sky is supposed to do. Change the number to get a different one.
  */
 function scatter(seed: number, count = 18) {
-  // A linear congruential generator: four lines, repeatable, and nobody needs
-  // more randomness than this to place a dot.
-  let state = Math.floor(seed * 4294967296) || 1
-  const next = () => {
-    state = (state * 1664525 + 1013904223) >>> 0
-    return state / 4294967296
-  }
+  const next = generator(seed)
 
   return Array.from({ length: count }, () => {
     const sparkle = next() < 0.28
@@ -138,7 +148,10 @@ function scatter(seed: number, count = 18) {
       left: 3 + next() * 94,
       top: 4 + next() * 92,
       size: sparkle ? 7 + Math.round(next() * 4) : 2 + Math.round(next() * 2),
-      delay: Number((next() * 4).toFixed(2)),
+      // Its own rhythm as well as its own place: one shared four-second beat had
+      // them all breathing together.
+      delay: Number((next() * 6).toFixed(2)),
+      period: Number((3 + next() * 4.5).toFixed(2)),
       sparkle,
     }
   })
@@ -156,19 +169,27 @@ function Sparkle({ size }: { size: number }) {
  * Backdrop: a faint graph grid with a scattering of quietly twinkling stars.
  * Purely decorative and hidden from assistive tech.
  */
-/** Three meteors, placed and timed from the same seed as the stars. */
+/**
+ * Three meteors, rare and staggered.
+ *
+ * A cycle of about half a minute each, offset so they do not arrive together:
+ * one streak every eight or nine seconds across the three, where eleven-second
+ * cycles had them falling constantly.
+ */
 function meteors(seed: number, count = 3) {
-  let state = Math.floor(seed * 2147483647) || 7
-  const next = () => {
-    state = (state * 1664525 + 1013904223) >>> 0
-    return state / 4294967296
-  }
-  return Array.from({ length: count }, () => ({
-    left: 30 + next() * 65,
-    top: next() * 42,
-    delay: Number((next() * 11).toFixed(2)),
-    length: 70 + Math.round(next() * 60),
-  }))
+  const next = generator(seed * 7.31 + 0.17)
+  return Array.from({ length: count }, (_, i) => {
+    const period = Number((27 + next() * 6).toFixed(1))
+    return {
+      left: 34 + next() * 62,
+      top: next() * 38,
+      period,
+      // Spread across the cycle rather than bunched at the start: one every ten
+      // seconds or so, which is a sky rather than a shower.
+      delay: Number(((i * period) / count + next() * 2).toFixed(2)),
+      length: 80 + Math.round(next() * 70),
+    }
+  })
 }
 
 /** The grid is 64px, and the figures are counted from the bottom-left corner. */
@@ -203,6 +224,7 @@ export function StarGrid({
               left: `${star.left}%`,
               top: `${star.top}%`,
               animationDelay: `${star.delay}s`,
+              animationDuration: `${star.period}s`,
               opacity: 0.35,
             }}
           >
@@ -220,13 +242,15 @@ export function StarGrid({
         {streaks.map((streak, i) => (
           <span
             key={`streak-${i}`}
-            className="animate-shoot absolute block h-px origin-right opacity-0"
+            className="animate-shoot absolute block h-px opacity-0"
             style={{
               left: `${streak.left}%`,
               top: `${streak.top}%`,
               width: streak.length,
               animationDelay: `${streak.delay}s`,
-              background: 'linear-gradient(to left, currentColor, transparent)',
+              animationDuration: `${streak.period}s`,
+              // Bright at the leading end, trailing away behind it.
+              background: 'linear-gradient(to right, currentColor, transparent)',
             }}
           />
         ))}

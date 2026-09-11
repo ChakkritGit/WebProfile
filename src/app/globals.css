@@ -463,9 +463,15 @@
 /* Faint graph grid that fades out toward the edges — the base of the
    "quiet starfield" backdrop. */
 @utility star-grid {
+  /* `currentColor` inside the gradients, and the colour itself in `color`: a
+     background *image* does not interpolate when the theme swaps — measured, the
+     grid jumped to its new colour in one frame while everything around it
+     crossfaded over 320ms — but `color` does, and the gradient is repainted from
+     it as it goes. */
+  color: var(--grid-line);
   background-image:
-    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    linear-gradient(to right, currentColor 1px, transparent 1px),
+    linear-gradient(to bottom, currentColor 1px, transparent 1px);
   background-size: 64px 64px;
   /* Anchored to the bottom-left so the horizontal lines land on multiples of 64
      measured from the floor, which is where the axis figures are counted from. */
@@ -579,27 +585,29 @@
   }
 }
 
-/* A meteor: it falls, it is gone, and it does not come back for ten seconds.
+/* A meteor: it falls along its own line, and it is rare.
  *
- * Transform and opacity only, and three of them, so the compositor does the work
- * and the main thread stays out of it. The long tail of the keyframes is the
- * waiting — one streak per cycle rather than a stream. */
+ * The trail is a horizontal gradient and the whole thing is rotated first, so the
+ * travel is along the streak rather than across it — a dash sliding diagonally is
+ * what it looked like before. The flight is 3.5% of the cycle, so a long duration
+ * buys a long wait rather than a slow meteor: 26s gives a streak of about 0.9s
+ * and then nothing. */
 @keyframes shoot {
   0% {
     opacity: 0;
-    transform: translate3d(0, 0, 0) scaleX(0.4);
+    transform: rotate(-37deg) translate3d(0, 0, 0) scaleX(0.3);
   }
-  2% {
-    opacity: 0.9;
-    transform: translate3d(-24px, 18px, 0) scaleX(1);
+  0.5% {
+    opacity: 0.85;
+    transform: rotate(-37deg) translate3d(-40px, 0, 0) scaleX(1);
   }
-  11% {
+  3.5% {
     opacity: 0;
-    transform: translate3d(-260px, 195px, 0) scaleX(1);
+    transform: rotate(-37deg) translate3d(-460px, 0, 0) scaleX(1);
   }
   100% {
     opacity: 0;
-    transform: translate3d(-260px, 195px, 0) scaleX(1);
+    transform: rotate(-37deg) translate3d(-460px, 0, 0) scaleX(1);
   }
 }
 
@@ -613,7 +621,7 @@
 @utility animate-blob { animation: blob-drift 18s ease-in-out infinite; }
 @utility animate-caret { animation: caret 1.1s step-end infinite; }
 @utility animate-twinkle { animation: twinkle 4s ease-in-out infinite; }
-@utility animate-shoot { animation: shoot 11s cubic-bezier(0.2, 0.6, 0.4, 1) infinite; }
+@utility animate-shoot { animation-name: shoot; animation-timing-function: cubic-bezier(0.25, 0.5, 0.4, 1); animation-iteration-count: infinite; }
 @utility hero-in {
   animation: hero-rise 0.55s ease-out both;
   /* Its own layer while it moves. The entrance now runs during the page's busiest
@@ -1594,10 +1602,14 @@
   html.theme-fading *::after {
     transition:
       background-color 320ms ease,
+      background-image 320ms ease,
       border-color 320ms ease,
+      box-shadow 320ms ease,
       color 320ms ease,
       fill 320ms ease,
-      stroke 320ms ease !important;
+      outline-color 320ms ease,
+      stroke 320ms ease,
+      text-decoration-color 320ms ease !important;
   }
 }
 
