@@ -43,16 +43,7 @@ import { ResumeButton } from '@/components/content/resume-button'
  */
 let heroHasEntered = false
 
-export function Hero({
-  roles,
-  graph,
-  starSeed,
-}: {
-  roles: string[]
-  graph: GraphNode[]
-  /** Drawn on the server so both sides scatter the same sky. */
-  starSeed: number
-}) {
+export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) {
   const t = useTranslations('home')
   const tMeta = useTranslations('meta')
   const reduce = useReducedMotion()
@@ -96,7 +87,7 @@ export function Hero({
 
   return (
     <section className="relative overflow-hidden">
-      <StarGrid seed={starSeed} />
+      <StarGrid axes />
 
       <Container className="relative z-10 py-16 sm:py-24 lg:py-28">
         <div className="grid items-center gap-12 lg:grid-cols-[1.3fr_0.7fr]">

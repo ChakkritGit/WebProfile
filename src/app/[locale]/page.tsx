@@ -27,16 +27,6 @@ import { Squiggle } from '@/components/ui/decor'
  */
 export const revalidate = 60
 
-/**
- * The sky is drawn from this, once per server start rather than once per render.
- *
- * `Math.random()` inside a component is a rule violation and a hydration hazard —
- * the server and the browser would scatter different stars and React would keep
- * the ones it was sent. Up here it runs once, so both sides agree, and the
- * arrangement still changes with every deploy and every cold start.
- */
-const SKY = Math.random()
-
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
   // `[locale]` matches any single segment, so this is where a URL like
@@ -104,7 +94,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <>
-      <Hero roles={roles} graph={graph} starSeed={SKY} />
+      <Hero roles={roles} graph={graph} />
 
       {/* ------------------------------ stats ------------------------------ */}
       <Section className="pt-0 sm:pt-0">

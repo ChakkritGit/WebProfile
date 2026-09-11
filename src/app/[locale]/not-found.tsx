@@ -19,22 +19,12 @@ const DESTINATIONS = [
   { key: 'contact', href: '/contact', icon: MailIcon, tone: 'violet' as const },
 ]
 
-/**
- * The sky is drawn from this, once per server start rather than once per render.
- *
- * `Math.random()` inside a component is a rule violation and a hydration hazard —
- * the server and the browser would scatter different stars and React would keep
- * the ones it was sent. Up here it runs once, so both sides agree, and the
- * arrangement still changes with every deploy and every cold start.
- */
-const SKY = Math.random()
-
 export default async function NotFound() {
   const t = await getTranslations('notFound')
 
   return (
     <div className="relative overflow-hidden">
-      <StarGrid seed={SKY} />
+      <StarGrid />
 
       <Container className="relative z-10 py-16 sm:py-24">
         <Reveal className="mx-auto max-w-2xl text-center">

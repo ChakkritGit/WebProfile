@@ -119,8 +119,9 @@ export function WaveDivider({ className, flip = false }: { className?: string; f
  * would disagree with itself across hydration and React would keep whichever
  * sky the server sent while the browser had drawn another.
  *
- * The seed comes from the server on every render, and these pages revalidate, so
- * the sky is different from one visit to the next without any of that.
+ * The seed is a constant. It was briefly drawn fresh on every server start, which
+ * meant the stars moved under anyone who reloaded; one scatter, kept, is what a
+ * sky is supposed to do. Change the number to get a different one.
  */
 function scatter(seed: number, count = 18) {
   // A linear congruential generator: four lines, repeatable, and nobody needs
@@ -155,8 +156,40 @@ function Sparkle({ size }: { size: number }) {
  * Backdrop: a faint graph grid with a scattering of quietly twinkling stars.
  * Purely decorative and hidden from assistive tech.
  */
-export function StarGrid({ className, seed = 0.4242 }: { className?: string; seed?: number }) {
+/** Three meteors, placed and timed from the same seed as the stars. */
+function meteors(seed: number, count = 3) {
+  let state = Math.floor(seed * 2147483647) || 7
+  const next = () => {
+    state = (state * 1664525 + 1013904223) >>> 0
+    return state / 4294967296
+  }
+  return Array.from({ length: count }, () => ({
+    left: 30 + next() * 65,
+    top: next() * 42,
+    delay: Number((next() * 11).toFixed(2)),
+    length: 70 + Math.round(next() * 60),
+  }))
+}
+
+/** The grid is 64px, and the figures are counted from the bottom-left corner. */
+const CELL = 64
+/** Enough to cover a wide desktop and a tall hero; anything past the edge is
+    clipped by the layer above. */
+const COLS = 30
+const ROWS = 14
+
+export function StarGrid({
+  className,
+  seed = 0.4242,
+  axes = false,
+}: {
+  className?: string
+  seed?: number
+  /** Draw the figures up the left edge and along the bottom. */
+  axes?: boolean
+}) {
   const stars = scatter(seed)
+  const streaks = meteors(seed)
 
   return (
     <div aria-hidden className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}>
@@ -183,7 +216,64 @@ export function StarGrid({ className, seed = 0.4242 }: { className?: string; see
             )}
           </span>
         ))}
+
+        {streaks.map((streak, i) => (
+          <span
+            key={`streak-${i}`}
+            className="animate-shoot absolute block h-px origin-right opacity-0"
+            style={{
+              left: `${streak.left}%`,
+              top: `${streak.top}%`,
+              width: streak.length,
+              animationDelay: `${streak.delay}s`,
+              background: 'linear-gradient(to left, currentColor, transparent)',
+            }}
+          />
+        ))}
       </div>
+
+      {axes && (
+        <div className="absolute inset-0 font-mono text-[10px] leading-none select-none">
+          {/* The two axes, drawn: the grid's own lines are evenly faint, and these
+              two are the ones the figures are counted from. */}
+          <span className="bg-line absolute bottom-0 left-0 h-px w-full opacity-35" />
+          <span className="bg-line absolute bottom-0 left-0 h-full w-px opacity-35" />
+
+          {/* Every cell carries its coordinate, quietly. */}
+          <span className="text-muted/12 absolute inset-0">
+            {Array.from({ length: COLS * ROWS }, (_, i) => {
+              const x = i % COLS
+              const y = Math.floor(i / COLS)
+              // The first row and column are the axes; they carry a single
+              // figure each rather than a pair.
+              if (x === 0 || y === 0) return null
+              return (
+                <span
+                  key={i}
+                  className="absolute"
+                  style={{ left: x * CELL + 5, bottom: y * CELL + 5 }}
+                >
+                  {x},{y}
+                </span>
+              )
+            })}
+          </span>
+
+          {/* The axis figures themselves, and where each axis is going. */}
+          <span className="text-muted/40 absolute inset-0">
+            {Array.from({ length: COLS }, (_, x) => (
+              <span key={`x-${x}`} className="absolute" style={{ left: x * CELL + 5, bottom: 5 }}>
+                {x}
+              </span>
+            ))}
+            {Array.from({ length: ROWS }, (_, y) => (
+              <span key={`y-${y}`} className="absolute" style={{ left: 5, bottom: y * CELL + 5 }}>
+                {y}
+              </span>
+            ))}
+          </span>
+        </div>
+      )}
     </div>
   )
 }
