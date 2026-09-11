@@ -215,10 +215,10 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
       surface.width = Math.round(width * dpr)
       surface.height = Math.round(height * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      // Given a box again — a phone turned sideways past the breakpoint that
+      // hides this — the loop has to be started, because it stopped itself.
+      if (width && height && !raf) raf = requestAnimationFrame(draw)
     }
-    resize()
-    const observer = new ResizeObserver(resize)
-    observer.observe(box)
 
     /** One step of the layout: push everything apart, pull the tied together. */
     const settle = () => {
@@ -307,6 +307,13 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
     const family = getComputedStyle(document.body).fontFamily || 'system-ui, sans-serif'
 
     const draw = () => {
+      // No box, nothing to draw into. Returning without re-scheduling is what
+      // stops it; `resize()` starts it again if the box ever gets a size.
+      if (!width || !height) {
+        raf = 0
+        return
+      }
+
       const list = bodies.current
       const ink = token('--ink', '#241f2e')
       const brand = token('--brand', '#ff5a5f')
@@ -440,7 +447,15 @@ export function KnowledgeGraph({ nodes }: { nodes: GraphNode[] }) {
       raf = requestAnimationFrame(draw)
     }
 
-    raf = requestAnimationFrame(draw)
+    // Started here rather than above, because the first measurement is what
+    // decides whether to start at all: the hero hides the graph on phones, and a
+    // `display: none` box measures zero. Sixty frames a second of physics into a
+    // canvas nobody can see is the one cost of hiding it in CSS, and this is what
+    // removes it.
+    resize()
+    const observer = new ResizeObserver(resize)
+    observer.observe(box)
+
     return () => {
       cancelAnimationFrame(raf)
       observer.disconnect()

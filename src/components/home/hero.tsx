@@ -136,7 +136,11 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
             initial={from({ opacity: 0, scale: 0.95 })}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.2, type: 'spring', stiffness: 90 }}
-            className="relative mx-auto w-full max-w-[19rem] sm:max-w-[22rem] lg:max-w-[26rem]"
+            // Not on phones. It is a square that fills the screen, it takes the
+            // touch it is given (dragging turns it, so the page cannot be
+            // scrolled from on top of it), and the hero reads perfectly well
+            // without it.
+            className="relative mx-auto hidden w-full max-w-[19rem] sm:block sm:max-w-[22rem] lg:max-w-[26rem]"
           >
             <KnowledgeGraph nodes={graph} />
           </motion.div>
