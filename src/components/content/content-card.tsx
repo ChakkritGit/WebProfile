@@ -35,7 +35,10 @@ function CoverArt({
         // made it late.
         priority={priority}
         className="size-full object-cover"
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        // The card is narrower than the viewport it sits in — one column inside
+        // the container's padding, then two, then three — and `100vw` had the
+        // browser fetching a step larger than the slot at every width.
+        sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) calc(50vw - 2rem), 368px"
       />
     )
   }

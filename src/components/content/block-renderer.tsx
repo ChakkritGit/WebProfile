@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import type { AnnotatedBlock } from '@/lib/toc'
+import { storagePathFromUrl } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { RichText } from './rich-text'
 import { CodeBlock } from './code-block'
@@ -302,9 +303,11 @@ function Block({ block }: { block: AnnotatedBlock }) {
               alt={caption || ''}
               width={file.width ?? 1280}
               height={file.height ?? 720}
-              // Same reason as the cover: `data.url` can point at a host the
-              // optimiser is not allowed to fetch.
-              unoptimized
+              // Our own uploads go through the optimiser — an article column is
+              // 768px wide and the originals are up to 2400px. Anything else was
+              // pasted in as a link to a host outside next.config's
+              // remotePatterns, where the optimiser answers 400.
+              unoptimized={!storagePathFromUrl(url)}
               className={cn(
                 'h-auto w-full',
                 withBackground && 'mx-auto max-w-[85%] rounded-xl sm:max-w-[70%]',

@@ -9,6 +9,7 @@ import { ImageLightbox } from './image-lightbox'
 import { TableOfContents } from './table-of-contents'
 import { ReadingFont, ReadingSize, ReadingPrefsScript } from './reading-prefs'
 import { ShareBar } from './share-bar'
+import { storagePathFromUrl } from '@/lib/supabase'
 import { buildOutline } from '@/lib/toc'
 import { highlightBlocks } from '@/lib/highlight'
 import type { EditorDocument } from '@/lib/editor'
@@ -63,9 +64,19 @@ export async function ArticleShell({
             aria-hidden
             className="pointer-events-none absolute inset-y-0 end-0 w-3/5 sm:w-3/5 lg:w-1/2"
           >
-            {/* Unoptimised: covers may point at hosts outside next.config's
-                remotePatterns allow-list. */}
-            <Image src={coverImage} alt="" fill unoptimized className="object-cover" priority />
+            {/* Optimised when it is ours; a cover pasted in as a link to a host
+                outside next.config's remotePatterns is not, since the optimiser
+                answers 400 for those. */}
+            <Image
+              src={coverImage}
+              alt=""
+              fill
+              unoptimized={!storagePathFromUrl(coverImage)}
+              // It occupies half the panel from `lg`, three fifths below that.
+              sizes="(max-width: 1024px) 60vw, 50vw"
+              className="object-cover"
+              priority
+            />
             {/* Fades the art into the page toward the text so the heading keeps
                 its contrast at any image brightness. */}
             {/* Narrow screens have no room for the art to sit beside the text, so
