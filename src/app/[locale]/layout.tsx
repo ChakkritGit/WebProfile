@@ -28,7 +28,11 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
  */
 const mali = Mali({
   subsets: ['latin', 'thai'],
-  weight: ['300', '400', '500', '600', '700'],
+  // 300 was loaded and never asked for: nothing in the site sets `font-light` or
+  // weight 300. Each weight is two files here — latin and thai — so dropping it
+  // is two fewer requests and 33KB less to fetch on a phone, out of ten files and
+  // 164KB. What is left is the body (400), 500, and the two the headings use.
+  weight: ['400', '500', '600', '700'],
   variable: '--font-hand',
   display: 'swap',
 })
