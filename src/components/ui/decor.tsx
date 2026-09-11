@@ -154,7 +154,7 @@ function generator(seed: number) {
  * page is still settling, which for eighteen dots at a third of full opacity is
  * not something anybody sees happen.
  */
-function scatter(seed: number, count = 18) {
+function scatter(seed: number, count = STAR_COUNT) {
   const next = generator(seed)
 
   return Array.from({ length: count }, () => {
@@ -207,6 +207,10 @@ function meteors(seed: number, count = 3) {
   })
 }
 
+/** How long a star takes to fade out before it moves, and to fade back in. */
+const FADE = 700
+const STAR_COUNT = 18
+
 /** The grid is 64px, and the figures are counted from the bottom-left corner. */
 const CELL = 64
 /** Enough to cover a wide desktop and a tall hero; anything past the edge is
@@ -233,57 +237,76 @@ export function StarGrid({
   const sky = mounted && browserSky !== undefined ? browserSky : seed
 
   /**
-   * The sky keeps moving without being asked to.
+   * The sky keeps changing without being asked to, and is never seen doing it.
    *
-   * One star every seven seconds, drifting to somewhere else over two and a half
-   * — so it is never the whole field jumping, and after a couple of minutes none
-   * of it is where it started. The meteors take new paths every fourth turn,
-   * which they spend invisible anyway.
+   * One star every seven seconds fades out where it is, moves while nobody can
+   * see it, and fades back in somewhere else — a star that slid across the sky
+   * read as a bug, which is what it was. The meteors take new paths every fourth
+   * turn, which they spend invisible anyway.
    */
-  const [drift, setDrift] = useState(0)
+  const [turn, setTurn] = useState(0)
+  const [hidden, setHidden] = useState<number | null>(null)
+  const [moved, setMoved] = useState<Record<number, { left: number; top: number }>>({})
+
   useEffect(() => {
-    const id = setInterval(() => setDrift((d) => d + 1), 7000)
-    return () => clearInterval(id)
+    let landing: ReturnType<typeof setTimeout>
+    const id = setInterval(() => {
+      const star = Math.floor(Math.random() * STAR_COUNT)
+      setHidden(star)
+      landing = setTimeout(() => {
+        setMoved((places) => ({
+          ...places,
+          [star]: { left: 3 + Math.random() * 94, top: 4 + Math.random() * 92 },
+        }))
+        setHidden(null)
+        setTurn((t) => t + 1)
+      }, FADE)
+    }, 7000)
+
+    return () => {
+      clearInterval(id)
+      clearTimeout(landing)
+    }
   }, [])
 
-  const stars = useMemo(() => {
-    const field = scatter(sky)
-    for (let turn = 1; turn <= drift; turn++) {
-      const next = generator(sky + turn * 0.37)
-      const moved = Math.floor(next() * field.length)
-      field[moved] = { ...field[moved], left: 3 + next() * 94, top: 4 + next() * 92 }
-    }
-    return field
-  }, [sky, drift])
+  const stars = useMemo(
+    () => scatter(sky).map((star, i) => (moved[i] ? { ...star, ...moved[i] } : star)),
+    [sky, moved],
+  )
 
-  const streaks = useMemo(() => meteors(sky + Math.floor(drift / 4) * 0.91), [sky, drift])
+  const streaks = useMemo(() => meteors(sky + Math.floor(turn / 4) * 0.91), [sky, turn])
 
   return (
     <div aria-hidden className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}>
       <div className="star-grid absolute inset-0" />
       <div className="text-[var(--star)] absolute inset-0">
         {stars.map((star, i) => (
+          // Two elements: the outer one holds the place and the fade, the inner
+          // one twinkles. An animation beats an inline `opacity`, so the fade has
+          // to live above it.
           <span
             key={i}
-            className="animate-twinkle absolute block"
+            className="absolute block"
             style={{
               left: `${star.left}%`,
               top: `${star.top}%`,
-              // Slow enough that it reads as a sky turning, not a dot jumping.
-              transition: 'left 2.5s ease-in-out, top 2.5s ease-in-out',
-              animationDelay: `${star.delay}s`,
-              animationDuration: `${star.period}s`,
-              opacity: 0.35,
+              opacity: hidden === i ? 0 : 0.35,
+              transition: `opacity ${FADE}ms ease`,
             }}
           >
-            {star.sparkle ? (
-              <Sparkle size={star.size} />
-            ) : (
-              <span
-                className="block rounded-full bg-current"
-                style={{ width: star.size, height: star.size }}
-              />
-            )}
+            <span
+              className="animate-twinkle block"
+              style={{ animationDelay: `${star.delay}s`, animationDuration: `${star.period}s` }}
+            >
+              {star.sparkle ? (
+                <Sparkle size={star.size} />
+              ) : (
+                <span
+                  className="block rounded-full bg-current"
+                  style={{ width: star.size, height: star.size }}
+                />
+              )}
+            </span>
           </span>
         ))}
 
