@@ -234,11 +234,6 @@ export function StarGrid({
 
       {axes && (
         <div className="absolute inset-0 font-mono text-[10px] leading-none select-none">
-          {/* The two axes, drawn: the grid's own lines are evenly faint, and these
-              two are the ones the figures are counted from. */}
-          <span className="bg-line absolute bottom-0 left-0 h-px w-full opacity-35" />
-          <span className="bg-line absolute bottom-0 left-0 h-full w-px opacity-35" />
-
           {/* Every cell carries its coordinate, quietly. */}
           <span className="text-muted/12 absolute inset-0">
             {Array.from({ length: COLS * ROWS }, (_, i) => {
