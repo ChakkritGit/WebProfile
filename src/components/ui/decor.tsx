@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useMemo, useState } from 'react'
 import { useIsMounted } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 
@@ -231,8 +232,31 @@ export function StarGrid({
   if (mounted) browserSky ??= Math.random()
   const sky = mounted && browserSky !== undefined ? browserSky : seed
 
-  const stars = scatter(sky)
-  const streaks = meteors(sky)
+  /**
+   * The sky keeps moving without being asked to.
+   *
+   * One star every seven seconds, drifting to somewhere else over two and a half
+   * — so it is never the whole field jumping, and after a couple of minutes none
+   * of it is where it started. The meteors take new paths every fourth turn,
+   * which they spend invisible anyway.
+   */
+  const [drift, setDrift] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setDrift((d) => d + 1), 7000)
+    return () => clearInterval(id)
+  }, [])
+
+  const stars = useMemo(() => {
+    const field = scatter(sky)
+    for (let turn = 1; turn <= drift; turn++) {
+      const next = generator(sky + turn * 0.37)
+      const moved = Math.floor(next() * field.length)
+      field[moved] = { ...field[moved], left: 3 + next() * 94, top: 4 + next() * 92 }
+    }
+    return field
+  }, [sky, drift])
+
+  const streaks = useMemo(() => meteors(sky + Math.floor(drift / 4) * 0.91), [sky, drift])
 
   return (
     <div aria-hidden className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}>
@@ -245,6 +269,8 @@ export function StarGrid({
             style={{
               left: `${star.left}%`,
               top: `${star.top}%`,
+              // Slow enough that it reads as a sky turning, not a dot jumping.
+              transition: 'left 2.5s ease-in-out, top 2.5s ease-in-out',
               animationDelay: `${star.delay}s`,
               animationDuration: `${star.period}s`,
               opacity: 0.35,
