@@ -98,7 +98,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* ------------------------------ stats ------------------------------ */}
       <Section className="pt-0 sm:pt-0">
-        <RevealGroup className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {/* The stats sit at the bottom edge of a phone's first screen, so they are
+            rendered finished rather than faded in after hydration. */}
+        <RevealGroup className="grid grid-cols-2 gap-4 lg:grid-cols-4" instant>
           {stats.map((stat) => (
             <RevealItem key={stat.key}>
               <StickerCard

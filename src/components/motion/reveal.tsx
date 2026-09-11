@@ -31,12 +31,22 @@ export function Reveal({
   delay = 0,
   className,
   once = true,
+  instant = false,
 }: {
   children: ReactNode
   direction?: Direction
   delay?: number
   className?: string
   once?: boolean
+  /**
+   * Render finished, for anything on screen at first paint.
+   *
+   * A reveal is invisible until React has hydrated, and on a throttled phone that
+   * is two and a half seconds in which the top of the page is blank or half
+   * faded — measured on `/en/contact`, the heading and the first card were still
+   * arriving at 3.2s. Speed Index is the metric that notices.
+   */
+  instant?: boolean
 }) {
   const reduce = useReducedMotion()
   const { x, y } = offsets[direction]
@@ -45,7 +55,7 @@ export function Reveal({
     <motion.div
       data-reveal
       className={className}
-      initial={{ opacity: 0, x, y }}
+      initial={instant ? false : { opacity: 0, x, y }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once, amount: 0 }}
       transition={reduce ? { duration: 0 } : { duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
@@ -72,13 +82,23 @@ export function Reveal({
  * observes itself instead, so any item — whenever it mounts — animates in on
  * its own. The stagger comes from an index-derived delay injected here.
  */
-export function RevealGroup({ children, className }: { children: ReactNode; className?: string }) {
+export function RevealGroup({
+  children,
+  className,
+  instant = false,
+}: {
+  children: ReactNode
+  className?: string
+  /** Passed to every item: the group is on screen at first paint. */
+  instant?: boolean
+}) {
   let index = 0
   const staggered = Children.map(children, (child) => {
     if (!isValidElement(child)) return child
-    const element = child as ReactElement<{ index?: number }>
-    if (element.props.index !== undefined) return element
-    return cloneElement(element, { index: index++ })
+    const element = child as ReactElement<{ index?: number; instant?: boolean }>
+    const extra = instant ? { instant: true } : {}
+    if (element.props.index !== undefined) return cloneElement(element, extra)
+    return cloneElement(element, { index: index++, ...extra })
   })
 
   return <div className={className}>{staggered}</div>

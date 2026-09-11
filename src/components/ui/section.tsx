@@ -72,7 +72,10 @@ export function PageHeader({
   return (
     <div className="drawn-rule paper-grain bg-paper-alt relative overflow-hidden">
       <Container className="relative z-10 py-12 sm:py-16">
-        <Reveal>
+        {/* Never revealed: this is the top of the page, on screen before anything
+            has hydrated, and fading it in is time the page spends looking
+            unfinished. */}
+        <Reveal instant>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl">{title}</h1>
           {description && (
             <p className="text-muted mt-4 max-w-2xl text-lg text-pretty">{description}</p>

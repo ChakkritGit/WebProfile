@@ -65,10 +65,19 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
   // `false` tells Motion to mount at the target values with no transition.
   const from = (values: Record<string, number>) => (reduce || !playIntro ? false : values)
 
-  // The text slides in but never fades: an element at `opacity: 0` is not
-  // painted, and the intro paragraph is this page's largest paint — fading it in
-  // after hydration put the home page's LCP at 936ms when first contentful paint
-  // was 92ms. The buttons and the graph still fade; neither is ever the LCP.
+  /**
+   * The first screen does not animate at all.
+   *
+   * It used to fade in, which cost the largest paint: an element at `opacity: 0`
+   * is not painted, and the home page's LCP was 936ms against a first paint of
+   * 92ms. Dropping the fade fixed that, and left a slide — which then kept the
+   * whole column moving for ~900ms after hydration, so on a throttled phone the
+   * page was still visibly settling at 3.5s. Measured frame by frame: the text
+   * and buttons were in their final place at 2.8s and still 16px low.
+   *
+   * So nothing here has an entrance. The graph, which is the other column and is
+   * not rendered on phones at all, keeps its.
+   */
 
   return (
     <section className="relative overflow-hidden">
@@ -78,7 +87,7 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
         <div className="grid items-center gap-12 lg:grid-cols-[1.3fr_0.7fr]">
           <div>
             <motion.p
-              initial={from({ y: 12 })}
+              initial={false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className="font-display text-muted flex items-center gap-2 text-lg font-semibold"
@@ -88,7 +97,7 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
             </motion.p>
 
             <motion.h1
-              initial={from({ y: 16 })}
+              initial={false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.08 }}
               // Fluid below the `sm` breakpoint so the name holds one line. The
@@ -114,7 +123,7 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
             </motion.h1>
 
             <motion.div
-              initial={from({ y: 16 })}
+              initial={false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.16 }}
               className="font-display mt-4 text-2xl font-bold sm:text-3xl"
@@ -124,7 +133,7 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
             </motion.div>
 
             <motion.p
-              initial={from({ y: 16 })}
+              initial={false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.24 }}
               className="text-muted mt-6 max-w-xl text-lg leading-relaxed text-pretty"
@@ -133,7 +142,10 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
             </motion.p>
 
             <motion.div
-              initial={from({ opacity: 0, y: 16 })}
+              // The buttons slide like the text above them and never fade: they
+              // are on a phone's first screen, and a faded control at 3s is a
+              // page that still looks like it is loading.
+              initial={false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.32 }}
               className="mt-8 flex flex-wrap gap-3"
