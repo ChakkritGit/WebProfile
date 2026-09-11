@@ -47,7 +47,7 @@ export function SectionHeading({
     <Reveal className={cn('mb-8 flex flex-wrap items-end justify-between gap-4', className)}>
       <div className="max-w-2xl">
         {eyebrow && (
-          <p className="text-brand font-display mb-2 text-sm font-bold tracking-[0.14em] uppercase">
+          <p className="text-brand-strong font-display mb-2 text-sm font-bold tracking-[0.14em] uppercase">
             {eyebrow}
           </p>
         )}

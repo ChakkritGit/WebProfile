@@ -108,7 +108,7 @@ export async function PostCard({
               {post.views}
             </span>
           )}
-          <ArrowRightIcon className="text-brand ms-auto size-4 transition-transform group-hover:translate-x-1" />
+          <ArrowRightIcon className="text-brand-strong ms-auto size-4 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
     </Link>
@@ -148,7 +148,7 @@ export async function ProjectCard({
         </h3>
 
         {project.role && (
-          <p className="text-brand font-display mt-1 text-xs font-semibold">
+          <p className="text-brand-strong font-display mt-1 text-xs font-semibold">
             {t('roleLabel')}: {project.role}
           </p>
         )}
@@ -170,7 +170,7 @@ export async function ProjectCard({
           {project.stack.length > 4 && <Badge>+{project.stack.length - 4}</Badge>}
         </div>
 
-        <div className="text-brand font-display mt-auto flex items-center gap-2 pt-4 text-sm font-semibold">
+        <div className="text-brand-strong font-display mt-auto flex items-center gap-2 pt-4 text-sm font-semibold">
           <span>{tCommon('viewProject')}</span>
           <ArrowRightIcon className="ms-auto size-4 transition-transform group-hover:translate-x-1" />
         </div>

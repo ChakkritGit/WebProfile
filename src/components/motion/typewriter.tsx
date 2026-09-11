@@ -66,7 +66,7 @@ export function Typewriter({
       <span aria-live="polite" aria-atomic="true">
         {chars.slice(0, count).join('')}
       </span>
-      <span aria-hidden className="animate-caret text-brand ml-0.5 font-normal">
+      <span aria-hidden className="animate-caret text-brand-strong ml-0.5 font-normal">
         |
       </span>
     </span>

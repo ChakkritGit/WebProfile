@@ -95,8 +95,8 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
               transition={{ duration: 0.55, delay: 0.16 }}
               className="font-display mt-4 text-2xl font-bold sm:text-3xl"
             >
-              {/* <Typewriter phrases={roles} className="text-brand" /> */}
-              <TextScramble phrases={roles} className="text-brand" />
+              {/* <Typewriter phrases={roles} className="text-brand-strong" /> */}
+              <TextScramble phrases={roles} className="text-brand-strong" />
             </motion.div>
 
             <motion.p

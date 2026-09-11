@@ -39,7 +39,10 @@ export function LogoMark({ className, size = 36 }: { className?: string; size?: 
       <path
         d="M33.2 16.9Q23 11.1 15.9 16.6Q10.4 20.8 12.1 26.6Q14.5 34.6 24.8 34.6Q30 34.4 33.5 30.7"
         fill="none"
-        stroke="var(--brand-ink)"
+        // White, not `--brand-ink`: that token now carries the ink colour so that
+        // text on a brand fill passes, and a logotype has no contrast floor to
+        // meet. The mark stays the mark.
+        stroke="#ffffff"
         strokeWidth="5.6"
         strokeLinecap="round"
         strokeLinejoin="round"

@@ -35,7 +35,7 @@ export default async function NotFound() {
           <div className="relative mt-6 inline-block">
             <p
               aria-hidden
-              className="font-display text-brand text-[6rem] leading-[0.85] font-extrabold sm:text-[9rem]"
+              className="font-display text-brand-strong text-[6rem] leading-[0.85] font-extrabold sm:text-[9rem]"
             >
               404
             </p>

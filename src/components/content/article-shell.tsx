@@ -81,7 +81,7 @@ export async function ArticleShell({
         <Container className="relative z-10 py-10 sm:py-14">
           <Link
             href={backHref}
-            className="text-muted hover:text-brand font-display mb-5 inline-flex items-center gap-2 text-sm font-semibold transition-colors"
+            className="text-muted hover:text-brand-strong font-display mb-5 inline-flex items-center gap-2 text-sm font-semibold transition-colors"
           >
             <ArrowRightIcon className="size-4 rotate-180" />
             {t('backTo', { page: tNav(backLabelKey) })}

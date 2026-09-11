@@ -76,7 +76,7 @@ export async function SiteFooter() {
                   <li key={item.key}>
                     <Link
                       href={item.href}
-                      className="text-muted hover:text-brand text-sm transition-colors"
+                      className="text-muted hover:text-brand-strong text-sm transition-colors"
                     >
                       {tNav(item.key)}
                     </Link>
@@ -85,7 +85,7 @@ export async function SiteFooter() {
                 <li>
                   <Link
                     href="/topics"
-                    className="text-muted hover:text-brand text-sm transition-colors"
+                    className="text-muted hover:text-brand-strong text-sm transition-colors"
                   >
                     {tNav('topics')}
                   </Link>

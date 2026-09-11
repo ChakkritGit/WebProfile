@@ -209,7 +209,7 @@ export function TagPicker({
                   active === suggestions.length ? 'bg-brand-soft' : 'hover:bg-surface-2',
                 )}
               >
-                <PlusIcon aria-hidden className="text-brand size-3.5 shrink-0" />
+                <PlusIcon aria-hidden className="text-brand-strong size-3.5 shrink-0" />
                 {t('tagsAdd', { name: trimmed })}
               </button>
             </li>

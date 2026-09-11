@@ -53,7 +53,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             {t('downloadResume')}
           </ResumeButton>
           <span className="sticker-sm bg-surface inline-flex items-center gap-2 px-4 py-2 text-sm">
-            <MapPinIcon className="text-brand size-4" />
+            <MapPinIcon className="text-brand-strong size-4" />
             {profile.location}
           </span>
         </div>
@@ -86,7 +86,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                     <h3 className="text-xl">
                       {t(`jobs.${job.id}.role` as 'jobs.thanes.role')}
                     </h3>
-                    <p className="text-brand font-display font-semibold">{job.company}</p>
+                    <p className="text-brand-strong font-display font-semibold">{job.company}</p>
                     <p className="text-muted mt-1 text-sm">
                       {formatMonthYear(job.start, locale)} —{' '}
                       {job.end ? formatMonthYear(job.end, locale) : tCommon('present')}
@@ -124,7 +124,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                     <h3 className="text-xl">
                       {t(`schools.${school.id}.degree` as 'schools.nrru.degree')}
                     </h3>
-                    <p className="text-brand font-display font-semibold">
+                    <p className="text-brand-strong font-display font-semibold">
                       {t(`schools.${school.id}.school` as 'schools.nrru.school')}
                     </p>
                     <p className="text-muted mt-1 text-sm">
@@ -148,7 +148,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             <RevealItem key={group.id}>
               <StickerCard className="h-full p-6" interactive>
                 <p className="font-display flex items-center gap-2 text-sm font-bold tracking-[0.12em] uppercase">
-                  <LayersIcon className="text-brand size-4" />
+                  <LayersIcon className="text-brand-strong size-4" />
                   {tSkills(group.id)}
                 </p>
                 <ul className="mt-4 flex flex-wrap gap-1.5">
@@ -172,7 +172,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             <RevealItem key={language.id}>
               <StickerCard className="h-full p-6">
                 <p className="font-display flex items-center gap-2 text-lg font-bold">
-                  <GlobeIcon className="text-brand size-5" />
+                  <GlobeIcon className="text-brand-strong size-5" />
                   {t(`languageNames.${language.id}` as 'languageNames.thai')}
                 </p>
                 <dl className="mt-4 space-y-3">

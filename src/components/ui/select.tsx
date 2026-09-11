@@ -161,7 +161,7 @@ export function Select({
                       <span className="text-muted block truncate text-xs">{option.hint}</span>
                     )}
                   </span>
-                  {isSelected && <CheckIcon aria-hidden className="text-brand size-4 shrink-0" />}
+                  {isSelected && <CheckIcon aria-hidden className="text-brand-strong size-4 shrink-0" />}
                 </button>
               </li>
             )

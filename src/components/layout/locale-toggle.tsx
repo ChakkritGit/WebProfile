@@ -161,7 +161,7 @@ export function LocaleToggle({ block = false }: { block?: boolean }) {
                     {localeMeta[code].short}
                   </span>
                   <span className="min-w-0 flex-1 truncate">{localeMeta[code].label}</span>
-                  {selected && <CheckIcon aria-hidden className="text-brand size-4 shrink-0" />}
+                  {selected && <CheckIcon aria-hidden className="text-brand-strong size-4 shrink-0" />}
                 </button>
               </li>
             )

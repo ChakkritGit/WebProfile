@@ -34,7 +34,7 @@ function ReadingSquiggle({ progress }: { progress: number }) {
       viewBox="0 0 200 15"
       preserveAspectRatio="none"
       aria-hidden
-      className="text-brand mb-3 h-3.5 w-full"
+      className="text-brand-strong mb-3 h-3.5 w-full"
     >
       <path d={WAVE} fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" opacity="0.2" />
       <path

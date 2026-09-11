@@ -19,8 +19,18 @@
   --shadow: #241f2e;
   --shadow-strength: 1;
 
+  /**
+   * The coral, and the two things it has to be able to do.
+   *
+   * `--brand` is the fill. As a *text* colour on any of the light surfaces it
+   * measures 2.86-3.05:1, under the 4.5 that body-sized text needs, so
+   * `--brand-strong` is the same hue taken down until it passes on the palest of
+   * them (4.66:1 on `--paper-alt`, 4.98 on white). `--brand-ink` is what goes on
+   * top of a brand fill: white managed 3.05:1 there, the ink manages 5.25.
+   */
   --brand: #ff5a5f;
-  --brand-ink: #ffffff;
+  --brand-strong: #c24448;
+  --brand-ink: #241f2e;
   --brand-soft: #ffe4e2;
 
   --mint: #23c4b4;
@@ -62,6 +72,8 @@
   --shadow-strength: 1;
 
   --brand: #ff7a7e;
+  /* On these surfaces the fill colour reads at 7:1 and needs no darker twin. */
+  --brand-strong: #ff7a7e;
   --brand-ink: #1b1622;
   --brand-soft: #4b3038;
 
@@ -104,6 +116,7 @@
   --color-line-soft: var(--line-soft);
 
   --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
   --color-brand-ink: var(--brand-ink);
   --color-brand-soft: var(--brand-soft);
   --color-toast-error: var(--toast-error);
@@ -487,7 +500,11 @@
    colours, since colouring those by hand would be writing a syntax theme. */
 .shiki-block .shiki {
   color: var(--ink);
-  background-color: var(--surface-2) !important;
+  /* `--surface`, not `--surface-2`: GitHub's token colours are drawn against
+     white, and on the warmer panel the comment grey measured 4.49:1 and the
+     keyword red 4.27:1 — both under the 4.5 that 14px text needs. The same
+     colours on this one measure 4.69 and 5.36. */
+  background-color: var(--surface) !important;
 }
 .shiki-block .shiki span {
   color: var(--shiki-light);

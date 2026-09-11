@@ -55,7 +55,7 @@ function Heading({ block, align }: { block: AnnotatedBlock; align: string }) {
           href={`#${block.anchor}`}
           aria-label={`Link to section`}
           tabIndex={-1}
-          className="text-brand ml-2 inline-block opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
+          className="text-brand-strong ml-2 inline-block opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
         >
           #
         </a>
@@ -70,7 +70,7 @@ function NestedList({ items, ordered, depth = 0 }: { items: ListItem[]; ordered:
     <Tag
       className={cn(
         'my-4 space-y-2 ps-6',
-        ordered ? 'list-decimal marker:font-display marker:font-bold marker:text-brand' : 'list-none',
+        ordered ? 'list-decimal marker:font-display marker:font-bold marker:text-brand-strong' : 'list-none',
         depth > 0 && 'my-2',
       )}
     >
@@ -227,7 +227,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
     case 'delimiter':
       return (
         <div aria-hidden className="my-10 flex justify-center">
-          <DelimiterMark className="text-brand h-4 w-24" />
+          <DelimiterMark className="text-brand-strong h-4 w-24" />
         </div>
       )
 
@@ -348,7 +348,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
           className="sticker sticker-hover bg-surface my-7 flex items-stretch gap-0 overflow-hidden no-underline"
         >
           <span className="min-w-0 flex-1 p-4 sm:p-5">
-            <span className="text-brand font-display block truncate text-[0.74em]/[1.33] font-bold tracking-wide uppercase">
+            <span className="text-brand-strong font-display block truncate text-[0.74em]/[1.33] font-bold tracking-wide uppercase">
               {host}
             </span>
             <span className="font-display mt-1.5 block font-bold leading-snug">

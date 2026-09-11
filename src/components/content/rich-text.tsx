@@ -104,7 +104,7 @@ const classFor: Partial<Record<AllowedTag, string>> = {
   // back to the theme's highlight.
   mark: 'rounded px-1 py-0.5 box-decoration-clone',
   code: 'bg-surface-2 border-line-soft rounded-md border px-1.5 py-0.5 font-mono text-[0.92em] font-medium',
-  a: 'text-brand font-medium underline decoration-2 underline-offset-2 hover:decoration-[3px]',
+  a: 'text-brand-strong font-medium underline decoration-2 underline-offset-2 hover:decoration-[3px]',
 }
 
 const TAG_RE = /<\/?([a-z][a-z0-9]*)((?:\s[^>]*)?)\/?>/gi

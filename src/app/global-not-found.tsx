@@ -27,7 +27,7 @@ export default function GlobalNotFound() {
     <html lang="th" className={mali.variable}>
       <body className="bg-paper text-ink grid min-h-dvh place-items-center p-6">
         <main className="text-center">
-          <p className="font-display text-brand text-6xl font-extrabold">404</p>
+          <p className="font-display text-brand-strong text-6xl font-extrabold">404</p>
           <h1 className="font-display mt-3 text-2xl font-bold">ไม่พบหน้าที่คุณเปิด</h1>
           <p className="text-muted mt-1 text-sm">This page does not exist.</p>
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages --

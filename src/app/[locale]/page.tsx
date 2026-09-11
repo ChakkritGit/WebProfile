@@ -128,7 +128,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <Section className="py-8 sm:py-10">
         <Reveal>
           <StickerCard size="lg" className="relative overflow-hidden p-7 sm:p-10">
-            <Squiggle className="text-brand absolute top-4 left-7 h-4 w-28 opacity-50 sm:left-10" />
+            <Squiggle className="text-brand-strong absolute top-4 left-7 h-4 w-28 opacity-50 sm:left-10" />
             <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
               <div>
                 <h2 className="text-2xl sm:text-3xl">{t('aboutTitle')}</h2>
@@ -157,7 +157,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           {skillGroups.map((group) => (
             <RevealItem key={group.id}>
               <StickerCard className="h-full p-5" interactive>
-                <p className="font-display text-brand text-xs font-bold tracking-[0.14em] uppercase">
+                <p className="font-display text-brand-strong text-xs font-bold tracking-[0.14em] uppercase">
                   {tSkills(group.id)}
                 </p>
                 <ul className="mt-3 flex flex-wrap gap-1.5">
