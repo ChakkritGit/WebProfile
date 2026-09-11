@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import sharp from 'sharp'
 import { STORAGE_BUCKET, getSupabaseAdmin, missingStorageEnv, publicUrlFor } from '@/lib/supabase'
 import { StudioError, jsonError, requireOwner } from '@/lib/studio-service'
 
@@ -44,8 +45,27 @@ async function store(bytes: ArrayBuffer, contentType: string) {
 
   if (error) throw new StudioError(`Upload failed: ${error.message}`, 502)
 
+  /**
+   * The picture's own dimensions travel with it.
+   *
+   * Editor.js keeps whatever this returns on the block, and the renderer reserves
+   * the box from it. Without them it fell back to 16:9, so a wide picture
+   * reserved 198px, loaded 85px tall, and every heading below it moved up 113px
+   * mid-scroll — which is a jump in the reading position and a jump in anything
+   * aiming at an anchor. `sharp` already ships with the image optimiser.
+   */
+  const size = await sharp(Buffer.from(bytes))
+    .metadata()
+    .catch(() => null)
+
   // Editor.js expects exactly this envelope from an image uploader.
-  return Response.json({ success: 1, file: { url: publicUrlFor(supabase, path) } })
+  return Response.json({
+    success: 1,
+    file: {
+      url: publicUrlFor(supabase, path),
+      ...(size?.width && size?.height ? { width: size.width, height: size.height } : {}),
+    },
+  })
 }
 
 /**
