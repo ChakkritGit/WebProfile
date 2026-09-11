@@ -59,9 +59,9 @@ export default async function ContactPage() {
           <div className="space-y-6">
             <div>
               <h2 className="mb-4 text-xl">{t('directTitle')}</h2>
-              {/* On screen before hydration, so it is not revealed — see
-                  `Reveal`'s `instant`. */}
-              <RevealGroup className="space-y-3" instant>
+              {/* On screen before hydration, so it enters from the stylesheet
+                  rather than waiting for the observer — see `firstPaint`. */}
+              <RevealGroup className="space-y-3" firstPaint>
                 {DIRECT.map((id, i) => {
                   const link = socials.find((s) => s.id === id)
                   if (!link) return null
@@ -95,7 +95,7 @@ export default async function ContactPage() {
 
             {/* Both cards are on a phone's first screen, under the ways to reach
                 me — rendered finished, like everything else up there. */}
-            <Reveal instant>
+            <Reveal firstPaint>
               <StickerCard tone="sun" className="p-5">
                 <p className="font-display flex items-center gap-2 font-bold">
                   <MapPinIcon className="size-4" />
@@ -105,7 +105,7 @@ export default async function ContactPage() {
               </StickerCard>
             </Reveal>
 
-            <Reveal instant>
+            <Reveal firstPaint>
               <StickerCard tone="mint" className="p-5">
                 <p className="font-display font-bold">{t('availabilityTitle')}</p>
                 <p className="text-ink-soft mt-1 text-sm leading-relaxed">{t('availabilityBody')}</p>

@@ -61,7 +61,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       {/* ----------------------------- summary ----------------------------- */}
       <Section className="pb-6 sm:pb-8">
-        <Reveal instant>
+        <Reveal firstPaint>
           <StickerCard size="lg" tone="sun" className="p-7 sm:p-9">
             <h2 className="text-2xl">{t('summaryTitle')}</h2>
             <p className="text-ink-soft mt-3 text-base leading-[1.85] text-pretty sm:text-lg">

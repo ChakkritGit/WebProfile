@@ -110,14 +110,38 @@ export function WaveDivider({ className, flip = false }: { className?: string; f
  * would differ between the server and client render and trip hydration.
  * [leftPercent, topPercent, sizePx, delaySeconds, isSparkle]
  */
-const STARS: [number, number, number, number, boolean][] = [
-  [6, 18, 3, 0, false], [14, 62, 2, 1.6, false], [21, 30, 10, 0.8, true],
-  [28, 78, 3, 2.4, false], [35, 12, 2, 1.1, false], [42, 52, 8, 3.1, true],
-  [49, 86, 2, 0.4, false], [56, 24, 3, 2.0, false], [63, 68, 11, 1.3, true],
-  [70, 40, 2, 2.8, false], [77, 16, 3, 0.6, false], [84, 74, 9, 1.9, true],
-  [91, 34, 2, 3.4, false], [96, 58, 3, 1.2, false], [11, 44, 7, 2.6, true],
-  [45, 92, 2, 0.9, false], [67, 6, 2, 3.7, false], [88, 48, 3, 0.2, false],
-]
+/**
+ * A sky, scattered from a number.
+ *
+ * The positions used to be a hand-written table, which meant every visitor saw
+ * the same eighteen stars in the same places. This draws them instead — but from
+ * a seed the server hands down, because `Math.random()` called during render
+ * would disagree with itself across hydration and React would keep whichever
+ * sky the server sent while the browser had drawn another.
+ *
+ * The seed comes from the server on every render, and these pages revalidate, so
+ * the sky is different from one visit to the next without any of that.
+ */
+function scatter(seed: number, count = 18) {
+  // A linear congruential generator: four lines, repeatable, and nobody needs
+  // more randomness than this to place a dot.
+  let state = Math.floor(seed * 4294967296) || 1
+  const next = () => {
+    state = (state * 1664525 + 1013904223) >>> 0
+    return state / 4294967296
+  }
+
+  return Array.from({ length: count }, () => {
+    const sparkle = next() < 0.28
+    return {
+      left: 3 + next() * 94,
+      top: 4 + next() * 92,
+      size: sparkle ? 7 + Math.round(next() * 4) : 2 + Math.round(next() * 2),
+      delay: Number((next() * 4).toFixed(2)),
+      sparkle,
+    }
+  })
+}
 
 function Sparkle({ size }: { size: number }) {
   return (
@@ -131,28 +155,30 @@ function Sparkle({ size }: { size: number }) {
  * Backdrop: a faint graph grid with a scattering of quietly twinkling stars.
  * Purely decorative and hidden from assistive tech.
  */
-export function StarGrid({ className }: { className?: string }) {
+export function StarGrid({ className, seed = 0.4242 }: { className?: string; seed?: number }) {
+  const stars = scatter(seed)
+
   return (
     <div aria-hidden className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}>
       <div className="star-grid absolute inset-0" />
       <div className="text-[var(--star)] absolute inset-0">
-        {STARS.map(([left, top, size, delay, sparkle], i) => (
+        {stars.map((star, i) => (
           <span
             key={i}
             className="animate-twinkle absolute block"
             style={{
-              left: `${left}%`,
-              top: `${top}%`,
-              animationDelay: `${delay}s`,
+              left: `${star.left}%`,
+              top: `${star.top}%`,
+              animationDelay: `${star.delay}s`,
               opacity: 0.35,
             }}
           >
-            {sparkle ? (
-              <Sparkle size={size} />
+            {star.sparkle ? (
+              <Sparkle size={star.size} />
             ) : (
               <span
                 className="block rounded-full bg-current"
-                style={{ width: size, height: size }}
+                style={{ width: star.size, height: star.size }}
               />
             )}
           </span>

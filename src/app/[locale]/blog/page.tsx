@@ -86,7 +86,7 @@ export default async function BlogPage({
           <>
             <RevealGroup className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {items.map((post, i) => (
-                <RevealItem key={post.id} className="h-full" instant={i < 3}>
+                <RevealItem key={post.id} className="h-full" firstPaint={i < 3}>
                   <PostCard post={post} index={i} locale={locale} priority={i < 3} />
                 </RevealItem>
               ))}

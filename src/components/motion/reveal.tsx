@@ -2,6 +2,7 @@
 
 import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
+import { cn } from '@/lib/utils'
 
 type Direction = 'up' | 'down' | 'left' | 'right' | 'none'
 
@@ -31,7 +32,7 @@ export function Reveal({
   delay = 0,
   className,
   once = true,
-  instant = false,
+  firstPaint = false,
 }: {
   children: ReactNode
   direction?: Direction
@@ -39,23 +40,32 @@ export function Reveal({
   className?: string
   once?: boolean
   /**
-   * Render finished, for anything on screen at first paint.
+   * Enter in CSS, at the first paint, instead of waiting to be scrolled to.
    *
-   * A reveal is invisible until React has hydrated, and on a throttled phone that
-   * is two and a half seconds in which the top of the page is blank or half
-   * faded — measured on `/en/contact`, the heading and the first card were still
-   * arriving at 3.2s. Speed Index is the metric that notices.
+   * For anything already on screen when the page arrives. A scroll reveal cannot
+   * start until React has hydrated — two and a half seconds on a throttled phone
+   * — so the top of the page sat half-faded until 3.2s, which is exactly what
+   * Speed Index measures. The stylesheet has no such wait: same movement, run
+   * while the page is arriving rather than after it.
    */
-  instant?: boolean
+  firstPaint?: boolean
 }) {
   const reduce = useReducedMotion()
   const { x, y } = offsets[direction]
+
+  if (firstPaint) {
+    return (
+      <div className={cn('hero-in', className)} style={delay ? { animationDelay: `${delay}s` } : undefined}>
+        {children}
+      </div>
+    )
+  }
 
   const animated = (
     <motion.div
       data-reveal
       className={className}
-      initial={instant ? false : { opacity: 0, x, y }}
+      initial={{ opacity: 0, x, y }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once, amount: 0 }}
       transition={reduce ? { duration: 0 } : { duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
@@ -85,18 +95,18 @@ export function Reveal({
 export function RevealGroup({
   children,
   className,
-  instant = false,
+  firstPaint = false,
 }: {
   children: ReactNode
   className?: string
   /** Passed to every item: the group is on screen at first paint. */
-  instant?: boolean
+  firstPaint?: boolean
 }) {
   let index = 0
   const staggered = Children.map(children, (child) => {
     if (!isValidElement(child)) return child
-    const element = child as ReactElement<{ index?: number; instant?: boolean }>
-    const extra = instant ? { instant: true } : {}
+    const element = child as ReactElement<{ index?: number; firstPaint?: boolean }>
+    const extra = firstPaint ? { firstPaint: true } : {}
     if (element.props.index !== undefined) return cloneElement(element, extra)
     return cloneElement(element, { index: index++, ...extra })
   })
@@ -108,30 +118,41 @@ export function RevealItem({
   children,
   className,
   index = 0,
-  instant = false,
+  firstPaint = false,
 }: {
   children: ReactNode
   className?: string
   /** Position in the group; drives the stagger delay. Injected by RevealGroup. */
   index?: number
   /**
-   * Skip the entrance for items that are on screen at first paint.
+   * Enter in CSS for items that are on screen when the page arrives.
    *
-   * A reveal is invisible until React has hydrated and the observer has fired,
-   * so an above-the-fold card cannot be the page's largest paint until then:
-   * measured on `/en/blog`, the listing's LCP was 984ms with the entrance and
-   * 364ms without it. `initial={false}` mounts at the finished state on both
-   * sides of hydration, so nothing is hidden and nothing animates.
+   * A scroll reveal is invisible until React has hydrated and the observer has
+   * fired, which an above-the-fold card cannot afford: measured on `/en/blog`,
+   * the listing's largest paint was 984ms with the entrance and 364ms without it.
+   * The same movement from the stylesheet starts at the first paint instead, and
+   * keeps the stagger.
    */
-  instant?: boolean
+  firstPaint?: boolean
 }) {
   const reduce = useReducedMotion()
+
+  if (firstPaint) {
+    return (
+      <div
+        className={cn('hero-in', className)}
+        style={{ animationDelay: `${Math.min(index, 8) * 0.07}s` }}
+      >
+        {children}
+      </div>
+    )
+  }
 
   return (
     <motion.div
       data-reveal
       className={className}
-      initial={instant ? false : { opacity: 0, y: 22, scale: 0.97 }}
+      initial={{ opacity: 0, y: 22, scale: 0.97 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, amount: 0 }}
       transition={{

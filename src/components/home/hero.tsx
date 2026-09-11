@@ -32,6 +32,7 @@ import {
   SparkleIcon,
 } from '@/components/icons'
 import { Container } from '@/components/ui/section'
+import { cn } from '@/lib/utils'
 import { ResumeButton } from '@/components/content/resume-button'
 
 
@@ -42,7 +43,16 @@ import { ResumeButton } from '@/components/content/resume-button'
  */
 let heroHasEntered = false
 
-export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) {
+export function Hero({
+  roles,
+  graph,
+  starSeed,
+}: {
+  roles: string[]
+  graph: GraphNode[]
+  /** Drawn on the server so both sides scatter the same sky. */
+  starSeed: number
+}) {
   const t = useTranslations('home')
   const tMeta = useTranslations('meta')
   const reduce = useReducedMotion()
@@ -65,6 +75,11 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
   // `false` tells Motion to mount at the target values with no transition.
   const from = (values: Record<string, number>) => (reduce || !playIntro ? false : values)
 
+  /** The entrance plays once a session, and not at all for a reader who asked
+      for no motion — the delays stay on the elements either way, harmless
+      without an animation to delay. */
+  const entering = playIntro && !reduce
+
   /**
    * The first screen does not animate at all.
    *
@@ -81,25 +96,24 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
 
   return (
     <section className="relative overflow-hidden">
-      <StarGrid />
+      <StarGrid seed={starSeed} />
 
       <Container className="relative z-10 py-16 sm:py-24 lg:py-28">
         <div className="grid items-center gap-12 lg:grid-cols-[1.3fr_0.7fr]">
           <div>
-            <motion.p
-              initial={false}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="font-display text-muted flex items-center gap-2 text-lg font-semibold"
+            <p
+              style={{ animationDelay: '0s' }}
+              className={cn(
+                'font-display text-muted flex items-center gap-2 text-lg font-semibold',
+                entering && 'hero-in',
+              )}
             >
               <SparkleIcon className="text-sun size-5" />
               {t('greeting')}
-            </motion.p>
+            </p>
 
-            <motion.h1
-              initial={false}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: 0.08 }}
+            <h1
+              style={{ animationDelay: '0.08s' }}
               // Fluid below the `sm` breakpoint so the name holds one line. The
               // Thai name is the long one: it needs 419px at 48px, and a phone
               // column is 288 to 398px, so it broke across two lines at every
@@ -111,7 +125,10 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
               // and the text loses half the width: at 1024 the column is 603px
               // and the name needs 628px at 72px, so it broke there too. It
               // reaches full size by about 1120, where there is room for it.
-              className="relative mt-2 text-[clamp(1.75rem,10vw,3rem)] sm:text-6xl lg:text-[clamp(4rem,6.4vw,4.5rem)]"
+              className={cn(
+                'relative mt-2 text-[clamp(1.75rem,10vw,3rem)] sm:text-6xl lg:text-[clamp(4rem,6.4vw,4.5rem)]',
+                entering && 'hero-in',
+              )}
             >
               <span className="relative inline-block">
                 {tMeta('siteName')}
@@ -120,35 +137,29 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
                   color="var(--brand)"
                 />
               </span>
-            </motion.h1>
+            </h1>
 
-            <motion.div
-              initial={false}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: 0.16 }}
-              className="font-display mt-4 text-2xl font-bold sm:text-3xl"
+            <div
+              style={{ animationDelay: '0.16s' }}
+              className={cn('font-display mt-4 text-2xl font-bold sm:text-3xl', entering && 'hero-in')}
             >
               {/* <Typewriter phrases={roles} className="text-brand-strong" /> */}
               <TextScramble phrases={roles} className="text-brand-strong" />
-            </motion.div>
+            </div>
 
-            <motion.p
-              initial={false}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: 0.24 }}
-              className="text-muted mt-6 max-w-xl text-lg leading-relaxed text-pretty"
+            <p
+              style={{ animationDelay: '0.24s' }}
+              className={cn(
+                'text-muted mt-6 max-w-xl text-lg leading-relaxed text-pretty',
+                entering && 'hero-in',
+              )}
             >
               {t('intro', { company: profile.company })}
-            </motion.p>
+            </p>
 
-            <motion.div
-              // The buttons slide like the text above them and never fade: they
-              // are on a phone's first screen, and a faded control at 3s is a
-              // page that still looks like it is loading.
-              initial={false}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: 0.32 }}
-              className="mt-8 flex flex-wrap gap-3"
+            <div
+              style={{ animationDelay: '0.32s' }}
+              className={cn('mt-8 flex flex-wrap gap-3', entering && 'hero-in')}
             >
               <ButtonLink href="/projects" size="lg">
                 {t('ctaProjects')}
@@ -162,7 +173,7 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
                 <EyeIcon className="size-4" />
                 {t('ctaResume')}
               </ResumeButton>
-            </motion.div>
+            </div>
           </div>
 
           {/* The work as a graph, where the photograph used to be.

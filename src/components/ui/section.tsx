@@ -75,7 +75,7 @@ export function PageHeader({
         {/* Never revealed: this is the top of the page, on screen before anything
             has hydrated, and fading it in is time the page spends looking
             unfinished. */}
-        <Reveal instant>
+        <Reveal firstPaint>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl">{title}</h1>
           {description && (
             <p className="text-muted mt-4 max-w-2xl text-lg text-pretty">{description}</p>

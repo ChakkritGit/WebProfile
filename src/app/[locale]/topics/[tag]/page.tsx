@@ -102,7 +102,7 @@ export default async function TopicPage({
             <h2 className="mb-5 text-2xl">{t('projectsHeading')}</h2>
             <RevealGroup className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {matchedProjects.map((project, i) => (
-                <RevealItem key={project.id} className="h-full" instant={i < 3}>
+                <RevealItem key={project.id} className="h-full" firstPaint={i < 3}>
                   <ProjectCard project={project} index={i} priority={i < 3} />
                 </RevealItem>
               ))}
@@ -117,7 +117,7 @@ export default async function TopicPage({
               {matchedPosts.map((post, i) => (
                 // Only the top section of the page is above the fold, and which
                 // one that is depends on whether this tag has any projects.
-                <RevealItem key={post.id} className="h-full" instant={matchedProjects.length === 0 && i < 3}>
+                <RevealItem key={post.id} className="h-full" firstPaint={matchedProjects.length === 0 && i < 3}>
                   <PostCard
                     post={post}
                     index={i}
