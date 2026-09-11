@@ -1,4 +1,16 @@
+'use client'
+
+import { useIsMounted } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
+
+/**
+ * The sky this page load gets, drawn once when the script first runs.
+ *
+ * Module scope rather than state: it is the same for every `StarGrid` on the
+ * page and it survives a client-side navigation, so walking to another page and
+ * back does not reshuffle the stars — only a real page load does.
+ */
+let browserSky: number | undefined
 
 /**
  * Purely decorative shapes. All are aria-hidden and pointer-events-none so they
@@ -135,9 +147,11 @@ function generator(seed: number) {
  * would disagree with itself across hydration and React would keep whichever
  * sky the server sent while the browser had drawn another.
  *
- * The seed is a constant. It was briefly drawn fresh on every server start, which
- * meant the stars moved under anyone who reloaded; one scatter, kept, is what a
- * sky is supposed to do. Change the number to get a different one.
+ * The seed the server renders with is a constant, so the markup it sends is the
+ * same every time and hydration has nothing to argue about. The browser draws a
+ * new one once it is running: a different sky on every visit, arriving while the
+ * page is still settling, which for eighteen dots at a third of full opacity is
+ * not something anybody sees happen.
  */
 function scatter(seed: number, count = 18) {
   const next = generator(seed)
@@ -205,12 +219,20 @@ export function StarGrid({
   axes = false,
 }: {
   className?: string
+  /** The sky the server draws; the browser picks its own on arrival. */
   seed?: number
   /** Draw the figures up the left edge and along the bottom. */
   axes?: boolean
 }) {
-  const stars = scatter(seed)
-  const streaks = meteors(seed)
+  // The server's constant, then the browser's own once it is running. Nothing is
+  // set during render: `useIsMounted` is a `useSyncExternalStore` snapshot, which
+  // is false on the server and true after hydration.
+  const mounted = useIsMounted()
+  if (mounted) browserSky ??= Math.random()
+  const sky = mounted && browserSky !== undefined ? browserSky : seed
+
+  const stars = scatter(sky)
+  const streaks = meteors(sky)
 
   return (
     <div aria-hidden className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}>
