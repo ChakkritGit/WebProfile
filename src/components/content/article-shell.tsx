@@ -110,7 +110,7 @@ export async function ArticleShell({
           <div className="min-w-0">
             {/* Mobile TOC sits above the article; the desktop rail is in the sidebar. */}
             <div className="mb-6 space-y-4 lg:hidden">
-              {toc.length > 0 && <TableOfContents items={toc} />}
+              {toc.length > 0 && <TableOfContents items={toc} variant="collapsible" />}
               <ReadingSize />
               <ReadingFont />
             </div>
@@ -131,7 +131,7 @@ export async function ArticleShell({
               what gives way — it takes the space the card does not need, and
               scrolls inside it. */}
           <aside className="hidden lg:sticky lg:top-[calc(var(--header-h)+1.5rem)] lg:flex lg:max-h-[calc(100vh-var(--header-h)-3rem)] lg:flex-col lg:gap-4 lg:self-start">
-            <TableOfContents items={toc} className="min-h-0 flex-1" />
+            <TableOfContents items={toc} variant="rail" className="min-h-0 flex-1" />
             <ReadingSize className="shrink-0" />
             <ReadingFont className="shrink-0" />
           </aside>

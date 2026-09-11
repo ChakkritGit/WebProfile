@@ -52,7 +52,22 @@ function ReadingSquiggle({ progress }: { progress: number }) {
   )
 }
 
-export function TableOfContents({ items, className }: { items: TocItem[]; className?: string }) {
+/**
+ * One outline, drawn as whichever of the two it is asked for.
+ *
+ * It used to render both and let CSS hide one, and it is mounted twice — once in
+ * the article column, once in the sidebar — so every article carried four
+ * `<nav>`s and showed two.
+ */
+export function TableOfContents({
+  items,
+  variant,
+  className,
+}: {
+  items: TocItem[]
+  variant: 'rail' | 'collapsible'
+  className?: string
+}) {
   const t = useTranslations('common')
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null)
   const [open, setOpen] = useState(false)
@@ -176,10 +191,9 @@ export function TableOfContents({ items, className }: { items: TocItem[]; classN
     </ol>
   )
 
-  return (
-    <>
-      {/* Desktop: sticky rail */}
-      <nav aria-label={t('tableOfContents')} className={cn('hidden min-h-0 lg:flex lg:flex-col', className)}>
+  if (variant === 'rail') {
+    return (
+      <nav aria-label={t('tableOfContents')} className={cn('flex min-h-0 flex-col', className)}>
         <div className="sticker bg-surface flex min-h-0 flex-col p-4">
             <p className="font-display mb-3 flex items-center gap-2 text-sm font-bold tracking-wide uppercase">
               <ListIcon className="size-4" />
@@ -191,9 +205,11 @@ export function TableOfContents({ items, className }: { items: TocItem[]; classN
           <div className="min-h-0 flex-1 overflow-y-auto pe-1">{list}</div>
         </div>
       </nav>
+    )
+  }
 
-      {/* Mobile: collapsible */}
-      <nav aria-label={t('tableOfContents')} className="lg:hidden">
+  return (
+      <nav aria-label={t('tableOfContents')}>
         <div className="sticker bg-surface overflow-hidden">
           <button
             type="button"
@@ -214,6 +230,5 @@ export function TableOfContents({ items, className }: { items: TocItem[]; classN
           {open && <div className="drawn-rule-top relative px-3 pt-5 pb-3">{list}</div>}
         </div>
       </nav>
-    </>
   )
 }

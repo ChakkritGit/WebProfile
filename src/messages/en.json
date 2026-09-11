@@ -188,24 +188,7 @@
     "stackLabel": "Stack",
     "yearLabel": "Year",
     "linkLive": "Live site",
-    "linkRepo": "Source code",
-    "seed": {
-      "smtrack": {
-        "title": "SMTrack+",
-        "summary": "Real-time temperature monitoring for hospital medicine cabinets, with WebSocket alerts and MQTT-connected devices.",
-        "role": "Front-end lead & API development"
-      },
-      "conhis": {
-        "title": "Conhis System",
-        "summary": "A management platform built with Next.js, React and TypeScript, plus the LGS light-guiding station subsystem.",
-        "role": "Front-end development & UI"
-      },
-      "ward-stock": {
-        "title": "Ward Stock",
-        "summary": "An automated medication dispensing system built in Kotlin with Jetpack Compose, talking to hardware through the NDK.",
-        "role": "Android application development"
-      }
-    }
+    "linkRepo": "Source code"
   },
   "blog": {
     "title": "Blog",

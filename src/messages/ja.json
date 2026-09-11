@@ -188,24 +188,7 @@
     "stackLabel": "技術構成",
     "yearLabel": "年",
     "linkLive": "公開サイト",
-    "linkRepo": "ソースコード",
-    "seed": {
-      "smtrack": {
-        "title": "SMTrack+",
-        "summary": "病院の薬品保管庫の温度をリアルタイムに監視するシステム。WebSocket通知とMQTT接続の機器を利用。",
-        "role": "フロントエンド主担当・API開発"
-      },
-      "conhis": {
-        "title": "Conhis System",
-        "summary": "Next.js・React・TypeScriptで構築した管理プラットフォーム。LGS（光誘導ステーション）サブシステムを含む。",
-        "role": "フロントエンド開発・UI設計"
-      },
-      "ward-stock": {
-        "title": "Ward Stock",
-        "summary": "KotlinとJetpack Composeで開発した自動調剤システム。NDK経由でハードウェアと連携。",
-        "role": "Androidアプリ開発"
-      }
-    }
+    "linkRepo": "ソースコード"
   },
   "blog": {
     "title": "ブログ",

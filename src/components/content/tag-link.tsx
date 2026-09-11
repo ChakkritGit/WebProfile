@@ -27,15 +27,3 @@ export function TagLink({ tag, className }: { tag: string; className?: string })
   )
 }
 
-export function TagLinkList({ tags, className }: { tags: string[]; className?: string }) {
-  if (tags.length === 0) return null
-  return (
-    <ul className={className ?? 'flex flex-wrap gap-2'}>
-      {tags.map((tag) => (
-        <li key={tag}>
-          <TagLink tag={tag} />
-        </li>
-      ))}
-    </ul>
-  )
-}

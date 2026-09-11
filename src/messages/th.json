@@ -188,24 +188,7 @@
     "stackLabel": "เทคโนโลยี",
     "yearLabel": "ปี",
     "linkLive": "เว็บไซต์จริง",
-    "linkRepo": "ซอร์สโค้ด",
-    "seed": {
-      "smtrack": {
-        "title": "SMTrack+",
-        "summary": "ระบบติดตามอุณหภูมิตู้ยาในโรงพยาบาลแบบเรียลไทม์ แจ้งเตือนผ่าน WebSocket และเชื่อมต่ออุปกรณ์ด้วย MQTT",
-        "role": "ดูแลหน้าบ้านหลักและพัฒนา API"
-      },
-      "conhis": {
-        "title": "Conhis System",
-        "summary": "แพลตฟอร์มบริหารจัดการที่สร้างด้วย Next.js, React และ TypeScript พร้อมระบบย่อย LGS สถานีนำทางด้วยแสง",
-        "role": "พัฒนาหน้าบ้านและออกแบบ UI"
-      },
-      "ward-stock": {
-        "title": "Ward Stock",
-        "summary": "ระบบจ่ายยาอัตโนมัติที่พัฒนาด้วย Kotlin และ Jetpack Compose เชื่อมต่อฮาร์ดแวร์ผ่าน NDK",
-        "role": "พัฒนาแอปพลิเคชัน Android"
-      }
-    }
+    "linkRepo": "ซอร์สโค้ด"
   },
   "blog": {
     "title": "บทความ",

@@ -78,9 +78,8 @@ cp .env.example .env    # fill in the values below
 npm run dev             # http://localhost:3000
 ```
 
-The site **runs without a database** — reads fall back to the bundled sample
-content in `src/content/seed.ts`, so a fresh clone renders immediately. Configure
-Supabase when you want the studio to persist anything.
+The site **runs without a database** — reads answer empty rather than throwing,
+so a fresh clone renders. Configure Supabase to have anything to read.
 
 ---
 
@@ -112,7 +111,6 @@ will fail with `new row violates row-level security policy`.
 
 ```bash
 npm run db:push     # create the tables
-npm run db:seed     # load the sample content (idempotent upsert)
 ```
 
 ### 2 · GitHub sign-in
@@ -176,7 +174,6 @@ callback, so a disallowed account never receives a session at all.
 | `npm run db:push` | Push the schema to Supabase (no migration files) |
 | `npm run db:migrate` | Create a migration (development) |
 | `npm run db:deploy` | Apply migrations (production / CI) |
-| `npm run db:seed` | Upsert the bundled sample content |
 | `npm run db:studio` | Prisma Studio |
 | `npm run icons` | Regenerate the favicon / PWA icon set |
 
@@ -186,7 +183,6 @@ callback, so a disallowed account never receives a session at all.
 
 ```
 prisma/schema.prisma        Post, Project (Editor.js JSON in `content`, `views`) + Tag vocabulary
-prisma/seed.ts              upserts src/content/seed.ts into Supabase
 src/
 ├─ app/
 │  ├─ [locale]/             every page, plus per-route opengraph-image
@@ -202,9 +198,8 @@ src/
 │  ├─ layout/               header, footer, theme + locale toggles, webring
 │  ├─ content/              block renderer, TOC, cards, search, pagination
 │  ├─ studio/               Editor.js integration, forms, content manager
-│  └─ brand/                logo mark, cartoon avatar (unused, kept for reuse)
+│  └─ brand/                logo mark, hand-drawn technology icons
 ├─ config/site.ts           ← all personal data lives here
-├─ content/seed.ts          bundled sample content (also the DB seed source)
 ├─ lib/                     content repo, editor helpers, slugs, SEO, search
 ├─ i18n/ + messages/        routing config and th/en/ja catalogues (kept in parity)
 └─ generated/prisma/        Prisma client — git-ignored, built by `postinstall`

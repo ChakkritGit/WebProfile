@@ -257,12 +257,6 @@ export const ClockIcon = (p: IconProps) => (
   </Stroke>
 )
 
-export const CalendarIcon = (p: IconProps) => (
-  <Stroke {...p}>
-    <HandRect x={3} y={5} width={18} height={16} rx={3} />
-    <path d="M3.1 10.1q8.9-.4 17.8-.2M8.1 2.9q-.2 2-.1 4.1M15.9 3.1q.2 2 .1 4" />
-  </Stroke>
-)
 
 export const BriefcaseIcon = (p: IconProps) => (
   <Stroke {...p}>
@@ -334,22 +328,7 @@ export const LayersIcon = (p: IconProps) => (
  * inherit the theme's ink colour instead of a vendor's colour palette.
  * ---------------------------------------------------------------------- */
 
-export const CrownIcon = (p: IconProps) => (
-  <Stroke {...p}>
-    <path d="M3.5 8.5 6.8 13 12 5.5 17.2 13l3.3-4.5v8.2a1.8 1.8 0 0 1-1.8 1.8H5.3a1.8 1.8 0 0 1-1.8-1.8V8.5Z" />
-    <path d="M3.5 15.5h17" />
-    <HandCircle cx={3.5} cy={7} r={1.3} />
-    <HandCircle cx={20.5} cy={7} r={1.3} />
-    <HandCircle cx={12} cy={4} r={1.3} />
-  </Stroke>
-)
 
-export const ThumbsUpIcon = (p: IconProps) => (
-  <Stroke {...p}>
-    <path d="M7 10.5 11 3a2.2 2.2 0 0 1 2.2 2.2V9h4.6a2 2 0 0 1 2 2.4l-1.3 6a2 2 0 0 1-2 1.6H7" />
-    <HandRect x={3} y={10} width={4} height={9.5} rx={1.4} />
-  </Stroke>
-)
 
 export const RssIcon = (p: IconProps) => (
   <Stroke {...p}>

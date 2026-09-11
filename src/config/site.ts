@@ -70,7 +70,6 @@ export const experience = [
     start: '2023-06-01',
     end: null as string | null,
     stack: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'NestJS', 'Kotlin'],
-    projects: ['smtrack', 'conhis', 'ward-stock'],
   },
 ] as const
 

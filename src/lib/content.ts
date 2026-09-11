@@ -2,17 +2,17 @@ import 'server-only'
 
 import { asEditorDocument, readingMinutes } from './editor'
 import { hasDatabase, prisma } from './prisma'
-import { seedPosts, seedProjects } from '@/content/seed'
 import type { ListOptions, PostRecord, ProjectRecord } from './content-types'
 import { contentLocalePreference, type Locale } from '@/i18n/routing'
 
 /**
  * Content access layer.
  *
- * Seed content is a fallback for an *unavailable* database — no DATABASE_URL, or
- * a query that threw. It is never a fallback for an empty result: "no featured
- * projects" and "that slug was deleted" are real answers and must be returned as
- * such, or the site starts resurrecting sample content over live data.
+ * An unreachable database reads as empty, not as something else. There used to be
+ * a thousand lines of sample content standing behind these functions for the case
+ * where Supabase could not be reached; a personal site showing invented articles
+ * is worse than one showing none, and the same content kept leaking into empty
+ * results — "nothing is featured" and "that slug was deleted" are real answers.
  */
 
 function iso(value: Date | string | null | undefined): string | null {
@@ -68,16 +68,6 @@ function toProject(row: any): ProjectRecord {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-function filterSeed<T extends { locale: string; status: string; tags: string[]; featured: boolean }>(
-  rows: T[],
-  { includeDrafts, tag, featuredOnly }: ListOptions,
-): T[] {
-  let out = [...rows]
-  if (!includeDrafts) out = out.filter((r) => r.status === 'PUBLISHED')
-  if (tag) out = out.filter((r) => r.tags.includes(tag))
-  if (featuredOnly) out = out.filter((r) => r.featured)
-  return out
-}
 
 type Variant = { id: string; locale: Locale; translationKey: string | null }
 
@@ -126,13 +116,14 @@ function finish<T extends Variant & Sortable>(
   return typeof options.limit === 'number' ? out.slice(0, options.limit) : out
 }
 
-async function safely<T>(run: () => Promise<T>, fallback: T): Promise<T> {
-  if (!hasDatabase || !prisma) return fallback
+/** Runs a query, or answers `empty` if there is no database to run it against. */
+async function safely<T>(run: () => Promise<T>, empty: T): Promise<T> {
+  if (!hasDatabase || !prisma) return empty
   try {
     return await run()
   } catch (error) {
-    console.error('[content] database read failed, serving seed content:', error)
-    return fallback
+    console.error('[content] database read failed:', error)
+    return empty
   }
 }
 
@@ -145,7 +136,6 @@ function comparePosts(options: ListOptions) {
 }
 
 export async function listPosts(options: ListOptions): Promise<PostRecord[]> {
-  const fallback = finish(filterSeed(seedPosts, options), options, comparePosts(options))
   return safely(async () => {
     const rows = await prisma!.post.findMany({
       where: {
@@ -155,7 +145,7 @@ export async function listPosts(options: ListOptions): Promise<PostRecord[]> {
       },
     })
     return finish(rows.map(toPost), options, comparePosts(options))
-  }, fallback)
+  }, [])
 }
 
 export async function getPost(
@@ -169,8 +159,6 @@ export async function getPost(
   const best = <T extends { locale: string }>(rows: T[]): T | null =>
     preference.map((l) => rows.find((r) => r.locale === l)).find(Boolean) ?? rows[0] ?? null
 
-  const fallback = best(readable(seedPosts))
-
   return safely(async () => {
     // The slug is unique per locale, so this returns at most one row per language.
     // Reading `/ja/blog/<thai-only-post>` must serve the Thai text rather than 404 —
@@ -178,14 +166,14 @@ export async function getPost(
     const rows = await prisma!.post.findMany({ where: { slug } })
     const row = best(readable(rows))
     return row ? toPost(row) : null
-  }, fallback)
+  }, null)
 }
 
 export async function getPostById(id: string): Promise<PostRecord | null> {
   return safely(async () => {
     const row = await prisma!.post.findUnique({ where: { id } })
     return row ? toPost(row) : null
-  }, seedPosts.find((p) => p.id === id) ?? null)
+  }, null)
 }
 
 /* ------------------------------ projects ------------------------------ */
@@ -197,7 +185,6 @@ function compareProjects(options: ListOptions) {
 }
 
 export async function listProjects(options: ListOptions): Promise<ProjectRecord[]> {
-  const fallback = finish(filterSeed(seedProjects, options), options, compareProjects(options))
   return safely(async () => {
     const rows = await prisma!.project.findMany({
       where: {
@@ -207,7 +194,7 @@ export async function listProjects(options: ListOptions): Promise<ProjectRecord[
       },
     })
     return finish(rows.map(toProject), options, compareProjects(options))
-  }, fallback)
+  }, [])
 }
 
 export async function getProject(
@@ -221,20 +208,18 @@ export async function getProject(
   const best = <T extends { locale: string }>(rows: T[]): T | null =>
     preference.map((l) => rows.find((r) => r.locale === l)).find(Boolean) ?? rows[0] ?? null
 
-  const fallback = best(readable(seedProjects))
-
   return safely(async () => {
     const rows = await prisma!.project.findMany({ where: { slug } })
     const row = best(readable(rows))
     return row ? toProject(row) : null
-  }, fallback)
+  }, null)
 }
 
 export async function getProjectById(id: string): Promise<ProjectRecord | null> {
   return safely(async () => {
     const row = await prisma!.project.findUnique({ where: { id } })
     return row ? toProject(row) : null
-  }, seedProjects.find((p) => p.id === id) ?? null)
+  }, null)
 }
 
 /* -------------------------------- tags -------------------------------- */

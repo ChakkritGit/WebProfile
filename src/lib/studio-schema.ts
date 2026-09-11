@@ -111,11 +111,6 @@ export type ProjectUpdateInput = z.infer<typeof projectUpdateSchema>
 
 /* ------------------------------- helpers ------------------------------- */
 
-export function schemaFor(kind: ContentKindParam, partial: boolean) {
-  if (kind === 'posts') return partial ? postUpdateSchema : postSchema
-  return partial ? projectUpdateSchema : projectSchema
-}
-
 /** Flat `{ field: [message] }` map for the 400 response body. */
 export function fieldErrors(error: z.ZodError): Record<string, string[]> {
   const out: Record<string, string[]> = {}
@@ -124,12 +119,4 @@ export function fieldErrors(error: z.ZodError): Record<string, string[]> {
     ;(out[key] ??= []).push(issue.message)
   }
   return out
-}
-
-/** `"a, b , ,c"` → `['a','b','c']` — the shape the comma-separated inputs post. */
-export function parseList(value: string): string[] {
-  return value
-    .split(',')
-    .map((item) => item.trim())
-    .filter(Boolean)
 }
