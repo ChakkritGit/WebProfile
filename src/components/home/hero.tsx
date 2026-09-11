@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { motion, useReducedMotion } from 'motion/react'
 import { profile } from '@/config/site'
@@ -10,7 +11,20 @@ import { ButtonLink } from '@/components/ui/button'
 // import { Typewriter } from '@/components/motion/typewriter'
 import { TextScramble } from '@/components/motion/text-scramble'
 import { CircleScribble, StarGrid } from '@/components/ui/decor'
-import { KnowledgeGraph, type GraphNode } from './knowledge-graph'
+import type { GraphNode } from './knowledge-graph'
+
+/**
+ * The graph is fetched only where it is shown.
+ *
+ * It is the largest thing the home page owns and phones do not get it at all, so
+ * shipping it to them was 60KB of JavaScript to draw nothing. `ssr: false` keeps
+ * the server's markup and the first client render identical — both empty — and
+ * the media query decides whether the chunk is ever asked for.
+ */
+const KnowledgeGraph = dynamic(
+  () => import('./knowledge-graph').then((m) => m.KnowledgeGraph),
+  { ssr: false },
+)
 import {
   ArrowRightIcon,
   EyeIcon,
@@ -33,9 +47,19 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
   const tMeta = useTranslations('meta')
   const reduce = useReducedMotion()
   const [playIntro] = useState(() => !heroHasEntered)
+  // Matches the `sm` breakpoint the wrapper below hides the graph at.
+  const [wide, setWide] = useState(false)
 
   useEffect(() => {
     heroHasEntered = true
+  }, [])
+
+  useEffect(() => {
+    const query = window.matchMedia('(min-width: 640px)')
+    const sync = () => setWide(query.matches)
+    sync()
+    query.addEventListener('change', sync)
+    return () => query.removeEventListener('change', sync)
   }, [])
 
   // `false` tells Motion to mount at the target values with no transition.
@@ -142,7 +166,7 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
             // without it.
             className="relative mx-auto hidden w-full max-w-[19rem] sm:block sm:max-w-[22rem] lg:max-w-[26rem]"
           >
-            <KnowledgeGraph nodes={graph} />
+            {wide && <KnowledgeGraph nodes={graph} />}
           </motion.div>
         </div>
       </Container>
