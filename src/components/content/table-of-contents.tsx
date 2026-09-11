@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useTranslations } from 'next-intl'
 import { ChevronDownIcon, ListIcon } from '@/components/icons'
 import type { TocItem } from '@/lib/toc'
@@ -105,14 +106,46 @@ export function TableOfContents({ items, className }: { items: TocItem[]; classN
     const target = document.getElementById(id)
     if (!target) return
 
+    /**
+     * Collapse first, then aim.
+     *
+     * On a phone this list sits *above* the article, so closing it moves every
+     * heading up by its own height — and it was being closed after the scroll
+     * had already been aimed at where the heading used to be. Measured on a
+     * 390px viewport: the panel was 560px tall and the heading ended up 577px
+     * above the top of the screen. `flushSync` is what makes the layout true
+     * before the browser is asked where to go, rather than hoping a frame is
+     * enough.
+     */
+    flushSync(() => setOpen(false))
+
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+
+    /**
+     * Check the landing, because the page moves while the scroll is in flight.
+     *
+     * Pictures between here and there load on the way past and settle at their
+     * real height, and the heading goes with them: measured on a phone, 17px
+     * above the top of the screen, under the header. The aim is checked once the
+     * scroll has stopped and corrected if it is out — but only within a screen of
+     * where it should be, so that a reader who grabbed the page mid-flight and
+     * went somewhere else is not dragged back.
+     */
+    const settle = () => {
+      window.clearTimeout(fallback)
+      const wanted = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0
+      const off = target.getBoundingClientRect().top - wanted
+      if (Math.abs(off) > 2 && Math.abs(off) < window.innerHeight) window.scrollBy({ top: off })
+    }
+    // `scrollend` is the signal; the timer is for the browsers without it.
+    window.addEventListener('scrollend', settle, { once: true })
+    const fallback = window.setTimeout(settle, 1200)
     // Keep the URL shareable and move focus for screen-reader/keyboard users.
     history.replaceState(null, '', `#${id}`)
     target.setAttribute('tabindex', '-1')
     target.focus({ preventScroll: true })
     setActiveId(id)
-    setOpen(false)
   }, [])
 
   if (items.length === 0) return null
@@ -175,7 +208,10 @@ export function TableOfContents({ items, className }: { items: TocItem[]; classN
               className={cn('ms-auto size-4 transition-transform', open && 'rotate-180')}
             />
           </button>
-          {open && <div className="drawn-rule-top relative px-3 py-3">{list}</div>}
+          {/* More room above the first item than below the last: the drawn rule
+              is a hand-made line with its own thickness, and the active item's
+              filled box was sitting right under it. */}
+          {open && <div className="drawn-rule-top relative px-3 pt-5 pb-3">{list}</div>}
         </div>
       </nav>
     </>
