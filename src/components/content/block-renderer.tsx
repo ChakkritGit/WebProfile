@@ -4,6 +4,7 @@ import { optimisable } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { RichText } from './rich-text'
 import { CodeBlock } from './code-block'
+import { AlertTriangle, CircleCheck, Info, OctagonAlert, Quote, type LucideIcon } from 'lucide-react'
 import { ChevronDownIcon, DelimiterMark, DownloadIcon } from '@/components/icons'
 
 /* --------------------------- block data shapes -------------------------- */
@@ -204,32 +205,24 @@ function Block({ block }: { block: AnnotatedBlock }) {
 
     case 'quote':
       return (
-        <figure className={cn('border-brand-strong relative my-9 border-s-2 ps-14 sm:ps-16', alignmentOf(block))}>
-          {/* The marks are set well above the text size, as display type. The
-              opening one sits in the gutter it has to itself; the closing one
-              is inline, with no leading of its own, so however large it is it
-              cannot push the last line down. Both hidden from screen readers —
-              `<blockquote>` already says this is a quotation. */}
-          <span
-            aria-hidden
-            className="text-brand-strong absolute start-3 top-0 font-serif text-[4.5em] leading-[0.85] select-none sm:start-4"
-          >
-            “
+        <figure className={cn('bg-brand-soft relative my-12 px-6 pt-9 pb-8 sm:px-10', alignmentOf(block))}>
+          {/* The marks as two square badges on the panel's corners — opening
+              top-left, closing bottom-right — in the same square blue as the
+              logo. Hidden from screen readers: <blockquote> already says it. */}
+          <span aria-hidden className="bg-brand text-brand-ink absolute -top-4 start-6 grid size-9 place-items-center sm:start-10">
+            <Quote className="size-[1.1rem] -scale-x-100" strokeWidth={2.25} />
           </span>
-          <blockquote className="text-[1.2em] leading-relaxed font-medium">
+          <blockquote className="text-ink text-[1.25em] leading-[1.7] font-medium">
             <RichText html={String(data.text ?? '')} />
-            <span
-              aria-hidden
-              className="text-brand-strong ms-1 inline-block align-[-0.45em] font-serif text-[2.6em] leading-[0] select-none"
-            >
-              ”
-            </span>
           </blockquote>
           {data.caption ? (
-            <figcaption className="text-muted mt-3 font-mono text-[0.75em] uppercase">
+            <figcaption className="text-brand-strong mt-4 font-mono text-[0.75em] uppercase">
               — <RichText html={String(data.caption)} />
             </figcaption>
           ) : null}
+          <span aria-hidden className="bg-brand text-brand-ink absolute end-6 -bottom-4 grid size-9 place-items-center sm:end-10">
+            <Quote className="size-[1.1rem]" strokeWidth={2.25} />
+          </span>
         </figure>
       )
 
@@ -504,35 +497,27 @@ function Block({ block }: { block: AnnotatedBlock }) {
     }
 
     case 'alert': {
-      const tones: Record<string, string> = {
-        primary: 'bg-surface-2',
-        secondary: 'bg-surface-2',
-        info: 'bg-surface-2',
-        success: 'bg-surface-2',
-        warning: 'bg-surface-2',
-        danger: 'bg-brand-soft',
-        light: 'bg-surface',
-        dark: 'bg-surface-2',
-      }
-      const tone = tones[String(data.type ?? 'primary')] ?? 'bg-surface-2'
+      // editorjs-alert's eight types, folded onto the four tones that mean
+      // something; the rest are a plain panel.
+      const tone: Tone =
+        data.type === 'success' ? 'ok'
+        : data.type === 'warning' ? 'warn'
+        : data.type === 'danger' ? 'danger'
+        : data.type === 'info' || data.type === 'primary' ? 'info'
+        : 'plain'
       const align = data.align === 'center' ? 'text-center' : data.align === 'right' ? 'text-end' : ''
       return (
-        <aside className={cn('sticker my-7 p-5', tone, align)} role="note">
+        <Callout tone={tone} className={align}>
           <RichText html={String(data.message ?? '')} />
-        </aside>
+        </Callout>
       )
     }
 
     case 'warning':
       return (
-        <aside className="sticker bg-surface-2 my-7 p-5">
-          <p className="font-display font-bold">
-            <RichText html={String(data.title ?? '')} />
-          </p>
-          <p className="mt-1">
-            <RichText html={String(data.message ?? '')} />
-          </p>
-        </aside>
+        <Callout tone="warn" title={<RichText html={String(data.title ?? '')} />}>
+          <RichText html={String(data.message ?? '')} />
+        </Callout>
       )
 
     default:
@@ -540,6 +525,44 @@ function Block({ block }: { block: AnnotatedBlock }) {
       // Editor.js tools can be added without breaking already-published posts.
       return null
   }
+}
+
+type Tone = 'info' | 'ok' | 'warn' | 'danger' | 'plain'
+
+const TONES: Record<Tone, { frame: string; ink: string; icon: LucideIcon | null }> = {
+  info: { frame: 'border-brand-strong bg-brand-soft', ink: 'text-brand-strong', icon: Info },
+  ok: { frame: 'border-ok bg-ok-soft', ink: 'text-ok-ink', icon: CircleCheck },
+  warn: { frame: 'border-warn bg-warn-soft', ink: 'text-warn-ink', icon: AlertTriangle },
+  danger: { frame: 'border-danger bg-danger-soft', ink: 'text-danger-ink', icon: OctagonAlert },
+  plain: { frame: 'border-line bg-surface-2', ink: 'text-ink', icon: null },
+}
+
+/**
+ * A note set apart from the text: a heavy rule down its leading edge in the
+ * tone's colour, a tinted ground, and the tone's icon — a warning reads as a
+ * warning before a word of it is read.
+ */
+function Callout({
+  tone,
+  title,
+  className,
+  children,
+}: {
+  tone: Tone
+  title?: React.ReactNode
+  className?: string
+  children: React.ReactNode
+}) {
+  const { frame, ink, icon: Icon } = TONES[tone]
+  return (
+    <aside role="note" className={cn('my-7 flex gap-3 border-s-4 px-5 py-4', frame, className)}>
+      {Icon && <Icon aria-hidden className={cn('mt-[0.3em] size-[1.15em] shrink-0', ink)} strokeWidth={2} />}
+      <div className="min-w-0 flex-1">
+        {title && <p className={cn('font-semibold', ink)}>{title}</p>}
+        <div className={title ? 'mt-1' : undefined}>{children}</div>
+      </div>
+    </aside>
+  )
 }
 
 export function BlockRenderer({ blocks, lang }: { blocks: AnnotatedBlock[]; lang?: string }) {

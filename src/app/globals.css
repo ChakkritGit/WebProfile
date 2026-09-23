@@ -37,6 +37,17 @@
   /* The second layer of the topic orb (projects), and nothing else. */
   --accent-2: #d9304f;
 
+  /* Callouts (alert and warning blocks). Each ink passes 6:1+ on its ground. */
+  --warn: #d97706;
+  --warn-soft: #fff4df;
+  --warn-ink: #8a4b00;
+  --ok: #16a34a;
+  --ok-soft: #e9f6ee;
+  --ok-ink: #166534;
+  --danger: #dc2626;
+  --danger-soft: #fdecec;
+  --danger-ink: #991b1b;
+
   --ring: #0000ff;
   --toast-error: #ffe9e8;
   --toast-error-chip: #ffd0cd;
@@ -71,6 +82,16 @@
 
   --accent-2: #ff6b85;
 
+  --warn: #fbbf24;
+  --warn-soft: #2a1d06;
+  --warn-ink: #fcd34d;
+  --ok: #4ade80;
+  --ok-soft: #0b2416;
+  --ok-ink: #86efac;
+  --danger: #f87171;
+  --danger-soft: #2a0e0e;
+  --danger-ink: #fca5a5;
+
   --ring: #7a7aff;
   --toast-error: #3a2229;
   --toast-error-chip: #5a2f38;
@@ -98,6 +119,15 @@
   --color-brand-ink: var(--brand-ink);
   --color-brand-soft: var(--brand-soft);
   --color-accent-2: var(--accent-2);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-ink: var(--warn-ink);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-ok-ink: var(--ok-ink);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-ink: var(--danger-ink);
   --color-toast-error: var(--toast-error);
   --color-toast-error-chip: var(--toast-error-chip);
   --color-toast-error-ink: var(--toast-error-ink);
@@ -764,7 +794,10 @@ html:not([data-hero-art='off']) section:has([data-art]) .hero-caption {
    solid fill, so the labels read the same either way. */
 html:not([data-hero-art='off']) section:has([data-art]) [data-orb] {
   background: transparent;
-  border-color: transparent;
+  /* No border at all rather than a transparent one: a clear 1px ring let the
+     picture show through between the controls and the caption, splitting
+     one framed panel into two. */
+  border-width: 0;
 }
 html:not([data-hero-art='off']) section:has([data-art]) [data-orb] > .star-grid {
   display: none;

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { Editor } from './editor'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { StickerCard } from '@/components/ui/sticker-card'
+import { StatusBadge } from '@/components/ui/badge'
 import { ArrowRightIcon, CheckIcon, EyeIcon, TrashIcon } from '@/components/icons'
 import { EMPTY_DOCUMENT, type EditorDocument } from '@/lib/editor'
 import { localeMeta, routing } from '@/i18n/routing'
@@ -281,14 +282,9 @@ export function ContentForm({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span
-              className={cn(
-                'border-line rounded-full border-2 px-2.5 py-1 font-semibold',
-                published ? 'bg-surface-2' : 'bg-surface-2',
-              )}
-            >
+            <StatusBadge status={published ? 'ok' : 'muted'}>
               {published ? tCommon('published') : tCommon('draft')}
-            </span>
+            </StatusBadge>
             {savedAt && !dirty && (
               <span className="text-brand-strong inline-flex items-center gap-1 font-semibold">
                 <CheckIcon className="size-3.5" />

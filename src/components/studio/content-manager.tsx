@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
-import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/ui/badge'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { StickerCard } from '@/components/ui/sticker-card'
 import { MorphingConfirmDialog, MorphingTrigger } from '@/components/ui/morphing-dialog'
@@ -192,19 +192,23 @@ export function ContentManager({
                       </p>
                     </div>
 
+                    {/* States, then a rule, then actions: the states are
+                        filled and borderless so none reads as a button. */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge>{item.locale.toUpperCase()}</Badge>
-                      {item.featured && <Badge tone="sun">{tCommon('featured')}</Badge>}
-                      <Badge tone={published ? 'mint' : 'neutral'}>
+                      <span className="text-muted font-mono text-xs">{item.locale.toUpperCase()}</span>
+                      {item.featured && <StatusBadge status="warn">{tCommon('featured')}</StatusBadge>}
+                      <StatusBadge status={published ? 'ok' : 'muted'}>
                         {published ? tCommon('published') : tCommon('draft')}
-                      </Badge>
+                      </StatusBadge>
                     </div>
+
+                    <span aria-hidden className="bg-line hidden h-6 w-px sm:block" />
 
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/studio/${kind}/${item.id}`}
                         aria-label={t(kind === 'posts' ? 'editPost' : 'editProject')}
-                        className="sticker-sm sticker-hover bg-surface grid size-9 place-items-center"
+                        className="border-line hover:border-line-strong hover:text-brand-strong grid size-9 place-items-center border transition-colors"
                       >
                         <PencilIcon className="size-4" />
                       </Link>

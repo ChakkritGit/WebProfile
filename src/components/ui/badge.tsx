@@ -3,6 +3,9 @@ import { cn } from '@/lib/utils'
 
 type Tone = 'neutral' | 'brand' | 'mint' | 'sun' | 'violet' | 'sky'
 
+/** A state rather than a label: filled, borderless, with a dot — never mistaken for a button. */
+type Status = 'ok' | 'warn' | 'muted'
+
 const tones: Record<Tone, string> = {
   neutral: 'bg-surface text-ink-soft',
   brand: 'bg-brand-soft text-brand-strong',
@@ -42,6 +45,22 @@ export function Badge({
       )}
     >
       {icon}
+      {children}
+    </span>
+  )
+}
+
+const STATUS: Record<Status, { box: string; dot: string }> = {
+  ok: { box: 'bg-ok-soft text-ok-ink', dot: 'bg-ok' },
+  warn: { box: 'bg-warn-soft text-warn-ink', dot: 'bg-warn' },
+  muted: { box: 'bg-surface-2 text-muted', dot: 'border border-current' },
+}
+
+export function StatusBadge({ status, children }: { status: Status; children: ReactNode }) {
+  const { box, dot } = STATUS[status]
+  return (
+    <span className={cn('inline-flex h-6 items-center gap-1.5 px-2 font-mono text-[0.7rem] whitespace-nowrap uppercase', box)}>
+      <span aria-hidden className={cn('size-1.5 shrink-0 rounded-full', dot)} />
       {children}
     </span>
   )

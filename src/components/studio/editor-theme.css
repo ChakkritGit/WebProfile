@@ -849,3 +849,209 @@
 .studio-editor .sections-tool__body .ce-block:first-of-type .ce-paragraph {
   padding-top: 0;
 }
+
+
+/* ------------------------------------------------------------------ *
+ * Selection
+ *
+ * Editor.js injects `.codex-editor ::selection { background: #d4ecff }` at
+ * runtime, unlayered. The site's own selection rule lives in `@layer base`, and
+ * an unlayered rule beats a layered one whatever the specificity — so the
+ * editor's pale blue won the background while ours still won the text colour:
+ * white on pale blue in the dark theme, the selected words gone. Restated here,
+ * unlayered and one class more specific than Editor.js's.
+ * ------------------------------------------------------------------ */
+.studio-editor .codex-editor ::selection {
+  background-color: var(--selection);
+  color: var(--selection-ink);
+}
+.studio-editor .codex-editor ::-moz-selection {
+  background-color: var(--selection);
+  color: var(--selection-ink);
+}
+
+/* ------------------------------------------------------------------ *
+ * Inline toolbar, set as one bar
+ *
+ * It was a row of separately framed boxes with the block-type switcher
+ * floating off to one side. Now: one framed bar, borderless 32px buttons on a
+ * 2px rhythm, the switcher split off by a rule, hover a quiet fill, the active
+ * format the brand blue.
+ * ------------------------------------------------------------------ */
+.studio-editor .ce-popover--inline > .ce-popover__container {
+  min-height: 0;
+  padding: 3px;
+  background: var(--surface);
+}
+.studio-editor .ce-popover--inline > .ce-popover__container > .ce-popover__items {
+  gap: 2px;
+}
+.studio-editor .ce-popover--inline > .ce-popover__container > .ce-popover__items > .ce-popover-item,
+.studio-editor .ce-popover--inline .ce-popover-item-html {
+  padding: 0;
+  margin: 0;
+}
+.studio-editor .ce-popover--inline > .ce-popover__container > .ce-popover__items > .ce-popover-item {
+  height: 32px;
+  min-width: 32px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.studio-editor .ce-popover--inline > .ce-popover__container > .ce-popover__items > .ce-popover-item .ce-popover-item__icon,
+.studio-editor .ce-popover--inline .ce-inline-tool {
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  color: var(--ink-soft);
+}
+.studio-editor .ce-popover--inline > .ce-popover__container > .ce-popover__items > .ce-popover-item .ce-popover-item__icon--chevron-right {
+  width: 14px;
+  margin-inline-start: -6px;
+  color: var(--muted);
+}
+.studio-editor .ce-popover--inline > .ce-popover__container > .ce-popover__items > .ce-popover-item .ce-popover-item__icon svg,
+.studio-editor .ce-popover--inline .ce-inline-tool svg {
+  width: 18px;
+  height: 18px;
+}
+.studio-editor .ce-popover--inline > .ce-popover__container > .ce-popover__items > .ce-popover-item:hover,
+.studio-editor .ce-popover--inline .ce-inline-tool:hover {
+  background: var(--surface-2) !important;
+  color: var(--ink);
+}
+.studio-editor .ce-popover--inline .ce-inline-tool--active,
+.studio-editor .ce-popover--inline > .ce-popover__container > .ce-popover__items > .ce-popover-item--active {
+  background: var(--brand) !important;
+  color: var(--brand-ink) !important;
+}
+/* The rule between the block-type switcher and the formatting buttons. */
+.studio-editor .ce-popover--inline .ce-popover-item-separator {
+  padding: 0 3px;
+  align-self: stretch;
+  display: flex;
+}
+.studio-editor .ce-popover--inline .ce-popover-item-separator__line {
+  width: 1px;
+  height: auto;
+  align-self: stretch;
+  margin: 4px 0;
+  background: var(--line);
+}
+
+/* ------------------------------------------------------------------ *
+ * Block tunes ("click to tune")
+ *
+ * Every row the same height, icons borderless in one column, labels in one
+ * column, the alignment buttons lined up under that same icon column instead
+ * of indented on their own, and rules between groups.
+ * ------------------------------------------------------------------ */
+.studio-editor .ce-popover:not(.ce-popover--inline) > .ce-popover__container {
+  padding: 4px;
+  min-width: 13rem;
+}
+.studio-editor .ce-popover:not(.ce-popover--inline) .cdx-search-field {
+  margin: 0 0 4px;
+  height: 34px;
+}
+.studio-editor .ce-popover:not(.ce-popover--inline) .ce-popover-item {
+  height: 36px;
+  padding: 0 8px;
+  gap: 10px;
+  margin: 0;
+}
+.studio-editor .ce-popover:not(.ce-popover--inline) .ce-popover-item__icon {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  color: var(--ink-soft);
+}
+.studio-editor .ce-popover:not(.ce-popover--inline) .ce-popover-item__icon svg {
+  width: 18px;
+  height: 18px;
+}
+.studio-editor .ce-popover:not(.ce-popover--inline) .ce-popover-item__title {
+  font-size: 0.9rem;
+}
+.studio-editor .ce-popover:not(.ce-popover--inline) .ce-popover-item-separator {
+  padding: 4px 0;
+}
+.studio-editor .ce-popover:not(.ce-popover--inline) .ce-popover-item-separator__line {
+  height: 1px;
+  background: var(--line);
+}
+.studio-editor .ce-popover:not(.ce-popover--inline) .ce-popover-item-html > div {
+  display: flex;
+  gap: 2px;
+  padding: 2px 4px;
+}
+.studio-editor .ce-popover:not(.ce-popover--inline) .cdx-settings-button {
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  color: var(--ink-soft);
+}
+.studio-editor .ce-popover:not(.ce-popover--inline) .cdx-settings-button:first-child {
+  margin-inline-start: 0;
+}
+.studio-editor .ce-popover:not(.ce-popover--inline) .cdx-settings-button:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.studio-editor .ce-popover:not(.ce-popover--inline) .cdx-settings-button--active {
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+.studio-editor .ce-popover-item--confirmation,
+.studio-editor .ce-popover-item--confirmation .ce-popover-item__icon {
+  background: var(--danger) !important;
+  color: #fff !important;
+}
+
+/* The hover label on the toolbar buttons ("Click to tune ⌘ /"): Editor.js's
+   own tooltip is a dark rounded bubble in both themes. Set it as the site's
+   small print. It is appended to <body>, hence no `.studio-editor` prefix. */
+.ct .ct__content {
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 0;
+  padding: 6px 9px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  box-shadow: none;
+}
+.ct::before,
+.ct::after {
+  display: none;
+}
+.ct {
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Icons in the tunes and the inline toolbar take the full text colour — white
+   in the dark theme, near-black in the light — not the softer secondary ink.
+   The alignment tune's icons are filled paths with no fill of their own, so
+   they defaulted to black and all but vanished in the dark; they take
+   `currentColor` like everything else. */
+.studio-editor .ce-popover .ce-popover-item__icon,
+.studio-editor .ce-popover .ce-inline-tool,
+.studio-editor .ce-popover .cdx-settings-button {
+  color: var(--ink);
+}
+.studio-editor .cdx-settings-button svg path {
+  fill: currentColor;
+}
+.studio-editor .ce-popover .cdx-settings-button--active {
+  color: var(--brand-ink);
+}
