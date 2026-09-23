@@ -131,11 +131,15 @@ export function TextScramble({
   phrases,
   className,
   holdMs = 2200,
+  world = false,
 }: {
   phrases: string[]
   className?: string
   /** How long a settled phrase is left alone before the next one starts. */
   holdMs?: number
+  /** Churn through the world's scripts rather than ASCII symbols (needs
+      `WORLD_GLYPHS_FONT` linked on the page). */
+  world?: boolean
 }) {
   const reduce = useReducedMotion()
   const [index, setIndex] = useState(0)
@@ -150,7 +154,7 @@ export function TextScramble({
     if (reduce || phrases.length === 0) return
 
     const run = (from: string, to: string, done: () => void) => {
-      cancel.current = scramble(from, to, setText, done)
+      cancel.current = scramble(from, to, setText, done, world ? WORLD : NOISE)
     }
 
     // The first phrase is scrambled in as well, from noise, with no wait — the
@@ -158,7 +162,7 @@ export function TextScramble({
     // already settled for two seconds.
     if (!revealed) {
       const target = phrases[0] ?? ''
-      run(noiseFor(target), target, () => setRevealed(true))
+      run(noiseFor(target, world ? WORLD : NOISE), target, () => setRevealed(true))
       return () => cancel.current()
     }
 
@@ -173,13 +177,13 @@ export function TextScramble({
       clearTimeout(hold)
       cancel.current()
     }
-  }, [index, revealed, phrases, reduce, holdMs])
+  }, [index, revealed, phrases, reduce, holdMs, world])
 
   // Reduced motion: just say it.
   if (reduce) return <span className={className}>{phrases[0]}</span>
 
   return (
-    <span className={className}>
+    <span className={world ? `world-glyphs ${className ?? ''}` : className}>
       {/* The churn is noise, not words, so it is kept away from assistive tech;
           the settled phrase is announced on its own. */}
       <span aria-hidden>{text}</span>

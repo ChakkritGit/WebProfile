@@ -34,7 +34,7 @@ export function ProfileHero({ roles, stats }: { roles: string[]; stats: ProfileS
           <h1 className="mt-4 text-[clamp(2.75rem,11vw,5.5rem)] uppercase">{tMeta('siteName')}</h1>
           <div className="text-brand-strong mt-3 font-mono text-lg sm:text-xl">
             <span aria-hidden>&gt; </span>
-            <TextScramble phrases={roles} />
+            <TextScramble phrases={roles} world />
           </div>
           <p className="text-ink-soft mt-6 max-w-xl text-lg leading-relaxed">
             {t('intro', { company: profile.company })}
