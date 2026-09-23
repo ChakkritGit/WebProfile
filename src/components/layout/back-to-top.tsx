@@ -14,7 +14,7 @@ export function BackToTop({ label }: { label: string }) {
             : 'smooth',
         })
       }
-      className="sticker-sm sticker-hover bg-surface font-display inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold"
+      className="border-line hover:border-line-strong hover:text-brand-strong inline-flex items-center gap-2 border px-4 py-2 font-mono text-xs uppercase transition-colors"
     >
       <ArrowUpIcon className="size-4" />
       {label}

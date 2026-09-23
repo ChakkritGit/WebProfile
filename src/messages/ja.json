@@ -1,12 +1,12 @@
 {
   "meta": {
     "siteName": "Chakkrit Laolit",
-    "tagline": "ソフトウェアエンジニア",
-    "defaultDescription": "バンコク在住のフルスタック開発者、Chakkrit Laolit のポートフォリオ・制作物・技術記事。Next.js、TypeScript、Kotlin でウェブとモバイルを開発しています。"
+    "tagline": "ソフトウェア・Web・モバイル開発の記事",
+    "defaultDescription": "実務から生まれた Web・モバイル・ソフトウェア開発の記事 — Next.js、React、TypeScript、Kotlin とその裏側のツール、そして制作したプロジェクト。Chakkrit Laolit によるサイト。"
   },
   "nav": {
     "home": "ホーム",
-    "about": "プロフィール",
+    "about": "自己紹介",
     "projects": "プロジェクト",
     "blog": "ブログ",
     "contact": "お問い合わせ",
@@ -71,7 +71,15 @@
     "resumeOpenTab": "新しいタブで開く",
     "resumeDownload": "PDFをダウンロード",
     "resumeClose": "閉じる",
-    "resumeFallback": "このブラウザではPDFを埋め込み表示できません。"
+    "resumeFallback": "このブラウザではPDFを埋め込み表示できません。",
+    "filterYear": "年",
+    "filterMonth": "月",
+    "anyYear": "すべての年",
+    "anyMonth": "すべての月",
+    "sortLabel": "並び順",
+    "sortNewest": "新しい順",
+    "sortOldest": "古い順",
+    "clearDate": "日付をクリア"
   },
   "festival": {
     "new-year": "あけましておめでとう",
@@ -96,7 +104,7 @@
   "home": {
     "greeting": "はじめまして、",
     "roles": [
-      "Software Engineer",
+      "Software Developer",
       "Mobile Developer",
       "Web Developer",
       "Windows Developer"
@@ -117,22 +125,46 @@
     "aboutMore": "詳しいプロフィールを見る",
     "skillsTitle": "使っている技術",
     "skillsSubtitle": "いちばん手に取ることが多い道具",
-    "projectsTitle": "主なプロジェクト",
-    "projectsSubtitle": "設計から開発・リリースまで携わったシステム",
+    "projectsTitle": "プロジェクト",
+    "projectsSubtitle": "設計・開発・リリースしたシステム",
     "blogTitle": "最近の記事",
     "blogSubtitle": "ウェブをつくることについての記録",
     "popularTitle": "よく読まれている",
-    "popularSubtitle": "いま最も開かれているページ",
+    "popularSubtitle": "いま最も開かれているもの",
     "webringTitle": "タイのウェブリングに参加しています",
     "webringBody": "このサイトは วงแหวนเว็บ — タイのアーティスト・デザイナー・開発者による個人サイトの輪 — の一員です。バッジから他のサイトへどうぞ。",
     "webringCta": "ウェブリングを見る",
     "graphExpand": "全画面表示",
     "graphExit": "全画面を終了",
-    "graphHint": "ノードにカーソルを合わせるとつながりが見えます。ドラッグで回転、クリックで開く"
+    "graphHint": "ノードにカーソルを合わせるとつながりが見えます。ドラッグで回転、クリックで開く",
+    "introEyebrow": "記事 · プロジェクト · ノート",
+    "introTitle": "ソフトウェアづくりのノート",
+    "introBody": "バンコクのソフトウェア開発者、Chakkrit です。Web とモバイルの開発、仕事で使っているツールについて書き、作ってきたプロジェクトをここにまとめています。",
+    "ctaArticles": "記事を読む",
+    "ctaAbout": "自己紹介",
+    "latestTitle": "最新の記事",
+    "latestSubtitle": "新しい順",
+    "allArticles": "すべての記事",
+    "allProjects": "すべてのプロジェクト",
+    "allTopics": "すべてのトピック",
+    "orbTitle": "トピックマップ",
+    "orbSubtitle": "タグが点、線は同じ作品で使われたタグ同士。ドラッグで回転、クリックでトピックを開きます。",
+    "orbLabel": "トピックマップ",
+    "orbView3d": "3D オーブ",
+    "orbViewGrid": "グリッド",
+    "orbAll": "すべて",
+    "orbInner": "記事",
+    "orbOuter": "プロジェクト",
+    "orbInnerBand": "内核 · 記事",
+    "orbOuterBand": "外殻 · プロジェクト",
+    "orbZoomIn": "ズームイン",
+    "orbZoomOut": "ズームアウト",
+    "orbPause": "回転を止める",
+    "orbPlay": "回転を再開"
   },
   "about": {
-    "title": "プロフィール",
-    "subtitle": "経歴・実務経験・得意なことをまとめています。",
+    "title": "自己紹介",
+    "subtitle": "どんな人か、何をしているか、何を使うか、連絡方法。",
     "summaryTitle": "概要",
     "summaryBody": "複雑なウェブアプリケーションの設計・開発に{years}年以上携わってきたフルスタック開発者です。フロントエンド（React、Next.js、TypeScript）とバックエンド（Node.js、NestJS、MySQL、PostgreSQL）の双方を担当。現在は{company}で、UI連携・RESTful API・データベース管理を含むウェブアプリ開発全体を担っています。",
     "experienceTitle": "職務経歴",
@@ -339,5 +371,22 @@
     "tagRemoved": "タグを削除しました",
     "uploaded": "画像をアップロードしました",
     "failed": "処理できませんでした"
+  },
+  "search": {
+    "open": "検索",
+    "placeholder": "記事とプロジェクトを検索…",
+    "hint": "入力で検索、Enter ですべての結果へ。",
+    "noResults": "「{query}」に一致するものはありません",
+    "article": "記事",
+    "project": "プロジェクト",
+    "count": "{count} 件",
+    "seeAll": "すべての結果",
+    "title": "検索",
+    "subtitle": "このサイトのすべての記事とプロジェクトを検索。",
+    "resultsFor": "「{query}」の検索結果",
+    "articlesTitle": "記事",
+    "projectsTitle": "プロジェクト",
+    "prompt": "上の欄に検索したい言葉を入力してください。",
+    "empty": "「{query}」に一致する記事やプロジェクトはありません。"
   }
 }

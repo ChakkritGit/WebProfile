@@ -88,7 +88,7 @@ export function SearchBox({
         aria-label={t('search')}
         className={cn(
           'sticker-sm bg-surface h-12 w-full ps-12 pe-11 text-base outline-none',
-          'placeholder:text-muted/75 focus:shadow-[4px_4px_0_0_var(--shadow)]',
+          'placeholder:text-muted/75',
           '[&::-webkit-search-cancel-button]:hidden',
         )}
       />

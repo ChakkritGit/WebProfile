@@ -47,11 +47,11 @@ export function SectionHeading({
     <Reveal className={cn('mb-8 flex flex-wrap items-end justify-between gap-4', className)}>
       <div className="max-w-2xl">
         {eyebrow && (
-          <p className="text-brand-strong font-display mb-2 text-sm font-bold tracking-[0.14em] uppercase">
+          <p className="text-brand-strong label-mono mb-3">
             {eyebrow}
           </p>
         )}
-        <h2 className="text-3xl sm:text-4xl">{title}</h2>
+        <h2 className="text-4xl sm:text-5xl">{title}</h2>
         {description && <p className="text-muted mt-3 text-base sm:text-lg">{description}</p>}
       </div>
       {action}
@@ -70,13 +70,14 @@ export function PageHeader({
   children?: ReactNode
 }) {
   return (
-    <div className="drawn-rule paper-grain bg-paper-alt relative overflow-hidden">
+    <div className="drawn-rule relative overflow-hidden">
+      <div aria-hidden className="star-grid pointer-events-none absolute inset-0" />
       <Container className="relative z-10 py-12 sm:py-16">
         {/* Never revealed: this is the top of the page, on screen before anything
             has hydrated, and fading it in is time the page spends looking
             unfinished. */}
         <Reveal firstPaint>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl">{title}</h1>
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl">{title}</h1>
           {description && (
             <p className="text-muted mt-4 max-w-2xl text-lg text-pretty">{description}</p>
           )}

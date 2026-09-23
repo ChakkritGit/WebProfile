@@ -30,12 +30,12 @@ export function ThemeToggle({ className }: { className?: string }) {
       aria-label={`${t('toggleTheme')} — ${label}`}
       title={`${t('toggleTheme')} — ${label}`}
       className={cn(
-        'sticker-sm sticker-hover bg-surface grid size-10 place-items-center',
+        'hover:text-brand-strong grid size-10 place-items-center transition-colors',
         !mounted && 'opacity-0',
         className,
       )}
     >
-      <Icon className="size-[1.15rem]" />
+      <Icon className="size-[1.15rem]" strokeWidth={1.75} />
     </button>
   )
 }

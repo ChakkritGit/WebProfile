@@ -164,7 +164,7 @@ export function parseInlineHtml(input: string): ReactNode[] {
     parent.children.push(
       <Tag
         key={key++}
-        className={cn(className, frame.tag === 'mark' && !style?.backgroundColor && 'bg-sun-soft')}
+        className={cn(className, frame.tag === 'mark' && !style?.backgroundColor && 'bg-surface-2')}
         style={style}
       >
         {frame.children}

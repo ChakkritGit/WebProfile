@@ -42,7 +42,7 @@ export async function Pagination({
       <ul className="flex flex-wrap items-center justify-center gap-2">
         <li>
           {page > 1 ? (
-            <PinLink href={href(page - 1)} rel="prev" className={cn(linkClass, 'border-line bg-surface sticker-hover shadow-[2px_2px_0_0_var(--shadow)]')}>
+            <PinLink href={href(page - 1)} rel="prev" className={cn(linkClass, 'border-line bg-surface sticker-hover')}>
               <ArrowRightIcon className="size-4 rotate-180" />
               <span className="ms-1 hidden sm:inline">{t('previous')}</span>
             </PinLink>
@@ -68,7 +68,7 @@ export async function Pagination({
                 className={cn(
                   linkClass,
                   entry === page
-                    ? 'border-line bg-brand text-brand-ink shadow-[2px_2px_0_0_var(--shadow)]'
+                    ? 'border-line bg-brand text-brand-ink'
                     : 'border-line-soft text-muted hover:border-line hover:text-ink',
                 )}
               >
@@ -80,7 +80,7 @@ export async function Pagination({
 
         <li>
           {page < totalPages ? (
-            <PinLink href={href(page + 1)} rel="next" className={cn(linkClass, 'border-line bg-surface sticker-hover shadow-[2px_2px_0_0_var(--shadow)]')}>
+            <PinLink href={href(page + 1)} rel="next" className={cn(linkClass, 'border-line bg-surface sticker-hover')}>
               <span className="me-1 hidden sm:inline">{t('next')}</span>
               <ArrowRightIcon className="size-4" />
             </PinLink>

@@ -39,6 +39,14 @@ export function matchesQuery(record: Searchable & { stack?: string[] }, query: s
   return q.split(/\s+/).every((term) => haystack.includes(term))
 }
 
+/** One row of the navbar's instant-search index (`/api/search`). */
+export interface SearchEntry extends Searchable {
+  kind: 'post' | 'project'
+  href: string
+  stack?: string[]
+  publishedAt: string | null
+}
+
 export interface Paged<T> {
   items: T[]
   page: number

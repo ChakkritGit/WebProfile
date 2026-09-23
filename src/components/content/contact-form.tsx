@@ -128,7 +128,7 @@ export function ContactForm({ email }: { email: string }) {
         </Button>
 
         <p aria-live="polite" className="text-center text-sm">
-          {sent && <span className="text-mint font-semibold">{t('formSuccess')}</span>}
+          {sent && <span className="text-brand-strong font-semibold">{t('formSuccess')}</span>}
         </p>
       </form>
     </StickerCard>

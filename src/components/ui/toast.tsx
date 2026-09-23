@@ -83,7 +83,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   'border-line grid size-8 shrink-0 place-items-center rounded-xl border-2',
                   toast.tone === 'error'
                     ? 'bg-toast-error-chip text-toast-error-ink'
-                    : 'bg-mint-soft text-ink',
+                    : 'bg-surface-2 text-ink',
                 )}
               >
                 {toast.tone === 'error' ? (

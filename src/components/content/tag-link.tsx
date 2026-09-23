@@ -19,7 +19,7 @@ export function TagLink({ tag, className }: { tag: string; className?: string })
       <Badge
         tone={toneFor(tag)}
         icon={<TechIcon name={tag} className="size-3.5 shrink-0" />}
-        className="cursor-pointer transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-[2px_2px_0_0_var(--shadow)]"
+        className="cursor-pointer transition-transform duration-150 hover:-translate-y-0.5"
       >
         {tag}
       </Badge>

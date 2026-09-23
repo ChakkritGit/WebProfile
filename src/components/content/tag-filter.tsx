@@ -37,7 +37,7 @@ export function TagFilter({
       className={cn(
         'font-display rounded-full border-2 px-3.5 py-1.5 text-sm font-semibold transition-all',
         isActive
-          ? 'border-line bg-brand text-brand-ink shadow-[2px_2px_0_0_var(--shadow)]'
+          ? 'border-line bg-brand text-brand-ink'
           : 'border-line-soft text-muted hover:border-line hover:text-ink',
       )}
     >

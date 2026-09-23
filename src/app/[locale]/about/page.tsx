@@ -117,7 +117,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             <RevealItem key={school.id}>
               <StickerCard className="p-6 sm:p-7">
                 <div className="flex flex-wrap items-start gap-4">
-                  <span className="bg-mint-soft border-line grid size-12 shrink-0 place-items-center rounded-xl border-2">
+                  <span className="bg-surface-2 border-line grid size-12 shrink-0 place-items-center rounded-xl border-2">
                     <CapIcon className="size-5" />
                   </span>
                   <div className="min-w-0 flex-1">

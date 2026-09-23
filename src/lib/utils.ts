@@ -39,3 +39,21 @@ export function formatMonthYear(value: string | Date | null | undefined, locale:
     timeZone: ZONE,
   }).format(date)
 }
+
+/** Year and month (1-12) a date falls in, read in Bangkok like every other date here. */
+export function yearMonthOf(value: string | Date | null | undefined): { year: number; month: number } | null {
+  if (!value) return null
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+  const parts = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'numeric', timeZone: ZONE }).formatToParts(date)
+  const pick = (type: string) => Number(parts.find((p) => p.type === type)?.value)
+  return { year: pick('year'), month: pick('month') }
+}
+
+/** The day of the month on its own, for the big numeral in a dated list. */
+export function dayOfMonth(value: string | Date | null | undefined): string {
+  if (!value) return ''
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat('en-US', { day: '2-digit', timeZone: ZONE }).format(date)
+}

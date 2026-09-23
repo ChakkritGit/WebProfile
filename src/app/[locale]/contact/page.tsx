@@ -29,7 +29,7 @@ const ICONS = {
 
 const DIRECT = ['email', 'phone', 'github'] as const
 // Written out in full so Tailwind's scanner can see each class literally.
-const DIRECT_TONES = ['bg-brand-soft', 'bg-mint-soft', 'bg-sun-soft'] as const
+const DIRECT_TONES = ['bg-brand-soft', 'bg-surface-2', 'bg-surface-2'] as const
 
 export async function generateMetadata({
   params,

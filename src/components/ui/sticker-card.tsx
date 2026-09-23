@@ -6,10 +6,12 @@ type Tone = 'surface' | 'brand' | 'mint' | 'sun' | 'violet' | 'sky'
 const toneClasses: Record<Tone, string> = {
   surface: 'bg-surface',
   brand: 'bg-brand-soft',
-  mint: 'bg-mint-soft',
-  sun: 'bg-sun-soft',
-  violet: 'bg-violet-soft',
-  sky: 'bg-sky-soft',
+  // The cartoon set had a candy colour for each of these. Here there is one
+  // accent, so the rest are the same quiet panel.
+  mint: 'bg-surface-2',
+  sun: 'bg-surface-2',
+  violet: 'bg-surface-2',
+  sky: 'bg-surface-2',
 }
 
 interface StickerCardProps {
@@ -21,7 +23,7 @@ interface StickerCardProps {
   children: ReactNode
 }
 
-/** The signature surface: ink outline + hard offset shadow. */
+/** A panel: 1px rule, square corners; `interactive` turns the rule blue on hover. */
 export function StickerCard({
   as: Tag = 'div',
   tone = 'surface',

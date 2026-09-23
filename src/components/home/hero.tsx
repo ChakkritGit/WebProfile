@@ -99,7 +99,7 @@ export function Hero({ roles, graph }: { roles: string[]; graph: GraphNode[] }) 
                 entering && 'hero-in',
               )}
             >
-              <SparkleIcon className="text-sun size-5" />
+              <SparkleIcon className="text-brand-strong size-5" />
               {t('greeting')}
             </p>
 

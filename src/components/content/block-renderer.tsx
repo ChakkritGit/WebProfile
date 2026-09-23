@@ -107,7 +107,7 @@ function Checklist({ items }: { items: ListItem[] }) {
               aria-hidden
               className={cn(
                 'border-line mt-0.5 grid size-5 shrink-0 place-items-center rounded-md border-2',
-                checked ? 'bg-mint text-ink' : 'bg-surface',
+                checked ? 'bg-brand text-brand-ink' : 'bg-surface',
               )}
             >
               {checked && (
@@ -204,7 +204,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
 
     case 'quote':
       return (
-        <figure className={cn('sticker bg-violet-soft my-7 p-5 sm:p-6', alignmentOf(block))}>
+        <figure className={cn('sticker bg-surface-2 my-7 p-5 sm:p-6', alignmentOf(block))}>
           <blockquote className="font-display text-[1.1em] leading-relaxed font-medium">
             <RichText html={String(data.text ?? '')} />
           </blockquote>
@@ -428,7 +428,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
             download
             className="sticker sticker-hover bg-surface hover:bg-surface-2 flex items-center gap-4 p-4 no-underline transition-colors"
           >
-            <span className="border-line bg-sun-soft text-ink font-display grid size-12 shrink-0 place-items-center rounded-xl border-2 text-[0.7rem] font-bold">
+            <span className="border-line bg-surface-2 text-ink font-display grid size-12 shrink-0 place-items-center rounded-xl border-2 text-[0.7rem] font-bold">
               {extension || <DownloadIcon className="size-5" />}
             </span>
             <span className="min-w-0 flex-1">
@@ -488,16 +488,16 @@ function Block({ block }: { block: AnnotatedBlock }) {
 
     case 'alert': {
       const tones: Record<string, string> = {
-        primary: 'bg-sky-soft',
+        primary: 'bg-surface-2',
         secondary: 'bg-surface-2',
-        info: 'bg-sky-soft',
-        success: 'bg-mint-soft',
-        warning: 'bg-sun-soft',
+        info: 'bg-surface-2',
+        success: 'bg-surface-2',
+        warning: 'bg-surface-2',
         danger: 'bg-brand-soft',
         light: 'bg-surface',
         dark: 'bg-surface-2',
       }
-      const tone = tones[String(data.type ?? 'primary')] ?? 'bg-sky-soft'
+      const tone = tones[String(data.type ?? 'primary')] ?? 'bg-surface-2'
       const align = data.align === 'center' ? 'text-center' : data.align === 'right' ? 'text-end' : ''
       return (
         <aside className={cn('sticker my-7 p-5', tone, align)} role="note">
@@ -508,7 +508,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
 
     case 'warning':
       return (
-        <aside className="sticker bg-sun-soft my-7 p-5">
+        <aside className="sticker bg-surface-2 my-7 p-5">
           <p className="font-display font-bold">
             <RichText html={String(data.title ?? '')} />
           </p>

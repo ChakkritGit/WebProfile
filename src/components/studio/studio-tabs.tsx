@@ -35,7 +35,7 @@ export function StudioTabs({
             className={cn(
               'font-display inline-flex items-center gap-2 rounded-full border-2 px-4 py-2 text-sm font-semibold transition-all',
               isActive
-                ? 'border-line bg-brand text-brand-ink shadow-[2px_2px_0_0_var(--shadow)]'
+                ? 'border-line bg-brand text-brand-ink'
                 : 'border-line-soft text-muted hover:border-line hover:text-ink',
             )}
           >

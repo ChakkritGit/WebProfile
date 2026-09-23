@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { getTranslations } from 'next-intl/server'
-import { Mali } from 'next/font/google'
+import { JetBrains_Mono, Noto_Sans, Noto_Sans_Thai } from 'next/font/google'
 
 import '../globals.css'
 import { routing } from '@/i18n/routing'
@@ -14,26 +14,31 @@ import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 
 /**
- * Handwriting for Thai and Latin.
+ * One family at two widths.
  *
- * Mali was chosen over the rounder Thai options because it ships real weights —
- * a single-weight face leaves headings to synthetic bold, which reads as a smudge
- * rather than a heavier pen.
+ * Noto Sans and Noto Sans Thai both carry a `wdth` axis, so the condensed
+ * headings and the running text are the same face — and a Thai heading narrows
+ * with its Latin neighbours instead of falling back to something wide mid-line.
+ * JetBrains Mono sets the dates, tags and counts.
  *
- * Japanese cannot come through here: `next/font/google` self-hosts by subset and
- * offers no `japanese` subset for any family, because Google serves CJK through
- * dynamic unicode-range subsetting that a build-time download cannot reproduce.
- * The Japanese face is linked from Google instead, and only on the pages that
- * render kana — see below.
+ * Japanese cannot come through here: `next/font/google` offers no `japanese`
+ * subset, so Noto Sans JP is linked from Google on the pages that render kana.
  */
-const mali = Mali({
-  subsets: ['latin', 'thai'],
-  // 300 was loaded and never asked for: nothing in the site sets `font-light` or
-  // weight 300. Each weight is two files here — latin and thai — so dropping it
-  // is two fewer requests and 33KB less to fetch on a phone, out of ten files and
-  // 164KB. What is left is the body (400), 500, and the two the headings use.
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-hand',
+const notoSans = Noto_Sans({
+  subsets: ['latin'],
+  axes: ['wdth'],
+  variable: '--font-sans-latin',
+  display: 'swap',
+})
+const notoSansThai = Noto_Sans_Thai({
+  subsets: ['thai'],
+  axes: ['wdth'],
+  variable: '--font-sans-thai',
+  display: 'swap',
+})
+const jetbrains = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains',
   display: 'swap',
 })
 
@@ -43,8 +48,8 @@ export function generateStaticParams() {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FFFCF7' },
-    { media: '(prefers-color-scheme: dark)', color: '#14121C' },
+    { media: '(prefers-color-scheme: light)', color: '#F8F9FA' },
+    { media: '(prefers-color-scheme: dark)', color: '#050505' },
   ],
   colorScheme: 'light dark',
 }
@@ -120,7 +125,7 @@ export default async function LocaleLayout({
   const t = await getTranslations({ locale: active, namespace: 'nav' })
 
   return (
-    <html lang={active} suppressHydrationWarning className={mali.variable}>
+    <html lang={active} suppressHydrationWarning className={`${notoSans.variable} ${notoSansThai.variable} ${jetbrains.variable}`}>
       {active === 'ja' && (
         // Only on Japanese pages: a CJK face is megabytes of glyphs, and Google
         // serves it in unicode-range slices so a reader downloads just the ranges
@@ -133,7 +138,7 @@ export default async function LocaleLayout({
               not have; loading it per locale is the point. */}
           <link
             rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Zen+Kurenaido&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap"
           />
         </head>
       )}

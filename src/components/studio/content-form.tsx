@@ -284,13 +284,13 @@ export function ContentForm({
             <span
               className={cn(
                 'border-line rounded-full border-2 px-2.5 py-1 font-semibold',
-                published ? 'bg-mint-soft' : 'bg-surface-2',
+                published ? 'bg-surface-2' : 'bg-surface-2',
               )}
             >
               {published ? tCommon('published') : tCommon('draft')}
             </span>
             {savedAt && !dirty && (
-              <span className="text-mint inline-flex items-center gap-1 font-semibold">
+              <span className="text-brand-strong inline-flex items-center gap-1 font-semibold">
                 <CheckIcon className="size-3.5" />
                 {t('saved')}
               </span>

@@ -119,9 +119,8 @@ export function LocaleToggle({ block = false }: { block?: boolean }) {
         onClick={() => setOpen((v) => !v)}
         onKeyDown={onKeyDown}
         className={cn(
-          'sticker-sm sticker-hover bg-surface font-display flex h-10 items-center gap-1.5 px-3 text-xs font-bold',
-          block && 'w-full justify-center',
-          open && 'shadow-[1px_1px_0_0_var(--shadow)]',
+          'hover:text-brand-strong flex h-10 items-center gap-1.5 px-2 font-mono text-xs uppercase transition-colors',
+          block && 'border-line w-full justify-center border',
         )}
       >
         <GlobeIcon aria-hidden className="text-muted size-4 shrink-0" />
@@ -138,7 +137,7 @@ export function LocaleToggle({ block = false }: { block?: boolean }) {
           role="listbox"
           aria-label={t('changeLanguage')}
           className={cn(
-            'sticker bg-surface absolute z-50 mt-2 p-1.5',
+            'bg-surface border-line absolute z-50 mt-2 border p-1.5',
             block ? 'inset-x-0' : 'end-0 w-44',
           )}
         >
@@ -153,11 +152,11 @@ export function LocaleToggle({ block = false }: { block?: boolean }) {
                   onMouseEnter={() => setActive(index)}
                   onClick={() => choose(code)}
                   className={cn(
-                    'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-start text-sm transition-colors',
+                    'flex w-full items-center gap-2 px-3 py-2 text-start text-sm transition-colors',
                     index === active ? 'bg-brand-soft' : 'hover:bg-surface-2',
                   )}
                 >
-                  <span className="font-display text-muted w-7 shrink-0 text-xs font-bold">
+                  <span className="text-muted w-7 shrink-0 font-mono text-xs">
                     {localeMeta[code].short}
                   </span>
                   <span className="min-w-0 flex-1 truncate">{localeMeta[code].label}</span>

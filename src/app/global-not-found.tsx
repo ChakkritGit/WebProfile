@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Mali } from 'next/font/google'
+import { Noto_Sans, Noto_Sans_Thai } from 'next/font/google'
 import './globals.css'
 
 /**
@@ -15,7 +15,8 @@ import './globals.css'
  * pretending to know which one to use, and links back to a page that does.
  */
 
-const mali = Mali({ subsets: ['latin', 'thai'], weight: ['400', '600'], variable: '--font-hand' })
+const latin = Noto_Sans({ subsets: ['latin'], axes: ['wdth'], variable: '--font-sans-latin' })
+const thai = Noto_Sans_Thai({ subsets: ['thai'], axes: ['wdth'], variable: '--font-sans-thai' })
 
 export const metadata: Metadata = {
   title: '404 — ไม่พบหน้านี้ / Page not found',
@@ -24,10 +25,10 @@ export const metadata: Metadata = {
 
 export default function GlobalNotFound() {
   return (
-    <html lang="th" className={mali.variable}>
+    <html lang="th" className={`${latin.variable} ${thai.variable}`}>
       <body className="bg-paper text-ink grid min-h-dvh place-items-center p-6">
         <main className="text-center">
-          <p className="font-display text-brand-strong text-6xl font-extrabold">404</p>
+          <p className="text-brand-strong font-mono text-6xl">404</p>
           <h1 className="font-display mt-3 text-2xl font-bold">ไม่พบหน้าที่คุณเปิด</h1>
           <p className="text-muted mt-1 text-sm">This page does not exist.</p>
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages --
@@ -36,7 +37,7 @@ export default function GlobalNotFound() {
               and a full navigation is what leaving a 404 should do anyway. */}
           <a
             href="/"
-            className="sticker-sm bg-surface font-display mt-6 inline-block px-5 py-2.5 text-sm font-bold no-underline"
+            className="bg-brand text-brand-ink mt-6 inline-block px-5 py-2.5 text-sm font-medium uppercase no-underline"
           >
             กลับหน้าแรก · Home
           </a>

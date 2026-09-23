@@ -1,12 +1,12 @@
 {
   "meta": {
     "siteName": "Chakkrit Laolit",
-    "tagline": "Software Engineer",
-    "defaultDescription": "Portfolio, projects and writing by Chakkrit Laolit — a full-stack developer from Bangkok building web and mobile products with Next.js, TypeScript and Kotlin."
+    "tagline": "Articles on software, web & mobile development",
+    "defaultDescription": "Articles on building web, mobile and software products from real work — Next.js, React, TypeScript, Kotlin and the tools behind them — plus project write-ups, by Chakkrit Laolit."
   },
   "nav": {
     "home": "Home",
-    "about": "Profile",
+    "about": "About",
     "projects": "Projects",
     "blog": "Blog",
     "contact": "Contact",
@@ -71,7 +71,15 @@
     "resumeClose": "Close",
     "resumeFallback": "Your browser cannot show the PDF inline.",
     "views": "{count, plural, =0 {No views yet} one {# view} other {# views}}",
-    "viewsShort": "{count}"
+    "viewsShort": "{count}",
+    "filterYear": "Year",
+    "filterMonth": "Month",
+    "anyYear": "Any year",
+    "anyMonth": "Any month",
+    "sortLabel": "Sort",
+    "sortNewest": "Newest first",
+    "sortOldest": "Oldest first",
+    "clearDate": "Clear date"
   },
   "festival": {
     "new-year": "Happy New Year",
@@ -96,7 +104,7 @@
   "home": {
     "greeting": "Hi, I'm",
     "roles": [
-      "Software Engineer",
+      "Software Developer",
       "Mobile Developer",
       "Web Developer",
       "Windows Developer"
@@ -117,22 +125,46 @@
     "aboutMore": "Read the full profile",
     "skillsTitle": "Things I work with",
     "skillsSubtitle": "The tools I reach for most",
-    "projectsTitle": "Selected projects",
-    "projectsSubtitle": "Systems I helped design, build and ship",
+    "projectsTitle": "Projects",
+    "projectsSubtitle": "Systems I designed, built and shipped",
     "blogTitle": "From the blog",
     "blogSubtitle": "Notes on building things for the web",
     "webringTitle": "Part of the Thai webring",
     "webringBody": "This site is a member of วงแหวนเว็บ — a ring of personal sites by Thai artists, designers and developers. Follow the badge to discover the neighbours.",
     "webringCta": "Explore the ring",
     "popularTitle": "Most read",
-    "popularSubtitle": "What visitors are opening the most right now",
+    "popularSubtitle": "What people are opening the most right now",
     "graphExpand": "Expand to full screen",
     "graphExit": "Leave full screen",
-    "graphHint": "Hover a node to see what it connects to, drag to turn, click to open"
+    "graphHint": "Hover a node to see what it connects to, drag to turn, click to open",
+    "introEyebrow": "Articles · Projects · Notes",
+    "introTitle": "Notes on building software.",
+    "introBody": "I'm Chakkrit, a software developer in Bangkok. This is where I write about building for the web and mobile and the tools I use at work — and where I keep the projects I've built.",
+    "ctaArticles": "Read the articles",
+    "ctaAbout": "About me",
+    "latestTitle": "Latest articles",
+    "latestSubtitle": "Newest first",
+    "allArticles": "All articles",
+    "allProjects": "All projects",
+    "allTopics": "All topics",
+    "orbTitle": "Topic map",
+    "orbSubtitle": "Every tag is a node; a line means two tags were used on the same piece. Drag to turn, click to open a topic.",
+    "orbLabel": "Topic map",
+    "orbView3d": "3D Orb",
+    "orbViewGrid": "Grid",
+    "orbAll": "All",
+    "orbInner": "Articles",
+    "orbOuter": "Projects",
+    "orbInnerBand": "Inner core · Articles",
+    "orbOuterBand": "Outer shell · Projects",
+    "orbZoomIn": "Zoom in",
+    "orbZoomOut": "Zoom out",
+    "orbPause": "Pause rotation",
+    "orbPlay": "Resume rotation"
   },
   "about": {
-    "title": "Profile",
-    "subtitle": "The longer version — background, experience and what I'm good at.",
+    "title": "About me",
+    "subtitle": "Who I am, what I do, what I use, and how to reach me.",
     "summaryTitle": "Summary",
     "summaryBody": "Full-stack developer with {years}+ years of experience designing and developing complex web applications. Skilled in front-end technologies (React, Next.js, TypeScript) and back-end development (Node.js, NestJS, MySQL, PostgreSQL). Currently at {company}, responsible for end-to-end web application development including UI collaboration, RESTful APIs and database management.",
     "experienceTitle": "Experience",
@@ -339,5 +371,22 @@
     "tagRemoved": "Tag removed",
     "uploaded": "Image uploaded",
     "failed": "That did not go through"
+  },
+  "search": {
+    "open": "Search",
+    "placeholder": "Search articles and projects…",
+    "hint": "Type to search. Press Enter for every result.",
+    "noResults": "Nothing matches “{query}”",
+    "article": "Article",
+    "project": "Project",
+    "count": "{count, plural, one {# result} other {# results}}",
+    "seeAll": "All results",
+    "title": "Search",
+    "subtitle": "Search every article and project on this site.",
+    "resultsFor": "Results for “{query}”",
+    "articlesTitle": "Articles",
+    "projectsTitle": "Projects",
+    "prompt": "Type what you are looking for above.",
+    "empty": "No article or project matches “{query}”."
   }
 }

@@ -1,18 +1,17 @@
 'use client'
 
+import type { ComponentType } from 'react'
 import { useTranslations } from 'next-intl'
 import { QUICK_CONTACT, socials, type SocialId } from '@/config/site'
 import { GitHubIcon, MailIcon, PhoneIcon } from '@/components/icons'
 import { useAtFooter, useScrolledPast } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 
-const ICONS: Partial<Record<SocialId, typeof MailIcon>> = {
+const ICONS: Partial<Record<SocialId, ComponentType<{ className?: string }>>> = {
   github: GitHubIcon,
   email: MailIcon,
   phone: PhoneIcon,
 }
-
-const TONES = ['bg-sun-soft', 'bg-mint-soft', 'bg-sky-soft']
 
 /**
  * How much of the bottom of the screen the dock takes up, offset included. Two
@@ -39,9 +38,7 @@ export function QuickContactDock() {
   )
 
   return (
-    // Faded rather than unmounted, matching the festival picker in the opposite
-    // corner: the two floating controls come and go for the same reasons and had
-    // no business doing it differently. `inert` is what makes a faded control
+    // Faded rather than unmounted. `inert` is what makes a faded control
     // genuinely absent — opacity alone leaves it in the tab order and in the
     // accessibility tree, reachable by people who cannot see that it has gone.
     <aside
@@ -52,8 +49,8 @@ export function QuickContactDock() {
         !visible && 'pointer-events-none translate-y-4 opacity-0',
       )}
     >
-      <ul className="sticker bg-paper/90 flex items-center gap-1.5 p-1.5 backdrop-blur-md sm:flex-col">
-        {links.map((link, i) => {
+      <ul className="border-line bg-surface flex items-center border sm:flex-col">
+        {links.map((link) => {
           const Icon = ICONS[link.id]
           const external = link.href.startsWith('http')
           return (
@@ -63,11 +60,7 @@ export function QuickContactDock() {
                 aria-label={`${link.label}: ${link.handle}`}
                 title={`${link.label} — ${link.handle}`}
                 {...(external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
-                className={cn(
-                  'border-line grid size-11 place-items-center rounded-full border-2',
-                  'transition-transform duration-200 hover:-translate-y-0.5 hover:scale-110 active:scale-95',
-                  TONES[i % TONES.length],
-                )}
+                className="hover:bg-brand hover:text-brand-ink grid size-11 place-items-center transition-colors"
               >
                 {Icon ? <Icon className="size-5" /> : null}
               </a>
