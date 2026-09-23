@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import type { Locale } from '@/i18n/routing'
 import { collectTags, listProjects } from '@/lib/content'
 import { buildMetadata } from '@/lib/seo'
-import { matchesQuery, paginate, parsePage } from '@/lib/search'
+import { applyDateFilter, matchesQuery, paginate, parseDateFilter, parsePage, publishedDates } from '@/lib/search'
 import { PageHeader, Section } from '@/components/ui/section'
 import { RevealGroup, RevealItem } from '@/components/motion/reveal'
 import { ProjectCard } from '@/components/content/content-card'
@@ -11,6 +11,7 @@ import { TagFilter } from '@/components/content/tag-filter'
 import { SearchBox } from '@/components/content/search-box'
 import { Pagination } from '@/components/content/pagination'
 import { EmptyResults } from '@/components/content/empty-results'
+import { DateFilter } from '@/components/content/date-filter'
 
 /**
  * Static, but not for ever.
@@ -44,10 +45,13 @@ export default async function ProjectsPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>
-  searchParams: Promise<{ tag?: string; q?: string; page?: string }>
+  searchParams: Promise<{ tag?: string; q?: string; page?: string; year?: string; month?: string; sort?: string }>
 }) {
   const { locale } = await params
-  const { tag, q = '', page: pageParam } = await searchParams
+  const { tag, q = '', page: pageParam, ...dateParams } = await searchParams
+  const dateFilter = parseDateFilter(dateParams)
+  // What each control carries through when another one changes.
+  const dates = { year: dateParams.year, month: dateParams.month, sort: dateParams.sort }
 
   const t = await getTranslations('projects')
   const tCommon = await getTranslations('common')
@@ -55,9 +59,12 @@ export default async function ProjectsPage({
   const all = await listProjects({ locale: locale as Locale })
   const tags = collectTags(all)
 
-  const filtered = all
-    .filter((project) => (tag ? project.tags.includes(tag) : true))
-    .filter((project) => matchesQuery(project, q))
+  const filtered = applyDateFilter(
+    all
+      .filter((project) => (tag ? project.tags.includes(tag) : true))
+      .filter((project) => matchesQuery(project, q)),
+    dateFilter,
+  )
 
   const { items, page, totalPages, total } = paginate(filtered, parsePage(pageParam), PER_PAGE)
 
@@ -67,14 +74,17 @@ export default async function ProjectsPage({
 
       <Section>
         <div className="space-y-5">
-          <SearchBox initialQuery={q} tag={tag} className="max-w-xl" />
+          <div className="flex flex-wrap items-start gap-3">
+            <SearchBox initialQuery={q} keep={{ tag, ...dates }} className="w-full max-w-xl" />
+            <DateFilter filter={dateFilter} dates={publishedDates(all)} keep={{ tag, q }} />
+          </div>
           {tags.length > 0 && (
             <TagFilter
               tags={tags}
               active={tag}
               allLabel={t('filterAll')}
               basePath="/projects"
-              query={q}
+              query={q} keep={dates}
             />
           )}
           <p aria-live="polite" className="text-muted text-sm">
@@ -95,11 +105,11 @@ export default async function ProjectsPage({
               page={page}
               totalPages={totalPages}
               basePath="/projects"
-              query={{ tag, q }}
+              query={{ tag, q, ...dates }}
             />
           </>
         ) : (
-          <EmptyResults query={q} hasFilters={Boolean(q || tag)} basePath="/projects" fallback={t('empty')} />
+          <EmptyResults query={q} hasFilters={Boolean(q || tag || dateFilter.year || dateFilter.month)} basePath="/projects" fallback={t('empty')} />
         )}
       </Section>
     </>

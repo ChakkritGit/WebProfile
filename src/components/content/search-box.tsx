@@ -19,12 +19,15 @@ import { cn } from '@/lib/utils'
  */
 export function SearchBox({
   initialQuery = '',
-  tag,
+  keep,
   className,
+  autoFocus,
 }: {
   initialQuery?: string
-  tag?: string
+  /** The page's other filters (tag, year, month…), carried through a new query. */
+  keep?: Record<string, string | undefined>
   className?: string
+  autoFocus?: boolean
 }) {
   const t = useTranslations('common')
   const router = useRouter()
@@ -55,7 +58,7 @@ export function SearchBox({
     pinScroll()
     // Dropping `page` is essential: page 3 of a new query is usually empty.
     startTransition(() =>
-      router.replace(`${pathname}${buildQuery({ q: next, tag })}`, { scroll: false }),
+      router.replace(`${pathname}${buildQuery({ ...keep, q: next })}`, { scroll: false }),
     )
   }
 
@@ -82,12 +85,13 @@ export function SearchBox({
       <input
         ref={inputRef}
         type="search"
+        autoFocus={autoFocus}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={t('searchPlaceholder')}
         aria-label={t('search')}
         className={cn(
-          'sticker-sm bg-surface h-12 w-full ps-12 pe-11 text-base outline-none',
+          'border-line bg-surface focus:border-line-strong h-12 w-full border ps-12 pe-11 text-base outline-none transition-colors',
           'placeholder:text-muted/75',
           '[&::-webkit-search-cancel-button]:hidden',
         )}
@@ -102,7 +106,7 @@ export function SearchBox({
             inputRef.current?.focus()
           }}
           aria-label={t('searchClear')}
-          className="text-muted hover:text-ink absolute end-3 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full transition-colors"
+          className="text-muted hover:text-ink absolute end-3 top-1/2 grid size-8 -translate-y-1/2 place-items-center transition-colors"
         >
           <CloseIcon className="size-4" />
         </button>

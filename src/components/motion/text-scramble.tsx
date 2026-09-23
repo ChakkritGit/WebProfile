@@ -22,8 +22,8 @@ type Slot = {
 }
 
 /**
- * Cycles through phrases, scrambling from one to the next — and scrambles the
- * first one in on arrival, out of noise, rather than showing it already settled.
+ * Churns `from` into `to`, calling `onText` with each frame's string and
+ * `done` once every character has settled. Returns a cancel function.
  *
  * Each character gets its own window: it holds the outgoing letter until its
  * start frame, churns through noise until its end frame, then settles on the
@@ -33,6 +33,76 @@ type Slot = {
  *
  * `Array.from` throughout, so Thai combining marks and emoji are never split
  * mid-character.
+ */
+function scramble(from: string, to: string, onText: (text: string) => void, done: () => void): () => void {
+  let cancelled = false
+  let raf = 0
+  const a = Array.from(from)
+  const b = Array.from(to)
+  const length = Math.max(a.length, b.length)
+  const slots: Slot[] = Array.from({ length }, (_, i) => {
+    const start = Math.floor(Math.random() * 14)
+    return {
+      from: a[i] ?? '',
+      to: b[i] ?? '',
+      start,
+      end: start + 6 + Math.floor(Math.random() * 14),
+      step: -1,
+      char: '',
+    }
+  })
+
+  let frame = 0
+  let last = 0
+
+  const step = (now: number) => {
+    if (cancelled) return
+    if (now - last < 1000 / FPS) {
+      raf = requestAnimationFrame(step)
+      return
+    }
+    last = now
+
+    let settled = 0
+    const out = slots
+      .map((slot) => {
+        if (frame >= slot.end) {
+          settled += 1
+          return slot.to
+        }
+        if (frame < slot.start) return slot.from
+        // A fresh character every other frame, not every one: churning at the
+        // full frame rate is a blur rather than something being read. Drawn
+        // rather than derived, so two runs never play back the same characters.
+        const next = Math.floor((frame - slot.start) / 2)
+        if (next !== slot.step) {
+          slot.step = next
+          slot.char = NOISE[Math.floor(Math.random() * NOISE.length)]
+        }
+        return slot.char
+      })
+      .join('')
+
+    onText(out)
+    frame += 1
+
+    if (settled === slots.length) done()
+    else raf = requestAnimationFrame(step)
+  }
+
+  raf = requestAnimationFrame(step)
+  return () => {
+    cancelled = true
+    cancelAnimationFrame(raf)
+  }
+}
+
+const noiseFor = (text: string) =>
+  Array.from(text, (c) => (c === ' ' ? ' ' : NOISE[Math.floor(Math.random() * NOISE.length)])).join('')
+
+/**
+ * Cycles through phrases, scrambling from one to the next — and scrambles the
+ * first one in on arrival, out of noise, rather than showing it already settled.
  */
 export function TextScramble({
   phrases,
@@ -51,71 +121,13 @@ export function TextScramble({
   // string on the client than in the markup, which is a hydration error.
   const [text, setText] = useState(phrases[0] ?? '')
   const [revealed, setRevealed] = useState(false)
-  const frame = useRef(0)
-  const raf = useRef(0)
+  const cancel = useRef(() => {})
 
   useEffect(() => {
     if (reduce || phrases.length === 0) return
 
-    let cancelled = false
-
     const run = (from: string, to: string, done: () => void) => {
-      const a = Array.from(from)
-      const b = Array.from(to)
-      const length = Math.max(a.length, b.length)
-      const slots: Slot[] = Array.from({ length }, (_, i) => {
-        const start = Math.floor(Math.random() * 14)
-        return {
-          from: a[i] ?? '',
-          to: b[i] ?? '',
-          start,
-          end: start + 6 + Math.floor(Math.random() * 14),
-          step: -1,
-          char: '',
-        }
-      })
-
-      frame.current = 0
-      let last = 0
-
-      const step = (now: number) => {
-        if (cancelled) return
-        if (now - last < 1000 / FPS) {
-          raf.current = requestAnimationFrame(step)
-          return
-        }
-        last = now
-
-        let settled = 0
-        const out = slots
-          .map((slot) => {
-            if (frame.current >= slot.end) {
-              settled += 1
-              return slot.to
-            }
-            if (frame.current < slot.start) return slot.from
-            // A fresh character every other frame, not every one: churning at the
-            // full frame rate is a blur rather than something being read. Drawn
-            // rather than derived — the first version hashed the frame against
-            // the slot's own timings, which meant two runs that happened to draw
-            // the same start and end played back the very same characters.
-            const step = Math.floor((frame.current - slot.start) / 2)
-            if (step !== slot.step) {
-              slot.step = step
-              slot.char = NOISE[Math.floor(Math.random() * NOISE.length)]
-            }
-            return slot.char
-          })
-          .join('')
-
-        setText(out)
-        frame.current += 1
-
-        if (settled === slots.length) done()
-        else raf.current = requestAnimationFrame(step)
-      }
-
-      raf.current = requestAnimationFrame(step)
+      cancel.current = scramble(from, to, setText, done)
     }
 
     // The first phrase is scrambled in as well, from noise, with no wait — the
@@ -123,12 +135,8 @@ export function TextScramble({
     // already settled for two seconds.
     if (!revealed) {
       const target = phrases[0] ?? ''
-      const noise = Array.from(target, () => NOISE[Math.floor(Math.random() * NOISE.length)]).join('')
-      run(noise, target, () => setRevealed(true))
-      return () => {
-        cancelled = true
-        cancelAnimationFrame(raf.current)
-      }
+      run(noiseFor(target), target, () => setRevealed(true))
+      return () => cancel.current()
     }
 
     if (phrases.length < 2) return
@@ -139,9 +147,8 @@ export function TextScramble({
     }, holdMs)
 
     return () => {
-      cancelled = true
       clearTimeout(hold)
-      cancelAnimationFrame(raf.current)
+      cancel.current()
     }
   }, [index, revealed, phrases, reduce, holdMs])
 
@@ -156,6 +163,51 @@ export function TextScramble({
       <span className="sr-only" aria-live="polite" aria-atomic="true">
         {phrases[index]}
       </span>
+    </span>
+  )
+}
+
+/**
+ * A fixed label — a button's — that scrambles in on arrival and again whenever
+ * the control it sits in is hovered or focused.
+ *
+ * The churn is laid over the real text in the same grid cell rather than in
+ * its place, so the control keeps the settled label's width: noise characters
+ * are wider and narrower than letters, and a button that twitched in size under
+ * the pointer would be the opposite of the point.
+ */
+export function HoverScramble({ text, className }: { text: string; className?: string }) {
+  const reduce = useReducedMotion()
+  const [churn, setChurn] = useState<string | null>(null)
+  const root = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    if (reduce) return
+    const host = root.current?.closest('a, button') ?? root.current
+    if (!host) return
+    let stop = () => {}
+    const play = () => {
+      stop()
+      stop = scramble(noiseFor(text), text, setChurn, () => setChurn(null))
+    }
+    play()
+    host.addEventListener('pointerenter', play)
+    host.addEventListener('focus', play)
+    return () => {
+      stop()
+      host.removeEventListener('pointerenter', play)
+      host.removeEventListener('focus', play)
+    }
+  }, [text, reduce])
+
+  return (
+    <span ref={root} className={`inline-grid ${className ?? ''}`}>
+      <span className={`col-start-1 row-start-1 ${churn === null ? '' : 'invisible'}`}>{text}</span>
+      {churn !== null && (
+        <span aria-hidden className="col-start-1 row-start-1 overflow-visible whitespace-pre">
+          {churn}
+        </span>
+      )}
     </span>
   )
 }

@@ -12,6 +12,7 @@ import { ButtonLink } from '@/components/ui/button'
 import { RevealGroup, RevealItem } from '@/components/motion/reveal'
 import { PostCard, PostRow, ProjectCard } from '@/components/content/content-card'
 import { TagOrb } from '@/components/home/tag-orb'
+import { HoverScramble } from '@/components/motion/text-scramble'
 import { ArrowRightIcon } from '@/components/icons'
 
 /**
@@ -79,7 +80,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <p className="text-ink-soft mt-6 max-w-xl text-lg leading-relaxed">{t('introBody')}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <ButtonLink href="/blog" size="lg">
-                {t('ctaArticles')}
+                <HoverScramble text={t('ctaArticles')} />
                 <ArrowRightIcon className="size-4" />
               </ButtonLink>
               <ButtonLink href="/about" variant="outline" size="lg">

@@ -16,12 +16,15 @@ export function TagFilter({
   allLabel,
   basePath,
   query = '',
+  keep,
 }: {
   tags: string[]
   active?: string
   allLabel: string
   basePath: string
   query?: string
+  /** Other filters (year, month, sort) a tag change keeps. */
+  keep?: Record<string, string | undefined>
 }) {
   // The key must be the tag's identity, not the href. Href encodes the current
   // filter state, so keying on it remounted every chip on each change — which
@@ -35,10 +38,10 @@ export function TagFilter({
       onClick={() => pinScroll()}
       aria-current={isActive ? 'page' : undefined}
       className={cn(
-        'font-display rounded-full border-2 px-3.5 py-1.5 text-sm font-semibold transition-all',
+        'border px-3 py-1.5 font-mono text-xs uppercase no-underline transition-colors',
         isActive
-          ? 'border-line bg-brand text-brand-ink'
-          : 'border-line-soft text-muted hover:border-line hover:text-ink',
+          ? 'border-brand bg-brand text-brand-ink'
+          : 'border-line text-ink-soft hover:border-line-strong hover:text-brand-strong',
       )}
     >
       {label}
@@ -47,9 +50,9 @@ export function TagFilter({
 
   return (
     <div className="flex flex-wrap gap-2" role="group">
-      {chip('__all', allLabel, `${basePath}${buildQuery({ q: query })}`, !active)}
+      {chip('__all', allLabel, `${basePath}${buildQuery({ ...keep, q: query })}`, !active)}
       {tags.map((tag) =>
-        chip(tag, tag, `${basePath}${buildQuery({ tag, q: query })}`, active === tag),
+        chip(tag, tag, `${basePath}${buildQuery({ ...keep, tag, q: query })}`, active === tag),
       )}
     </div>
   )

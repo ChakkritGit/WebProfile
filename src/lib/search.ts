@@ -1,4 +1,5 @@
 import { slugify } from './slug'
+import { yearMonthOf } from './utils'
 
 /** URL-safe form of a tag. `Next.js` → `next-js`. */
 export function tagSlug(tag: string): string {
@@ -77,4 +78,52 @@ export function buildQuery(params: Record<string, string | number | undefined>):
   }
   const query = search.toString()
   return query ? `?${query}` : ''
+}
+
+/* ------------------------------ by date ------------------------------- */
+
+export interface DateFilter {
+  year?: number
+  month?: number
+  sort: 'new' | 'old'
+}
+
+interface Dated {
+  publishedAt: string | null
+}
+
+/** Reads `?year=&month=&sort=`; anything malformed is simply not a filter. */
+export function parseDateFilter(params: { year?: string; month?: string; sort?: string }): DateFilter {
+  const year = Number.parseInt(params.year ?? '', 10)
+  const month = Number.parseInt(params.month ?? '', 10)
+  return {
+    year: Number.isFinite(year) ? year : undefined,
+    month: month >= 1 && month <= 12 ? month : undefined,
+    sort: params.sort === 'old' ? 'old' : 'new',
+  }
+}
+
+/**
+ * Keeps what was published in the chosen year and/or month, in the chosen
+ * order. A month without a year means that month in any year.
+ */
+export function applyDateFilter<T extends Dated>(items: T[], filter: DateFilter): T[] {
+  const kept = items.filter((item) => {
+    if (!filter.year && !filter.month) return true
+    const at = yearMonthOf(item.publishedAt)
+    if (!at) return false
+    return (!filter.year || at.year === filter.year) && (!filter.month || at.month === filter.month)
+  })
+  const time = (item: T) => (item.publishedAt ? Date.parse(item.publishedAt) : 0)
+  return kept.sort((a, b) => (filter.sort === 'old' ? time(a) - time(b) : time(b) - time(a)))
+}
+
+/** Every `[year, month]` something was published in, for the filter's choices. */
+export function publishedDates(items: Dated[]): [number, number][] {
+  const seen = new Map<string, [number, number]>()
+  for (const item of items) {
+    const at = yearMonthOf(item.publishedAt)
+    if (at) seen.set(`${at.year}-${at.month}`, [at.year, at.month])
+  }
+  return [...seen.values()]
 }
