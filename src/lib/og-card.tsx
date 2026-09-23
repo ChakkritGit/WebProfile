@@ -37,6 +37,11 @@ function DotGrid() {
   )
 }
 
+/** Letter-spacing for Latin labels only: spaced out, a Thai word falls apart into its letters. */
+function tracking(text: string, latin: string) {
+  return /[\u0E00-\u0E7F]/.test(text) ? '0' : latin
+}
+
 /** Long titles need to step down or they overflow the card. */
 function titleSize(title: string) {
   const n = title.length
@@ -93,7 +98,7 @@ export function renderOgCard({ eyebrow, title, subtitle, footer }: OgCardOptions
                 <img>; next/image has no meaning inside an ImageResponse. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={markSrc} width={88} height={88} alt="" />
-            <div style={{ display: 'flex', fontSize: 26, letterSpacing: '0.22em', textTransform: 'uppercase', color: BLUE, fontFamily: 'monospace' }}>
+            <div style={{ display: 'flex', fontSize: 26, letterSpacing: tracking(eyebrow, '0.22em'), textTransform: 'uppercase', color: BLUE, fontFamily: 'monospace' }}>
               {eyebrow}
             </div>
           </div>
