@@ -6,6 +6,17 @@ import { useReducedMotion } from 'motion/react'
 /** What a character churns through before it settles. */
 const NOISE = Array.from('!<>-_\\/[]{}=+*^?#%$&@01')
 
+/**
+ * Split into what a reader sees as characters. `Array.from` splits by code
+ * point, which tears a Thai consonant from the vowel and tone marks stacked on
+ * it — each mark then got its own full-width slot of noise, and "อ่านบทความ"
+ * churned at nearly twice its settled width.
+ */
+const graphemes = (text: string): string[] =>
+  typeof Intl !== 'undefined' && 'Segmenter' in Intl
+    ? Array.from(new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(text), (s) => s.segment)
+    : Array.from(text)
+
 /** Frames per second the churn is stepped at. */
 const FPS = 24
 
@@ -31,14 +42,14 @@ type Slot = {
  * phrase resolves raggedly from no particular direction rather than sweeping
  * left to right — a uniform stagger reads as a wipe, not a scramble.
  *
- * `Array.from` throughout, so Thai combining marks and emoji are never split
- * mid-character.
+ * Split by grapheme, so Thai combining marks and emoji are never torn off the
+ * character they belong to.
  */
 function scramble(from: string, to: string, onText: (text: string) => void, done: () => void): () => void {
   let cancelled = false
   let raf = 0
-  const a = Array.from(from)
-  const b = Array.from(to)
+  const a = graphemes(from)
+  const b = graphemes(to)
   const length = Math.max(a.length, b.length)
   const slots: Slot[] = Array.from({ length }, (_, i) => {
     const start = Math.floor(Math.random() * 14)
@@ -98,7 +109,9 @@ function scramble(from: string, to: string, onText: (text: string) => void, done
 }
 
 const noiseFor = (text: string) =>
-  Array.from(text, (c) => (c === ' ' ? ' ' : NOISE[Math.floor(Math.random() * NOISE.length)])).join('')
+  graphemes(text)
+    .map((c) => (c === ' ' ? ' ' : NOISE[Math.floor(Math.random() * NOISE.length)]))
+    .join('')
 
 /**
  * Cycles through phrases, scrambling from one to the next — and scrambles the
@@ -171,10 +184,10 @@ export function TextScramble({
  * A fixed label — a button's — that scrambles in on arrival and again whenever
  * the control it sits in is hovered or focused.
  *
- * The churn is laid over the real text in the same grid cell rather than in
- * its place, so the control keeps the settled label's width: noise characters
- * are wider and narrower than letters, and a button that twitched in size under
- * the pointer would be the opposite of the point.
+ * The settled label always takes the space; the churn is laid over it out of
+ * flow and clipped to it. Noise characters are wider and narrower than letters,
+ * and an earlier version that let the two share a grid cell sized the cell to
+ * whichever was wider that frame — the button breathed under the pointer.
  */
 export function HoverScramble({ text, className }: { text: string; className?: string }) {
   const reduce = useReducedMotion()
@@ -201,10 +214,10 @@ export function HoverScramble({ text, className }: { text: string; className?: s
   }, [text, reduce])
 
   return (
-    <span ref={root} className={`inline-grid ${className ?? ''}`}>
-      <span className={`col-start-1 row-start-1 ${churn === null ? '' : 'invisible'}`}>{text}</span>
+    <span ref={root} className={`relative inline-block ${className ?? ''}`}>
+      <span className={churn === null ? '' : 'invisible'}>{text}</span>
       {churn !== null && (
-        <span aria-hidden className="col-start-1 row-start-1 overflow-visible whitespace-pre">
+        <span aria-hidden className="absolute inset-0 overflow-hidden whitespace-pre">
           {churn}
         </span>
       )}

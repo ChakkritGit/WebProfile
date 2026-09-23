@@ -415,7 +415,9 @@ export function TagOrb({ map }: { map: TopicMap }) {
         ref={stage}
         role="group"
         aria-label={t('orbLabel')}
-        className={cn('relative select-none', mode === 'orb' ? 'cursor-grab active:cursor-grabbing' : '')}
+        // Clipped: zoomed in, the outer shell reaches past the stage, and the
+        // nodes' depth z-index would otherwise lift them over the controls.
+        className={cn('relative overflow-hidden select-none', mode === 'orb' ? 'cursor-grab active:cursor-grabbing' : '')}
         style={{ height, touchAction: mode === 'orb' ? 'pan-y' : 'auto', transition: 'height 300ms ease' }}
       >
         <svg aria-hidden className="pointer-events-none absolute inset-0 size-full">
@@ -481,7 +483,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
       </div>
 
       {/* Controls, like the reference: view · layers · zoom · motion. */}
-      <div className="border-line bg-surface relative flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t px-2 py-2">
+      <div className="border-line bg-surface relative z-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t px-2 py-2">
         <div className="border-line flex border">
           <button type="button" aria-pressed={mode === 'orb'} onClick={() => setMode('orb')} className={segment(mode === 'orb')}>
             <Orbit aria-hidden className="size-3.5" />
