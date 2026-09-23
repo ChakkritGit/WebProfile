@@ -15,17 +15,26 @@ export type MotionDesign = (rnd: Rnd) => ReactNode
 const pick = <T,>(rnd: Rnd, list: readonly T[]) => list[Math.floor(rnd() * list.length)]
 const layer = 'absolute inset-0'
 
-/** A sine swell across twice the width, so sliding it one width loops seamlessly. */
-function swell(rnd: Rnd, amp: number, waves: number) {
-  const W = 3200
-  const H = 200
+/**
+ * One tile of swell, as a data URI: a fixed 800×120 wave that repeats across
+ * the screen at its own size, so the sea looks the same on a phone and on an
+ * ultrawide. (A single path stretched to the width made the waves long on wide
+ * screens and cramped on tall ones.) The tile starts and ends at the same
+ * height, so sliding a whole tile loops without a seam.
+ */
+const TILE = 800
+function swellTile(rnd: Rnd, amp: number, color: string) {
+  const H = 120
+  const k = 1 + Math.floor(rnd() * 2)
   const phase = rnd() * Math.PI * 2
   let d = `M0 ${H}`
-  for (let x = 0; x <= W; x += 20) {
-    const y = H * 0.5 + Math.sin((x / W) * Math.PI * 2 * waves + phase) * amp + Math.sin((x / W) * Math.PI * 2 * waves * 3) * amp * 0.25
+  for (let x = 0; x <= TILE; x += 10) {
+    const t = (x / TILE) * Math.PI * 2
+    const y = H * 0.45 + Math.sin(t * k + phase) * amp + Math.sin(t * k * 3 + phase * 2) * amp * 0.22
     d += `L${x} ${y.toFixed(1)}`
   }
-  return `${d}L${W} ${H}Z`
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${TILE}" height="${H}" viewBox="0 0 ${TILE} ${H}" preserveAspectRatio="none"><path d="${d}L${TILE} ${H}Z" fill="${color}"/></svg>`
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
 }
 
 function Stars({ rnd, count, style }: { rnd: Rnd; count: number; style?: CSSProperties }) {
@@ -48,17 +57,25 @@ export const MOTION_DESIGNS: MotionDesign[] = [
     ])
     const tones = ['#1d4e7a', '#153c61', '#0f2f4d', '#0a233a', '#061827']
     return (
-      <div className={layer} style={{ background: sky }}>
+      <div className={`${layer} overflow-hidden`} style={{ background: sky }}>
         {tones.map((tone, i) => (
-          <div key={tone} className="absolute inset-x-0 overflow-hidden" style={{ bottom: 0, height: `${34 - i * 5}%` }}>
-            <svg
-              viewBox="0 0 3200 200"
-              preserveAspectRatio="none"
-              className="hero-anim-drift absolute bottom-0 left-0 h-full w-[200%]"
-              style={{ animationDuration: `${28 - i * 4}s`, animationDirection: i % 2 ? 'reverse' : 'normal' }}
-            >
-              <path d={swell(rnd, 16 + i * 6, 4 + i)} fill={tone} />
-            </svg>
+          // Each layer: a band of fixed height from the bottom, its tile
+          // repeated across a strip one tile wider than the screen, slid by
+          // exactly one tile.
+          <div key={tone} className="absolute inset-x-0" style={{ bottom: `${(4 - i) * 5}vh`, height: 120 }}>
+            <div
+              className="hero-anim-drift-tile absolute inset-y-0 left-0"
+              style={{
+                width: `calc(100% + ${TILE}px)`,
+                backgroundImage: swellTile(rnd, 14 + i * 4, tone),
+                backgroundRepeat: 'repeat-x',
+                backgroundSize: `${TILE}px 120px`,
+                animationDuration: `${26 - i * 4}s`,
+                animationDirection: i % 2 ? 'reverse' : 'normal',
+              }}
+            />
+            {/* The water below the wave line, to the bottom of the screen. */}
+            <div className="absolute inset-x-0 top-full" style={{ height: '100vh', background: tone }} />
           </div>
         ))}
       </div>
@@ -89,10 +106,13 @@ export const MOTION_DESIGNS: MotionDesign[] = [
           key={color}
           className="hero-anim-sway absolute"
           style={{
-            left: '-20%',
-            right: '-20%',
+            // In vmax, centred: sized off the longer side, a tall phone still
+            // gets wide curtains rather than one round glow.
+            left: '50%',
+            marginLeft: '-90vmax',
+            width: '180vmax',
             top: `${8 + i * 9}%`,
-            height: '38%',
+            height: '34vh',
             background: `radial-gradient(ellipse at 50% 50%, ${color}99, ${color}33 45%, transparent 70%)`,
             animationDuration: `${9 + i * 3}s`,
             animationDelay: `${-i * 2}s`,
@@ -105,8 +125,11 @@ export const MOTION_DESIGNS: MotionDesign[] = [
   // Glyphs falling, column by column.
   (rnd) => {
     const glyphs = [...'01アイウエオカキクケコサシスセソタチツテトナニヌネノ']
-    const cols = Array.from({ length: 44 }, (_, i) => ({
-      x: (i / 44) * 100,
+    // Columns every 30px from the left, enough for a 2700px-wide screen; the
+    // ones past the edge are clipped. A fixed count spread by percent piled
+    // them on top of each other on a phone and left gaps on an ultrawide.
+    const cols = Array.from({ length: 90 }, (_, i) => ({
+      x: i * 30,
       text: Array.from({ length: 14 + Math.floor(rnd() * 14) }, () => pick(rnd, glyphs)).join('\n'),
       dur: 6 + rnd() * 10,
       delay: -rnd() * 16,
@@ -118,7 +141,7 @@ export const MOTION_DESIGNS: MotionDesign[] = [
           <div
             key={i}
             className="hero-anim-fall absolute top-0 font-mono text-[18px] leading-[24px] whitespace-pre text-[#22c55e]"
-            style={{ left: `${c.x}%`, opacity: c.o, animationDuration: `${c.dur}s`, animationDelay: `${c.delay}s` }}
+            style={{ left: c.x, opacity: c.o, animationDuration: `${c.dur}s`, animationDelay: `${c.delay}s` }}
           >
             {c.text}
           </div>
@@ -126,35 +149,32 @@ export const MOTION_DESIGNS: MotionDesign[] = [
       </div>
     )
   },
-  // A radar scope, sweeping.
+  // A radar scope, sweeping. Rings, blips and sweep share one square box, so
+  // they stay concentric at any aspect; centred on a tall screen, off to the
+  // right on a wide one (see .hero-radar in globals.css).
   (rnd) => {
     const cx = 62 + rnd() * 18
     return (
       <div className={`${layer} overflow-hidden`} style={{ background: '#031a12' }}>
-        <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" className={layer}>
-          <g fill="none" stroke="#22c55e" strokeOpacity="0.45">
-            {[1, 2, 3, 4, 5].map((k) => (
-              <circle key={k} cx={(cx / 100) * 1600} cy="450" r={k * 110} />
-            ))}
-            <path d={`M${(cx / 100) * 1600 - 560} 450H${(cx / 100) * 1600 + 560}M${(cx / 100) * 1600} -110V1010`} />
-          </g>
-          {Array.from({ length: 9 }, (_, i) => {
-            const a = rnd() * Math.PI * 2
-            const d = rnd() * 500
-            return <circle key={i} cx={(cx / 100) * 1600 + Math.cos(a) * d} cy={450 + Math.sin(a) * d} r="6" fill="#86efac" opacity={0.4 + rnd() * 0.6} />
-          })}
-        </svg>
-        <div
-          className="hero-anim-spin absolute aspect-square"
-          style={{
-            width: '72vmax',
-            left: `calc(${cx}% - 36vmax)`,
-            top: 'calc(50% - 36vmax)',
-            background: 'conic-gradient(from 0deg, #22c55e66, transparent 22%)',
-            borderRadius: '50%',
-            animationDuration: '6s',
-          }}
-        />
+        <div className="hero-radar absolute aspect-square" style={{ '--cx': `${cx}%` } as CSSProperties}>
+          <svg viewBox="0 0 100 100" className="absolute inset-0 size-full">
+            <g fill="none" stroke="#22c55e" strokeOpacity="0.45" strokeWidth="0.15">
+              {[1, 2, 3, 4, 5].map((k) => (
+                <circle key={k} cx="50" cy="50" r={k * 9.6} />
+              ))}
+              <path d="M2 50H98M50 2V98" />
+            </g>
+            {Array.from({ length: 9 }, (_, i) => {
+              const a = rnd() * Math.PI * 2
+              const d = rnd() * 44
+              return <circle key={i} cx={50 + Math.cos(a) * d} cy={50 + Math.sin(a) * d} r="0.55" fill="#86efac" opacity={0.4 + rnd() * 0.6} />
+            })}
+          </svg>
+          <div
+            className="hero-anim-spin absolute inset-0 rounded-full"
+            style={{ background: 'conic-gradient(from 0deg, #22c55e66, transparent 22%)', animationDuration: '6s' }}
+          />
+        </div>
       </div>
     )
   },

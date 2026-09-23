@@ -842,6 +842,7 @@ html:not([data-hero-art='off']) [data-grid] {
  * stop while the hero is off screen, and for reduced motion.
  * ------------------------------------------------------------------ */
 @keyframes hero-drift { to { transform: translateX(-50%); } }
+@keyframes hero-drift-tile { to { transform: translateX(-800px); } }
 @keyframes hero-spin { to { transform: rotate(360deg); } }
 @keyframes hero-twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
 @keyframes hero-sway {
@@ -852,6 +853,7 @@ html:not([data-hero-art='off']) [data-grid] {
 @keyframes hero-kenburns { from { transform: scale(1); } to { transform: scale(1.12); } }
 
 .hero-anim-drift { animation: hero-drift 20s linear infinite; will-change: transform; }
+.hero-anim-drift-tile { animation: hero-drift-tile 20s linear infinite; will-change: transform; }
 .hero-anim-spin { animation: hero-spin 60s linear infinite; will-change: transform; }
 .hero-anim-twinkle { animation: hero-twinkle 4s ease-in-out infinite; will-change: opacity; }
 .hero-anim-sway { animation: hero-sway 10s ease-in-out infinite; will-change: transform; }
@@ -874,4 +876,19 @@ html:not([data-hero-art='off']) [data-grid] {
 }
 .hero-photo.is-loaded {
   opacity: 1;
+}
+
+/* The radar's square: sized off the shorter side (off the longer one it was
+   2.8k px across on an ultrawide), centred vertically, placed at --cx on a
+   wide screen and in the middle on a tall one. */
+.hero-radar {
+  width: 150vmin;
+  top: 50%;
+  left: var(--cx, 70%);
+  transform: translate(-50%, -50%);
+}
+@media (orientation: portrait) {
+  .hero-radar {
+    left: 50%;
+  }
 }
