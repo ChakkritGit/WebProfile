@@ -835,3 +835,43 @@ html:not([data-hero-art='off']) [data-grid] {
   font-family: var(--font-display), 'Noto Sans Egyptian Hieroglyphs', 'Noto Sans Cuneiform', 'Noto Sans Runic',
     'Noto Sans Tifinagh', 'Noto Sans Ethiopic', 'Noto Sans Armenian', sans-serif;
 }
+
+/* ------------------------------------------------------------------ *
+ * The hero's moving pictures (see hero-motion.tsx). Transforms and
+ * opacity only, so the compositor runs them without repainting. They
+ * stop while the hero is off screen, and for reduced motion.
+ * ------------------------------------------------------------------ */
+@keyframes hero-drift { to { transform: translateX(-50%); } }
+@keyframes hero-spin { to { transform: rotate(360deg); } }
+@keyframes hero-twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
+@keyframes hero-sway {
+  0%, 100% { transform: translateX(-6%) scaleY(0.9); }
+  50% { transform: translateX(6%) scaleY(1.25); }
+}
+@keyframes hero-fall { from { transform: translateY(-100%); } to { transform: translateY(100vh); } }
+@keyframes hero-kenburns { from { transform: scale(1); } to { transform: scale(1.12); } }
+
+.hero-anim-drift { animation: hero-drift 20s linear infinite; will-change: transform; }
+.hero-anim-spin { animation: hero-spin 60s linear infinite; will-change: transform; }
+.hero-anim-twinkle { animation: hero-twinkle 4s ease-in-out infinite; will-change: opacity; }
+.hero-anim-sway { animation: hero-sway 10s ease-in-out infinite; will-change: transform; }
+.hero-anim-fall { animation: hero-fall 10s linear infinite; will-change: transform; }
+.hero-anim-kenburns { animation: hero-kenburns 30s ease-out forwards; }
+
+[data-art][data-paused] * {
+  animation-play-state: paused !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-art] * {
+    animation: none !important;
+  }
+}
+
+/* A found picture fades in once it has loaded. */
+.hero-photo {
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+.hero-photo.is-loaded {
+  opacity: 1;
+}
