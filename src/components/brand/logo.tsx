@@ -33,7 +33,7 @@ export function Logo({ label, className }: { label: string; className?: string }
         <LogoMark size={32} />
         {festival && <FestivalOrnament id={festival.id} />}
       </span>
-      <span className="font-mono text-sm font-medium tracking-tight uppercase">{label}</span>
+      <span className="sr-only">{label}</span>
     </span>
   )
 }

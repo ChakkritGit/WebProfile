@@ -13,6 +13,7 @@ import { PostCard, PostRow, ProjectCard } from '@/components/content/content-car
 import { TagOrb } from '@/components/home/tag-orb'
 import { HeroArt, HeroArtScript } from '@/components/home/collage-backdrop'
 import { HoverScramble } from '@/components/motion/text-scramble'
+import { WORLD_GLYPHS_FONT } from '@/lib/world-glyphs'
 import { ArrowRightIcon } from '@/components/icons'
 
 /**
@@ -70,6 +71,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* ------------------------------ intro ------------------------------ */}
       <HeroArtScript />
+      {/* The rare-script faces for the CTA's scramble; React hoists this into <head>. */}
+      <link rel="stylesheet" href={WORLD_GLYPHS_FONT} precedence="default" />
       {/* At least one full screen under the header (svh, so a phone's
           collapsing toolbar does not leave a gap), content centred in it; a
           phone whose content is taller simply gets a taller section. */}
@@ -96,7 +99,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           {topics.nodes.length > 0 && (
             <div>
               <TagOrb map={topics} />
-              <div className="hero-caption mt-3 flex items-baseline justify-between gap-4">
+              <div className="hero-caption border-line bg-surface flex items-baseline justify-between gap-4 border border-t-0 px-4 py-3">
                 <p className="text-muted text-sm">{t('orbSubtitle')}</p>
                 <ButtonLink href="/topics" variant="ghost" size="sm" className="shrink-0 px-0">
                   {t('allTopics')}

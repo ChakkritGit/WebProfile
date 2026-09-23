@@ -2,9 +2,19 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useReducedMotion } from 'motion/react'
+import { WORLD_GLYPHS } from '@/lib/world-glyphs'
 
 /** What a character churns through before it settles. */
 const NOISE = Array.from('!<>-_\\/[]{}=+*^?#%$&@01')
+
+/**
+ * The button's churn reaches further: Egyptian hieroglyphs, cuneiform, runes,
+ * Tifinagh, Ethiopic, Armenian, Greek, Cyrillic, katakana and Braille. Nothing
+ * right-to-left — a Hebrew or Arabic letter would reorder the string around it
+ * mid-word. The faces the rarer scripts need are loaded, cut to exactly these
+ * characters, by `WORLD_GLYPHS_FONT` (see the home page).
+ */
+const WORLD = [...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(WORLD_GLYPHS)].map((g) => g.segment)
 
 /**
  * Split into what a reader sees as characters. `Array.from` splits by code
@@ -45,7 +55,7 @@ type Slot = {
  * Split by grapheme, so Thai combining marks and emoji are never torn off the
  * character they belong to.
  */
-function scramble(from: string, to: string, onText: (text: string) => void, done: () => void): () => void {
+function scramble(from: string, to: string, onText: (text: string) => void, done: () => void, pool: string[] = NOISE): () => void {
   let cancelled = false
   let raf = 0
   const a = graphemes(from)
@@ -88,7 +98,7 @@ function scramble(from: string, to: string, onText: (text: string) => void, done
         const next = Math.floor((frame - slot.start) / 2)
         if (next !== slot.step) {
           slot.step = next
-          slot.char = NOISE[Math.floor(Math.random() * NOISE.length)]
+          slot.char = pool[Math.floor(Math.random() * pool.length)]
         }
         return slot.char
       })
@@ -108,9 +118,9 @@ function scramble(from: string, to: string, onText: (text: string) => void, done
   }
 }
 
-const noiseFor = (text: string) =>
+const noiseFor = (text: string, pool: string[] = NOISE) =>
   graphemes(text)
-    .map((c) => (c === ' ' ? ' ' : NOISE[Math.floor(Math.random() * NOISE.length)]))
+    .map((c) => (c === ' ' ? ' ' : pool[Math.floor(Math.random() * pool.length)]))
     .join('')
 
 /**
@@ -204,7 +214,7 @@ export function HoverScramble({ text, className }: { text: string; className?: s
     let stop = () => {}
     const play = () => {
       stop()
-      stop = scramble(noiseFor(text), text, setChurn, () => setChurn(null))
+      stop = scramble(noiseFor(text, WORLD), text, setChurn, () => setChurn(null), WORLD)
     }
     play()
     host.addEventListener('pointerenter', play)
@@ -231,7 +241,7 @@ export function HoverScramble({ text, className }: { text: string; className?: s
         {text}
       </span>
       {churn !== null && (
-        <span ref={overlay} aria-hidden className="absolute top-0 left-0 origin-left whitespace-pre">
+        <span ref={overlay} aria-hidden className="world-glyphs absolute top-0 left-0 origin-left whitespace-pre">
           {churn}
         </span>
       )}

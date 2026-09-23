@@ -781,11 +781,9 @@ html:not([data-hero-art='off']) section:has([data-art]) .hero-text {
 
 /* The caption under the orb joins the orb's card over a collage, rather than
    sitting on whatever the draw put behind it. */
+/* Over a picture the caption and controls only change colour — never size or
+   place, so switching the picture on and off does not move the orb. */
 html:not([data-hero-art='off']) section:has([data-art]) .hero-caption {
-  margin-top: 0;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--line);
-  border-top: 0;
   background: color-mix(in srgb, var(--surface) 72%, transparent);
   backdrop-filter: blur(10px);
 }
@@ -794,10 +792,8 @@ html:not([data-hero-art='off']) section:has([data-art]) .hero-caption {
    solid fill, so the labels read the same either way. */
 html:not([data-hero-art='off']) section:has([data-art]) [data-orb] {
   background: transparent;
-  /* No border at all rather than a transparent one: a clear 1px ring let the
-     picture show through between the controls and the caption, splitting
-     one framed panel into two. */
-  border-width: 0;
+  /* Transparent, not removed: removing it changed the orb's size by 2px. */
+  border-color: transparent;
 }
 html:not([data-hero-art='off']) section:has([data-art]) [data-orb] > .star-grid {
   display: none;
@@ -814,6 +810,9 @@ html:not([data-hero-art='off']) section:has([data-art]) [data-orb] > .border-t {
   background: color-mix(in srgb, var(--surface) 72%, transparent);
   backdrop-filter: blur(10px);
   border: 1px solid var(--line);
+  /* Out over the orb's transparent border, so the bar meets the caption with
+     no clear seam between them and is exactly the caption's width. */
+  margin: 0 -1px -1px;
 }
 
 @keyframes hero-art-in {
@@ -828,4 +827,11 @@ html:not([data-hero-art='off']) section:has([data-art]) [data-orb] > .border-t {
 html[data-hero-art='off'] [data-art],
 html:not([data-hero-art='off']) [data-grid] {
   display: none;
+}
+
+/* The CTA's scramble: the site's face first, then the rare-script faces loaded
+   for it on the home page (see src/lib/world-glyphs.ts). */
+.world-glyphs {
+  font-family: var(--font-display), 'Noto Sans Egyptian Hieroglyphs', 'Noto Sans Cuneiform', 'Noto Sans Runic',
+    'Noto Sans Tifinagh', 'Noto Sans Ethiopic', 'Noto Sans Armenian', sans-serif;
 }

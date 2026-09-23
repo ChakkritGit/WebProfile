@@ -522,26 +522,27 @@ export function TagOrb({ map }: { map: TopicMap }) {
           ))}
         </div>
 
-        {mode === 'orb' && (
-          <div className="flex">
-            <button type="button" onClick={() => zoom(1.2)} aria-label={t('orbZoomIn')} className={segment(false)}>
-              <ZoomIn aria-hidden className="size-3.5" />
+        {/* Always present, disabled in the grid: taking them away moved every
+            other control along the bar each time the view switched. */}
+        <div className="flex">
+          <button type="button" onClick={() => zoom(1.2)} disabled={mode !== 'orb'} aria-label={t('orbZoomIn')} className={cn(segment(false), 'disabled:opacity-35')}>
+            <ZoomIn aria-hidden className="size-3.5" />
+          </button>
+          <button type="button" onClick={() => zoom(1 / 1.2)} disabled={mode !== 'orb'} aria-label={t('orbZoomOut')} className={cn(segment(false), 'disabled:opacity-35')}>
+            <ZoomOut aria-hidden className="size-3.5" />
+          </button>
+          {!reduce && (
+            <button
+              type="button"
+              onClick={() => setPaused((v) => !v)}
+              disabled={mode !== 'orb'}
+              aria-label={paused ? t('orbPlay') : t('orbPause')}
+              className={cn(segment(false), 'disabled:opacity-35')}
+            >
+              {paused ? <Play aria-hidden className="size-3.5" /> : <Pause aria-hidden className="size-3.5" />}
             </button>
-            <button type="button" onClick={() => zoom(1 / 1.2)} aria-label={t('orbZoomOut')} className={segment(false)}>
-              <ZoomOut aria-hidden className="size-3.5" />
-            </button>
-            {!reduce && (
-              <button
-                type="button"
-                onClick={() => setPaused((v) => !v)}
-                aria-label={paused ? t('orbPlay') : t('orbPause')}
-                className={segment(false)}
-              >
-                {paused ? <Play aria-hidden className="size-3.5" /> : <Pause aria-hidden className="size-3.5" />}
-              </button>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )

@@ -50,7 +50,7 @@ export function SiteHeader() {
           className="relative z-10 mx-auto flex h-full max-w-6xl items-center gap-2 px-4 sm:px-6"
         >
           <Link href="/" className="group mr-auto flex items-center no-underline" aria-label={profile.brand}>
-            <Logo label={profile.brand} className="[&>span:last-child]:hidden sm:[&>span:last-child]:inline" />
+            <Logo label={profile.brand} />
           </Link>
 
           <ul className="mr-3 hidden items-center gap-6 md:flex">
