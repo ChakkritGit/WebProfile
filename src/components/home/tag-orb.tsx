@@ -426,9 +426,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
         style={{ height, touchAction: mode === 'orb' ? 'pan-y' : 'auto', transition: 'height 300ms ease' }}
       >
         <svg aria-hidden className="pointer-events-none absolute inset-0 size-full">
-          {/* The articles' orbit in its own colour: in the brand blue it was the
-              same line as the edges between article tags, and read as one more. */}
-          <path ref={(el) => { ringEls.current[0] = el }} fill="none" stroke="var(--orbit)" strokeWidth="1.5" />
+          <path ref={(el) => { ringEls.current[0] = el }} fill="none" stroke="var(--brand-strong)" strokeWidth="1" />
           <path ref={(el) => { ringEls.current[1] = el }} fill="none" stroke="var(--accent-2)" strokeWidth="1" />
           {edges.map(([a, b], i) => (
             <line
