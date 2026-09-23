@@ -160,7 +160,9 @@
     "orbZoomIn": "Zoom in",
     "orbZoomOut": "Zoom out",
     "orbPause": "Pause rotation",
-    "orbPlay": "Resume rotation"
+    "orbPlay": "Resume rotation",
+    "bgShuffle": "Shuffle backdrop",
+    "bgGrid": "Grid"
   },
   "about": {
     "title": "About me",

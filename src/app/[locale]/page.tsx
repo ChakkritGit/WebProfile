@@ -11,6 +11,7 @@ import { ButtonLink } from '@/components/ui/button'
 import { RevealGroup, RevealItem } from '@/components/motion/reveal'
 import { PostCard, PostRow, ProjectCard } from '@/components/content/content-card'
 import { TagOrb } from '@/components/home/tag-orb'
+import { CollageBackdrop } from '@/components/home/collage-backdrop'
 import { HoverScramble } from '@/components/motion/text-scramble'
 import { ArrowRightIcon } from '@/components/icons'
 
@@ -69,9 +70,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* ------------------------------ intro ------------------------------ */}
       <section className="border-line relative overflow-hidden border-b">
-        <div aria-hidden className="star-grid pointer-events-none absolute inset-0" />
-        <Container className="relative grid items-center gap-10 py-14 sm:py-20 lg:grid-cols-[1fr_1.05fr] lg:gap-12">
-          <div>
+        <CollageBackdrop />
+        <Container className="relative grid items-center gap-10 pt-14 pb-20 sm:pt-20 sm:pb-24 lg:grid-cols-[1fr_1.05fr] lg:gap-12">
+          <div className="hero-text">
             <p className="label-mono text-brand-strong">{t('introEyebrow')}</p>
             <h1 className="mt-5 text-[clamp(3rem,11vw,6.5rem)] uppercase lg:text-[clamp(4rem,6.8vw,6.5rem)]">
               {t('introTitle')}
@@ -91,7 +92,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           {topics.nodes.length > 0 && (
             <div>
               <TagOrb map={topics} />
-              <div className="mt-3 flex items-baseline justify-between gap-4">
+              <div className="hero-caption mt-3 flex items-baseline justify-between gap-4">
                 <p className="text-muted text-sm">{t('orbSubtitle')}</p>
                 <ButtonLink href="/topics" variant="ghost" size="sm" className="shrink-0 px-0">
                   {t('allTopics')}

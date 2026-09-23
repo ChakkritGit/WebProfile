@@ -160,7 +160,9 @@
     "orbZoomIn": "ซูมเข้า",
     "orbZoomOut": "ซูมออก",
     "orbPause": "หยุดหมุน",
-    "orbPlay": "หมุนต่อ"
+    "orbPlay": "หมุนต่อ",
+    "bgShuffle": "สุ่มพื้นหลัง",
+    "bgGrid": "ตาราง"
   },
   "about": {
     "title": "เกี่ยวกับฉัน",

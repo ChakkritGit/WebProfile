@@ -160,7 +160,9 @@
     "orbZoomIn": "ズームイン",
     "orbZoomOut": "ズームアウト",
     "orbPause": "回転を止める",
-    "orbPlay": "回転を再開"
+    "orbPlay": "回転を再開",
+    "bgShuffle": "背景をシャッフル",
+    "bgGrid": "グリッド"
   },
   "about": {
     "title": "自己紹介",
