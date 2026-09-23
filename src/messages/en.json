@@ -161,8 +161,8 @@
     "orbZoomOut": "Zoom out",
     "orbPause": "Pause rotation",
     "orbPlay": "Resume rotation",
-    "bgShuffle": "Shuffle backdrop",
-    "bgGrid": "Grid"
+    "bgOff": "Hide backdrop",
+    "bgOn": "Show backdrop"
   },
   "about": {
     "title": "About me",

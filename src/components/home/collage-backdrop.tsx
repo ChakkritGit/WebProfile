@@ -1,18 +1,27 @@
 'use client'
 
-import { Fragment, useId, useState } from 'react'
+import { useId, useSyncExternalStore } from 'react'
 import { useTranslations } from 'next-intl'
-import { LayoutGrid, Shuffle } from 'lucide-react'
+import { Image as ImageIcon, ImageOff } from 'lucide-react'
 
 /**
- * The home page's first screen, behind the text: the page grid by default, or
- * a collage generated on demand — torn paper, a horizon, rust-coloured rock,
- * brushed waves, halftone, blueprint — cut into panels and grained over, the
- * way a printed collage is. Every press is a new seed, so it never repeats.
+ * The picture behind the home page's first screen: one full-bleed image drawn
+ * from a collection — a horizon, rust rock, brushed waves, halftone, blueprint,
+ * paper, dunes, a setting sun, blue static — with the seed picking the design
+ * and varying it. The seed comes from the server, so the picture is in the
+ * first paint rather than swapped in after hydration, and the page regenerates
+ * with a new one every minute.
  *
- * All of it is SVG made from noise and gradients: no photographs to license,
- * nothing to download, and it costs nothing until someone asks for it.
+ * On by default. The reader can switch it off for the page grid, and that is
+ * remembered: `HeroArtScript` applies it before paint, so someone who turned it
+ * off never sees it flash in.
+ *
+ * All of it is SVG from noise and gradients — nothing to license or download.
  */
+
+const KEY = 'hero-art'
+const W = 1600
+const H = 900
 
 /** Small, fast, seedable. Mulberry32. */
 function random(seed: number) {
@@ -26,291 +35,266 @@ function random(seed: number) {
   }
 }
 
-const W = 1600
-const H = 900
-
-type Texture = 'paper' | 'horizon' | 'rock' | 'waves' | 'halftone' | 'blueprint'
-const TEXTURES: Texture[] = ['paper', 'horizon', 'rock', 'waves', 'halftone', 'blueprint']
-const PAPERS = ['#f2c230', '#e9e2cf', '#d8d2c2', '#0000ff', '#161616', '#e4572e', '#f4efe4']
 const INK = '#141414'
+const full = { x: 0, y: 0, width: W, height: H }
 
-/** A vertical torn edge from top to bottom around `x`: small jitter, the odd notch. */
-function tornVertical(rnd: () => number, x: number) {
-  const points: [number, number][] = []
-  for (let y = -10; y <= H + 10; y += 9 + rnd() * 10) {
-    const notch = rnd() < 0.06 ? (rnd() - 0.5) * 22 : 0
-    points.push([x + (rnd() - 0.5) * 7 + notch, y])
-  }
-  return points
-}
+type Design = (rnd: () => number, id: string, seed: number) => React.ReactNode
 
-/** A horizontal torn edge across a panel, gently wavy. */
-function tornHorizontal(rnd: () => number, x0: number, x1: number, y: number) {
-  const points: [number, number][] = []
-  const lean = (rnd() - 0.5) * 60
-  for (let x = x0 - 10; x <= x1 + 10; x += 8 + rnd() * 10) {
-    const t = (x - x0) / Math.max(1, x1 - x0)
-    points.push([x, y + lean * t + (rnd() - 0.5) * 6])
-  }
-  return points
-}
+const DESIGNS: Design[] = [
+  // A horizon at dusk, from high altitude.
+  (rnd, id) => {
+    const at = 0.5 + rnd() * 0.15
+    return (
+      <>
+        <defs>
+          <linearGradient id={`${id}-sky`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#0b1428" />
+            <stop offset={at * 0.45} stopColor="#2f5f9e" />
+            <stop offset={at * 0.8} stopColor="#8c9ccc" />
+            <stop offset={at * 0.95} stopColor="#f08a3e" />
+            <stop offset={at} stopColor="#ff4a1c" />
+            <stop offset={at + 0.02} stopColor="#3a1a12" />
+            <stop offset="1" stopColor="#120c0c" />
+          </linearGradient>
+        </defs>
+        <rect {...full} fill={`url(#${id}-sky)`} />
+      </>
+    )
+  },
+  // Rust-coloured rock under a black sky.
+  (rnd, id, seed) => {
+    const base = H * (0.45 + rnd() * 0.2)
+    let ridge = `M-20 ${base}`
+    for (let x = 0; x <= W + 40; x += 18 + rnd() * 30) ridge += `L${x.toFixed(1)} ${(base + (rnd() - 0.5) * 110).toFixed(1)}`
+    return (
+      <>
+        <defs>
+          <filter id={`${id}-rock`} x="0" y="0" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency={`${0.008 + rnd() * 0.012} ${0.03 + rnd() * 0.04}`} numOctaves={5} seed={seed % 1000} />
+            <feColorMatrix type="saturate" values="0" />
+            <feComponentTransfer>
+              <feFuncR type="table" tableValues="0.08 0.45 0.78 0.98 1" />
+              <feFuncG type="table" tableValues="0.02 0.16 0.34 0.62 0.85" />
+              <feFuncB type="table" tableValues="0.02 0.06 0.14 0.3 0.55" />
+            </feComponentTransfer>
+          </filter>
+        </defs>
+        <rect {...full} fill="#0c0b0a" />
+        <path d={`${ridge}L${W + 40} ${H + 20}L-20 ${H + 20}Z`} fill="#000" filter={`url(#${id}-rock)`} />
+      </>
+    )
+  },
+  // Brushed ink waves on cream paper.
+  (rnd, id, seed) => (
+    <>
+      <defs>
+        <pattern id={`${id}-stripes`} width="40" height={24 + rnd() * 20} patternUnits="userSpaceOnUse">
+          <rect width="40" height={7 + rnd() * 7} fill={INK} />
+        </pattern>
+        <filter id={`${id}-brush`}>
+          <feTurbulence type="fractalNoise" baseFrequency={`${0.003 + rnd() * 0.003} ${0.015 + rnd() * 0.02}`} numOctaves={3} seed={seed % 1000} />
+          <feDisplacementMap in="SourceGraphic" scale={60 + rnd() * 60} />
+        </filter>
+      </defs>
+      <rect {...full} fill="#ddd6c6" />
+      <rect {...full} fill={`url(#${id}-stripes)`} filter={`url(#${id}-brush)`} opacity={0.55} />
+    </>
+  ),
+  // Halftone dots in the brand blue, fading from one point.
+  (rnd, id) => (
+    <>
+      <defs>
+        <pattern id={`${id}-dots`} width="12" height="12" patternUnits="userSpaceOnUse" patternTransform={`rotate(${rnd() * 45})`}>
+          <circle cx="6" cy="6" r="3.2" fill="#0000ff" />
+        </pattern>
+        <radialGradient id={`${id}-fade`} cx={0.3 + rnd() * 0.5} cy={0.3 + rnd() * 0.4} r="0.75">
+          <stop offset="0" stopColor="#fff" />
+          <stop offset="1" stopColor="#000" />
+        </radialGradient>
+        <mask id={`${id}-mask`}>
+          <rect {...full} fill={`url(#${id}-fade)`} />
+        </mask>
+      </defs>
+      <rect {...full} fill="#f4f2ec" />
+      <rect {...full} fill={`url(#${id}-dots)`} mask={`url(#${id}-mask)`} />
+    </>
+  ),
+  // A blueprint: grid, rings and cross-hairs on blue.
+  (rnd, id) => {
+    const cx = W * (0.45 + rnd() * 0.4)
+    const cy = H * (0.3 + rnd() * 0.4)
+    return (
+      <>
+        <defs>
+          <pattern id={`${id}-grid`} width="32" height="32" patternUnits="userSpaceOnUse">
+            <path d="M32 0H0V32" fill="none" stroke="#ffffff" strokeOpacity="0.22" strokeWidth="1" />
+          </pattern>
+        </defs>
+        <rect {...full} fill="#0000ff" />
+        <rect {...full} fill={`url(#${id}-grid)`} />
+        {[1, 2, 3, 4].map((k) => (
+          <circle key={k} cx={cx} cy={cy} r={k * (70 + rnd() * 40)} fill="none" stroke="#fff" strokeOpacity="0.6" strokeWidth="1.2" />
+        ))}
+        <path d={`M0 ${cy}H${W}M${cx} 0V${H}`} stroke="#fff" strokeOpacity="0.6" strokeWidth="1" />
+      </>
+    )
+  },
+  // A sheet of coloured paper with pencil marks on it.
+  (rnd) => {
+    const papers = ['#f2c230', '#e4572e', '#e9e2cf', '#1c1c1c']
+    const paper = papers[Math.floor(rnd() * papers.length)]
+    const pen = paper === '#1c1c1c' ? '#f4efe4' : INK
+    const marks = Array.from({ length: 5 + Math.floor(rnd() * 6) }, () => {
+      const sx = rnd() * W
+      const sy = rnd() * H
+      const len = 80 + rnd() * 380
+      return rnd() < 0.5
+        ? `M${sx} ${sy}q${(rnd() - 0.5) * 10} ${len / 2} ${(rnd() - 0.5) * 8} ${len}`
+        : `M${sx} ${sy}q${len / 2} ${(rnd() - 0.5) * 14} ${len} ${(rnd() - 0.5) * 10}`
+    })
+    return (
+      <>
+        <rect {...full} fill={paper} />
+        {marks.map((d, i) => (
+          <path key={i} d={d} fill="none" stroke={pen} strokeOpacity={0.7} strokeWidth={0.8 + rnd() * 1.8} strokeLinecap="round" />
+        ))}
+      </>
+    )
+  },
+  // Dunes: ridges stepping back into haze.
+  (rnd) => {
+    const bands = ['#f3c98b', '#e59a5a', '#c8643a', '#8e3b22', '#4a1d12']
+    return (
+      <>
+        <rect {...full} fill="#f7e2bf" />
+        {bands.map((color, i) => {
+          const base = H * (0.35 + i * 0.13)
+          let d = `M-20 ${base}`
+          for (let x = 0; x <= W + 60; x += 60) d += `Q${x + 30} ${(base - 40 - rnd() * 90).toFixed(1)} ${x + 60} ${(base + (rnd() - 0.5) * 40).toFixed(1)}`
+          return <path key={color} d={`${d}L${W + 60} ${H + 20}L-20 ${H + 20}Z`} fill={color} />
+        })}
+      </>
+    )
+  },
+  // A setting sun cut by lines, on a warm gradient.
+  (rnd, id) => {
+    const cx = W * (0.55 + rnd() * 0.3)
+    const cy = H * (0.45 + rnd() * 0.15)
+    const r = 180 + rnd() * 140
+    return (
+      <>
+        <defs>
+          <linearGradient id={`${id}-dusk`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#1a0f3a" />
+            <stop offset="0.6" stopColor="#b8324a" />
+            <stop offset="1" stopColor="#f29e4c" />
+          </linearGradient>
+          <mask id={`${id}-cut`}>
+            <rect {...full} fill="#fff" />
+            {Array.from({ length: 7 }, (_, i) => (
+              <rect key={i} x={0} y={cy + i * 26 + 4} width={W} height={3 + i * 2.2} fill="#000" />
+            ))}
+          </mask>
+        </defs>
+        <rect {...full} fill={`url(#${id}-dusk)`} />
+        <circle cx={cx} cy={cy} r={r} fill="#ffd166" mask={`url(#${id}-cut)`} />
+      </>
+    )
+  },
+  // Blue static, like the Hermes prints: noise in two inks.
+  (rnd, id, seed) => (
+    <>
+      <defs>
+        <filter id={`${id}-static`} x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency={`${0.002 + rnd() * 0.004} ${0.004 + rnd() * 0.01}`} numOctaves={4} seed={seed % 1000} />
+          <feColorMatrix type="saturate" values="0" />
+          <feComponentTransfer>
+            <feFuncR type="table" tableValues="0 0 0.2 0.9 1" />
+            <feFuncG type="table" tableValues="0 0 0.2 0.9 1" />
+            <feFuncB type="table" tableValues="0.55 1 1 1 1" />
+          </feComponentTransfer>
+        </filter>
+      </defs>
+      <rect {...full} fill="#000" filter={`url(#${id}-static)`} />
+    </>
+  ),
+]
 
-const line = (points: [number, number][]) => points.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join('')
-
-interface Region {
-  /** Closed paths the texture is clipped to — all of them, intersected. */
-  clips: string[]
-  /** Bounds, for textures that place things. */
-  x0: number
-  x1: number
-  y0: number
-  y1: number
-  texture: Texture
-  paper: string
-  seed: number
-}
-
-function layout(seed: number): { regions: Region[]; edges: string[] } {
-  const rnd = random(seed)
-  const pick = <T,>(list: T[]) => list[Math.floor(rnd() * list.length)]
-  const columns = 2 + Math.floor(rnd() * 3)
-  // Uneven widths — equal columns read as a layout, not a collage.
-  const weights = Array.from({ length: columns }, () => 0.6 + rnd())
-  const total = weights.reduce((a, b) => a + b, 0)
-  const cuts = weights.slice(0, -1).map((_, i) => (weights.slice(0, i + 1).reduce((a, b) => a + b, 0) / total) * W)
-
-  const regions: Region[] = []
-  const edges: string[] = []
-  const bounds = [0, ...cuts, W]
-  const seams = cuts.map((x) => tornVertical(rnd, x))
-
-  for (let c = 0; c < columns; c++) {
-    const x0 = bounds[c]
-    const x1 = bounds[c + 1]
-    const left = c === 0 ? [[-20, -20], [-20, H + 20]] as [number, number][] : seams[c - 1]
-    const right = c === columns - 1 ? [[W + 20, -20], [W + 20, H + 20]] as [number, number][] : seams[c]
-    const column = `${line(left)}L${line([...right].reverse()).slice(1)}Z`
-
-    const split = rnd() < 0.45
-    if (!split) {
-      regions.push({ clips: [column], x0, x1, y0: 0, y1: H, texture: pick(TEXTURES), paper: pick(PAPERS), seed: Math.floor(rnd() * 1e6) })
-      continue
-    }
-    // Two pieces in the column: the whole column, then a lower piece torn
-    // along a wavy line and laid on top of it.
-    const y = H * (0.35 + rnd() * 0.3)
-    const tear = tornHorizontal(rnd, x0, x1, y)
-    const below = `${line(tear)}L${x1 + 30} ${H + 30}L${x0 - 30} ${H + 30}Z`
-    regions.push({ clips: [column], x0, x1, y0: 0, y1: H, texture: pick(TEXTURES), paper: pick(PAPERS), seed: Math.floor(rnd() * 1e6) })
-    regions.push({ clips: [column, below], x0, x1, y0: y - 40, y1: H, texture: pick(TEXTURES), paper: pick(PAPERS), seed: Math.floor(rnd() * 1e6) })
-    edges.push(line(tear))
-  }
-  seams.forEach((s) => edges.push(line(s)))
-  return { regions, edges }
-}
-
-function Region({ region, id }: { region: Region; id: string }) {
-  const { x0, x1, y0, y1, texture, paper, seed } = region
-  const w = x1 - x0 + 40
-  const h = y1 - y0 + 40
-  const rnd = random(seed)
-  const box = { x: x0 - 20, y: y0 - 20, width: w, height: h }
-
-  switch (texture) {
-    case 'horizon': {
-      const at = 0.45 + rnd() * 0.2
-      return (
-        <>
-          <defs>
-            <linearGradient id={`${id}-sky`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#0d1830" />
-              <stop offset={at * 0.45} stopColor="#2f5f9e" />
-              <stop offset={at * 0.8} stopColor="#8c9ccc" />
-              <stop offset={at * 0.95} stopColor="#f08a3e" />
-              <stop offset={at} stopColor="#ff4a1c" />
-              <stop offset={at + 0.02} stopColor="#3a1a12" />
-              <stop offset="1" stopColor="#140d0d" />
-            </linearGradient>
-          </defs>
-          <rect {...box} fill={`url(#${id}-sky)`} />
-        </>
-      )
-    }
-    case 'rock': {
-      const ridge: [number, number][] = []
-      const base = y0 + (y1 - y0) * (0.35 + rnd() * 0.3)
-      for (let x = x0 - 20; x <= x1 + 20; x += 14 + rnd() * 20) ridge.push([x, base + (rnd() - 0.5) * 70])
-      return (
-        <>
-          <defs>
-            <filter id={`${id}-rock`} x="0" y="0" width="100%" height="100%">
-              <feTurbulence type="fractalNoise" baseFrequency={`${0.01 + rnd() * 0.02} ${0.04 + rnd() * 0.05}`} numOctaves={5} seed={seed % 1000} />
-              <feColorMatrix type="saturate" values="0" />
-              <feComponentTransfer>
-                <feFuncR type="table" tableValues="0.08 0.45 0.78 0.98 1" />
-                <feFuncG type="table" tableValues="0.02 0.16 0.34 0.62 0.85" />
-                <feFuncB type="table" tableValues="0.02 0.06 0.14 0.3 0.55" />
-                <feFuncA type="table" tableValues="1 1" />
-              </feComponentTransfer>
-            </filter>
-          </defs>
-          <rect {...box} fill="#0e0d0c" />
-          <path d={`${line(ridge)}L${x1 + 20} ${y1 + 20}L${x0 - 20} ${y1 + 20}Z`} fill="#000" filter={`url(#${id}-rock)`} />
-        </>
-      )
-    }
-    case 'waves':
-      return (
-        <>
-          <defs>
-            <pattern id={`${id}-stripes`} width="40" height={22 + rnd() * 18} patternUnits="userSpaceOnUse">
-              <rect width="40" height={6 + rnd() * 6} fill={INK} />
-            </pattern>
-            <filter id={`${id}-brush`}>
-              <feTurbulence type="fractalNoise" baseFrequency={`${0.004 + rnd() * 0.004} ${0.02 + rnd() * 0.02}`} numOctaves={3} seed={seed % 1000} />
-              <feDisplacementMap in="SourceGraphic" scale={50 + rnd() * 50} />
-            </filter>
-          </defs>
-          <rect {...box} fill="#ddd6c6" />
-          <rect {...box} fill={`url(#${id}-stripes)`} filter={`url(#${id}-brush)`} opacity={0.85} />
-        </>
-      )
-    case 'halftone':
-      return (
-        <>
-          <defs>
-            <pattern id={`${id}-dots`} width="10" height="10" patternUnits="userSpaceOnUse" patternTransform={`rotate(${rnd() * 45})`}>
-              <circle cx="5" cy="5" r="2.6" fill="#0000ff" />
-            </pattern>
-            <radialGradient id={`${id}-fade`} cx={0.3 + rnd() * 0.4} cy={0.3 + rnd() * 0.4} r="0.8">
-              <stop offset="0" stopColor="#fff" />
-              <stop offset="1" stopColor="#000" />
-            </radialGradient>
-            <mask id={`${id}-mask`}>
-              <rect {...box} fill={`url(#${id}-fade)`} />
-            </mask>
-          </defs>
-          <rect {...box} fill="#f4f2ec" />
-          <rect {...box} fill={`url(#${id}-dots)`} mask={`url(#${id}-mask)`} />
-        </>
-      )
-    case 'blueprint': {
-      const cx = x0 + (x1 - x0) * (0.3 + rnd() * 0.4)
-      const cy = y0 + (y1 - y0) * (0.3 + rnd() * 0.4)
-      return (
-        <>
-          <defs>
-            <pattern id={`${id}-grid`} width="32" height="32" patternUnits="userSpaceOnUse">
-              <path d="M32 0H0V32" fill="none" stroke="#ffffff" strokeOpacity="0.25" strokeWidth="1" />
-            </pattern>
-          </defs>
-          <rect {...box} fill="#0000ff" />
-          <rect {...box} fill={`url(#${id}-grid)`} />
-          {[80, 150, 230].map((r) => (
-            <circle key={r} cx={cx} cy={cy} r={r * (0.6 + rnd() * 0.6)} fill="none" stroke="#fff" strokeOpacity="0.7" strokeWidth="1.2" />
-          ))}
-          <path d={`M${x0 - 20} ${cy}H${x1 + 20}M${cx} ${y0 - 20}V${y1 + 20}`} stroke="#fff" strokeOpacity="0.7" strokeWidth="1" />
-        </>
-      )
-    }
-    default: {
-      // Plain paper, with a few marks made on it.
-      const marks = Array.from({ length: 2 + Math.floor(rnd() * 4) }, () => {
-        const sx = x0 + rnd() * (x1 - x0)
-        const sy = y0 + rnd() * (y1 - y0)
-        const vertical = rnd() < 0.5
-        const len = 60 + rnd() * 260
-        return vertical
-          ? `M${sx} ${sy}q${(rnd() - 0.5) * 8} ${len / 2} ${(rnd() - 0.5) * 6} ${len}`
-          : `M${sx} ${sy}q${len / 2} ${(rnd() - 0.5) * 10} ${len} ${(rnd() - 0.5) * 8}`
-      })
-      const dark = paper === '#161616' || paper === '#0000ff'
-      return (
-        <>
-          <rect {...box} fill={paper} />
-          {marks.map((d, i) => (
-            <path key={i} d={d} fill="none" stroke={dark ? '#f4efe4' : INK} strokeOpacity={0.7} strokeWidth={0.8 + rnd() * 1.6} strokeLinecap="round" />
-          ))}
-        </>
-      )
-    }
-  }
-}
-
-function Collage({ seed }: { seed: number }) {
+function Artwork({ seed }: { seed: number }) {
   const uid = useId().replace(/:/g, '')
-  const { regions, edges } = layout(seed)
+  const rnd = random(seed)
+  const design = DESIGNS[seed % DESIGNS.length]
   return (
-    <svg
-      aria-hidden
-      viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="xMidYMid slice"
-      className="animate-[collage-in_500ms_ease] absolute inset-0 size-full"
-    >
+    <svg aria-hidden viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 size-full">
       <defs>
         <filter id={`${uid}-grain`} x="0" y="0" width="100%" height="100%">
           <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves={2} seed={seed % 997} stitchTiles="stitch" />
           <feColorMatrix type="saturate" values="0" />
         </filter>
-        {regions.flatMap((region, i) =>
-          region.clips.map((d, j) => (
-            <clipPath key={`${i}-${j}`} id={`${uid}-clip-${i}-${j}`}>
-              <path d={d} />
-            </clipPath>
-          )),
-        )}
       </defs>
-      {regions.map((region, i) => (
-        // Nested groups intersect their clips: a lower piece is both inside
-        // its column and below its tear.
-        <Fragment key={i}>
-          {region.clips.reduceRight(
-            (inner, _, j) => <g clipPath={`url(#${uid}-clip-${i}-${j})`}>{inner}</g>,
-            <Region region={region} id={`${uid}-r${i}`} />,
-          )}
-        </Fragment>
-      ))}
-      {/* The torn edges catch the light: a thin pale line along each tear. */}
-      {edges.map((d, i) => (
-        <path key={i} d={d} fill="none" stroke="#f4efe4" strokeOpacity="0.55" strokeWidth="2" />
-      ))}
-      <rect width={W} height={H} filter={`url(#${uid}-grain)`} opacity="0.22" style={{ mixBlendMode: 'overlay' }} />
+      {design(rnd, `${uid}-d`, seed)}
+      {/* Printed-matter grain over everything. */}
+      <rect {...full} filter={`url(#${uid}-grain)`} opacity="0.2" style={{ mixBlendMode: 'overlay' }} />
     </svg>
   )
 }
 
-export function CollageBackdrop() {
-  const t = useTranslations('home')
-  const [seed, setSeed] = useState<number | null>(null)
+/* The on/off state lives on <html> (so the pre-paint script can set it) and in
+   localStorage (so it is remembered). */
+const listeners = new Set<() => void>()
+const subscribe = (notify: () => void) => {
+  listeners.add(notify)
+  return () => {
+    listeners.delete(notify)
+  }
+}
+const isOn = () => document.documentElement.dataset.heroArt !== 'off'
 
-  const button =
-    'bg-surface/90 text-ink-soft hover:text-brand-strong border-line inline-flex h-9 items-center gap-1.5 border px-3 font-mono text-[0.7rem] uppercase backdrop-blur transition-colors'
+export function HeroArt({ seed }: { seed: number }) {
+  const t = useTranslations('home')
+  const on = useSyncExternalStore(subscribe, isOn, () => true)
+
+  function toggle() {
+    const next = on ? 'off' : 'on'
+    document.documentElement.dataset.heroArt = next
+    try {
+      localStorage.setItem(KEY, next)
+    } catch {
+      // Private mode: it just will not be remembered.
+    }
+    listeners.forEach((notify) => notify())
+  }
 
   return (
     <>
-      {seed === null ? (
-        <div aria-hidden className="star-grid pointer-events-none absolute inset-0" />
-      ) : (
-        <div data-art aria-hidden className="pointer-events-none absolute inset-0">
-          <Collage key={seed} seed={seed} />
-          {/* A scrim under the text column, so white type reads on any draw. */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/10" />
-        </div>
-      )}
+      <div data-grid aria-hidden className="star-grid pointer-events-none absolute inset-0" />
+      <div data-art aria-hidden className="pointer-events-none absolute inset-0">
+        <Artwork seed={seed} />
+        {/* A scrim under the text column, so white type reads on any design. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/10" />
+      </div>
       {/* Bottom-left: the quick-contact dock owns the bottom-right corner of the
           screen, and scrolled a little it lands right over this spot. */}
-      <div className="absolute start-4 bottom-4 z-10 flex gap-2 sm:start-6">
-        <button type="button" onClick={() => setSeed(Math.floor(Math.random() * 2 ** 31))} className={button}>
-          <Shuffle aria-hidden className="size-3.5" />
-          {t('bgShuffle')}
-        </button>
-        {seed !== null && (
-          <button type="button" onClick={() => setSeed(null)} className={button}>
-            <LayoutGrid aria-hidden className="size-3.5" />
-            {t('bgGrid')}
-          </button>
-        )}
-      </div>
+      <button
+        type="button"
+        onClick={toggle}
+        aria-pressed={on}
+        className="bg-surface/90 text-ink-soft hover:text-brand-strong border-line absolute start-4 bottom-4 z-10 inline-flex h-9 items-center gap-1.5 border px-3 font-mono text-[0.7rem] uppercase backdrop-blur transition-colors sm:start-6"
+      >
+        {on ? <ImageOff aria-hidden className="size-3.5" /> : <ImageIcon aria-hidden className="size-3.5" />}
+        {t(on ? 'bgOff' : 'bgOn')}
+      </button>
     </>
+  )
+}
+
+/** Runs before paint, so a reader who switched the picture off never sees it. */
+export function HeroArtScript() {
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `try{if(localStorage.getItem('${KEY}')==='off')document.documentElement.dataset.heroArt='off'}catch(e){}`,
+      }}
+    />
   )
 }

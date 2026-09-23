@@ -161,8 +161,8 @@
     "orbZoomOut": "ズームアウト",
     "orbPause": "回転を止める",
     "orbPlay": "回転を再開",
-    "bgShuffle": "背景をシャッフル",
-    "bgGrid": "グリッド"
+    "bgOff": "背景を隠す",
+    "bgOn": "背景を表示"
   },
   "about": {
     "title": "自己紹介",

@@ -11,7 +11,7 @@ import { ButtonLink } from '@/components/ui/button'
 import { RevealGroup, RevealItem } from '@/components/motion/reveal'
 import { PostCard, PostRow, ProjectCard } from '@/components/content/content-card'
 import { TagOrb } from '@/components/home/tag-orb'
-import { CollageBackdrop } from '@/components/home/collage-backdrop'
+import { HeroArt, HeroArtScript } from '@/components/home/collage-backdrop'
 import { HoverScramble } from '@/components/motion/text-scramble'
 import { ArrowRightIcon } from '@/components/icons'
 
@@ -26,6 +26,16 @@ import { ArrowRightIcon } from '@/components/icons'
 export const revalidate = 60
 
 const LATEST = 6
+
+/**
+ * The hero picture's seed. Impure on purpose: this is a server component that
+ * renders once per regeneration (every minute, see `revalidate`), so each
+ * regeneration draws a new picture — chosen here, on the server, so it is in
+ * the first paint rather than swapped in after hydration.
+ */
+function freshSeed() {
+  return Math.floor(Math.random() * 2 ** 31)
+}
 
 /**
  * The front page is the articles and the projects — the site as a place to
@@ -63,14 +73,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     .sort((a, b) => Number(b.featured) - Number(a.featured))
     .slice(0, 3)
   const topics = buildTopicMap(posts, projects)
+  const artSeed = freshSeed()
 
   return (
     <>
       <JsonLd locale={locale as Locale} posts={latest} projects={shownProjects} />
 
       {/* ------------------------------ intro ------------------------------ */}
+      <HeroArtScript />
       <section className="border-line relative overflow-hidden border-b">
-        <CollageBackdrop />
+        <HeroArt seed={artSeed} />
         <Container className="relative grid items-center gap-10 pt-14 pb-20 sm:pt-20 sm:pb-24 lg:grid-cols-[1fr_1.05fr] lg:gap-12">
           <div className="hero-text">
             <p className="label-mono text-brand-strong">{t('introEyebrow')}</p>
