@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { ImageResponse } from 'next/og'
+import sharp from 'sharp'
 import { WEBRING_DOMAIN } from '@/config/site'
 
 export const OG_SIZE = { width: 1200, height: 630 }
@@ -15,6 +16,7 @@ const LINE = '#D6D7E4'
 const markSrc = `data:image/svg+xml;base64,${readFileSync(join(process.cwd(), 'src/app/icon.svg'), 'base64')}`
 
 // next/og ships a single bundled font, so hierarchy comes from size and colour.
+// It sets only the Latin labels now; the title and subtitle are drawn by `textImage`.
 const FONT_STACK = 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
 
 const DOT = 48
@@ -37,9 +39,37 @@ function DotGrid() {
   )
 }
 
-/** Letter-spacing for Latin labels only: spaced out, a Thai word falls apart into its letters. */
-function tracking(text: string, latin: string) {
-  return /[\u0E00-\u0E7F]/.test(text) ? '0' : latin
+/**
+ * Text drawn by sharp (libvips → Pango → HarfBuzz) rather than by satori.
+ *
+ * Satori cannot set Thai. Measured with eight Thai faces, the same two faults
+ * in all of them: a tone mark after a vowel is dropped (ที่ → ที, ปุ่น → ปุน)
+ * and ์ lands on top of ิ instead of above it, so the owner's own surname
+ * (เหล่าฤทธิ์) came out with its last syllable piled into one glyph. HarfBuzz
+ * does the mark stacking a browser does, so the lines are drawn there and
+ * placed on the card as images. One font file, Thai and Latin both.
+ */
+const FONT_FILE = join(process.cwd(), 'src/assets/fonts/NotoSansThai-Medium.ttf')
+
+const escapeMarkup = (text: string) =>
+  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+async function textImage(text: string, size: number, color: string, width: number) {
+  const { data, info } = await sharp({
+    text: {
+      text: `<span foreground="${color}">${escapeMarkup(text)}</span>`,
+      font: `Noto Sans Thai ${size}`,
+      fontfile: FONT_FILE,
+      width,
+      dpi: 72,
+      rgba: true,
+      // Points between lines. Thai marks above and below need the room.
+      spacing: Math.round(size * 0.18),
+    },
+  })
+    .png()
+    .toBuffer({ resolveWithObject: true })
+  return { src: `data:image/png;base64,${data.toString('base64')}`, width: info.width, height: info.height }
 }
 
 /** Long titles need to step down or they overflow the card. */
@@ -61,7 +91,14 @@ export interface OgCardOptions {
   footer?: string
 }
 
-export function renderOgCard({ eyebrow, title, subtitle, footer }: OgCardOptions) {
+export async function renderOgCard({ eyebrow, title, subtitle, footer }: OgCardOptions) {
+  const thaiEyebrow = /[\u0E00-\u0E7F]/.test(eyebrow)
+  const [titleImg, subtitleImg, eyebrowImg] = await Promise.all([
+    textImage(title, titleSize(title), INK, 900),
+    subtitle ? textImage(subtitle, 33, BLUE, 900) : null,
+    thaiEyebrow ? textImage(eyebrow, 26, BLUE, 700) : null,
+  ])
+
   return new ImageResponse(
     (
       <div
@@ -98,20 +135,23 @@ export function renderOgCard({ eyebrow, title, subtitle, footer }: OgCardOptions
                 <img>; next/image has no meaning inside an ImageResponse. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={markSrc} width={88} height={88} alt="" />
-            <div style={{ display: 'flex', fontSize: 26, letterSpacing: tracking(eyebrow, '0.22em'), textTransform: 'uppercase', color: BLUE, fontFamily: 'monospace' }}>
-              {eyebrow}
-            </div>
+            {eyebrowImg ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={eyebrowImg.src} width={eyebrowImg.width} height={eyebrowImg.height} alt="" />
+            ) : (
+              <div style={{ display: 'flex', fontSize: 26, letterSpacing: '0.22em', textTransform: 'uppercase', color: BLUE, fontFamily: 'monospace' }}>
+                {eyebrow}
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 900, paddingBottom: 18 }}>
-            <div style={{ display: 'flex', fontSize: titleSize(title), lineHeight: 1.08, letterSpacing: '-0.04em', color: INK }}>
-              {title}
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={titleImg.src} width={titleImg.width} height={titleImg.height} alt="" />
             <div style={{ display: 'flex', width: 132, height: 6, backgroundColor: BLUE, marginTop: 22 }} />
-            {subtitle && (
-              <div style={{ display: 'flex', fontSize: 33, lineHeight: 1.35, letterSpacing: '-0.01em', color: BLUE, marginTop: 20 }}>
-                {subtitle}
-              </div>
+            {subtitleImg && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={subtitleImg.src} width={subtitleImg.width} height={subtitleImg.height} alt="" style={{ marginTop: 20 }} />
             )}
           </div>
 

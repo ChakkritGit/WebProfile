@@ -4,6 +4,15 @@ import createNextIntlPlugin from 'next-intl/plugin'
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 const nextConfig: NextConfig = {
+  /**
+   * The share cards draw their text with sharp from a font file (see
+   * `og-card.tsx`). sharp is handed a path, which the build's file tracing
+   * cannot follow, so the font is named here or it is missing on Vercel.
+   */
+  outputFileTracingIncludes: {
+    '/**/opengraph-image': ['./src/assets/fonts/**'],
+    '/**/twitter-image': ['./src/assets/fonts/**'],
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**.supabase.co' },
