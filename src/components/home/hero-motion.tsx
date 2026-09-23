@@ -15,28 +15,6 @@ export type MotionDesign = (rnd: Rnd) => ReactNode
 const pick = <T,>(rnd: Rnd, list: readonly T[]) => list[Math.floor(rnd() * list.length)]
 const layer = 'absolute inset-0'
 
-/**
- * One tile of swell, as a data URI: a fixed 800×120 wave that repeats across
- * the screen at its own size, so the sea looks the same on a phone and on an
- * ultrawide. (A single path stretched to the width made the waves long on wide
- * screens and cramped on tall ones.) The tile starts and ends at the same
- * height, so sliding a whole tile loops without a seam.
- */
-const TILE = 800
-function swellTile(rnd: Rnd, amp: number, color: string) {
-  const H = 120
-  const k = 1 + Math.floor(rnd() * 2)
-  const phase = rnd() * Math.PI * 2
-  let d = `M0 ${H}`
-  for (let x = 0; x <= TILE; x += 10) {
-    const t = (x / TILE) * Math.PI * 2
-    const y = H * 0.45 + Math.sin(t * k + phase) * amp + Math.sin(t * k * 3 + phase * 2) * amp * 0.22
-    d += `L${x} ${y.toFixed(1)}`
-  }
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${TILE}" height="${H}" viewBox="0 0 ${TILE} ${H}" preserveAspectRatio="none"><path d="${d}L${TILE} ${H}Z" fill="${color}"/></svg>`
-  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
-}
-
 function Stars({ rnd, count, style }: { rnd: Rnd; count: number; style?: CSSProperties }) {
   return (
     <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" className={layer} style={style}>
@@ -48,39 +26,6 @@ function Stars({ rnd, count, style }: { rnd: Rnd; count: number; style?: CSSProp
 }
 
 export const MOTION_DESIGNS: MotionDesign[] = [
-  // The sea, swell after swell rolling in.
-  (rnd) => {
-    const sky = pick(rnd, [
-      'linear-gradient(#0b1d3a, #3d6ea5 55%, #f3b27a)',
-      'linear-gradient(#1a1030, #7b3f6e 55%, #f7a86b)',
-      'linear-gradient(#0c2a3f, #5aa0c8 60%, #dfeef5)',
-    ])
-    const tones = ['#1d4e7a', '#153c61', '#0f2f4d', '#0a233a', '#061827']
-    return (
-      <div className={`${layer} overflow-hidden`} style={{ background: sky }}>
-        {tones.map((tone, i) => (
-          // Each layer: a band of fixed height from the bottom, its tile
-          // repeated across a strip one tile wider than the screen, slid by
-          // exactly one tile.
-          <div key={tone} className="absolute inset-x-0" style={{ bottom: `${(4 - i) * 5}vh`, height: 120 }}>
-            <div
-              className="hero-anim-drift-tile absolute inset-y-0 left-0"
-              style={{
-                width: `calc(100% + ${TILE}px)`,
-                backgroundImage: swellTile(rnd, 14 + i * 4, tone),
-                backgroundRepeat: 'repeat-x',
-                backgroundSize: `${TILE}px 120px`,
-                animationDuration: `${26 - i * 4}s`,
-                animationDirection: i % 2 ? 'reverse' : 'normal',
-              }}
-            />
-            {/* The water below the wave line, to the bottom of the screen. */}
-            <div className="absolute inset-x-0 top-full" style={{ height: '100vh', background: tone }} />
-          </div>
-        ))}
-      </div>
-    )
-  },
   // A night sky: the field turning slowly about the pole, stars twinkling.
   (rnd) => {
     const seed = Math.floor(rnd() * 1e6)

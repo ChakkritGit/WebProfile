@@ -12,7 +12,8 @@ import { PHOTOS, type HeroPhoto } from './hero-photos'
  * The picture behind the first screen, a new one every time the page is
  * opened, from three collections:
  *
- * - drawn designs (`hero-designs.tsx`) — SVG from noise and gradients;
+ * - drawn designs (`hero-designs.tsx`) — SVG from noise and gradients,
+ *   blended blue like everything else;
  * - moving designs (`hero-motion.tsx`) — composited layers in motion;
  * - found pictures (`hero-photos.ts`) — public-domain art and NASA imagery,
  *   blended blue like the article covers, drifting slowly (Ken Burns).
@@ -52,7 +53,10 @@ function isBusy(entry: Entry) {
 function Drawn({ seed, index }: { seed: number; index: number }) {
   const uid = useId().replace(/:/g, '')
   return (
-    <svg aria-hidden viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" className="hero-art-in absolute inset-0 size-full">
+    // Blended blue like the covers and the found pictures, so every picture in
+    // the collection is in the site's one ink.
+    <div className="duotone hero-art-in absolute inset-0">
+    <svg aria-hidden viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 size-full">
       <defs>
         <filter id={`${uid}-grain`} x="0" y="0" width="100%" height="100%">
           <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves={2} seed={seed % 997} stitchTiles="stitch" />
@@ -63,6 +67,7 @@ function Drawn({ seed, index }: { seed: number; index: number }) {
       {/* Printed-matter grain over everything. */}
       <rect {...full} filter={`url(#${uid}-grain)`} opacity="0.2" style={{ mixBlendMode: 'overlay' }} />
     </svg>
+    </div>
   )
 }
 

@@ -737,11 +737,13 @@
  * its shadows print blue and its highlights stay white — one ink, like the
  * rest of the page. Hovering the card (the `group`) brings the colour back.
  */
-.duotone img {
+.duotone img,
+.duotone > svg {
   filter: grayscale(1) contrast(1.1);
   transition: filter 300ms ease;
 }
-.duotone:has(img)::after {
+.duotone:has(img)::after,
+.duotone:has(> svg)::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -841,8 +843,6 @@ html:not([data-hero-art='off']) [data-grid] {
  * opacity only, so the compositor runs them without repainting. They
  * stop while the hero is off screen, and for reduced motion.
  * ------------------------------------------------------------------ */
-@keyframes hero-drift { to { transform: translateX(-50%); } }
-@keyframes hero-drift-tile { to { transform: translateX(-800px); } }
 @keyframes hero-spin { to { transform: rotate(360deg); } }
 @keyframes hero-twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
 @keyframes hero-sway {
@@ -852,8 +852,6 @@ html:not([data-hero-art='off']) [data-grid] {
 @keyframes hero-fall { from { transform: translateY(-100%); } to { transform: translateY(100vh); } }
 @keyframes hero-kenburns { from { transform: scale(1); } to { transform: scale(1.12); } }
 
-.hero-anim-drift { animation: hero-drift 20s linear infinite; will-change: transform; }
-.hero-anim-drift-tile { animation: hero-drift-tile 20s linear infinite; will-change: transform; }
 .hero-anim-spin { animation: hero-spin 60s linear infinite; will-change: transform; }
 .hero-anim-twinkle { animation: hero-twinkle 4s ease-in-out infinite; will-change: opacity; }
 .hero-anim-sway { animation: hero-sway 10s ease-in-out infinite; will-change: transform; }
