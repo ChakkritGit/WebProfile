@@ -5,8 +5,7 @@ import { routing, type Locale } from '@/i18n/routing'
 import type { PostRecord, ProjectRecord } from '@/lib/content-types'
 import { listPosts, listProjects } from '@/lib/content'
 import { buildTopicMap } from '@/lib/topics'
-import { absoluteUrl, siteDescription, siteName } from '@/lib/seo'
-import { profile } from '@/config/site'
+import { absoluteUrl, authorJsonLd, siteDescription, siteName } from '@/lib/seo'
 import { Container, Section, SectionHeading } from '@/components/ui/section'
 import { ButtonLink } from '@/components/ui/button'
 import { RevealGroup, RevealItem } from '@/components/motion/reveal'
@@ -209,7 +208,7 @@ function JsonLd({
       name: siteName(locale),
       description: siteDescription(locale),
       inLanguage: locale,
-      author: { '@type': 'Person', name: profile.name, jobTitle: profile.role },
+      author: authorJsonLd(locale),
       potentialAction: {
         '@type': 'SearchAction',
         target: { '@type': 'EntryPoint', urlTemplate: `${absoluteUrl('/search', locale)}?q={search_term_string}` },
@@ -230,7 +229,7 @@ function JsonLd({
           datePublished: post.publishedAt ?? undefined,
           image: post.coverImage ?? undefined,
           keywords: post.tags.join(', ') || undefined,
-          author: { '@type': 'Person', name: profile.name },
+          author: authorJsonLd(locale),
         },
       })),
     },
@@ -248,7 +247,7 @@ function JsonLd({
           datePublished: project.publishedAt ?? undefined,
           image: project.coverImage ?? undefined,
           keywords: [...project.tags, ...project.stack].join(', ') || undefined,
-          creator: { '@type': 'Person', name: profile.name },
+          creator: authorJsonLd(locale),
         },
       })),
     },

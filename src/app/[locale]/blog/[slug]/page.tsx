@@ -3,8 +3,7 @@ import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { routing, type Locale } from '@/i18n/routing'
 import { getPost, listPosts } from '@/lib/content'
-import { absoluteUrl, buildMetadata } from '@/lib/seo'
-import { profile } from '@/config/site'
+import { absoluteUrl, buildMetadata, authorJsonLd } from '@/lib/seo'
 import { ArticleShell } from '@/components/content/article-shell'
 import { ViewTracker } from '@/components/content/view-tracker'
 import { ClockIcon, EyeIcon } from '@/components/icons'
@@ -78,8 +77,8 @@ export default async function BlogPostPage({
     inLanguage: locale,
     keywords: post.tags.join(', '),
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
-    author: { '@type': 'Person', name: profile.name, url: absoluteUrl('/') },
-    publisher: { '@type': 'Person', name: profile.name },
+    author: authorJsonLd(locale as Locale),
+    publisher: authorJsonLd(locale as Locale),
     ...(post.coverImage ? { image: post.coverImage } : {}),
   }
 

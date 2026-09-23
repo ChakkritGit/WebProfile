@@ -39,8 +39,6 @@ export function SearchDialog() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-    // `show` only touches refs and setters.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Fetched on first open, not on page load: most visits never search.

@@ -3,8 +3,7 @@ import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { routing, type Locale } from '@/i18n/routing'
 import { getProject, listProjects } from '@/lib/content'
-import { absoluteUrl, buildMetadata } from '@/lib/seo'
-import { profile } from '@/config/site'
+import { absoluteUrl, buildMetadata, authorJsonLd } from '@/lib/seo'
 import { ArticleShell } from '@/components/content/article-shell'
 import { ViewTracker } from '@/components/content/view-tracker'
 import { StickerCard } from '@/components/ui/sticker-card'
@@ -80,7 +79,7 @@ export default async function ProjectPage({
     inLanguage: locale,
     keywords: [...project.tags, ...project.stack].join(', '),
     url,
-    creator: { '@type': 'Person', name: profile.name, url: absoluteUrl('/') },
+    creator: authorJsonLd(locale as Locale),
   }
 
   return (

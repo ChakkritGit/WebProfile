@@ -1,6 +1,6 @@
 'use client'
 
-import { useSyncExternalStore, type ReactNode } from 'react'
+import { useSyncExternalStore } from 'react'
 import { useReducedMotion } from 'motion/react'
 import { festivalById, festivalOn, type Festival, type FestivalId } from '@/config/festivals'
 import { useIsMounted } from '@/lib/hooks'

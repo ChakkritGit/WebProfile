@@ -129,3 +129,13 @@ export function buildMetadata({
     },
   }
 }
+
+/**
+ * The author, as structured data. One object for every page, because Google's
+ * rich-result test flags a `Person` without a `url` — and the home page's
+ * lists had three that did not match the one on each article. `/about` is the
+ * page that is about the person.
+ */
+export function authorJsonLd(locale: Locale) {
+  return { '@type': 'Person', name: profile.name, jobTitle: profile.role, url: absoluteUrl('/about', locale) }
+}
