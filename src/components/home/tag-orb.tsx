@@ -33,6 +33,8 @@ const TILT = 0.38
 const ORB_HEIGHT = { narrow: 380, wide: 460 }
 const ROW = 44
 const CELL = 150
+/** Half a node label, roughly, for keeping labels inside the stage. */
+const LABEL = { w: 64, h: 24 }
 
 interface Point {
   x: number
@@ -166,7 +168,14 @@ export function TagOrb({ map }: { map: TopicMap }) {
       const z1 = -x0 * sy + z0 * cy
       const y2 = y0 * cx - z1 * sx
       const z2 = y0 * sx + z1 * cx
-      const unit = Math.min(s.width, s.orbHeight) * 0.27 * s.zoom
+      // Sized so the whole outer shell fits the stage at zoom 1. A sphere of
+      // radius R seen from CAMERA away has a silhouette of R·C/√(C²−R²); every
+      // node lies inside it, so that plus room for half a label is the bound.
+      // A flat 27% of the stage did not allow for the shell once projects gave
+      // it tags, and the top ones were cut off.
+      const silhouette = (RADIUS.outer * CAMERA) / Math.sqrt(CAMERA ** 2 - RADIUS.outer ** 2)
+      const fit = Math.min(s.orbHeight / 2 - LABEL.h, s.width / 2 - LABEL.w) / silhouette
+      const unit = Math.max(20, fit) * s.zoom
       const p = CAMERA / (CAMERA + z2)
       return {
         x: s.width / 2 + x1 * unit * p,

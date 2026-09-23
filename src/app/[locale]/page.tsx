@@ -70,9 +70,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* ------------------------------ intro ------------------------------ */}
       <HeroArtScript />
-      <section className="border-line relative overflow-hidden border-b">
+      {/* At least one full screen under the header (svh, so a phone's
+          collapsing toolbar does not leave a gap), content centred in it; a
+          phone whose content is taller simply gets a taller section. */}
+      <section className="border-line relative flex min-h-[calc(100svh-var(--header-h))] items-center overflow-hidden border-b">
         <HeroArt />
-        <Container className="relative grid items-center gap-10 pt-14 pb-20 sm:pt-20 sm:pb-24 lg:grid-cols-[1fr_1.05fr] lg:gap-12">
+        <Container className="relative grid items-center gap-10 pt-8 pb-16 sm:pt-10 lg:grid-cols-[1fr_1.05fr] lg:gap-12">
           <div className="hero-text">
             <p className="label-mono text-brand-strong">{t('introEyebrow')}</p>
             <h1 className="mt-5 text-[clamp(3rem,11vw,6.5rem)] uppercase lg:text-[clamp(4rem,6.8vw,6.5rem)]">
