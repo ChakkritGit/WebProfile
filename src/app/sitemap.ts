@@ -25,7 +25,6 @@ const STATIC_ROUTES: { path: string; changeFrequency: ChangeFrequency; priority:
   { path: '/about', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/projects', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/blog', changeFrequency: 'weekly', priority: 0.9 },
-  { path: '/contact', changeFrequency: 'yearly', priority: 0.6 },
 ]
 
 /** One URL per locale, each pointing at the same hreflang cluster. */

@@ -85,7 +85,7 @@ function otherPages() {
   return [
     line('หน้าแรก', absoluteUrl('/', LOCALE)),
     line('โปรไฟล์', absoluteUrl('/about', LOCALE)),
-    line('ติดต่อ', absoluteUrl('/contact', LOCALE)),
+    line('ติดต่อ', absoluteUrl('/about', LOCALE) + '#contact'),
     line('หัวข้อทั้งหมด', absoluteUrl('/topics', LOCALE)),
     line('RSS', absoluteUrl('/feed.xml', LOCALE)),
     line('ฉบับเต็มของไฟล์นี้', absoluteUrl('/llms-full.txt', LOCALE)),

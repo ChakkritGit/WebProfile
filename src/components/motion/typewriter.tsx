@@ -127,7 +127,7 @@ export function MarqueeRow({
             // The duplicate half is decorative; hide it from assistive tech.
             aria-hidden={i >= items.length}
             tabIndex={i >= items.length ? -1 : undefined}
-            className="sticker-sm sticker-hover bg-surface font-display inline-flex shrink-0 items-center gap-2 px-4 py-2 text-sm font-semibold no-underline"
+            className="border-line bg-surface hover:border-line-strong hover:text-brand-strong inline-flex shrink-0 items-center gap-2 border px-3 py-1.5 font-mono text-xs uppercase no-underline transition-colors"
           >
             <TechIcon name={item} className="size-4 shrink-0" />
             {item}

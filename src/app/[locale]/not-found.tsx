@@ -16,7 +16,7 @@ const DESTINATIONS = [
   { key: 'home', href: '/', icon: SparkleIcon, tone: 'brand' as const },
   { key: 'projects', href: '/projects', icon: LayersIcon, tone: 'mint' as const },
   { key: 'blog', href: '/blog', icon: CodeIcon, tone: 'sun' as const },
-  { key: 'contact', href: '/contact', icon: MailIcon, tone: 'violet' as const },
+  { key: 'contact', href: '/about#contact', icon: MailIcon, tone: 'violet' as const },
 ]
 
 export default async function NotFound() {

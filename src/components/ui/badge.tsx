@@ -13,7 +13,7 @@ const tones: Record<Tone, string> = {
 }
 
 /** Deterministic tone per label so a given tag keeps the same colour everywhere. */
-const cycle: Tone[] = ['mint', 'sun', 'violet', 'sky', 'brand']
+const cycle: Tone[] = ['mint', 'sun', 'violet', 'sky']
 export function toneFor(label: string): Tone {
   let hash = 0
   for (let i = 0; i < label.length; i++) hash = (hash * 31 + label.charCodeAt(i)) >>> 0
