@@ -754,6 +754,8 @@ html:not([data-hero-art='off']) section:has([data-art]) .hero-text {
 html:not([data-hero-art='off']) section:has([data-art]) .hero-caption {
   margin-top: 0;
   padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  border-top: 0;
   background: color-mix(in srgb, var(--surface) 72%, transparent);
   backdrop-filter: blur(10px);
 }
@@ -773,9 +775,12 @@ html:not([data-hero-art='off']) section:has([data-art][data-busy]) [data-orb] {
   background: color-mix(in srgb, var(--surface) 28%, transparent);
   backdrop-filter: blur(8px);
 }
+/* The controls and the caption under them stay a framed panel: only the
+   stage the orb turns in goes frameless. */
 html:not([data-hero-art='off']) section:has([data-art]) [data-orb] > .border-t {
   background: color-mix(in srgb, var(--surface) 72%, transparent);
   backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
 }
 
 @keyframes hero-art-in {
