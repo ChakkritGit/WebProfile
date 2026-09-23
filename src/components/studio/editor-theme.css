@@ -1055,3 +1055,13 @@
 .studio-editor .ce-popover .cdx-settings-button--active {
   color: var(--brand-ink);
 }
+
+/* The alignment tune on an image block. The tune sets `text-align`, which a
+   block-level picture ignores, so the three buttons changed nothing on an
+   image; margins place it instead. */
+.studio-editor .ce-tune-alignment--center .image-tool__image-picture {
+  margin-inline: auto;
+}
+.studio-editor .ce-tune-alignment--right .image-tool__image-picture {
+  margin-inline-start: auto;
+}

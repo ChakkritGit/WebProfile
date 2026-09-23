@@ -295,6 +295,12 @@ function Block({ block }: { block: AnnotatedBlock }) {
       const stretched = Boolean(data.stretched)
       const withBackground = Boolean(data.withBackground)
       const withBorder = Boolean(data.withBorder)
+      // The alignment tune. An image used to fill the column whatever it was
+      // set to, so left, centre and right all looked the same; now it shows at
+      // its own width (never past the column) and sits where it was put.
+      // Stretched still means the full width.
+      const align = alignmentOf(block)
+      const place = align === 'text-center' ? 'mx-auto' : align === 'text-end' ? 'ms-auto' : ''
 
       return (
         <figure className="my-8">
@@ -302,7 +308,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
             className={cn(
               'sticker relative overflow-hidden',
               withBackground ? 'bg-surface-2 p-4 sm:p-8' : 'bg-surface',
-              stretched && '-mx-4 sm:-mx-8',
+              stretched ? '-mx-4 sm:-mx-8' : !withBackground && ['w-fit max-w-full', place],
             )}
           >
             <Image
@@ -319,15 +325,16 @@ function Block({ block }: { block: AnnotatedBlock }) {
               // remotePatterns, where the optimiser answers 400.
               unoptimized={!optimisable(url)}
               className={cn(
-                'h-auto w-full',
-                withBackground && 'mx-auto max-w-[85%] rounded-xl sm:max-w-[70%]',
-                withBorder && 'border-line rounded-xl border-2',
+                'block h-auto',
+                stretched ? 'w-full' : 'w-auto max-w-full',
+                withBackground && ['max-w-[85%] sm:max-w-[70%]', place || (align ? '' : 'mx-auto')],
+                withBorder && 'border-line border',
               )}
               sizes="(max-width: 768px) 100vw, 768px"
             />
           </div>
           {caption ? (
-            <figcaption className="text-muted mt-3 text-center text-[0.86em]/[1.43]">
+            <figcaption className={cn('text-muted mt-3 text-[0.86em]/[1.43]', align || 'text-center')}>
               <RichText html={caption} />
             </figcaption>
           ) : null}
