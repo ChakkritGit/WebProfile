@@ -9,5 +9,5 @@ export const contentType = OG_CONTENT_TYPE
 export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'meta' })
-  return renderOgCard({ eyebrow: 'Portfolio', title: t('siteName'), subtitle: t('tagline') })
+  return renderOgCard({ eyebrow: 'Articles · Projects', title: t('siteName'), subtitle: t('tagline') })
 }

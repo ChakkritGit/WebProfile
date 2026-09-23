@@ -13,39 +13,31 @@ import sharp from 'sharp'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
-const INK = '#241F2E'
-const CREAM = '#FFFCF7'
-const CORAL = '#FF5A5F'
-const MINT = '#23C4B4'
+const BLUE = '#0000FF'
+const WHITE = '#FFFFFF'
 
 /**
- * The mark, on a 64-unit grid: a coral "C" (a 250deg arc opening to the right,
- * centred on 28,32 with r=16) holding a mint dot in its mouth. Drawn as a path
- * rather than text so it rasterises identically without any font present.
+ * The mark, on a 64-unit grid: a white "C" cut from straight segments on
+ * electric blue — the same drawing as `LogoMark` in `src/components/brand/logo.tsx`.
  */
-const ART = `
-  <path d="M37.18 18.89A16 16 0 1 0 37.18 45.11" fill="none" stroke="${CORAL}" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="46.5" cy="32" r="6.5" fill="${MINT}"/>
-`
+const ART = `<path d="M44 18.7H20v26.6h24" fill="none" stroke="${WHITE}" stroke-width="6.7" stroke-linecap="square"/>`
 
-/** Rounded-square badge with transparent corners — favicon / browser / PWA "any". */
+/** Square blue badge — favicon / browser / PWA "any". */
 function badgeSvg(size) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="${size}" height="${size}">
-  <rect x="2" y="2" width="60" height="60" rx="16" fill="${CREAM}" stroke="${INK}" stroke-width="4"/>${ART}</svg>`
+  <rect width="64" height="64" fill="${BLUE}"/>${ART}</svg>`
 }
 
 /**
- * Full-bleed cream variant for surfaces that apply their own mask (iOS home
- * screen, Android adaptive icons). `scale` shrinks the badge toward the centre
- * so nothing important lands in the area a mask can crop.
+ * Variant for surfaces that apply their own mask (iOS home screen, Android
+ * adaptive icons). The field is blue edge to edge, so a mask can crop freely;
+ * `scale` pulls the C toward the centre, clear of the area a mask removes.
  */
 function bleedSvg(size, scale) {
   const offset = (1 - scale) * 32
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="${size}" height="${size}">
-  <rect width="64" height="64" fill="${CREAM}"/>
-  <g transform="translate(${offset} ${offset}) scale(${scale})">
-    <rect x="2" y="2" width="60" height="60" rx="16" fill="none" stroke="${INK}" stroke-width="4"/>${ART}
-  </g>
+  <rect width="64" height="64" fill="${BLUE}"/>
+  <g transform="translate(${offset} ${offset}) scale(${scale})">${ART}</g>
 </svg>`
 }
 
