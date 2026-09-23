@@ -204,14 +204,26 @@ function Block({ block }: { block: AnnotatedBlock }) {
 
     case 'quote':
       return (
-        <figure className={cn('border-brand-strong my-9 border-s-2 ps-5 sm:ps-7', alignmentOf(block))}>
-          {/* Real quotation marks around the words, not a decoration beside
-              them: the text reads as quoted even copied out of the page. The
-              opening one hangs into the margin so the text keeps its edge. */}
+        <figure className={cn('border-brand-strong relative my-9 border-s-2 ps-14 sm:ps-16', alignmentOf(block))}>
+          {/* The marks are set well above the text size, as display type. The
+              opening one sits in the gutter it has to itself; the closing one
+              is inline, with no leading of its own, so however large it is it
+              cannot push the last line down. Both hidden from screen readers —
+              `<blockquote>` already says this is a quotation. */}
+          <span
+            aria-hidden
+            className="text-brand-strong absolute start-3 top-0 font-serif text-[4.5em] leading-[0.85] select-none sm:start-4"
+          >
+            “
+          </span>
           <blockquote className="text-[1.2em] leading-relaxed font-medium">
-            <span className="text-brand-strong -ms-[0.45em] font-serif">“</span>
             <RichText html={String(data.text ?? '')} />
-            <span className="text-brand-strong font-serif">”</span>
+            <span
+              aria-hidden
+              className="text-brand-strong ms-1 inline-block align-[-0.45em] font-serif text-[2.6em] leading-[0] select-none"
+            >
+              ”
+            </span>
           </blockquote>
           {data.caption ? (
             <figcaption className="text-muted mt-3 font-mono text-[0.75em] uppercase">

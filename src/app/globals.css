@@ -728,3 +728,10 @@
 .group:focus-visible .duotone::after {
   opacity: 0;
 }
+
+/* The theme crossfade (see `fadeTheme`): the whole page as one picture. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 320ms;
+  animation-timing-function: ease;
+}
