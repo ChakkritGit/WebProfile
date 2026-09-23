@@ -414,7 +414,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
     // `isolate`: the nodes carry a depth z-index up to 100, and without a
     // stacking context of its own that competed with the sticky header's —
     // tags drew over the festival menu dropping out of it.
-    <div className="border-line bg-surface relative isolate overflow-hidden border">
+    <div data-orb className="border-line bg-surface relative isolate overflow-hidden border">
       <div aria-hidden className="star-grid pointer-events-none absolute inset-0" />
       <div
         ref={stage}

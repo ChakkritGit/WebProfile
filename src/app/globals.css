@@ -756,7 +756,25 @@ html:not([data-hero-art='off']) section:has([data-art]) .hero-caption {
   padding: 0.75rem 1rem;
   border: 1px solid var(--line);
   border-top: 0;
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+/* The orb's card lets the picture through; the tag chips keep their own
+   solid fill, so the labels read the same either way. */
+html:not([data-hero-art='off']) section:has([data-art]) [data-orb] {
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  backdrop-filter: blur(6px);
+}
+html:not([data-hero-art='off']) section:has([data-art]) [data-orb] > .border-t {
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+}
+
+@keyframes hero-art-in {
+  from { opacity: 0; }
+}
+.hero-art-in {
+  animation: hero-art-in 450ms ease;
 }
 
 /* The hero picture or the page grid, whichever the reader chose — decided in

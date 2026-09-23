@@ -28,16 +28,6 @@ export const revalidate = 60
 const LATEST = 6
 
 /**
- * The hero picture's seed. Impure on purpose: this is a server component that
- * renders once per regeneration (every minute, see `revalidate`), so each
- * regeneration draws a new picture — chosen here, on the server, so it is in
- * the first paint rather than swapped in after hydration.
- */
-function freshSeed() {
-  return Math.floor(Math.random() * 2 ** 31)
-}
-
-/**
  * The front page is the articles and the projects — the site as a place to
  * read. Who wrote them is one paragraph here and the whole of `/about`.
  */
@@ -73,7 +63,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     .sort((a, b) => Number(b.featured) - Number(a.featured))
     .slice(0, 3)
   const topics = buildTopicMap(posts, projects)
-  const artSeed = freshSeed()
 
   return (
     <>
@@ -82,7 +71,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* ------------------------------ intro ------------------------------ */}
       <HeroArtScript />
       <section className="border-line relative overflow-hidden border-b">
-        <HeroArt seed={artSeed} />
+        <HeroArt />
         <Container className="relative grid items-center gap-10 pt-14 pb-20 sm:pt-20 sm:pb-24 lg:grid-cols-[1fr_1.05fr] lg:gap-12">
           <div className="hero-text">
             <p className="label-mono text-brand-strong">{t('introEyebrow')}</p>
