@@ -133,10 +133,9 @@ function readStep(): number {
 /**
  * The face the article is set in.
  *
- * The site is handwritten throughout and that is the point of it, but a whole
- * article in a hand is harder going than a page of chrome, so the reader gets a
- * way out. Each option is shown in the face it selects — the only useful preview
- * of a typeface is the typeface.
+ * The site's own face, or whatever the reader's system sets running text in —
+ * the one they read most comfortably by definition. Each option is shown in the
+ * face it selects; the only useful preview of a typeface is the typeface.
  */
 export function ReadingFont({ className }: { className?: string }) {
   const t = useTranslations('common')
@@ -188,7 +187,7 @@ export function ReadingFont({ className }: { className?: string }) {
 /**
  * Applies the saved preferences before the first paint.
  *
- * Without this the article renders at 100% in the handwriting and then jumps once
+ * Without this the article renders at 100% in the site's face and then jumps once
  * hydration runs, which is exactly the flash the reader changed the setting to
  * avoid. Inline and synchronous, the way a theme script has to be — and silent on
  * failure, because storage throws in private-mode Safari and a missing preference

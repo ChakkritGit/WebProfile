@@ -4,7 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { Badge, toneFor } from '@/components/ui/badge'
 import { TechIcon } from '@/components/brand/tech-icons'
 import { ArrowRightIcon, ClockIcon, EyeIcon } from '@/components/icons'
-import { storagePathFromUrl } from '@/lib/supabase'
+import { optimisable } from '@/lib/supabase'
 import { dayOfMonth, formatDate, formatMonthYear } from '@/lib/utils'
 import type { PostRecord, ProjectRecord } from '@/lib/content-types'
 
@@ -27,7 +27,7 @@ function CoverArt({
         // Our own uploads go through the optimiser — a card slot is 640px wide
         // and the originals are ~600KB. Anything else was pasted in as a link to
         // a host outside next.config's remotePatterns, where it answers 400.
-        unoptimized={!storagePathFromUrl(record.coverImage)}
+        unoptimized={!optimisable(record.coverImage)}
         // The first row of a listing is the LCP element; lazy-loading it is what
         // made it late.
         priority={priority}

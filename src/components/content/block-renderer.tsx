@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import type { AnnotatedBlock } from '@/lib/toc'
-import { storagePathFromUrl } from '@/lib/supabase'
+import { optimisable } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { RichText } from './rich-text'
 import { CodeBlock } from './code-block'
@@ -204,12 +204,17 @@ function Block({ block }: { block: AnnotatedBlock }) {
 
     case 'quote':
       return (
-        <figure className={cn('sticker bg-surface-2 my-7 p-5 sm:p-6', alignmentOf(block))}>
-          <blockquote className="font-display text-[1.1em] leading-relaxed font-medium">
+        <figure className={cn('border-brand-strong my-9 border-s-2 ps-5 sm:ps-7', alignmentOf(block))}>
+          {/* Real quotation marks around the words, not a decoration beside
+              them: the text reads as quoted even copied out of the page. The
+              opening one hangs into the margin so the text keeps its edge. */}
+          <blockquote className="text-[1.2em] leading-relaxed font-medium">
+            <span className="text-brand-strong -ms-[0.45em] font-serif">“</span>
             <RichText html={String(data.text ?? '')} />
+            <span className="text-brand-strong font-serif">”</span>
           </blockquote>
           {data.caption ? (
-            <figcaption className="text-muted mt-3 text-[0.86em]/[1.43]">
+            <figcaption className="text-muted mt-3 font-mono text-[0.75em] uppercase">
               — <RichText html={String(data.caption)} />
             </figcaption>
           ) : null}
@@ -307,7 +312,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
               // 768px wide and the originals are up to 2400px. Anything else was
               // pasted in as a link to a host outside next.config's
               // remotePatterns, where the optimiser answers 400.
-              unoptimized={!storagePathFromUrl(url)}
+              unoptimized={!optimisable(url)}
               className={cn(
                 'h-auto w-full',
                 withBackground && 'mx-auto max-w-[85%] rounded-xl sm:max-w-[70%]',

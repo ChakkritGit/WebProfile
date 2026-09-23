@@ -51,3 +51,14 @@ export function storagePathFromUrl(url: string): string | null {
   const path = url.slice(prefix.length).split(/[?#]/)[0]
   return path ? decodeURIComponent(path) : null
 }
+
+/**
+ * Whether `next/image` should resize this picture.
+ *
+ * Only our own uploads — anything else is on a host outside `remotePatterns`,
+ * where the optimiser answers 400. And never a GIF: resized, it comes back as a
+ * still of its first frame, and an animated GIF is posted for its animation.
+ */
+export function optimisable(url: string): boolean {
+  return Boolean(storagePathFromUrl(url)) && !/\.gif$/i.test(url.split(/[?#]/)[0])
+}

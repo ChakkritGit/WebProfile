@@ -18,37 +18,15 @@ const INDENT: Record<number, string> = { 2: 'ps-0', 3: 'ps-4', 4: 'ps-8' }
  * the screen — we also force the final item active once the page is scrolled
  * to the bottom.
  */
-/**
- * Reading progress drawn as a squiggle instead of a filled bar.
- *
- * One SVG holds both states: the pale line is the whole path, the brand-coloured
- * one is the same path clipped with `inset()`. Clipping rather than resizing keeps
- * the wave the same size as it fills — a width-driven fill would have stretched
- * every crest as the reader moved down the page.
- */
-function ReadingSquiggle({ progress }: { progress: number }) {
-  const WAVE =
-    'M3 7.5q5.5 -5.4 11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0t11 0'
+/** Reading progress: a 1px rule with the read part drawn over it in blue. */
+function ReadingProgress({ progress }: { progress: number }) {
   return (
-    <svg
-      viewBox="0 0 200 15"
-      preserveAspectRatio="none"
-      aria-hidden
-      className="text-brand-strong mb-3 h-3.5 w-full"
-    >
-      <path d={WAVE} fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" opacity="0.2" />
-      <path
-        d={WAVE}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        style={{
-          clipPath: `inset(0 ${(1 - progress) * 100}% 0 0)`,
-          transition: 'clip-path 150ms linear',
-        }}
+    <div aria-hidden className="bg-line relative mb-3 h-px w-full">
+      <div
+        className="bg-brand-strong absolute inset-y-[-0.5px] left-0 h-0.5 w-full origin-left transition-transform duration-150 ease-linear"
+        style={{ transform: `scaleX(${progress})` }}
       />
-    </svg>
+    </div>
   )
 }
 
@@ -199,7 +177,7 @@ export function TableOfContents({
               <ListIcon className="size-4" />
               {t('tableOfContents')}
             </p>
-            <ReadingSquiggle progress={progress} />
+            <ReadingProgress progress={progress} />
           {/* The height comes from the column now, not a hand-computed max: the
               sibling card below it has to fit too. */}
           <div className="min-h-0 flex-1 overflow-y-auto pe-1">{list}</div>

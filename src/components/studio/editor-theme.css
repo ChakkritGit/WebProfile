@@ -5,7 +5,7 @@
  */
 
 .studio-editor {
-  --ce-radius: 0.75rem;
+  --ce-radius: 0;
   color: var(--ink);
 }
 
@@ -47,9 +47,9 @@
 .studio-editor .ce-toolbar__settings-btn {
   color: var(--ink);
   background: var(--surface);
-  border: 2px solid var(--line);
-  border-radius: 0.6rem;
-  box-shadow: 2px 2px 0 0 var(--shadow);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
 }
 .studio-editor .ce-toolbar__plus:hover,
 .studio-editor .ce-toolbar__settings-btn:hover {
@@ -62,9 +62,9 @@
 .studio-editor .ce-popover__container,
 .studio-editor .ce-conversion-toolbar {
   background: var(--surface);
-  border: 2px solid var(--line);
-  border-radius: var(--ce-radius);
-  box-shadow: 4px 4px 0 0 var(--shadow);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
   color: var(--ink);
 }
 .studio-editor .ce-popover,
@@ -104,7 +104,7 @@
 .studio-editor .cdx-search-field {
   background: var(--surface-2);
   border: 1px solid var(--line-soft);
-  border-radius: 0.55rem;
+  border-radius: 0;
 }
 .studio-editor .cdx-search-field__input {
   color: var(--ink);
@@ -133,7 +133,7 @@
 .studio-editor [style*='A8D6FF'] {
   background-color: var(--selection) !important;
   color: var(--selection-ink) !important;
-  border-radius: 0.15rem;
+  border-radius: 0;
 }
 
 /**
@@ -147,7 +147,7 @@
 .studio-editor .ce-inline-tool-input {
   background: var(--surface-2);
   border: 1px solid var(--line-soft);
-  border-radius: 0.55rem;
+  border-radius: 0;
   color: var(--ink);
   font-family: var(--font-mono);
   font-size: 0.85rem;
@@ -163,20 +163,20 @@
 .studio-editor .ce-block--selected .ce-block__content,
 .studio-editor .ce-inline-toolbar--showed {
   background: var(--brand-soft);
-  border-radius: 0.4rem;
+  border-radius: 0;
 }
 
 /* inline tools */
 .studio-editor .cdx-marker {
   background: var(--sun-soft);
-  border-radius: 0.25rem;
+  border-radius: 0;
   padding: 0.05em 0.2em;
 }
 .studio-editor .inline-code,
 .studio-editor code.inline-code {
   background: var(--surface-2);
   border: 1px solid var(--line-soft);
-  border-radius: 0.35rem;
+  border-radius: 0;
   /* Ink, not the brand red. Inline code reads as ink on the published page —
      the only colour there is the box around it — and the editor showing the
      accent instead made the same words look like a different kind of thing
@@ -191,7 +191,7 @@
 .studio-editor .cdx-quote__text {
   background: var(--violet-soft);
   border: none;
-  border-radius: var(--ce-radius);
+  border-radius: 0;
   color: var(--ink);
 }
 .studio-editor .cdx-quote__text { padding: 1rem; min-height: auto; }
@@ -205,8 +205,8 @@
 .studio-editor .ce-code__textarea,
 .studio-editor .cdx-input {
   background: var(--surface-2);
-  border: 2px solid var(--line-soft);
-  border-radius: var(--ce-radius);
+  border: 1px solid var(--line-soft);
+  border-radius: 0;
   color: var(--ink);
   font-family: var(--font-mono);
   box-shadow: none;
@@ -214,8 +214,8 @@
 
 .studio-editor .cdx-checklist__item-checkbox-check {
   background: var(--surface);
-  border: 2px solid var(--line);
-  border-radius: 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 0;
 }
 .studio-editor .cdx-checklist__item--checked .cdx-checklist__item-checkbox-check {
   background: var(--mint);
@@ -231,7 +231,7 @@
   --color-border: var(--line-soft);
   --color-background: var(--surface-2);
   --color-text-secondary: var(--muted);
-  border-radius: var(--ce-radius);
+  border-radius: 0;
   color: var(--ink);
 }
 .studio-editor .tc-cell { border-color: var(--line-soft); }
@@ -247,8 +247,8 @@
 .studio-editor .image-tool__caption,
 .studio-editor .cdx-button {
   background: var(--surface);
-  border: 2px solid var(--line);
-  border-radius: var(--ce-radius);
+  border: 1px solid var(--line);
+  border-radius: 0;
   color: var(--ink);
   box-shadow: none;
 }
@@ -258,16 +258,16 @@
 .studio-editor .link-tool__input {
   background: var(--surface-2);
   border: 1px solid var(--line-soft);
-  border-radius: 0.5rem;
+  border-radius: 0;
   color: var(--ink);
 }
 
 /* link tool preview card */
 .studio-editor .link-tool__content {
   background: var(--surface-2);
-  border: 2px solid var(--line);
-  border-radius: var(--ce-radius);
-  box-shadow: 2px 2px 0 0 var(--shadow);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
   color: var(--ink);
   overflow: hidden;
 }
@@ -279,20 +279,20 @@
 .studio-editor .link-tool__description { color: var(--muted); }
 .studio-editor .link-tool__anchor { color: var(--brand); }
 .studio-editor .link-tool__image {
-  border-radius: 0.5rem;
+  border-radius: 0;
 }
 .studio-editor .link-tool__progress-inner { background: var(--brand); }
 .studio-editor .link-tool__input {
   background: var(--paper);
-  border: 2px solid var(--line-soft);
-  border-radius: 0.6rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 0;
   color: var(--ink);
 }
 .studio-editor .link-tool__input::placeholder { color: var(--muted); }
 
 /* alert + warning blocks */
 .studio-editor .cdx-alert {
-  border-radius: var(--ce-radius);
+  border-radius: 0;
   border-width: 2px;
 }
 .studio-editor .cdx-alert__message,
@@ -309,8 +309,8 @@
  * In-house code block
  * ------------------------------------------------------------------ */
 .studio-editor .studio-code {
-  border: 2px solid var(--line-soft);
-  border-radius: var(--ce-radius);
+  border: 1px solid var(--line-soft);
+  border-radius: 0;
   overflow: hidden;
   background: var(--surface-2);
 }
@@ -325,7 +325,7 @@
   appearance: none;
   background: var(--paper);
   border: 1px solid var(--line-soft);
-  border-radius: 0.5rem;
+  border-radius: 0;
   color: var(--ink);
   font-family: var(--font-display);
   font-size: 0.75rem;
@@ -392,7 +392,7 @@
 .studio-editor .ce-inline-toolbar__dropdown {
   width: 26px;
   height: 26px;
-  border-radius: 0.5rem;
+  border-radius: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -526,8 +526,8 @@
      at 14rem the last one wrapped and left half the panel empty. */
   max-width: 17rem;
   padding: 0.5rem;
-  border: 2px solid var(--line);
-  border-radius: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0;
   background: var(--paper);
   box-shadow: 0 6px 0 -2px var(--line);
 }
@@ -535,8 +535,8 @@
 .studio-colour__swatch {
   width: 28px;
   height: 28px;
-  border-radius: 0.5rem;
-  border: 2px solid var(--line);
+  border-radius: 0;
+  border: 1px solid var(--line);
   cursor: pointer;
   padding: 0;
 }
@@ -544,7 +544,7 @@
 .studio-colour__clear {
   width: 28px;
   height: 28px;
-  border-radius: 0.5rem;
+  border-radius: 0;
   border: 2px dashed var(--line-soft);
   background: transparent;
   color: var(--muted);
@@ -597,8 +597,8 @@
   border-image-width: 18px;
   border-image-outset: 2px;
   border-image-repeat: stretch;
-  border-radius: 16px;
-  box-shadow: 6px 6px 0 0 var(--shadow);
+  border-radius: 0;
+  box-shadow: none;
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 600;
@@ -631,7 +631,7 @@
      panel edge, where the app's close button sits. */
   right: 14px;
   transform: translateY(-50%);
-  border-radius: 8px;
+  border-radius: 0;
   opacity: 1;
   color: var(--muted);
 }
@@ -672,7 +672,7 @@
   width: 100%;
   padding: 0.7rem 0.9rem;
   border: 2px dashed var(--line-soft);
-  border-radius: 0.75rem;
+  border-radius: 0;
   background: var(--surface-2);
   color: var(--ink);
   font: inherit;
@@ -705,8 +705,8 @@
 }
 
 .studio-editor .sections-tool__item {
-  border: 2px solid var(--line-soft);
-  border-radius: 0.75rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 0;
   padding: 0.75rem 0.9rem;
   background: var(--surface);
 }
@@ -725,7 +725,7 @@
   height: 1.5rem;
   padding: 0;
   border: 0;
-  border-radius: 0.4rem;
+  border-radius: 0;
   background: transparent;
   color: var(--muted);
   cursor: pointer;
@@ -776,7 +776,7 @@
   width: 1.6rem;
   height: 1.6rem;
   border: 0;
-  border-radius: 0.5rem;
+  border-radius: 0;
   background: transparent;
   color: var(--muted);
   font-size: 1.1rem;
@@ -792,7 +792,7 @@
 .studio-editor .sections-tool__add {
   justify-self: start;
   border: 2px dashed var(--line-soft);
-  border-radius: 0.6rem;
+  border-radius: 0;
   padding: 0.35rem 0.75rem;
   background: transparent;
   color: var(--muted);

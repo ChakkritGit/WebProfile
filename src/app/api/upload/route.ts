@@ -4,6 +4,14 @@ import { STORAGE_BUCKET, getSupabaseAdmin, missingStorageEnv, publicUrlFor } fro
 import { StudioError, jsonError, requireOwner } from '@/lib/studio-service'
 
 const MAX_BYTES = 5 * 1024 * 1024
+/**
+ * GIFs get more room: they are never recompressed on the way up (a re-encode
+ * would flatten the animation), and a few seconds of one is easily 10MB.
+ * ponytail: a *file* upload still passes through this function's request body,
+ * which Vercel caps at 4.5MB — a bigger GIF goes in by URL (fetched server-side,
+ * no cap). Direct-to-storage signed uploads lift that if it ever matters.
+ */
+const MAX_GIF_BYTES = 15 * 1024 * 1024
 const ALLOWED_TYPES: Record<string, string> = {
   'image/png': 'png',
   'image/jpeg': 'jpg',
@@ -32,8 +40,9 @@ async function store(bytes: ArrayBuffer, contentType: string) {
       415,
     )
   }
-  if (bytes.byteLength > MAX_BYTES) {
-    throw new StudioError(`Image is larger than ${MAX_BYTES / 1024 / 1024} MB.`, 413)
+  const limit = contentType === 'image/gif' ? MAX_GIF_BYTES : MAX_BYTES
+  if (bytes.byteLength > limit) {
+    throw new StudioError(`Image is larger than ${limit / 1024 / 1024} MB.`, 413)
   }
 
   const supabase = client()

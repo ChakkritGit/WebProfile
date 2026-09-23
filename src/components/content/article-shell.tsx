@@ -9,7 +9,7 @@ import { ImageLightbox } from './image-lightbox'
 import { TableOfContents } from './table-of-contents'
 import { ReadingFont, ReadingSize, ReadingPrefsScript } from './reading-prefs'
 import { ShareBar } from './share-bar'
-import { storagePathFromUrl } from '@/lib/supabase'
+import { optimisable } from '@/lib/supabase'
 import { buildOutline } from '@/lib/toc'
 import { highlightBlocks } from '@/lib/highlight'
 import type { EditorDocument } from '@/lib/editor'
@@ -71,7 +71,7 @@ export async function ArticleShell({
               src={coverImage}
               alt=""
               fill
-              unoptimized={!storagePathFromUrl(coverImage)}
+              unoptimized={!optimisable(coverImage)}
               // It occupies half the panel from `lg`, three fifths below that.
               sizes="(max-width: 1024px) 60vw, 50vw"
               className="object-cover"
