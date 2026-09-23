@@ -346,7 +346,9 @@ export function TagOrb({ map }: { map: TopicMap }) {
       const dy = next.y - prev.y
       travelled += Math.abs(dx) + Math.abs(dy)
       if (travelled > 4) el.setPointerCapture?.(event.pointerId)
-      s.ry += dx * 0.006
+      // Minus: the front of the orb is at negative z, where a growing angle
+      // carries a point leftward — so a drag to the right turns it the other way.
+      s.ry -= dx * 0.006
       s.rx = Math.min(1.2, Math.max(-1.2, s.rx + dy * 0.006))
       if (!s.spinning) s.kick()
       requestAnimationFrame(() => s.kick())
