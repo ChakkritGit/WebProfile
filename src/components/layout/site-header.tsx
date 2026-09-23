@@ -11,7 +11,6 @@ import { Logo } from '@/components/brand/logo'
 import { LocaleToggle } from './locale-toggle'
 import { ThemeToggle } from './theme-toggle'
 import { FestivalDecor, useFestival } from './festival-decor'
-import { FestivalPicker } from './festival-picker'
 import { SearchDialog } from './search-dialog'
 import { cn } from '@/lib/utils'
 
@@ -73,7 +72,6 @@ export function SiteHeader() {
           </ul>
 
           <SearchDialog />
-          <FestivalPicker />
           <div className="hidden md:block">
             <LocaleToggle />
           </div>

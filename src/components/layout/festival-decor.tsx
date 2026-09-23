@@ -1,6 +1,5 @@
 'use client'
 
-import { useSyncExternalStore } from 'react'
 import { useReducedMotion } from 'motion/react'
 import { festivalById, festivalOn, type Festival, type FestivalId } from '@/config/festivals'
 import { useIsMounted } from '@/lib/hooks'
@@ -24,54 +23,9 @@ export function useFestival(): Festival | null {
   // server snapshot is `false`, so the markup React renders on both sides matches
   // and the dressing only appears once the client's own clock is available.
   const mounted = useIsMounted()
-  // Subscribed so a choice in the picker redraws the header straight away; the
-  // URL it writes is not something React can see change.
-  useFestivalPlayKey()
   if (!mounted) return null
 
   return festivalById(forcedId()) ?? festivalOn(new Date())
-}
-
-/* ------------------------- playing one on demand ------------------------- */
-
-/**
- * A counter the picker bumps to replay whatever is in the URL.
- *
- * Setting `?festival=` to the value it already had changes nothing React can see,
- * so pressing the same festival twice would do nothing. The count is the thing
- * that changes, and `useFestival` subscribes to it.
- */
-let playCount = 0
-const playListeners = new Set<() => void>()
-
-function subscribePlay(notify: () => void) {
-  playListeners.add(notify)
-  return () => {
-    playListeners.delete(notify)
-  }
-}
-
-/** Put a festival in the URL and play it. An empty id hands the page back to the
- *  calendar. */
-export function playFestival(id: string) {
-  const url = new URL(window.location.href)
-  if (id) url.searchParams.set('festival', id)
-  else url.searchParams.delete('festival')
-  // The hash can carry one too — see `forcedId` — so it has to be cleared from
-  // there as well, or a stale override would win over the choice just made.
-  url.hash = url.hash.split('?')[0]
-  window.history.replaceState(null, '', url)
-
-  playCount += 1
-  playListeners.forEach((notify) => notify())
-}
-
-export function useFestivalPlayKey() {
-  return useSyncExternalStore(
-    subscribePlay,
-    () => playCount,
-    () => 0,
-  )
 }
 
 /**
