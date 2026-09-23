@@ -82,7 +82,12 @@ export function HeroArt() {
   return (
     <>
       <div data-grid aria-hidden className="star-grid pointer-events-none absolute inset-0" />
-      <div data-art aria-hidden className="pointer-events-none absolute inset-0 bg-[#0b0b12]">
+      <div
+        data-art
+        data-busy={seed !== null && DESIGNS[seed % DESIGNS.length].busy ? '' : undefined}
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[#0b0b12]"
+      >
         {seed !== null && <Artwork seed={seed} />}
         {/* A scrim under the text column, so white type reads on any design. */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/10" />

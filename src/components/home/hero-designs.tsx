@@ -27,7 +27,13 @@ export function random(seed: number) {
 }
 
 type Rnd = () => number
-export type Design = (rnd: Rnd, id: string, seed: number) => ReactNode
+export type Design = ((rnd: Rnd, id: string, seed: number) => ReactNode) & {
+  /** Dense or bright enough that the orb's lines vanish into it; the orb
+      gets a faint frosted card over these. */
+  busy?: boolean
+}
+
+const busy = (design: Design): Design => Object.assign(design, { busy: true })
 
 const INK = '#141414'
 const n = (v: number) => v.toFixed(1)
@@ -373,7 +379,7 @@ export const DESIGNS: Design[] = [
   /* ------------------------------ geometric ------------------------------- */
 
   // Bauhaus: primaries on a grid of cells.
-  (rnd) => {
+  busy((rnd) => {
     const colors = ['#d62828', '#1d3557', '#f4a300', '#111111']
     const cw = W / 6
     const ch = H / 3
@@ -397,9 +403,9 @@ export const DESIGNS: Design[] = [
         {cells}
       </>
     )
-  },
+  }),
   // Op art: two sets of rings interfering.
-  (rnd) => {
+  busy((rnd) => {
     const rings = (cx: number, cy: number) =>
       Array.from({ length: 60 }, (_, i) => <circle key={i} cx={n(cx)} cy={n(cy)} r={12 + i * 22} fill="none" stroke="#fff" strokeOpacity="0.55" strokeWidth="9" />)
     return (
@@ -409,9 +415,9 @@ export const DESIGNS: Design[] = [
         <g style={{ mixBlendMode: 'difference' }}>{rings(W * (0.55 + rnd() * 0.2), H * (0.3 + rnd() * 0.4))}</g>
       </>
     )
-  },
+  }),
   // Memphis: confetti of shapes on a pastel ground.
-  (rnd) => {
+  busy((rnd) => {
     const ground = pick(rnd, ['#ffd6e0', '#c1f0e8', '#fff1b8', '#d7d4ff'])
     const inks = ['#111', '#ff4f7b', '#2ec4b6', '#ffbf00', '#3a86ff']
     return (
@@ -430,7 +436,7 @@ export const DESIGNS: Design[] = [
         })}
       </>
     )
-  },
+  }),
   // Soft gradient blobs, blurred into a mesh.
   (rnd, id) => {
     const pal = pick(rnd, [
@@ -455,7 +461,7 @@ export const DESIGNS: Design[] = [
     )
   },
   // Bold diagonal bands, Swiss poster style.
-  (rnd) => {
+  busy((rnd) => {
     const pal = pick(rnd, [
       ['#f4efe4', '#e63946', '#1d3557', '#111'],
       ['#111', '#ff5a1f', '#f4efe4', '#0000ff'],
@@ -474,9 +480,9 @@ export const DESIGNS: Design[] = [
         <g transform={`rotate(${n(-25 - rnd() * 20)} ${W / 2} ${H / 2})`}>{bands}</g>
       </>
     )
-  },
+  }),
   // Isometric cubes.
-  (rnd, id) => {
+  busy((rnd, id) => {
     const [top, left, right] = pick(rnd, [
       ['#f4efe4', '#9ca3af', '#374151'],
       ['#c7d2fe', '#6366f1', '#1e1b4b'],
@@ -505,7 +511,7 @@ export const DESIGNS: Design[] = [
         <rect {...full} fill={`url(#${id}-cube)`} />
       </>
     )
-  },
+  }),
   // Topographic contours around a few peaks.
   (rnd) => {
     const dark = rnd() < 0.5
@@ -532,7 +538,7 @@ export const DESIGNS: Design[] = [
     )
   },
   // Halftone dots in the brand blue, fading from one point.
-  (rnd, id) => (
+  busy((rnd, id) => (
     <>
       <defs>
         <pattern id={`${id}-dots`} width="12" height="12" patternUnits="userSpaceOnUse" patternTransform={`rotate(${n(rnd() * 45)})`}>
@@ -549,9 +555,9 @@ export const DESIGNS: Design[] = [
       <rect {...full} fill="#f4f2ec" />
       <rect {...full} fill={`url(#${id}-dots)`} mask={`url(#${id}-mask)`} />
     </>
-  ),
+  )),
   // A pixel mosaic shaped by smooth noise.
-  (rnd) => {
+  busy((rnd) => {
     const pal = pick(rnd, [
       ['#0b132b', '#1c2541', '#3a506b', '#5bc0be', '#e0fbfc'],
       ['#2b0f0e', '#6b2d1a', '#c8553d', '#f28f3b', '#ffd5c2'],
@@ -566,12 +572,12 @@ export const DESIGNS: Design[] = [
         cells.push(<rect key={`${x}-${y}`} x={x} y={y} width={size} height={size} fill={pal[Math.min(4, Math.floor(v * 5))]} />)
       }
     return <>{cells}</>
-  },
+  }),
 
   /* ------------------------------- materials ------------------------------ */
 
   // Brushed ink waves on cream paper.
-  (rnd, id, seed) => (
+  busy((rnd, id, seed) => (
     <>
       <defs>
         <pattern id={`${id}-stripes`} width="40" height={n(24 + rnd() * 20)} patternUnits="userSpaceOnUse">
@@ -585,7 +591,7 @@ export const DESIGNS: Design[] = [
       <rect {...full} fill="#ddd6c6" />
       <rect {...full} fill={`url(#${id}-stripes)`} filter={`url(#${id}-brush)`} opacity={0.55} />
     </>
-  ),
+  )),
   // A sheet of coloured paper with pencil marks on it.
   (rnd) => {
     const paper = pick(rnd, ['#f2c230', '#e4572e', '#e9e2cf', '#1c1c1c'])
@@ -642,7 +648,7 @@ export const DESIGNS: Design[] = [
     </>
   ),
   // Terrazzo: chips set in a pale ground.
-  (rnd) => {
+  busy((rnd) => {
     const chips = ['#d9825b', '#6c8a7a', '#2f3e46', '#e8b4a6', '#c9a227', '#8d99ae']
     return (
       <>
@@ -662,7 +668,7 @@ export const DESIGNS: Design[] = [
         })}
       </>
     )
-  },
+  }),
 
   /* ------------------------------ the machine ----------------------------- */
 
@@ -732,7 +738,7 @@ export const DESIGNS: Design[] = [
     )
   },
   // Falling glyphs, frozen mid-fall.
-  (rnd) => {
+  busy((rnd) => {
     const glyphs = '01アイウエオカキクケコサシスセソタチツテトナニヌネノ'
     const cols: ReactNode[] = []
     for (let x = 12; x < W; x += 34) {
@@ -754,7 +760,7 @@ export const DESIGNS: Design[] = [
         {cols}
       </>
     )
-  },
+  }),
   // Wireframe terrain in perspective.
   (rnd, id) => {
     const f = field(rnd)

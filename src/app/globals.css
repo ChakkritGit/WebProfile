@@ -763,11 +763,20 @@ html:not([data-hero-art='off']) section:has([data-art]) .hero-caption {
 /* The orb's card lets the picture through; the tag chips keep their own
    solid fill, so the labels read the same either way. */
 html:not([data-hero-art='off']) section:has([data-art]) [data-orb] {
-  background: color-mix(in srgb, var(--surface) 55%, transparent);
-  backdrop-filter: blur(6px);
+  background: transparent;
+}
+html:not([data-hero-art='off']) section:has([data-art]) [data-orb] > .star-grid {
+  display: none;
+}
+/* Over the dense designs (marked `busy` in hero-designs.tsx) the lines would
+   vanish into the pattern, so the card frosts over — faintly. */
+html:not([data-hero-art='off']) section:has([data-art][data-busy]) [data-orb] {
+  background: color-mix(in srgb, var(--surface) 28%, transparent);
+  backdrop-filter: blur(8px);
 }
 html:not([data-hero-art='off']) section:has([data-art]) [data-orb] > .border-t {
   background: color-mix(in srgb, var(--surface) 72%, transparent);
+  backdrop-filter: blur(10px);
 }
 
 @keyframes hero-art-in {
