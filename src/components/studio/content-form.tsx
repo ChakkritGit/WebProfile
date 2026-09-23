@@ -15,6 +15,7 @@ import { MorphingConfirmDialog, MorphingTrigger } from '@/components/ui/morphing
 import { ImageField } from './image-field'
 import { TagPicker } from './tag-picker'
 import { useToast } from '@/components/ui/toast'
+import { refreshPublicPages } from '@/lib/studio-actions'
 import { cn } from '@/lib/utils'
 
 export type ContentKind = 'posts' | 'projects'
@@ -74,6 +75,8 @@ export function ContentForm({
   const t = useTranslations('studio')
   const tCommon = useTranslations('common')
   const router = useRouter()
+  // Back to the tab this kind lives on — `/studio` alone always opened Posts.
+  const listHref = kind === 'projects' ? '/studio?tab=projects' : '/studio'
 
   const [values, setValues] = useState<FormValues>({ ...emptyValues, ...initial })
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -177,6 +180,8 @@ export function ContentForm({
       setDirty(false)
       setSavedAt(Date.now())
       if (overrides.status) set('status', overrides.status)
+      // Not awaited: the save is done; this only clears this browser's copies.
+      void refreshPublicPages(kind, [values.slug, initial?.slug ?? ''].filter(Boolean)).catch(() => {})
       toast(
         overrides.status === 'PUBLISHED'
           ? tToast('published')
@@ -207,10 +212,11 @@ export function ContentForm({
     if (response.ok) {
       setDirty(false)
       toast(tToast('deleted'))
+      void refreshPublicPages(kind, [values.slug]).catch(() => {})
       // `replace`, so the back button cannot return to the editor of a record that
       // no longer exists; `refresh`, because the client router cache would other-
       // wise replay the listing it fetched before the delete and still show the row.
-      router.replace('/studio')
+      router.replace(listHref)
       router.refresh()
     } else {
       setFormError(tCommon('error'))
@@ -233,7 +239,7 @@ export function ContentForm({
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
       <div className="space-y-4">
         <div>
-          <ButtonLink href="/studio" size="sm" variant="outline" className="mb-3">
+          <ButtonLink href={listHref} size="sm" variant="outline" className="mb-3">
             <ArrowRightIcon className="size-4 rotate-180" />
             {t('backToStudio')}
           </ButtonLink>

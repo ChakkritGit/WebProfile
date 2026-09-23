@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { StatusBadge } from '@/components/ui/badge'
+import { refreshPublicPages } from '@/lib/studio-actions'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { StickerCard } from '@/components/ui/sticker-card'
 import { MorphingConfirmDialog, MorphingTrigger } from '@/components/ui/morphing-dialog'
@@ -104,6 +105,8 @@ export function ContentManager({
       setError(body.error ?? tCommon('error'))
       return false
     }
+    const slug = items.find((item) => item.id === id)?.slug
+    void refreshPublicPages(kind, slug ? [slug] : []).catch(() => {})
     startTransition(() => router.refresh())
     return true
   }

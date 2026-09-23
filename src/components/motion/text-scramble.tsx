@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useReducedMotion } from 'motion/react'
 
 /** What a character churns through before it settles. */
@@ -185,14 +185,17 @@ export function TextScramble({
  * the control it sits in is hovered or focused.
  *
  * The settled label always takes the space; the churn is laid over it out of
- * flow and clipped to it. Noise characters are wider and narrower than letters,
- * and an earlier version that let the two share a grid cell sized the cell to
- * whichever was wider that frame — the button breathed under the pointer.
+ * flow. Noise characters run wider than letters, so a frame that comes out
+ * wider than the label is squeezed horizontally to fit — measured each frame —
+ * rather than clipped (which cut the last characters off) or allowed to push
+ * the button wider (which made it breathe under the pointer).
  */
 export function HoverScramble({ text, className }: { text: string; className?: string }) {
   const reduce = useReducedMotion()
   const [churn, setChurn] = useState<string | null>(null)
   const root = useRef<HTMLSpanElement>(null)
+  const label = useRef<HTMLSpanElement>(null)
+  const overlay = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {
     if (reduce) return
@@ -213,11 +216,22 @@ export function HoverScramble({ text, className }: { text: string; className?: s
     }
   }, [text, reduce])
 
+  useLayoutEffect(() => {
+    const el = overlay.current
+    const box = label.current
+    if (!el || !box) return
+    el.style.transform = ''
+    const over = el.scrollWidth / Math.max(1, box.offsetWidth)
+    if (over > 1) el.style.transform = `scaleX(${1 / over})`
+  }, [churn])
+
   return (
     <span ref={root} className={`relative inline-block ${className ?? ''}`}>
-      <span className={churn === null ? '' : 'invisible'}>{text}</span>
+      <span ref={label} className={churn === null ? '' : 'invisible'}>
+        {text}
+      </span>
       {churn !== null && (
-        <span aria-hidden className="absolute inset-0 overflow-hidden whitespace-pre">
+        <span ref={overlay} aria-hidden className="absolute top-0 left-0 origin-left whitespace-pre">
           {churn}
         </span>
       )}
