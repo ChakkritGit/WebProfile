@@ -924,3 +924,17 @@ html:not([data-hero-art='off']) [data-grid] {
     left: 50%;
   }
 }
+
+/* Mr. Worldwide's glow: the canvas is transparent, the glow follows his shape. */
+.mw-stage {
+  filter: drop-shadow(0 0 10px rgb(255 138 61 / 0.85)) drop-shadow(0 0 28px rgb(255 138 61 / 0.45));
+}
+.mw-stage:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: -4px;
+}
+.mw-fallback {
+  background: #ff8a3d;
+  color: #1a0d05;
+  box-shadow: 0 0 18px rgb(255 138 61 / 0.7);
+}
