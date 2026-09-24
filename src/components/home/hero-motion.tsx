@@ -67,9 +67,9 @@ export const MOTION_DESIGNS: MotionDesign[] = [
       ))}
     </div>
   ),
-  // Glyphs falling, column by column.
+  // Binary falling, column by column.
   (rnd) => {
-    const glyphs = [...'01アイウエオカキクケコサシスセソタチツテトナニヌネノ']
+    const glyphs = ['0', '1']
     // Columns every 30px from the left, enough for a 2700px-wide screen; the
     // ones past the edge are clipped. A fixed count spread by percent piled
     // them on top of each other on a phone and left gaps on an ultrawide.
