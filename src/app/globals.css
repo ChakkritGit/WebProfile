@@ -738,12 +738,14 @@
  * rest of the page. Hovering the card (the `group`) brings the colour back.
  */
 .duotone img,
-.duotone > svg {
+.duotone > svg,
+.duotone > [data-motion] {
   filter: grayscale(1) contrast(1.1);
   transition: filter 300ms ease;
 }
 .duotone:has(img)::after,
-.duotone:has(> svg)::after {
+.duotone:has(> svg)::after,
+.duotone:has(> [data-motion])::after {
   content: '';
   position: absolute;
   inset: 0;

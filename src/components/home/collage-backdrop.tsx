@@ -14,7 +14,8 @@ import { PHOTOS, type HeroPhoto } from './hero-photos'
  *
  * - drawn designs (`hero-designs.tsx`) — SVG from noise and gradients,
  *   blended blue like everything else;
- * - moving designs (`hero-motion.tsx`) — composited layers in motion;
+ * - moving designs (`hero-motion.tsx`) — composited layers in motion, blended
+ *   blue the same way (the filter and the blend run on the GPU);
  * - found pictures (`hero-photos.ts`) — public-domain art and NASA imagery,
  *   blended blue like the article covers, drifting slowly (Ken Burns).
  *
@@ -215,7 +216,11 @@ export function HeroArt() {
           <>
             {entry.kind === 'design' && <Drawn seed={seed} index={entry.index} />}
             {entry.kind === 'motion' && (
-              <div className="hero-art-in absolute inset-0">{MOTION_DESIGNS[entry.index](random(seed))}</div>
+              <div className="duotone hero-art-in absolute inset-0">
+                <div data-motion className="absolute inset-0">
+                  {MOTION_DESIGNS[entry.index](random(seed))}
+                </div>
+              </div>
             )}
             {entry.kind === 'photo' && <Photo photo={entry.photo} />}
           </>
