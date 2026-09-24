@@ -9,7 +9,7 @@ import { ViewTracker } from '@/components/content/view-tracker'
 import { StickerCard } from '@/components/ui/sticker-card'
 import { TagLink } from '@/components/content/tag-link'
 import { ButtonLink } from '@/components/ui/button'
-import { ExternalLinkIcon, EyeIcon, GitHubIcon } from '@/components/icons'
+import { ClockIcon, ExternalLinkIcon, EyeIcon, GitHubIcon } from '@/components/icons'
 import { decodeParam } from '@/lib/slug'
 
 /**
@@ -118,6 +118,10 @@ export default async function ProjectPage({
                 {t('roleLabel')}: <strong className="text-ink">{project.role}</strong>
               </span>
             )}
+            <span className="inline-flex items-center gap-1.5">
+              <ClockIcon className="size-4" />
+              {tCommon('minuteRead', { minutes: project.readingMinutes })}
+            </span>
             <span className="inline-flex items-center gap-1.5">
               <EyeIcon className="size-4" />
               {tCommon('views', { count: project.views })}

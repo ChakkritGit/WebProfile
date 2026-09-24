@@ -43,6 +43,7 @@ function toPost(row: any): PostRecord {
 }
 
 function toProject(row: any): ProjectRecord {
+  const content = asEditorDocument(row.content)
   return {
     id: row.id,
     slug: row.slug,
@@ -51,7 +52,7 @@ function toProject(row: any): ProjectRecord {
     title: row.title,
     summary: row.summary ?? null,
     coverImage: row.coverImage ?? null,
-    content: asEditorDocument(row.content),
+    content,
     tags: row.tags ?? [],
     status: row.status,
     featured: Boolean(row.featured),
@@ -64,6 +65,9 @@ function toProject(row: any): ProjectRecord {
     liveUrl: row.liveUrl ?? null,
     repoUrl: row.repoUrl ?? null,
     sortOrder: row.sortOrder ?? 0,
+    // Worked out on read: projects have no stored column, and the text is
+    // already in hand. Posts store theirs when the studio saves them.
+    readingMinutes: readingMinutes(content),
   }
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */

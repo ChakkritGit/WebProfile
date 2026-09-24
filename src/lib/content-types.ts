@@ -18,11 +18,10 @@ export interface ContentBase {
   featured: boolean
   publishedAt: string | null
   updatedAt: string
-}
-
-export interface PostRecord extends ContentBase {
   readingMinutes: number
 }
+
+export type PostRecord = ContentBase
 
 export interface ProjectRecord extends ContentBase {
   role: string | null

@@ -176,6 +176,11 @@ export async function ProjectCard({
 
         <div className="text-brand-strong mt-auto flex items-center gap-2 pt-4 font-mono text-xs uppercase">
           <span>{tCommon('viewProject')}</span>
+          <span aria-hidden className="text-muted">·</span>
+          <span className="text-muted inline-flex items-center gap-1">
+            <ClockIcon className="size-3.5" />
+            {tCommon('minuteRead', { minutes: project.readingMinutes })}
+          </span>
           <ArrowRightIcon className="ms-auto size-4 transition-transform group-hover:translate-x-1" />
         </div>
       </div>
