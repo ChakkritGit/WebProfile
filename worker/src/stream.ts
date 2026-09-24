@@ -8,7 +8,7 @@ const event = (name: string, data: unknown) => enc.encode(`event: ${name}\ndata:
  * events only — a network chunk can end mid-event), runs the text through the
  * reply filter, and emits the page's own events: text, cards, done.
  */
-export function toClientStream(upstream: ReadableStream<Uint8Array>, valid: Set<string>): ReadableStream<Uint8Array> {
+export function toClientStream(upstream: ReadableStream<Uint8Array>, choose: (ids: string[]) => string[]): ReadableStream<Uint8Array> {
   const filter = createReplyFilter()
   const dec = new TextDecoder()
   let carry = ''
@@ -35,7 +35,7 @@ export function toClientStream(upstream: ReadableStream<Uint8Array>, valid: Set<
         }
         const { text, ids } = filter.end()
         if (text) c.enqueue(event('text', { t: text }))
-        const known = [...new Set(ids)].filter((id) => valid.has(id)).slice(0, 3)
+        const known = choose(ids)
         if (known.length) c.enqueue(event('cards', { ids: known }))
         c.enqueue(event('done', {}))
       } catch {

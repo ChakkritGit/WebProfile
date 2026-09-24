@@ -21,7 +21,7 @@ async function read(s: ReadableStream<Uint8Array>) {
 }
 
 test('text streams out, the CARDS line becomes a cards event with only known ids', async () => {
-  const out = await read(toClientStream(upstream([sse('Try SMT'), sse('rack+!\nCARDS: project:en:a, project:en:ghost'), 'data: [DONE]\n\n']), new Set(['project:en:a'])))
+  const out = await read(toClientStream(upstream([sse('Try SMT'), sse('rack+!\nCARDS: project:en:a, project:en:ghost'), 'data: [DONE]\n\n']), (ids) => ids.filter((id) => id === 'project:en:a')))
   const text = out.filter(([e]) => e === 'text').map(([, d]) => d.t).join('')
   assert.equal(text.trim(), 'Try SMTrack+!')
   assert.deepEqual(out.find(([e]) => e === 'cards')![1], { ids: ['project:en:a'] })
@@ -30,6 +30,6 @@ test('text streams out, the CARDS line becomes a cards event with only known ids
 
 test('an SSE event split across network chunks is still read whole', async () => {
   const whole = sse('Hello')
-  const out = await read(toClientStream(upstream([whole.slice(0, 9), whole.slice(9), 'data: [DONE]\n\n']), new Set()))
+  const out = await read(toClientStream(upstream([whole.slice(0, 9), whole.slice(9), 'data: [DONE]\n\n']), () => []))
   assert.equal(out.filter(([e]) => e === 'text').map(([, d]) => d.t).join(''), 'Hello')
 })

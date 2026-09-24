@@ -2,6 +2,7 @@ export interface Item {
   id: string
   kind: 'post' | 'project'
   locale: 'th' | 'en'
+  group: string
   slug: string
   url: string
   title: string

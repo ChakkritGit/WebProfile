@@ -27,3 +27,11 @@ test('drafts never appear, and the same record twice appears once', () => {
 test('only th and en records are indexed', () => {
   assert.equal(toAiItems([post({ locale: 'ja' })] as never, []).length, 0)
 })
+
+test('translations share a group; an untranslated record is its own group', () => {
+  const items = toAiItems(
+    [post({ translationKey: 'mole' }), post({ slug: 'mole-en', locale: 'en', translationKey: 'mole' }), post({ slug: 'solo' })] as never,
+    [],
+  )
+  assert.deepEqual(items.map((i) => i.group), ['mole', 'mole', 'post:solo'])
+})

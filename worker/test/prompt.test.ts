@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { buildMessages, indexLine } from '../src/prompt'
 import type { Item, Msg } from '../src/types'
 
-const item: Item = { id: 'project:en:smtrack', kind: 'project', locale: 'en', slug: 'smtrack', url: 'https://chakkritton.com/en/projects/smtrack', title: 'SMTrack+', summary: 'Live fridge temperatures', tags: ['IoT'], stack: ['MQTT'], minutes: 5, cover: null }
+const item: Item = { id: 'project:en:smtrack', kind: 'project', locale: 'en', group: 'smtrack', slug: 'smtrack', url: 'https://chakkritton.com/en/projects/smtrack', title: 'SMTrack+', summary: 'Live fridge temperatures', tags: ['IoT'], stack: ['MQTT'], minutes: 5, cover: null }
 
 test('an index line carries the id, kind, title and tags', () => {
   const line = indexLine(item)

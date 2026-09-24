@@ -5,7 +5,7 @@ import { rank } from '../src/rank'
 import type { Item } from '../src/types'
 
 const it = (id: string, over: Partial<Item>): Item => ({
-  id, kind: 'project', locale: 'en', slug: id, url: '', title: '', summary: '', tags: [], stack: [], minutes: 1, cover: null, ...over,
+  id, kind: 'project', locale: 'en', group: id, slug: id, url: '', title: '', summary: '', tags: [], stack: [], minutes: 1, cover: null, ...over,
 })
 const items = [
   it('project:en:smtrack', { title: 'SMTrack+', tags: ['IoT', 'MQTT'], summary: 'Live fridge temperatures' }),

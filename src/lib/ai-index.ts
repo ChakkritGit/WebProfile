@@ -10,6 +10,8 @@ export interface AiItem {
   id: string
   kind: 'post' | 'project'
   locale: 'th' | 'en'
+  /** Shared by the translations of one piece, so it is shown once, in the reader's language. */
+  group: string
   slug: string
   url: string
   title: string
@@ -28,6 +30,7 @@ function item(kind: AiItem['kind'], r: PostRecord | ProjectRecord): AiItem {
     id: `${kind}:${locale}:${r.slug}`,
     kind,
     locale,
+    group: r.translationKey ?? `${kind}:${r.slug}`,
     slug: r.slug,
     url: absoluteUrl(`/${kind === 'post' ? 'blog' : 'projects'}/${r.slug}`, locale),
     title: r.title,

@@ -1,3 +1,4 @@
+import { chooseCards } from './cards'
 import { buildMessages } from './prompt'
 import { rank } from './rank'
 import { toClientStream } from './stream'
@@ -70,8 +71,9 @@ export default {
       const picked = rank(items, question, body.lang).slice(0, 2)
       const details = await Promise.all(picked.map(async (item) => ({ item, text: await loadText(env, item) })))
       const messages = buildMessages({ items, details: details.filter((d) => d.text), history: body.messages, lang: body.lang })
-      const upstream = (await env.AI.run(MODEL as never, { messages, stream: true, max_tokens: 400 } as never)) as ReadableStream<Uint8Array>
-      return new Response(toClientStream(upstream, new Set(items.map((i) => i.id))), {
+      // A low temperature: he is cheerful in voice, not inventive with facts.
+      const upstream = (await env.AI.run(MODEL as never, { messages, stream: true, max_tokens: 400, temperature: 0.3 } as never)) as ReadableStream<Uint8Array>
+      return new Response(toClientStream(upstream, (ids) => chooseCards(ids, items, body.lang)), {
         headers: { ...h, 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store' },
       })
     } catch (err) {
