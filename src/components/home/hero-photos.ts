@@ -8,8 +8,9 @@
  * Wikimedia Commons files marked public domain. Credits are shown with the
  * picture anyway: it is the decent thing, and NASA asks for it.
  *
- * Files live in /public/hero (1920px WebP) and /public/hero/thumb (480px,
- * used by the opening timelapse).
+ * Files live in /public/hero (1920px WebP) and /public/hero/thumb (600px tall,
+ * used by the opening timelapse — at 300px the full-screen frames came out
+ * visibly soft).
  */
 
 export interface HeroPhoto {
