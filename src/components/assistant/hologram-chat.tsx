@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
+import { plain } from '@/lib/assistant-client'
 import { useAssistant } from './use-assistant'
 import type { Engine } from './engine/engine'
 
@@ -86,7 +87,7 @@ export function HologramChat({ open, onClose, engine }: { open: boolean; onClose
         {messages.map((m, i) => (
           <div key={i} className={m.role === 'user' ? 'mw-me' : 'mw-him'}>
             {m.role === 'assistant' ? '> ' : ''}
-            {m.content || (status === 'thinking' && i === messages.length - 1 ? '…' : '')}
+            {(m.role === 'assistant' ? plain(m.content) : m.content) || (status === 'thinking' && i === messages.length - 1 ? '…' : '')}
             {m.cards?.map((id) => {
               const it = items.get(id)
               if (!it) return null

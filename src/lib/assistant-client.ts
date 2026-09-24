@@ -2,6 +2,16 @@ export type ErrorCode = 'rate_limited' | 'quota' | 'upstream' | 'bad_request' | 
 export type ChatMsg = { role: 'user' | 'assistant'; content: string; cards?: string[] }
 type Result = { ok: true } | { ok: false; code: ErrorCode; retryAfter?: number }
 
+/** Markdown the model slips in despite being told not to, shown as the plain text it stands for. */
+export function plain(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^\s*[*-]\s+/gm, '• ')
+}
+
 /** Server-Sent Events, fed chunk by chunk; calls back once per whole event. */
 export function createSseParser(on: (event: string, data: unknown) => void) {
   let carry = ''

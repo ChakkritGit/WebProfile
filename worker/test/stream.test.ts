@@ -33,3 +33,9 @@ test('an SSE event split across network chunks is still read whole', async () =>
   const out = await read(toClientStream(upstream([whole.slice(0, 9), whole.slice(9), 'data: [DONE]\n\n']), () => []))
   assert.equal(out.filter(([e]) => e === 'text').map(([, d]) => d.t).join(''), 'Hello')
 })
+
+test('the chooser sees the whole reply, so it can find cards the model forgot to list', async () => {
+  let seen = ''
+  await read(toClientStream(upstream([sse('SMTrack+ is the '), sse('one!'), 'data: [DONE]\n\n']), (ids, text) => ((seen = text), ids)))
+  assert.equal(seen, 'SMTrack+ is the one!')
+})

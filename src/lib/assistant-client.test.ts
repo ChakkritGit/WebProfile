@@ -1,7 +1,7 @@
 // Run: npx tsx --test src/lib/assistant-client.test.ts
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { ask, createSseParser } from './assistant-client'
+import { ask, createSseParser, plain } from './assistant-client'
 
 test('events split across chunks come out whole, in order', () => {
   const got: [string, unknown][] = []
@@ -43,4 +43,8 @@ test('a stream that ends without done is a network error', async () => {
   globalThis.fetch = async () => stream('event: text\ndata: {"t":"Hi"}\n\n')
   const r = await ask({ url: '/x', messages: [{ role: 'user', content: 'hi' }], lang: 'en', signal: new AbortController().signal, onText: noop, onCards: noop })
   assert.deepEqual(r, { ok: false, code: 'network' })
+})
+
+test('markdown the model slips in is shown as plain text', () => {
+  assert.equal(plain('Try **SMTrack+** and __Mole__.\n## Also\n* one\n`code`'), 'Try SMTrack+ and Mole.\nAlso\n• one\ncode')
 })

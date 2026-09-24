@@ -27,3 +27,10 @@ test('an index without groups still gives every known item its own card', () => 
   const old = items.map(({ group: _, ...rest }) => rest) as unknown as Item[]
   assert.deepEqual(chooseCards(['project:th:smt', 'project:en:smt'], old, 'en'), ['project:th:smt', 'project:en:smt'])
 })
+
+test('without a CARDS line, items named in the reply become cards, then the ranked ones', () => {
+  const named = [{ ...it('project:en:smt', 'en', 'smtrack'), title: 'SMTrack+' }, it('project:en:other', 'en', 'other')]
+  assert.deepEqual(chooseCards([], named, 'en', { text: 'Try SMTrack+ — it is great', ranked: [] }), ['project:en:smt'])
+  assert.deepEqual(chooseCards([], named, 'en', { text: 'Here is one.', ranked: ['project:en:other'] }), ['project:en:other'])
+  assert.deepEqual(chooseCards([], named, 'en', { text: 'Hi there!', ranked: [] }), [])
+})
