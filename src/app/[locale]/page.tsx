@@ -13,7 +13,6 @@ import { PostCard, PostRow, ProjectCard } from '@/components/content/content-car
 import { TagOrb } from '@/components/home/tag-orb'
 import { HeroArt, HeroArtScript } from '@/components/home/collage-backdrop'
 import { HoverScramble } from '@/components/motion/text-scramble'
-import { WORLD_GLYPHS_FONT } from '@/lib/world-glyphs'
 import { ArrowRightIcon } from '@/components/icons'
 
 /**
@@ -71,8 +70,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* ------------------------------ intro ------------------------------ */}
       <HeroArtScript />
-      {/* The rare-script faces for the CTA's scramble; React hoists this into <head>. */}
-      <link rel="stylesheet" href={WORLD_GLYPHS_FONT} precedence="default" />
       {/* At least one full screen under the header (svh, so a phone's
           collapsing toolbar does not leave a gap), content centred in it; a
           phone whose content is taller simply gets a taller section. */}

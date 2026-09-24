@@ -31,6 +31,9 @@ function CoverArt({
         // The first row of a listing is the LCP element; lazy-loading it is what
         // made it late.
         priority={priority}
+        // Cards are blended blue, which hides compression; 60 against the default
+        // 75 is 10-15KB a card, flagged by PageSpeed.
+        quality={60}
         className="size-full object-cover"
         // The card is narrower than the viewport it sits in — one column inside
         // the container's padding, then two, then three — and `100vw` had the

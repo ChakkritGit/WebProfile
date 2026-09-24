@@ -73,8 +73,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
 
   const stage = useRef<HTMLDivElement>(null)
   const nodeEls = useRef<(HTMLAnchorElement | null)[]>([])
-  const edgeEls = useRef<(SVGLineElement | null)[]>([])
-  const ringEls = useRef<(SVGPathElement | null)[]>([])
+  const lines = useRef<HTMLCanvasElement>(null)
   const bandEls = useRef<(HTMLParagraphElement | null)[]>([])
 
   // Everything the frame loop reads lives here, so changing it never re-renders.
@@ -145,6 +144,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
     const s = live.current
     let frame = 0
     let last = 0
+    let drawn = 0
     let running = false
 
     // Where each node sits on its shell before any rotation.
@@ -191,6 +191,25 @@ export function TagOrb({ map }: { map: TopicMap }) {
       }
     }
 
+    const written = nodes.map(() => ({ o: '', z: -1, visible: null as boolean | null }))
+
+    // The canvas cannot read CSS variables, so the colours are resolved here —
+    // and again when the theme flips.
+    const colours = { inner: '', outer: '', muted: '' }
+    const readColours = () => {
+      const css = getComputedStyle(el)
+      colours.inner = css.getPropertyValue('--brand-strong').trim()
+      colours.outer = css.getPropertyValue('--accent-2').trim()
+      colours.muted = css.getPropertyValue('--muted').trim()
+    }
+    readColours()
+    const theme = new MutationObserver(() => {
+      readColours()
+      s.kick()
+      requestAnimationFrame(() => s.kick())
+    })
+    theme.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+
     const shown = (layer: TopicLayer) => s.filter === 'all' || s.filter === layer
     const ease = (v: number) => v * v * (3 - 2 * v)
 
@@ -225,34 +244,60 @@ export function TagOrb({ map }: { map: TopicMap }) {
         let opacity = 0.3 + 0.7 * point.depth
         if (hover >= 0 && !linked.has(i)) opacity *= 0.35
         if (!visible) opacity = 0.08
-        el.style.transform = `translate3d(${point.x}px, ${point.y}px, 0) translate(-50%, -50%) scale(${point.scale})`
-        el.style.opacity = String(opacity)
-        el.style.zIndex = String(Math.round(point.depth * 100))
-        el.style.pointerEvents = visible ? 'auto' : 'none'
-        el.tabIndex = visible ? 0 : -1
+        el.style.transform = `translate3d(${point.x.toFixed(1)}px, ${point.y.toFixed(1)}px, 0) translate(-50%, -50%) scale(${point.scale.toFixed(3)})`
+        // Only what changed: every write is a style invalidation, and these
+        // mostly hold still from one frame to the next.
+        const before = written[i]
+        const o = opacity.toFixed(2)
+        const z = Math.round(point.depth * 100)
+        if (before.o !== o) el.style.opacity = before.o = o
+        if (before.z !== z) el.style.zIndex = String((before.z = z))
+        if (before.visible !== visible) {
+          before.visible = visible
+          el.style.pointerEvents = visible ? 'auto' : 'none'
+          el.tabIndex = visible ? 0 : -1
+        }
       })
 
-      edges.forEach(([a, b], i) => {
-        const line = edgeEls.current[i]
-        if (!line) return
+      // Edges and orbits on one canvas: drawing them as SVG lines cost a
+      // style recalculation of every line, every frame — most of the orb's
+      // main-thread time (measured: ~880ms in 4s on a 4x-slowed CPU).
+      const canvas = lines.current
+      const ctx = canvas?.getContext('2d')
+      if (!canvas || !ctx) return
+      const dpr = Math.min(2, window.devicePixelRatio || 1)
+      const w = Math.round(s.width * dpr), h = Math.round(s.height * dpr)
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w
+        canvas.height = h
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ctx.clearRect(0, 0, s.width, s.height)
+      ctx.lineWidth = 1
+
+      edges.forEach(([a, b]) => {
         const pa = points[a], pb = points[b]
-        line.setAttribute('x1', String(pa.x))
-        line.setAttribute('y1', String(pa.y))
-        line.setAttribute('x2', String(pb.x))
-        line.setAttribute('y2', String(pb.y))
         const visible = shown(nodes[a].layer) && shown(nodes[b].layer)
         const touches = hover >= 0 && (a === hover || b === hover)
         let opacity = 0.1 + 0.25 * Math.min(pa.depth, pb.depth)
         if (touches) opacity = 0.9
         else if (hover >= 0) opacity *= 0.4
-        line.style.opacity = String(visible ? opacity : 0.02)
+        ctx.globalAlpha = visible ? opacity : 0.02
+        ctx.strokeStyle =
+          nodes[a].layer !== nodes[b].layer ? colours.muted : nodes[a].layer === 'inner' ? colours.inner : colours.outer
+        ctx.beginPath()
+        ctx.moveTo(pa.x, pa.y)
+        ctx.lineTo(pb.x, pb.y)
+        ctx.stroke()
       })
 
       // The two orbits, drawn in the same projection so they turn with the orb.
-      ;(['inner', 'outer'] as const).forEach((layer, r) => {
-        const ring = ringEls.current[r]
-        if (!ring) return
-        let d = ''
+      ;(['inner', 'outer'] as const).forEach((layer) => {
+        const alpha = (1 - k) * (shown(layer) ? 0.45 : 0.08)
+        if (alpha <= 0) return
+        ctx.globalAlpha = alpha
+        ctx.strokeStyle = layer === 'inner' ? colours.inner : colours.outer
+        ctx.beginPath()
         for (let step = 0; step <= 72; step++) {
           const angle = (step / 72) * Math.PI * 2
           const radius = RADIUS[layer] * (layer === 'outer' ? 0.98 : 1.04)
@@ -260,11 +305,12 @@ export function TagOrb({ map }: { map: TopicMap }) {
           const x = Math.cos(angle) * radius
           const z = Math.sin(angle) * radius
           const p = orbPoint([x, z * Math.sin(lean), z * Math.cos(lean)])
-          d += `${step ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`
+          if (step) ctx.lineTo(p.x, p.y)
+          else ctx.moveTo(p.x, p.y)
         }
-        ring.setAttribute('d', d)
-        ring.style.opacity = String((1 - k) * (shown(layer) ? 0.45 : 0.08))
+        ctx.stroke()
       })
+      ctx.globalAlpha = 1
 
       bandEls.current.forEach((band) => {
         if (band) band.style.opacity = String(k)
@@ -279,6 +325,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
         const step = dt * 2.6
         s.blend = target > s.blend ? Math.min(target, s.blend + step) : Math.max(target, s.blend - step)
       }
+      let cruising = false
       if (s.spinning && s.mode === 'orb' && !s.dragging) {
         // Not a spit roast: the speed swells and slackens, the axis nods, and a
         // flick carries on under its own momentum before easing back — in
@@ -291,8 +338,15 @@ export function TagOrb({ map }: { map: TopicMap }) {
         s.vx += ((nod - s.rx) * 0.7 - s.vx) * settle
         s.ry += s.vy * dt
         s.rx = Math.min(1.2, Math.max(-1.2, s.rx + s.vx * dt))
+        cruising = s.blend === target && s.hovered < 0 && Math.abs(s.vy - cruise) < 0.05
       }
-      draw()
+      // Left to itself the orb turns slowly enough that 30fps reads the same,
+      // at half the main thread — it was most of a phone's work on this page.
+      // A drag, a flick, a hover or the grid morph get every frame.
+      if (!cruising || now - drawn > 30) {
+        drawn = now
+        draw()
+      }
       const moving = s.blend !== target || (s.spinning && s.mode === 'orb')
       if (moving && s.visible && !document.hidden) frame = requestAnimationFrame(tick)
       else {
@@ -323,6 +377,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
     return () => {
       cancelAnimationFrame(frame)
       io.disconnect()
+      theme.disconnect()
       document.removeEventListener('visibilitychange', onVisibility)
       s.kick = () => {}
     }
@@ -471,24 +526,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
         className={cn('relative overflow-hidden select-none', mode === 'orb' ? 'cursor-grab active:cursor-grabbing' : '')}
         style={{ height, touchAction: mode === 'orb' ? 'pan-y' : 'auto', transition: 'height 300ms ease' }}
       >
-        <svg aria-hidden className="pointer-events-none absolute inset-0 size-full">
-          <path ref={(el) => { ringEls.current[0] = el }} fill="none" stroke="var(--brand-strong)" strokeWidth="1" />
-          <path ref={(el) => { ringEls.current[1] = el }} fill="none" stroke="var(--accent-2)" strokeWidth="1" />
-          {edges.map(([a, b], i) => (
-            <line
-              key={`${a}-${b}`}
-              ref={(el) => { edgeEls.current[i] = el }}
-              stroke={
-                nodes[a].layer !== nodes[b].layer
-                  ? 'var(--muted)'
-                  : nodes[a].layer === 'inner'
-                    ? 'var(--brand-strong)'
-                    : 'var(--accent-2)'
-              }
-              strokeWidth="1"
-            />
-          ))}
-        </svg>
+        <canvas ref={lines} aria-hidden className="pointer-events-none absolute inset-0 size-full" />
 
         {(['inner', 'outer'] as const).map((layer, i) => (
           <p

@@ -1,9 +1,8 @@
 /**
- * The characters the home page's CTA scrambles through, and the stylesheet
- * that brings in the faces the rarer scripts need — cut by Google to exactly
- * these characters, so it is a few kilobytes rather than whole fonts. Shared by
- * the client component that draws them and the server page that links the
- * stylesheet.
+ * The characters the scrambles churn through, and the Google stylesheet that
+ * cuts the rarer scripts' faces to exactly these characters — a few kilobytes
+ * rather than whole fonts. The cut files are saved into src/assets/fonts/world by
+ * scripts/fetch-world-glyph-fonts.mts; change WORLD_GLYPHS, run it again.
  */
 export const WORLD_GLYPHS = '𓀀𓁐𓂀𓃒𓃠𓄿𓅓𓆣𓇋𓈖𓉐𓊃𓋹𓌳𓍯𓎛𓏏𒀀𒀭𒁀𒂗𒃻𒄿𒅆𒆠𒇷𒈠𒉿𒊏𒋗ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟⴰⴱⴳⴷⴹⴻⴼⴽሀለሐመሠረԱԲԳԴԵԶΞΨΩΔΦΣΛΘЖЯЩЮФЪアカサタナハマヤラワ⠿⠾⠽⠻⠷⠯'
 

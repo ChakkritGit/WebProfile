@@ -11,8 +11,8 @@ const NOISE = Array.from('!<>-_\\/[]{}=+*^?#%$&@01')
  * The button's churn reaches further: Egyptian hieroglyphs, cuneiform, runes,
  * Tifinagh, Ethiopic, Armenian, Greek, Cyrillic, katakana and Braille. Nothing
  * right-to-left — a Hebrew or Arabic letter would reorder the string around it
- * mid-word. The faces the rarer scripts need are loaded, cut to exactly these
- * characters, by `WORLD_GLYPHS_FONT` (see the home page).
+ * mid-word. The faces the rarer scripts need are cut to exactly these
+ * characters and declared in globals.css.
  */
 const WORLD = [...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(WORLD_GLYPHS)].map((g) => g.segment)
 
@@ -137,8 +137,7 @@ export function TextScramble({
   className?: string
   /** How long a settled phrase is left alone before the next one starts. */
   holdMs?: number
-  /** Churn through the world's scripts rather than ASCII symbols (needs
-      `WORLD_GLYPHS_FONT` linked on the page). */
+  /** Churn through the world's scripts rather than ASCII symbols. */
   world?: boolean
 }) {
   const reduce = useReducedMotion()

@@ -829,8 +829,42 @@ html:not([data-hero-art='off']) [data-grid] {
   display: none;
 }
 
-/* The CTA's scramble: the site's face first, then the rare-script faces loaded
-   for it on the home page (see src/lib/world-glyphs.ts). */
+/* The CTA's scramble: the site's face first, then the rare-script faces, cut to
+   exactly WORLD_GLYPHS (scripts/fetch-world-glyph-fonts.mts). The build hashes
+   their names, so they cache for a year; a face downloads only when one of its
+   glyphs is drawn. Google's stylesheet used to carry them: render-blocking, a
+   second origin, and a one-day cache. */
+@font-face {
+  font-family: 'Noto Sans Armenian';
+  font-display: swap;
+  src: url('../assets/fonts/world/armenian.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans Cuneiform';
+  font-display: swap;
+  src: url('../assets/fonts/world/cuneiform.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans Egyptian Hieroglyphs';
+  font-display: swap;
+  src: url('../assets/fonts/world/egyptian-hieroglyphs.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans Ethiopic';
+  font-display: swap;
+  src: url('../assets/fonts/world/ethiopic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans Runic';
+  font-display: swap;
+  src: url('../assets/fonts/world/runic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans Tifinagh';
+  font-display: swap;
+  src: url('../assets/fonts/world/tifinagh.woff2') format('woff2');
+}
+
 .world-glyphs {
   font-family: var(--font-display), 'Noto Sans Egyptian Hieroglyphs', 'Noto Sans Cuneiform', 'Noto Sans Runic',
     'Noto Sans Tifinagh', 'Noto Sans Ethiopic', 'Noto Sans Armenian', sans-serif;

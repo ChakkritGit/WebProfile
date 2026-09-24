@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
     '/**/twitter-image': ['./src/assets/fonts/**'],
   },
   images: {
+    // 60 for the listing cards (content-card.tsx), 75 — the default — elsewhere.
+    qualities: [60, 75],
     remotePatterns: [
       { protocol: 'https', hostname: '**.supabase.co' },
       { protocol: 'https', hostname: 'avatars.githubusercontent.com' },

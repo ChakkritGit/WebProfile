@@ -18,7 +18,6 @@ import { ContactForm } from '@/components/content/contact-form'
 import { Reveal, RevealGroup, RevealItem } from '@/components/motion/reveal'
 import { MarqueeRow } from '@/components/motion/typewriter'
 import { ProfileHero, type ProfileStat } from '@/components/about/profile-hero'
-import { WORLD_GLYPHS_FONT } from '@/lib/world-glyphs'
 import { WebringBadge } from '@/components/layout/webring-badge'
 import { ButtonLink } from '@/components/ui/button'
 import {
@@ -90,7 +89,6 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
   return (
     <>
-      <link rel="stylesheet" href={WORLD_GLYPHS_FONT} precedence="default" />
       <ProfileHero roles={tHome.raw('roles') as string[]} stats={stats} />
 
       {/* ----------------------------- summary ----------------------------- */}
