@@ -86,6 +86,12 @@ export function TagOrb({ map }: { map: TopicMap }) {
     mode: 'orb' as Mode,
     filter: 'all' as Filter,
     spinning: true,
+    /** Spin time, velocities (rad/s) and the way it turns — see `tick`. */
+    t: 0,
+    vx: 0,
+    vy: 0,
+    dir: 1,
+    dragging: false,
     hovered: -1,
     width: 0,
     height: ORB_HEIGHT.wide,
@@ -273,7 +279,19 @@ export function TagOrb({ map }: { map: TopicMap }) {
         const step = dt * 2.6
         s.blend = target > s.blend ? Math.min(target, s.blend + step) : Math.max(target, s.blend - step)
       }
-      if (s.spinning && s.mode === 'orb') s.ry += dt * 0.18
+      if (s.spinning && s.mode === 'orb' && !s.dragging) {
+        // Not a spit roast: the speed swells and slackens, the axis nods, and a
+        // flick carries on under its own momentum before easing back — in
+        // whichever direction it was flicked.
+        s.t += dt
+        const cruise = s.dir * (0.2 + 0.13 * Math.sin(s.t * 0.37))
+        const nod = TILT + 0.32 * Math.sin(s.t * 0.23) + 0.12 * Math.sin(s.t * 0.61)
+        const settle = 1 - Math.exp(-dt * 1.4)
+        s.vy += (cruise - s.vy) * settle
+        s.vx += ((nod - s.rx) * 0.7 - s.vx) * settle
+        s.ry += s.vy * dt
+        s.rx = Math.min(1.2, Math.max(-1.2, s.rx + s.vx * dt))
+      }
       draw()
       const moving = s.blend !== target || (s.spinning && s.mode === 'orb')
       if (moving && s.visible && !document.hidden) frame = requestAnimationFrame(tick)
@@ -330,9 +348,14 @@ export function TagOrb({ map }: { map: TopicMap }) {
       requestAnimationFrame(() => s.kick())
     }
 
+    let stamp = 0
     const down = (event: PointerEvent) => {
       engaged = true
       travelled = 0
+      // A hand on the globe stops it; what the drag does next sets it going.
+      s.dragging = true
+      s.vx = s.vy = 0
+      stamp = event.timeStamp
       pointers.set(event.pointerId, { x: event.clientX, y: event.clientY })
       if (pointers.size === 2) {
         const [a, b] = [...pointers.values()]
@@ -359,12 +382,23 @@ export function TagOrb({ map }: { map: TopicMap }) {
       // carries a point leftward — so a drag to the right turns it the other way.
       s.ry -= dx * 0.006
       s.rx = Math.min(1.2, Math.max(-1.2, s.rx + dy * 0.006))
+      const dt = Math.max(8, event.timeStamp - stamp) / 1000
+      stamp = event.timeStamp
+      const cap = (v: number) => Math.min(5, Math.max(-5, v))
+      s.vy = cap(s.vy * 0.5 + ((-dx * 0.006) / dt) * 0.5)
+      s.vx = cap(s.vx * 0.5 + ((dy * 0.006) / dt) * 0.5)
       if (!s.spinning) s.kick()
       requestAnimationFrame(() => s.kick())
     }
     const up = (event: PointerEvent) => {
       pointers.delete(event.pointerId)
       spread = 0
+      if (pointers.size) return
+      s.dragging = false
+      // Held still before letting go: no throw.
+      if (event.timeStamp - stamp > 80) s.vx = s.vy = 0
+      if (Math.abs(s.vy) > 0.05) s.dir = Math.sign(s.vy)
+      s.kick()
     }
     // A drag that ends on a node must not also open it.
     const click = (event: MouseEvent) => {
@@ -378,8 +412,11 @@ export function TagOrb({ map }: { map: TopicMap }) {
       event.preventDefault()
       zoomBy(Math.exp(-event.deltaY * 0.0015))
     }
-    const leave = () => {
+    const leave = (event: PointerEvent) => {
       engaged = false
+      // Pressed but never dragged far enough to capture, then released outside:
+      // no pointerup will come, and the orb would stay held.
+      if (pointers.has(event.pointerId) && !el.hasPointerCapture(event.pointerId)) up(event)
     }
 
     el.addEventListener('pointerdown', down)

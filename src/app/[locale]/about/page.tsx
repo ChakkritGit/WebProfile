@@ -95,12 +95,12 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       {/* ----------------------------- summary ----------------------------- */}
       <Section className="border-line border-b">
-        <div className="grid gap-6 lg:grid-cols-[14rem_1fr]">
+        <Reveal className="grid gap-6 lg:grid-cols-[14rem_1fr]">
           <p className="label-mono text-brand-strong">{t('summaryTitle')}</p>
           <p className="text-ink-soft max-w-3xl text-lg leading-[1.85] sm:text-xl">
             {t('summaryBody', { years: yearsOfExperience(), company: profile.company })}
           </p>
-        </div>
+        </Reveal>
       </Section>
 
       {/* ------------------------------ skills ----------------------------- */}

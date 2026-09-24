@@ -4,9 +4,10 @@ import { listPosts, listProjects } from '@/lib/content'
 import { absoluteUrl, languageAlternates } from '@/lib/seo'
 import { routing, type Locale } from '@/i18n/routing'
 
-// Content is database-backed, so refresh the sitemap rather than freezing it
-// into the build output.
-export const revalidate = 3600
+// Rendered per request. With `revalidate = 3600` Vercel kept serving the copy
+// built at deploy for a day, 3 projects short, while llms.txt on the same
+// setting refreshed. Crawlers fetch this rarely; six small queries is cheap.
+export const dynamic = 'force-dynamic'
 
 type Entry = MetadataRoute.Sitemap[number]
 type ChangeFrequency = NonNullable<Entry['changeFrequency']>

@@ -1,10 +1,10 @@
-import { listPosts } from '@/lib/content'
+import { listPosts, listProjects } from '@/lib/content'
 import { SITE_URL } from '@/config/site'
 import { absoluteUrl, siteDescription, siteName } from '@/lib/seo'
 import { routing } from '@/i18n/routing'
-import type { PostRecord } from '@/lib/content-types'
+import type { PostRecord, ProjectRecord } from '@/lib/content-types'
 
-/** RSS 2.0 feed of the Thai blog — the site's primary locale. */
+/** RSS 2.0 feed of the articles and project write-ups, in Thai — the site's primary locale. */
 
 export const revalidate = 3600
 
@@ -28,8 +28,12 @@ function rfc822(value: string | null | undefined): string {
   return (Number.isNaN(date.getTime()) ? new Date() : date).toUTCString()
 }
 
-function item(post: PostRecord): string {
-  const url = absoluteUrl(`/blog/${post.slug}`, FEED_LOCALE)
+type Entry = { path: string; record: PostRecord | ProjectRecord }
+
+const published = ({ record }: Entry) => new Date(record.publishedAt ?? record.updatedAt).getTime()
+
+function item({ path, record: post }: Entry): string {
+  const url = absoluteUrl(path, FEED_LOCALE)
   return `    <item>
       <title>${escapeXml(post.title)}</title>
       <link>${escapeXml(url)}</link>
@@ -40,15 +44,22 @@ function item(post: PostRecord): string {
 }
 
 export async function GET(): Promise<Response> {
-  let posts: PostRecord[] = []
+  let entries: Entry[] = []
   try {
-    posts = await listPosts({ locale: FEED_LOCALE })
+    const [posts, projects] = await Promise.all([
+      listPosts({ locale: FEED_LOCALE }),
+      listProjects({ locale: FEED_LOCALE }),
+    ])
+    entries = [
+      ...posts.map((record) => ({ path: `/blog/${record.slug}`, record })),
+      ...projects.map((record) => ({ path: `/projects/${record.slug}`, record })),
+    ].sort((a, b) => published(b) - published(a))
   } catch (error) {
-    console.error('[feed] could not read posts, serving an empty feed:', error)
+    console.error('[feed] could not read content, serving an empty feed:', error)
   }
 
   const feedUrl = `${SITE_URL}/feed.xml`
-  const lastBuildDate = rfc822(posts[0]?.publishedAt ?? posts[0]?.updatedAt)
+  const lastBuildDate = rfc822(entries[0]?.record.publishedAt ?? entries[0]?.record.updatedAt)
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
@@ -59,7 +70,7 @@ export async function GET(): Promise<Response> {
     <language>${FEED_LOCALE}</language>
     <lastBuildDate>${lastBuildDate}</lastBuildDate>
     <atom:link href="${escapeXml(feedUrl)}" rel="self" type="application/rss+xml" />
-${posts.map(item).join('\n')}
+${entries.map(item).join('\n')}
   </channel>
 </rss>
 `

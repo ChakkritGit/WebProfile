@@ -787,7 +787,6 @@ html:not([data-hero-art='off']) section:has([data-art]) .hero-text {
    place, so switching the picture on and off does not move the orb. */
 html:not([data-hero-art='off']) section:has([data-art]) .hero-caption {
   background: color-mix(in srgb, var(--surface) 72%, transparent);
-  backdrop-filter: blur(10px);
 }
 
 /* The orb's card lets the picture through; the tag chips keep their own
@@ -801,16 +800,15 @@ html:not([data-hero-art='off']) section:has([data-art]) [data-orb] > .star-grid 
   display: none;
 }
 /* Over the dense designs (marked `busy` in hero-designs.tsx) the lines would
-   vanish into the pattern, so the card frosts over — faintly. */
+   vanish into the pattern, so the card tints — faintly, and never blurred: the
+   picture is the point, and the user asked for it sharp. */
 html:not([data-hero-art='off']) section:has([data-art][data-busy]) [data-orb] {
   background: color-mix(in srgb, var(--surface) 28%, transparent);
-  backdrop-filter: blur(8px);
 }
 /* The controls and the caption under them stay a framed panel: only the
    stage the orb turns in goes frameless. */
 html:not([data-hero-art='off']) section:has([data-art]) [data-orb] > .border-t {
   background: color-mix(in srgb, var(--surface) 72%, transparent);
-  backdrop-filter: blur(10px);
   border: 1px solid var(--line);
   /* Out over the orb's transparent border, so the bar meets the caption with
      no clear seam between them and is exactly the caption's width. */

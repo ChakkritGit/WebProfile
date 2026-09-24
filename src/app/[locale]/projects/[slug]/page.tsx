@@ -72,14 +72,19 @@ export default async function ProjectPage({
 
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'CreativeWork',
-    name: project.title,
+    // Article, not CreativeWork: each project page is a written case study, and
+    // Google only reports (and can show) types it has a rich result for.
+    '@type': 'Article',
+    headline: project.title,
     description: project.summary ?? undefined,
-    dateCreated: project.publishedAt ?? undefined,
+    datePublished: project.publishedAt ?? undefined,
+    dateModified: project.updatedAt,
     inLanguage: locale,
     keywords: [...project.tags, ...project.stack].join(', '),
-    url,
-    creator: authorJsonLd(locale as Locale),
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    author: authorJsonLd(locale as Locale),
+    publisher: authorJsonLd(locale as Locale),
+    ...(project.coverImage ? { image: project.coverImage } : {}),
   }
 
   return (

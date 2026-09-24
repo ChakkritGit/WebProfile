@@ -1,7 +1,8 @@
 /**
  * The pictures in the hero's collection that are not drawn but found: public
- * domain and CC0 works — statues, strange and old art, the sea, European
- * watercolour landscapes, Jupiter, a black hole, and plant cells.
+ * domain and CC0 works — statues, strange and old art, the Renaissance and the
+ * great paintings after it, Egyptian tomb walls, the sea, European watercolour
+ * landscapes, Jupiter, a black hole, and plant cells.
  *
  * Sources: The Met's Open Access (CC0), NASA (not subject to copyright), and
  * Wikimedia Commons files marked public domain. Credits are shown with the
@@ -53,6 +54,26 @@ export const PHOTOS: HeroPhoto[] = [
   { id: 'jupiter-bands', title: 'Jupiter\'s Bands of Clouds', by: 'NASA / JPL-Caltech / SwRI / MSSS', date: '', source: 'NASA', url: 'https://images.nasa.gov/details/PIA21393', busy: false },
   { id: 'jupiter-chaos', title: 'Jupiter\'s Colourful, Chaotic Clouds', by: 'NASA / JPL-Caltech / SwRI / MSSS', date: '', source: 'NASA', url: 'https://images.nasa.gov/details/PIA25729', busy: false },
   { id: 'black-hole', title: 'Black Hole Accretion Disk Visualization', by: 'NASA\'s Goddard Space Flight Center / Jeremy Schnittman', date: '2019', source: 'NASA', url: 'https://svs.gsfc.nasa.gov/13326', busy: false },
+  { id: 'creation-of-adam', title: 'The Creation of Adam', by: 'Michelangelo', date: 'ca. 1508–12', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Michelangelo_-_Creation_of_Adam_(cropped).jpg', focus: '45% 50%' },
+  { id: 'school-of-athens', title: 'The School of Athens', by: 'Raphael', date: '1509–11', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:%22The_School_of_Athens%22_by_Raffaello_Sanzio_da_Urbino.jpg' },
+  { id: 'birth-of-venus', title: 'The Birth of Venus', by: 'Sandro Botticelli', date: 'ca. 1484–86', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_ProjectFXD.jpg' },
+  { id: 'primavera', title: 'Primavera', by: 'Sandro Botticelli', date: 'ca. 1480', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Sandro_Botticelli_-_La_Primavera_-_Google_Art_Project.jpg' },
+  { id: 'last-supper', title: 'The Last Supper', by: 'Leonardo da Vinci', date: '1495–98', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:%C3%9Altima_Cena_-_Da_Vinci_5.jpg' },
+  { id: 'last-judgement', title: 'The Last Judgement', by: 'Michelangelo', date: '1536–41', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Last_Judgement_(Michelangelo).jpg', focus: '50% 30%' },
+  { id: 'garden-delights', title: 'The Garden of Earthly Delights', by: 'Hieronymus Bosch', date: 'ca. 1490–1510', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:The_Garden_of_Earthly_Delights_by_Bosch_High_Resolution.jpg' },
+  { id: 'tower-of-babel', title: 'The Tower of Babel', by: 'Pieter Bruegel the Elder', date: '1563', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Pieter_Bruegel_the_Elder_-_The_Tower_of_Babel_(Vienna)_-_Google_Art_Project_-_edited.jpg' },
+  { id: 'rebel-angels', title: 'The Fall of the Rebel Angels', by: 'Pieter Bruegel the Elder', date: '1562', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Pieter_Bruegel_the_Elder_-_The_Fall_of_the_Rebel_Angels_-_Google_Art_Project.jpg' },
+  { id: 'triumph-of-death', title: 'The Triumph of Death', by: 'Pieter Bruegel the Elder', date: 'ca. 1562', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:The_Triumph_of_Death_by_Pieter_Bruegel_the_Elder.jpg' },
+  { id: 'ambassadors', title: 'The Ambassadors', by: 'Hans Holbein the Younger', date: '1533', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Hans_Holbein_the_Younger_-_The_Ambassadors_-_Google_Art_Project.jpg', focus: '50% 40%' },
+  { id: 'night-watch', title: 'The Night Watch', by: 'Rembrandt van Rijn', date: '1642', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:The_Nightwatch_by_Rembrandt_-_Rijksmuseum.jpg', focus: '45% 45%' },
+  { id: 'death-of-socrates', title: 'The Death of Socrates', by: 'Jacques Louis David', date: '1787', source: 'Wikimedia Commons (CC0)', url: 'https://commons.wikimedia.org/wiki/File:The_Death_of_Socrates_MET_DT40.jpg' },
+  { id: 'raft-medusa', title: 'The Raft of the Medusa', by: 'Théodore Géricault', date: '1818–19', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:JEAN_LOUIS_TH%C3%89ODORE_G%C3%89RICAULT_-_La_Balsa_de_la_Medusa_(Museo_del_Louvre,_1818-19).jpg' },
+  { id: 'liberty', title: 'Liberty Leading the People', by: 'Eugène Delacroix', date: '1830', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Eug%C3%A8ne_Delacroix_-_La_libert%C3%A9_guidant_le_peuple.jpg', focus: '55% 30%' },
+  { id: 'wanderer', title: 'Wanderer above the Sea of Fog', by: 'Caspar David Friedrich', date: 'ca. 1818', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Caspar_David_Friedrich_-_Wanderer_above_the_sea_of_fog.jpg', focus: '50% 35%' },
+  { id: 'starry-night', title: 'The Starry Night', by: 'Vincent van Gogh', date: '1889', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg' },
+  { id: 'the-kiss', title: 'The Kiss', by: 'Gustav Klimt', date: '1907–08', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg', focus: '50% 35%' },
+  { id: 'nebamun', title: 'Nebamun hunting in the marshes, tomb of Nebamun', by: 'Egyptian, Thebes', date: 'ca. 1350 BCE', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Tomb_of_Nebamun.jpg', focus: '50% 40%' },
+  { id: 'nakht', title: 'North Side of the West Wall of Nakht\'s Offering Chapel', by: 'Norman de Garis Davies', date: '1908–1914; original ca. 1410–1370 BCE', source: 'The Met', url: 'https://www.metmuseum.org/art/collection/search/548578' },
   { id: 'desmidiea', title: 'Desmidiea, Kunstformen der Natur', by: 'Ernst Haeckel', date: '1904', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Haeckel_Desmidiea.jpg', focus: '50% 40%' },
   { id: 'diatomea', title: 'Diatomea, Kunstformen der Natur', by: 'Ernst Haeckel', date: '1904', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Haeckel_Diatomea.jpg', focus: '50% 40%' },
   { id: 'muscinae', title: 'Muscinae, Kunstformen der Natur', by: 'Ernst Haeckel', date: '1904', source: 'Wikimedia Commons (public domain)', url: 'https://commons.wikimedia.org/wiki/File:Haeckel_Muscinae.jpg', focus: '50% 50%' },

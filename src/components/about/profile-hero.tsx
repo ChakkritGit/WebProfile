@@ -17,9 +17,9 @@ export interface ProfileStat {
  * The top of `/about`: who, what, and the few numbers — what the home page used
  * to open with before it became the articles' page.
  *
- * Nothing here animates in. It is the first screen, and an entrance is time
- * the page spends looking unfinished (see the handoff notes on Speed Index);
- * the scrambling role line is the one deliberate motion.
+ * The entrance is the stylesheet's `hero-in`, not Motion: it starts at the
+ * first paint rather than after hydration, which is what cost Speed Index
+ * when this screen used to wait for JavaScript to arrive.
  */
 export function ProfileHero({ roles, stats }: { roles: string[]; stats: ProfileStat[] }) {
   const t = useTranslations('home')
@@ -29,7 +29,7 @@ export function ProfileHero({ roles, stats }: { roles: string[]; stats: ProfileS
     <section className="border-line relative overflow-hidden border-b">
       <div aria-hidden className="star-grid pointer-events-none absolute inset-0" />
       <Container className="relative grid gap-12 py-14 sm:py-20 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
-        <div>
+        <div className="hero-in">
           <p className="label-mono text-brand-strong">{t('greeting')}</p>
           <h1 className="mt-4 text-[clamp(2.75rem,11vw,5.5rem)] uppercase">{tMeta('siteName')}</h1>
           <div className="text-brand-strong mt-3 font-mono text-lg sm:text-xl">
@@ -51,7 +51,7 @@ export function ProfileHero({ roles, stats }: { roles: string[]; stats: ProfileS
           </div>
         </div>
 
-        <dl className="border-line bg-surface grid grid-cols-2 border">
+        <dl className="hero-in border-line bg-surface grid grid-cols-2 border [animation-delay:0.12s]">
           {stats.map((stat, i) => (
             <div
               key={stat.key}
