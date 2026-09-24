@@ -390,5 +390,24 @@
     "projectsTitle": "プロジェクト",
     "prompt": "上の欄に検索したい言葉を入力してください。",
     "empty": "「{query}」に一致する記事やプロジェクトはありません。"
+  },
+  "assistant": {
+    "title": "Mr. Worldwide",
+    "greeting": "Hey there! I know every project and article on this site. What are you curious about?",
+    "suggest1": "What's the best project?",
+    "suggest2": "Any articles about AI?",
+    "suggest3": "What does Chakkrit build with?",
+    "placeholder": "Ask about a project or an article…",
+    "send": "Send",
+    "close": "Close",
+    "retry": "Try again",
+    "project": "Project",
+    "post": "Article",
+    "minutes": "{n} min",
+    "err_rate_limited": "Whoa, slow down! Give me {s} seconds to catch my breath.",
+    "err_quota": "I've talked the whole day away — I'm resting now. Come back tomorrow!",
+    "err_upstream": "My signal flickered. Try that again?",
+    "err_network": "Lost you for a second there. Try again?",
+    "err_bad_request": "I couldn't read that one. Could you ask it another way?"
   }
 }

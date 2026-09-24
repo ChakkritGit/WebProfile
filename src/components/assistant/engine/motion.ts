@@ -234,7 +234,9 @@ export function step(
     )
     let up: THREE.Vector3 | null = null, k = 0
     const wave = st.mode === 'wave' && side > 0
-    let elbow = shoulder.clone().lerp(hand, 0.5).add(V(0.22 * side, 0.05, -0.05 + 0.12 * s * Math.max(0, Math.sin(phi))))
+    // At rest the arm hangs straight — the elbow on the line from shoulder to hand,
+    // so the hose has no kink; it bends only for the poses below.
+    let elbow = shoulder.clone().lerp(hand, 0.5).add(V(0.02 * side, 0, 0))
     const restDir = hand.clone().sub(elbow).normalize().lerp(V(0, -1, 0), 0.4).normalize()
     if (wave) {
       // Upper arm out and up, held; the forearm swings from the elbow; the
