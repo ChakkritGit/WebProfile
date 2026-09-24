@@ -121,8 +121,9 @@ The Worker is a route on the chakkritton.com zone, so it answers
   scroll down, returns when scrolling stops.
 - **Reduced motion:** stands still, breathing and blinking only; no walk, no
   warp.
-- Rendering pauses while the tab is hidden; the render loop is capped at the
-  display rate and skips frames while nothing moves.
+- Rendering pauses while the tab is hidden or the stage is off screen, and
+  draws at 30fps while he only idles or cruises (60fps for warps, waves,
+  pointer reactions and the chat), as the tag orb does.
 - **No WebGL:** a small 2D globe button in the same place opens the chat.
 
 ### 4. The hologram screen (the chat)
@@ -136,7 +137,7 @@ The Worker is a route on the chakkritton.com zone, so it answers
 - A real modal dialog: focus trapped, Esc closes, focus returns to him;
   messages announced through a polite live region.
 - Conversation kept in `sessionStorage` for the tab; nothing on a server.
-- Copy for the screen lives in `messages/{th,en,ja}.json` under `assistant`.
+- Copy for the screen lives in `src/messages/{th,en,ja}.json` under `assistant`.
 
 ## Error handling
 
