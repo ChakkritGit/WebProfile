@@ -73,11 +73,12 @@ The Worker is a route on the chakkritton.com zone, so it answers
 - `GET /ai/index.json` — every published post and project in th and en:
   `{ id, kind, locale, slug, url, title, summary, tags, stack?, minutes, cover }`.
   Built with `listPosts`/`listProjects` (published only), like `llms.txt`.
-  Cache: `s-maxage=300`.
+  Rendered per request (`force-dynamic`), CDN `s-maxage=60`, like the feed.
 - `GET /ai/item/{kind}/{locale}/{slug}.txt` — one published item's full text as
   plain text (Editor.js to text via the existing `documentToText`), capped at
   ~6,000 characters. 404 for drafts or unknown items.
-- `revalidateContent()` also clears both, so a publish shows at once.
+- The Worker caches both for 5 minutes, so a publish reaches the chat within
+  about five minutes. No change to `revalidateContent()`.
 - Both live in `src/app/ai/` (outside `[locale]`). Each path contains a dot, so
   the proxy's matcher (`.*\\.[^/]*$`) already passes them through unlocalised;
   the proxy itself is not changed.
@@ -86,9 +87,12 @@ The Worker is a route on the chakkritton.com zone, so it answers
 
 - **Request:** `POST /api/assistant` with
   `{ messages: [{ role, content }] (last 8, each ≤ 1,000 chars), lang: 'th' | 'en' }`.
-  Anything else is 400. Only same-origin requests (Origin header) are accepted.
-- **Index:** fetched from `/ai/index.json` and held in the Cache API for 5
-  minutes.
+  Anything else is 400. Only origins in the `ALLOWED_ORIGINS` var are accepted
+  (production: `https://chakkritton.com`; add `http://localhost:3000` while
+  developing, with CORS answered for those origins only). The page reads the
+  endpoint from `NEXT_PUBLIC_ASSISTANT_URL`, defaulting to `/api/assistant`.
+- **Index:** fetched from `/ai/index.json` through the Cloudflare cache
+  (`cf.cacheTtl` 300 s).
 - **Retrieval:** score each item against the latest user message by
   title, tag, stack and summary term overlap (Thai matched on substrings, since
   it has no word spaces). The top two items (score above a floor) get their
@@ -101,7 +105,8 @@ The Worker is a route on the chakkritton.com zone, so it answers
 - **Response:** Server-Sent Events: `text` deltas, then one `cards` event with
   ids validated against the index (unknown ids dropped), then `done`. The
   `CARDS:` line is stripped from the text.
-- **Limits:** Workers Rate Limiting binding, 20 requests per IP per 10 minutes.
+- **Limits:** Workers Rate Limiting binding, 8 requests per IP per 60 seconds
+  (the binding's windows are 10 s or 60 s only).
 - **Errors → codes** the page turns into lines in his voice: `rate_limited`
   (with seconds to wait), `quota` (daily allowance used), `upstream` (model
   failed), `bad_request`.
@@ -113,8 +118,10 @@ The Worker is a route on the chakkritton.com zone, so it answers
 - Loaded with `next/dynamic` after `requestIdleCallback`, so none of it is in
   the first load. three.js is imported only inside it.
 - **Stage:** a fixed, transparent canvas along the bottom of the viewport,
-  `pointer-events: none` except when the pointer is over his drawn pixels
-  (checked against the render target's alpha), so it never blocks the page.
+  `pointer-events: none` except when the pointer is over him — tested against
+  his projected outline (the globe's circle plus a box round the legs), not by
+  reading pixels back from the GPU, which would stall a frame — so it never
+  blocks the page.
 - **Desktop:** walks the bottom edge, turning before the Quick Contact dock at
   the right; warps to a new spot every 40–90 s.
 - **Mobile (< 640px):** smaller, standing in the bottom-left corner; hides on
