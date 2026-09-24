@@ -34,3 +34,8 @@ test('without a CARDS line, items named in the reply become cards, then the rank
   assert.deepEqual(chooseCards([], named, 'en', { text: 'Here is one.', ranked: ['project:en:other'] }), ['project:en:other'])
   assert.deepEqual(chooseCards([], named, 'en', { text: 'Hi there!', ranked: [] }), [])
 })
+
+test('a CARDS line of ids that do not exist falls back like a missing one', () => {
+  const named = [{ ...it('post:th:llms', 'th', 'llms'), title: 'llms.txt คืออะไร?' }]
+  assert.deepEqual(chooseCards(['post:th:llms-txt-wrong'], named, 'th', { text: 'บทความนี้ดีมาก', ranked: ['post:th:llms'] }), ['post:th:llms'])
+})
