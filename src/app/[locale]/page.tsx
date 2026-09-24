@@ -192,8 +192,10 @@ async function Empty() {
 /**
  * What Google needs to show articles and projects in its results, not only the
  * home page: the site with its search box, and the two lists as `ItemList`s of
- * `BlogPosting` and `CreativeWork`. Each detail page carries its own full entry;
- * these point at them.
+ * `BlogPosting` and `Article`. Each detail page carries its own full entry;
+ * these point at them. The site itself is one `WebSite` with one name on every
+ * locale: Google reads the site name from the domain root only, and falls back
+ * to the bare domain when the pages disagree.
  */
 function JsonLd({
   locale,
@@ -204,13 +206,14 @@ function JsonLd({
   posts: PostRecord[]
   projects: ProjectRecord[]
 }) {
-  const home = absoluteUrl('/', locale)
+  const root = absoluteUrl('/', routing.defaultLocale)
   const graph = [
     {
       '@type': 'WebSite',
-      '@id': `${home}#website`,
-      url: home,
-      name: siteName(locale),
+      '@id': `${root}#website`,
+      url: root,
+      name: siteName(routing.defaultLocale),
+      alternateName: siteName('en'),
       description: siteDescription(locale),
       inLanguage: locale,
       author: authorJsonLd(locale),
