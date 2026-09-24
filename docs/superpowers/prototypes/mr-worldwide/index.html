@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mr. Worldwide — 3D</title>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js" } }</script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.5 system-ui, sans-serif; background: #151515; color: #eee; padding: 24px; }
+  h2 { margin: 0 0 4px; font-size: 22px; }
+  .sub { color: #aaa; margin: 0 0 16px; max-width: 920px; }
+  #stage { position: relative; height: 440px; border-radius: 12px; overflow: hidden; border: 1px solid #333;
+    background: radial-gradient(ellipse at 50% 110%, #2a1a10, #0b0806 70%); }
+  #stage.light { background: #f8f9fa; border-color: #ccc; }
+  #stage.art { background: #0b0b12 url('files/creation-of-adam.webp') center/cover; }
+  #stage.art::before { content: ''; position: absolute; inset: 0; background: #0000ff; mix-blend-mode: screen; pointer-events: none; }
+  #stage.art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.6), rgba(0,0,0,.2)); pointer-events: none; }
+  canvas { position: relative; z-index: 1; display: block; width: 100%; height: 100%; cursor: pointer;
+    filter: drop-shadow(0 0 10px var(--glow, rgba(255,150,60,.85))) drop-shadow(0 0 28px var(--glow2, rgba(255,120,40,.45))); }
+  .name { position: absolute; z-index: 2; left: 14px; top: 10px; font: 700 12px ui-monospace, monospace; letter-spacing: .1em; color: #bbb; }
+  #stage.light .name { color: #555; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+  .bar button { font: 600 12px ui-monospace, monospace; letter-spacing: .05em; background: #2a2a2a; color: #eee; border: 1px solid #444; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+  .bar button.on { background: #fff; color: #111; }
+  .bar label { font: 12px ui-monospace, monospace; color: #bbb; display: flex; gap: 8px; align-items: center; margin-left: 8px; }
+  .note { color: #999; font-size: 13px; margin-top: 14px; max-width: 920px; }
+</style>
+</head>
+<body>
+<h2>Mr. Worldwide — v18</h2>
+<p class="sub">Five-finger gloves, canvas sneakers, no blush, brows instead of lashes. The warp is now a vortex: he winds into a spiral and is drawn into the centre, then unwinds out of it. The walk is driven by one gait cycle: dip on each footfall, weight shifting side to side, hips and shoulders counter-rotating, arms trailing the legs, heel-strike and toe-off, easing into the turns, and now and then a stop to breathe and look around.</p>
+
+<div id="stage"><span class="name">MR. WORLDWIDE</span></div>
+
+<div class="bar">
+  <button id="warp" class="on">WARP</button>
+  <span style="width:12px"></span>
+  <button data-act="think">THINKING</button>
+  <button data-act="talk">TALKING</button>
+  <button data-act="point">POINTING</button>
+  <button data-act="hips">HANDS ON HIPS</button>
+  <span style="width:12px"></span>
+  <button data-col="amber" class="on">AMBER</button>
+  <button data-col="gold">GOLD</button>
+  <button data-col="coral">CORAL</button>
+  <button data-col="blue">SITE BLUE</button>
+  <span style="width:12px"></span>
+  <button data-bg="dark" class="on">DARK</button>
+  <button data-bg="light">LIGHT PAGE</button>
+  <button data-bg="art">OVER HERO PICTURE</button>
+  <label>SEE-THROUGH <input id="op" type="range" min="0.25" max="1" step="0.05" value="0.78"></label>
+</div>
+<p class="note">Move your pointer near him: he stops, turns to you and follows it with his eyes. Click him to get a wave. THINKING is what he does while the AI works on an answer, TALKING while the answer arrives, POINTING at a recommendation. Now and then he puts his hands on his hips on his own.</p>
+
+<script type="module">
+import * as THREE from 'three'
+const V = (x, y, z) => new THREE.Vector3(x, y, z)
+
+const stage = document.getElementById('stage')
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+renderer.setPixelRatio(Math.min(2, devicePixelRatio))
+stage.appendChild(renderer.domElement)
+const scene = new THREE.Scene()
+const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100)
+camera.position.set(0, 2.35, 13)
+camera.lookAt(0, 1.7, 0)
+
+const COLOURS = { amber: new THREE.Color('#ff8a3d'), gold: new THREE.Color('#ffb52e'), coral: new THREE.Color('#ff5f6d'), blue: new THREE.Color('#6f7dff') }
+const U = {
+  uTime: { value: 0 }, uColor: { value: COLOURS.amber.clone() }, uOpacity: { value: 0.78 }, uBoost: { value: 1 },
+  uWarpC: { value: V(0, 1.45, 0) }, uTwist: { value: 0 }, uPinch: { value: 0 }, uLight: { value: 0 },
+  // Natural Earth 1:50m land (public domain), equirectangular — the globe's own map.
+  uLand: { value: new THREE.TextureLoader().load('files/land.png') },
+}
+
+/* The look is a drawing, not a render: flat fills with one hard shadow step,
+   and an ink line of the same pixel width round every part (an inverted hull
+   pushed out in screen space). The figure is drawn solid into a texture; the
+   hologram — see-through, scanlines, fringe, flicker — is laid over that one
+   picture, so parts never show through one another. Every stage shares the
+   vortex, so the warp twists fills and lines together. */
+const VORTEX = `
+  uniform vec3 uWarpC; uniform float uTwist, uPinch;
+  vec3 vortex(vec3 wp) {
+    vec2 d = wp.xy - uWarpC.xy;
+    float r = length(d);
+    float f = 1.0 - smoothstep(0.0, 2.6, r);
+    float a = uTwist * (0.35 + 1.3 * f);
+    float s = sin(a), c = cos(a);
+    d = vec2(c * d.x - s * d.y, s * d.x + c * d.y);
+    float k = 1.0 - uPinch;
+    d *= k * (0.55 + 0.45 * k);
+    wp.xy = uWarpC.xy + d;
+    wp.z = mix(wp.z, uWarpC.z, uPinch);
+    return wp;
+  }`
+const VERT = `
+  ${VORTEX}
+  varying vec3 vN; varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    vec4 wp = modelMatrix * vec4(position, 1.0);
+    wp.xyz = vortex(wp.xyz);
+    vN = normalize(mat3(viewMatrix) * mat3(modelMatrix) * normal);
+    gl_Position = projectionMatrix * viewMatrix * wp;
+  }`
+const TOON = `
+  uniform vec3 uColor, uFixed; uniform float uTint, uWhite, uUseFixed, uGlobe, uLight;
+  uniform sampler2D uLand;
+  varying vec3 vN; varying vec2 vUv;
+  void main() {
+    vec3 fill = uUseFixed > 0.5 ? uFixed : mix(uColor * uTint, vec3(1.0, 0.97, 0.92), uWhite);
+    if (uGlobe > 0.5) {
+      float m = texture2D(uLand, vUv).r;
+      fill = mix(fill, fill * vec3(0.78, 0.62, 0.5), step(0.5, m));               // flat land
+      fill = mix(fill, vec3(0.16, 0.08, 0.04), 1.0 - smoothstep(0.0, 0.09, abs(m - 0.5)));  // inked shore
+    }
+    float lit = dot(normalize(vN), normalize(vec3(-0.45, 0.6, 1.0)));
+    fill *= lit > 0.12 ? 1.0 : 0.8;                                                   // one cel step
+    gl_FragColor = vec4(mix(fill, vec3(1.0, 0.96, 0.88) * 1.6, uLight), 1.0);
+  }`
+const LINE_VERT = `
+  ${VORTEX}
+  uniform vec2 uRes; uniform float uLine;
+  void main() {
+    vec4 wp = modelMatrix * vec4(position, 1.0);
+    wp.xyz = vortex(wp.xyz);
+    vec4 clip = projectionMatrix * viewMatrix * wp;
+    vec3 nv = normalize(mat3(viewMatrix) * mat3(modelMatrix) * normal);
+    vec2 nc = (projectionMatrix * vec4(nv, 0.0)).xy;
+    clip.xy += normalize(nc + 1e-6) * uLine * 2.0 * clip.w / uRes;
+    gl_Position = clip;
+  }`
+const LINE_FRAG = `
+  uniform float uLight;
+  void main() { gl_FragColor = vec4(mix(vec3(0.13, 0.06, 0.03), vec3(1.0, 0.96, 0.88) * 1.6, uLight), 1.0); }`
+U.uRes = { value: new THREE.Vector2(1, 1) }
+U.uLine = { value: 2.6 }
+const toon = ({ globe = false, tint = 1, white = 0, fixed = null } = {}) => new THREE.ShaderMaterial({
+  uniforms: { ...U, uGlobe: { value: globe ? 1 : 0 }, uTint: { value: tint }, uWhite: { value: white },
+    uUseFixed: { value: fixed ? 1 : 0 }, uFixed: { value: new THREE.Color(fixed ?? '#000') } },
+  vertexShader: VERT, fragmentShader: TOON,
+})
+const LINE = new THREE.ShaderMaterial({ uniforms: U, vertexShader: LINE_VERT, fragmentShader: LINE_FRAG, side: THREE.BackSide })
+// Fingers are a few pixels across: the full line swamped them and shimmered.
+const FINE = new THREE.ShaderMaterial({ uniforms: { ...U, uLine: { value: 1.4 } }, vertexShader: LINE_VERT, fragmentShader: LINE_FRAG, side: THREE.BackSide })
+// The names the figure below was written against.
+const holo = ({ globe = false, tint = 1 } = {}) => toon({ globe, tint })
+const flat = (hex) => toon({ fixed: hex })
+const INK = flat('#2a150a'), WHITE = toon({ white: 1 }), SOLE = toon({ white: 1 })
+
+// ------------------------------------------------------------------ figure
+const figure = new THREE.Group(); scene.add(figure)          // x on the floor
+const turn = new THREE.Group(); figure.add(turn)             // facing (springy)
+const bodyG = new THREE.Group(); turn.add(bodyG)             // sway and bob
+const torso = new THREE.Group(); torso.position.y = 2.0; bodyG.add(torso) // lean, roll, twist
+const globe = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 48), holo({ globe: true, ink: 1 }))
+torso.add(globe)
+globe.rotation.y = 2.97   // start with Asia, Thailand in it, to the front
+
+// Face: on the front of the sphere, not turning with the globe.
+const face = new THREE.Group(); torso.add(face)
+const onSphere = (x, y, lift = 0) => { const z = Math.sqrt(Math.max(0, 1 - x * x - y * y)); return V(x, y, z).multiplyScalar(1 + lift) }
+const eyes = [], brows = []
+const LID = toon({ tint: 1.0 })
+for (const sx of [-1, 1]) {
+  const socket = new THREE.Group(); socket.position.copy(onSphere(0.25 * sx, 0.1, -0.06))
+  socket.lookAt(socket.position.clone().multiplyScalar(3)); face.add(socket)
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 24), WHITE); ball.scale.set(0.88, 1.18, 0.8); socket.add(ball)
+  const gaze = new THREE.Group(); socket.add(gaze)
+  const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.1, 24, 16), INK); pupil.scale.set(0.78, 1.12, 0.28); pupil.position.z = 0.152; gaze.add(pupil)
+  const glint = new THREE.Mesh(new THREE.SphereGeometry(0.028, 10, 8), WHITE); glint.position.set(0.045, 0.075, 0.172); glint.userData.noLine = true; socket.add(glint)
+  const lid = new THREE.Mesh(new THREE.SphereGeometry(0.212, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), LID); lid.scale.set(0.9, 1.2, 0.84); lid.userData.noLine = true; socket.add(lid)
+  eyes.push({ gaze, lid, glint })
+  const brow = new THREE.Mesh(new THREE.CapsuleGeometry(0.035, 0.2, 4, 10), INK)
+  brow.rotation.z = Math.PI / 2 - sx * 0.12; face.add(brow); brows.push({ mesh: brow, s: sx })
+}
+const mouthCurve = (w, d) => new THREE.CatmullRomCurve3([onSphere(-w, -0.3, 0.02), onSphere(0, -0.3 - d, 0.02), onSphere(w, -0.3, 0.02)])
+const mouth = new THREE.Mesh(new THREE.TubeGeometry(mouthCurve(0.2, 0.1), 16, 0.024, 6), INK); face.add(mouth)
+// Open, for talking: a dark oval that grows under the smile with each syllable.
+const mouthHole = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 12), flat('#3a0f06'))
+mouthHole.position.copy(onSphere(0, -0.37, -0.005)); mouthHole.lookAt(mouthHole.position.clone().multiplyScalar(2)); face.add(mouthHole)
+
+// Glove: palm, four fingers and a thumb, a rolled cuff. Built pointing down (-y).
+function glove(side) {
+  const g = new THREE.Group(), fingers = []
+  const cuff = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.045, 10, 20), WHITE); cuff.rotation.x = Math.PI / 2; cuff.position.y = 0.02; g.add(cuff)
+  const palm = new THREE.Mesh(new THREE.SphereGeometry(0.14, 18, 14), WHITE); palm.scale.set(1.05, 1, 0.62); palm.position.y = -0.13; g.add(palm)
+  for (let i = 0; i < 4; i++) {
+    const knuckle = new THREE.Group(); knuckle.position.set(-0.09 + i * 0.06, -0.22, 0); g.add(knuckle)
+    const f = new THREE.Mesh(new THREE.CapsuleGeometry(0.036, 0.1 + (i === 1 || i === 2 ? 0.03 : 0), 4, 10), WHITE)
+    f.position.y = -0.07; knuckle.add(f); knuckle.rotation.z = (i - 1.5) * 0.12; fingers.push(knuckle)
+  }
+  // The thumb on the side toward the body — mirrored for the left hand — and a
+  // touch toward the palm (-z), which is the side the fingers bend to.
+  const thumb = new THREE.Group(); thumb.position.set(-0.12 * side, -0.1, -0.03); g.add(thumb)
+  const tm = new THREE.Mesh(new THREE.CapsuleGeometry(0.038, 0.08, 4, 10), WHITE); tm.position.y = -0.05; thumb.add(tm)
+  g.userData = { fingers, thumb, side }
+  return g
+}
+// Canvas sneaker: sole, upper, toe cap, laces. Heel at the origin, toe along +z.
+// A cartoon sneaker, all white and closed: one turned shape, narrow at the
+// heel and swelling to a round toe, with the ankle opening near the heel that
+// the leg goes into. Heel at the origin, toe along +z.
+const SHOE_GEO = (() => {
+  const prof = [[0, 0], [0.085, 0.01], [0.105, 0.07], [0.1, 0.17], [0.125, 0.27], [0.145, 0.36], [0.132, 0.44], [0.085, 0.5], [0, 0.52]]
+  const g = new THREE.LatheGeometry(prof.map(([r, y]) => new THREE.Vector2(r, y)), 28)
+  g.rotateX(Math.PI / 2)        // the lathe's axis, y, becomes the foot's length, z
+  g.scale(1, 0.72, 1)           // flatter than it is wide
+  g.translate(0, 0.104, -0.02)  // resting on the floor
+  g.computeVertexNormals()
+  return g
+})()
+function sneaker() {
+  const g = new THREE.Group()
+  const shoe = new THREE.Mesh(SHOE_GEO, WHITE); g.add(shoe)
+  const opening = new THREE.Mesh(new THREE.CircleGeometry(0.06, 20), INK)   // where the leg goes in
+  opening.rotation.x = -Math.PI / 2 + 0.25; opening.position.set(0, 0.2, 0.1); opening.scale.set(1, 1.35, 1); opening.userData.noLine = true; g.add(opening)
+  const cuff = new THREE.Mesh(new THREE.TorusGeometry(0.068, 0.018, 8, 20), WHITE)
+  cuff.rotation.x = -Math.PI / 2 + 0.25; cuff.position.set(0, 0.205, 0.1); cuff.scale.set(1, 1.35, 1); g.add(cuff)
+  for (let i = 0; i < 2; i++) {
+    const lace = new THREE.Mesh(new THREE.CapsuleGeometry(0.008, 0.07, 4, 6), INK)
+    lace.rotation.z = Math.PI / 2; lace.position.set(0, 0.19 - i * 0.012, 0.2 + i * 0.05); lace.rotation.y = 0.0; lace.userData.noLine = true; g.add(lace)
+  }
+  return g
+}
+const hands = [glove(-1), glove(1)], shoes = [sneaker(), sneaker()]
+hands.forEach((h) => bodyG.add(h)); shoes.forEach((s) => bodyG.add(s))
+const armMat = holo({ tint: 1.1, alpha: 1.2 })
+const limbs = [armMat, armMat, INK, INK].map((m) => { const mesh = new THREE.Mesh(new THREE.BufferGeometry(), m); bodyG.add(mesh); return mesh })
+// The legs are ink already — a single clean line, like the reference; an outline
+// round them only fattened them.
+limbs[2].userData.noLine = limbs[3].userData.noLine = true
+const legHose = (mesh, curve) => { mesh.geometry.dispose(); mesh.geometry = new THREE.TubeGeometry(curve, 24, 0.038, 8) }
+const hose = (mesh, pts, r) => { mesh.geometry.dispose(); mesh.geometry = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 20, r, 8); if (mesh.userData.line) mesh.userData.line.geometry = mesh.geometry }
+function ink(root, mat = LINE) {
+  root.traverse((m) => {
+    if (!m.isMesh || m.userData.line || m.userData.noLine || m.material === LINE || m.material === FINE) return
+    const line = new THREE.Mesh(m.geometry, mat); line.userData.noLine = true
+    m.userData.line = line; m.add(line)
+  })
+}
+
+// A glow he casts on the floor — the grounding a hologram gets instead of a shadow.
+const puddleTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const r = g.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, 'rgba(255,255,255,.9)'); r.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = r; g.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c) })()
+const puddle = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 0.9), new THREE.MeshBasicMaterial({ map: puddleTex, color: U.uColor.value, transparent: true, opacity: 0.35, depthWrite: false }))
+puddle.rotation.x = -Math.PI / 2; puddle.position.y = 0.005
+const fx = new THREE.Scene(); fx.add(puddle)
+// The hologram switching off: a white-hot core, a thin horizontal flare, a ring.
+const tex = (draw) => { const c = document.createElement('canvas'); c.width = c.height = 128; draw(c.getContext('2d')); const t = new THREE.CanvasTexture(c); return t }
+const coreTex = tex((g) => { const r = g.createRadialGradient(64, 64, 0, 64, 64, 64); r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(0.12, 'rgba(255,248,230,1)'); r.addColorStop(0.3, 'rgba(255,190,110,.55)'); r.addColorStop(1, 'rgba(255,140,40,0)'); g.fillStyle = r; g.fillRect(0, 0, 128, 128) })
+const streakTex = tex((g) => { const r = g.createLinearGradient(0, 0, 128, 0); r.addColorStop(0, 'rgba(255,170,80,0)'); r.addColorStop(0.5, 'rgba(255,255,255,1)'); r.addColorStop(1, 'rgba(255,170,80,0)'); g.fillStyle = r; g.fillRect(0, 60, 128, 8) })
+const ringTex = tex((g) => { g.strokeStyle = 'rgba(255,220,170,1)'; g.lineWidth = 3; g.shadowColor = 'rgba(255,160,60,1)'; g.shadowBlur = 10; g.beginPath(); g.arc(64, 64, 52, 0, Math.PI * 2); g.stroke() })
+const spr = (map) => { const m = new THREE.Sprite(new THREE.SpriteMaterial({ map, transparent: true, depthWrite: false, opacity: 0, blending: THREE.AdditiveBlending })); fx.add(m); return m }
+hands.forEach((h) => ink(h, FINE))
+ink(bodyG)
+const core = spr(coreTex), streak = spr(streakTex), ring = spr(ringTex)
+
+// ------------------------------------------------------------------ behaviour
+let halfW = 5
+const rt = new THREE.WebGLRenderTarget(1, 1, { samples: 4 })
+const holoPass = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({
+  uniforms: { tDraw: { value: rt.texture }, uTime: U.uTime, uOpacity: U.uOpacity, uRes: U.uRes },
+  transparent: true, depthTest: false, depthWrite: false,
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+  fragmentShader: `
+    uniform sampler2D tDraw; uniform float uTime, uOpacity; uniform vec2 uRes; varying vec2 vUv;
+    void main() {
+      vec2 px = 1.0 / uRes;
+      vec4 c = texture2D(tDraw, vUv);
+      float r = texture2D(tDraw, vUv + vec2(1.5, 0.0) * px).r, b = texture2D(tDraw, vUv - vec2(1.5, 0.0) * px).b;
+      float a = max(c.a, max(texture2D(tDraw, vUv + vec2(1.5, 0.0) * px).a, texture2D(tDraw, vUv - vec2(1.5, 0.0) * px).a));
+      float scan = 0.8 + 0.2 * sin(gl_FragCoord.y * 1.3 - uTime * 9.0);
+      float flick = 0.93 + 0.07 * sin(uTime * 37.0) * sin(uTime * 3.1);
+      vec3 col = vec3(r, c.g, b) * (0.9 + 0.25 * scan);
+      gl_FragColor = vec4(col, a * uOpacity * scan * flick);
+    }`,
+}))
+const passScene = new THREE.Scene(); passScene.add(holoPass)
+const passCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix()
+  const dpr = renderer.getPixelRatio(); rt.setSize(w * dpr, h * dpr); U.uRes.value.set(w * dpr, h * dpr)
+  halfW = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z * camera.aspect - 1.7
+}
+new ResizeObserver(resize).observe(stage); resize()
+
+const st = {
+  x: -2, dir: 1, v: 0, ph: 0, face: 0.5, faceV: 0,
+  mode: 'walk',        // walk | pause | wave | notice | act | out | in
+  act: null, actW: 0, lastAct: null, actUntil: 0,   // hips | think | talk | point
+  cursor: null, cursorAt: 0,
+  modeT: 0, nextPause: 6 + Math.random() * 6, target: 0,
+  look: V(0, 0, 0), lookTo: V(0, 0, 0), nextLook: 1, blinkT: 3, blink: 0,
+}
+const ease = (k) => k * k * (3 - 2 * k)
+const backOut = (k) => { const c = 1.9; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2) }  // overshoot, settle
+const c01 = (k) => Math.min(1, Math.max(0, k))
+// The glove's orientation from where its fingers point, against the camera axis.
+const handFrame = (dir) => {
+  const yAx = dir.clone().negate(), xAx = new THREE.Vector3().crossVectors(V(0, 0, 1), yAx)
+  if (xAx.lengthSq() < 1e-4) xAx.set(1, 0, 0)
+  xAx.normalize()
+  const zAx = new THREE.Vector3().crossVectors(xAx, yAx).normalize()
+  return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(xAx, yAx, zAx))
+}
+// The wave, as one pose over time: raise (with overshoot), waves that swell and
+// fade, lower (with a small drop). k is how far into the waving pose he is.
+const waveState = (T) => {
+  const raise = backOut(c01(T / 0.34)), lower = ease(c01((T - 1.7) / 0.38))
+  const drop = Math.sin(c01((T - 1.7) / 0.5) * Math.PI) * 0.06
+  return { k: raise * (1 - lower), amp: ease(c01((T - 0.22) / 0.25)) * (1 - ease(c01((T - 1.45) / 0.3))), drop }
+}
+const clock = new THREE.Clock()
+
+function frame() {
+  const dt = Math.min(0.05, clock.getDelta()), t = clock.elapsedTime
+  U.uTime.value = t
+  st.modeT += dt
+
+  // --- where he is going, and how fast
+  let wantV = 0
+  if (st.mode === 'walk') {
+    wantV = 1
+    const ahead = st.x * st.dir
+    if (ahead > halfW - 0.2) wantV = 0                                  // ease into the edge
+    if (ahead > halfW - 0.5) wantV = Math.min(wantV, (halfW - ahead) / 0.3)
+    if (ahead > halfW - 0.3 && st.v < 0.08) st.dir *= -1                // then turn round
+    st.nextPause -= dt
+    if (st.nextPause < 0) {
+      st.nextPause = 8 + Math.random() * 8
+      // An idle fidget: half the time he just stands and looks about; otherwise
+      // hands on hips for a moment (the reference's own stance).
+      if (Math.random() < 0.5) { st.mode = 'pause'; st.modeT = 0 }
+      else { st.act = 'hips'; st.actUntil = t + 2.6 }
+    }
+  } else if (st.mode === 'pause' && st.modeT > 2.4 + Math.random() * 0.02) { st.mode = 'walk'; st.modeT = 0 }
+  // Someone's pointer comes close: he stops and turns to see who it is.
+  const near = st.cursor && Math.abs(st.cursor.x - st.x) < 2.3 && t - st.cursorAt < 1.2
+  if (near && (st.mode === 'walk' || st.mode === 'pause')) { st.mode = 'notice'; st.modeT = 0 }
+  if (st.mode === 'notice' && !near && st.modeT > 0.8) { st.mode = 'walk'; st.modeT = 0 }
+  if (st.act && st.actUntil && t > st.actUntil) { st.act = null; st.actUntil = 0 }
+  if (st.act && (st.mode === 'walk' || st.mode === 'pause' || st.mode === 'notice')) { st.mode = 'act'; st.modeT = 0 }
+  if (st.mode === 'act' && !st.act && st.actW < 0.03) { st.mode = 'walk'; st.modeT = 0 }
+  else if (st.mode === 'wave' && st.modeT > 2.15) { st.mode = 'walk'; st.modeT = 0 }
+  st.v += (Math.max(0, wantV) - st.v) * Math.min(1, dt * 2.6)
+  if (st.act) st.lastAct = st.act
+  st.actW += ((st.act ? 1 : 0) - st.actW) * Math.min(1, dt * 5)
+  const aw = ease(c01(st.actW)), act = st.lastAct
+  st.x += st.dir * st.v * dt * 1.15
+  st.ph += st.v * dt * 6.2                        // cadence follows speed: no sliding feet
+  const s = st.v
+
+  // --- facing: a damped spring, so the turn overshoots a touch and settles
+  const walking = st.mode === 'walk'
+  const facingTarget = walking ? st.dir * 1.25 : 0
+  st.faceV += (38 * (facingTarget - st.face) - 8.5 * st.faceV) * dt
+  st.face += st.faceV * dt
+  turn.rotation.y = st.face
+  figure.position.x = st.x
+
+  // --- the body: dip on each footfall, weight over the standing leg, lean in
+  const ph = st.ph
+  const breathe = Math.sin(t * 1.9) * 0.018 * (1 - s)
+  const bob = -0.075 * s * (0.5 + 0.5 * Math.cos(2 * ph))
+  bodyG.position.set(0.05 * s * Math.sin(ph), bob, 0)
+  torso.position.y = 2.0 + breathe
+  torso.scale.setScalar(1 + breathe * 0.4)
+  torso.rotation.set(0.1 * s, 0.09 * s * Math.sin(ph), 0.05 * s * Math.sin(ph))
+  globe.rotation.y += dt * (0.12 + 0.35 * s)
+  // The face slides round the globe: toward the way he walks, or toward you.
+  const cur = st.cursor && t - st.cursorAt < 1.2 ? st.cursor : null
+  const faceY = walking ? -st.dir * 0.55 * Math.min(1, s * 3) : cur ? THREE.MathUtils.clamp((cur.x - st.x) * 0.09, -0.5, 0.5) : 0
+  const faceX = !walking && cur ? THREE.MathUtils.clamp(-(cur.y - 2.0) * 0.07, -0.3, 0.25) : act === 'think' ? -0.12 * aw : 0
+  face.rotation.y += (faceY - face.rotation.y) * Math.min(1, dt * 5)
+  face.rotation.x += (faceX - face.rotation.x) * Math.min(1, dt * 5)
+  if (st.mode === 'pause') torso.rotation.z = Math.sin(st.modeT * 1.6) * 0.04
+  if (st.mode === 'wave') {
+    const w = waveState(st.modeT)
+    torso.rotation.z = 0.09 * w.k + 0.02 * w.amp * Math.sin(st.modeT * 11 - 1.2)  // leans away, swayed by the arm
+    torso.rotation.x = -0.05 * w.k                                                 // and back a little
+    bodyG.position.y += 0.05 * Math.sin(c01(st.modeT / 0.3) * Math.PI)            // a small bounce as it starts
+  }
+
+  // --- legs: heel strike in front, toe-off behind, knee lifts through the swing
+  for (const side of [-1, 1]) {
+    const phi = ph + (side > 0 ? Math.PI : 0)
+    const fz = 0.42 * s * Math.sin(phi)
+    const swing = Math.max(0, Math.cos(phi))
+    const lift = 0.22 * s * Math.pow(swing, 1.5)
+    const hip = V(0.27 * side, 1.18, 0)
+    const foot = V(0.33 * side, 0.1 + lift - bob, fz)
+    // The shoe first: it rocks on the heel as it lands (toe up) and on the toe
+    // as it pushes off (heel up), so whichever end is on the floor stays there.
+    const shoe = shoes[side < 0 ? 0 : 1]
+    let pitch = -0.42 * s * Math.sin(phi) * (1 - swing * 0.4)
+    if (act === 'think' && side > 0) pitch -= 0.3 * aw * Math.max(0, Math.sin(t * 8))   // tapping, heel down
+    const rock = new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), pitch)
+    const pivot = pitch < 0 ? V(0, 0, 0) : V(0, 0, 0.48)
+    shoe.quaternion.copy(rock)
+    shoe.position.copy(foot).add(V(0, -0.06, -0.12)).add(pivot.clone().sub(pivot.clone().applyQuaternion(rock)))
+    // Then the leg: a rubber hose, one smooth arc from hip to the shoe's opening
+    // wherever the shoe now is, bowed forward by as much as the foot has come in
+    // from the leg's full length — straight when stretched, bent when under.
+    const ankle = V(0, 0.16, 0.1).applyQuaternion(rock).add(shoe.position)
+    const span = ankle.clone().sub(hip), d = span.length(), LEG = 1.08
+    const sag = Math.sqrt(Math.max(0, LEG * LEG - d * d)) * 0.55
+    const along = span.clone().normalize()
+    const fwd = V(0, 0, 1).sub(along.clone().multiplyScalar(along.z)).normalize()
+    const ctrl = hip.clone().lerp(ankle, 0.5).add(fwd.multiplyScalar(sag)).add(V(0.03 * side, 0, 0))
+    legHose(limbs[side < 0 ? 2 : 3], new THREE.QuadraticBezierCurve3(hip, ctrl, ankle))
+  }
+
+  // --- arms: against the legs, a beat behind them; wrists a beat behind that
+  for (const side of [-1, 1]) {
+    const phi = ph + (side > 0 ? 0 : Math.PI) - 0.35
+    const shoulder = V(0.88 * side, 1.87, 0)
+    let hand = V((1.22 + 0.05 * Math.abs(Math.sin(phi))) * side, 1.23 + 0.12 * s * Math.max(0, Math.sin(phi)), 0.38 * s * Math.sin(phi) + 0.05 + 0.03 * Math.sin(t * 1.3 + side) * (1 - s))
+    let up = null, k = 0
+    const wave = st.mode === 'wave' && side > 0
+    let elbow = shoulder.clone().lerp(hand, 0.5).add(V(0.22 * side, 0.05, -0.05 + 0.12 * s * Math.max(0, Math.sin(phi))))
+    const restDir = hand.clone().sub(elbow).normalize().lerp(V(0, -1, 0), 0.4).normalize()
+    if (wave) {
+      // Upper arm out and up, held; the forearm swings from the elbow; the
+      // wrist follows a beat behind (follow-through).
+      const w = waveState(st.modeT), T = st.modeT
+      const swing = 0.42 * w.amp * Math.sin(T * 11)
+      const E = V(1.42, 2.25 - w.drop, 0.22)
+      const H = E.clone().add(V(Math.sin(swing) * 0.62, Math.cos(swing) * 0.62, 0.12))
+      elbow = elbow.lerp(E, w.k)
+      hand = hand.lerp(H, w.k)
+      const wrist = 0.35 * w.amp * Math.sin(T * 11 - 0.7)
+      up = V(Math.sin(swing + wrist), Math.cos(swing + wrist), 0.15).normalize()
+      k = c01(w.k)
+    }
+    // Acts: whole-arm poses blended in over the walk. Each gives an elbow, a hand,
+    // where the fingers point, and how curled they are.
+    let pose = null
+    if (aw > 0.001 && act) {
+      const hips = { E: V(1.55 * side, 1.78, -0.12), H: V(1.03 * side, 1.42, 0.12), dir: V(-side * 0.8, -0.45, 0.15), curl: 0.55 }
+      if (act === 'hips') pose = hips
+      else if (act === 'think') pose = side > 0
+        ? { E: V(0.95, 1.0, 0.75), H: V(0.28, 1.2, 1.02), dir: V(-0.2, 0.9, 0.35), curl: 1.05 }   // knuckles to the chin
+        : hips
+      else if (act === 'talk') {
+        const beat = Math.sin(t * 5.2 + side * 1.7), lift = 0.12 * beat
+        pose = { E: V(1.32 * side, 1.52, 0.3), H: V((0.98 - 0.06 * beat) * side, 1.58 + lift, 0.78), dir: V(side * 0.35, 0.3, 0.88), curl: 0.12 }
+      } else if (act === 'point') pose = side > 0
+        ? (() => { const d = V(0.45, 0.85, 0.3).normalize(); return { E: shoulder.clone().add(d.clone().multiplyScalar(0.55)), H: shoulder.clone().add(d.clone().multiplyScalar(1.12)), dir: d, curl: 1.4, index: true } })()
+        : hips
+    }
+    if (pose) { elbow = elbow.lerp(pose.E, aw); hand = hand.lerp(pose.H, aw) }
+    hose(limbs[side < 0 ? 0 : 1], [shoulder, elbow, hand], 0.07)
+    const g = hands[side < 0 ? 0 : 1]
+    g.position.copy(hand)
+    // Two whole orientations, blended by rotation (slerp): hanging — palm to the
+    // thigh, thumb forward, wrist trailing the swing — and waving, palm to you.
+    // Blending the finger direction as a vector instead passed through nothing
+    // on the way from down to up, and the hand snapped.
+    const qRest = handFrame(restDir).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0.35 * s * Math.sin(phi - 0.5), -side * 1.25, 0, 'YXZ')))
+    g.quaternion.copy(up ? qRest.slerp(handFrame(up), k) : qRest)
+    if (pose) g.quaternion.slerp(handFrame(pose.dir.clone().normalize()), aw)
+    const open = wave ? waveState(st.modeT).k : 0
+    // At rest a hand is open and loose: fingers together and gently curved, the
+    // little finger a touch more, moving a little with the swing.
+    const rest = 0.22 + 0.06 * Math.sin(phi) * s + 0.03 * Math.sin(t * 0.9 + side)
+    const indexI = side > 0 ? 0 : 3
+    g.userData.fingers.forEach((f, i) => {
+      let x = THREE.MathUtils.lerp(rest + (side > 0 ? 3 - i : i) * 0.05, 0.02, open)
+      if (pose) x = THREE.MathUtils.lerp(x, pose.index && i === indexI ? 0 : pose.curl + (i === indexI ? -0.15 : 0.05 * i), aw)
+      f.rotation.x = x
+      f.rotation.z = THREE.MathUtils.lerp((i - 1.5) * 0.04, (i - 1.5) * 0.2, open)
+    })
+    const th = g.userData.thumb
+    th.rotation.x = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.25, 0, open), pose ? (pose.curl > 0.9 ? 0.9 : 0.2) : 0.25, pose ? aw : 0)
+    th.rotation.z = -side * THREE.MathUtils.lerp(0.45, 1.0, open)
+  }
+
+  // --- eyes: saccades, blinks at random, brows that move with the mood
+  st.nextLook -= dt
+  if (st.nextLook < 0) {
+    st.nextLook = 0.8 + Math.random() * 2.2
+    st.lookTo.set(st.mode === 'walk' ? 0.03 * st.dir + (Math.random() - 0.5) * 0.04 : (Math.random() - 0.5) * 0.09, (Math.random() - 0.5) * 0.06, 0)
+    if (st.mode === 'wave') st.lookTo.set(0, 0, 0)
+  }
+  if (!walking && cur) st.lookTo.set(THREE.MathUtils.clamp((cur.x - st.x) * 0.02, -0.07, 0.07), THREE.MathUtils.clamp((cur.y - 2.0) * 0.025, -0.05, 0.06), 0)
+  if (act === 'think' && aw > 0.5) st.lookTo.set(-0.06, 0.055, 0)
+  if (act === 'point' && aw > 0.5) st.lookTo.set(0.06, 0.05, 0)
+  st.look.lerp(st.lookTo, Math.min(1, dt * 14))
+  st.blinkT -= dt
+  if (st.blinkT < 0) { st.blink = 0.14; st.blinkT = 2 + Math.random() * 4 + (Math.random() < 0.2 ? -1.8 : 0) }
+  st.blink = Math.max(0, st.blink - dt)
+  const shut = st.blink > 0 ? Math.sin((1 - st.blink / 0.14) * Math.PI) : 0
+  eyes.forEach(({ gaze, lid, glint }) => {
+    gaze.rotation.set(-st.look.y * 5, st.look.x * 6, 0)
+    lid.rotation.x = -1.25 + shut * 1.6
+    glint.visible = shut < 0.6
+  })
+  const talking = act === 'talk' ? aw : 0
+  const syll = talking * Math.max(0, Math.sin(t * 13) * 0.6 + Math.sin(t * 7.3) * 0.4)   // uneven, like speech
+  const raise = st.mode === 'wave' ? 0.07 : st.mode === 'notice' ? 0.06 * ease(c01(st.modeT / 0.25)) : st.mode === 'pause' ? 0.03 + Math.sin(st.modeT * 2) * 0.015 : talking * 0.02 * Math.sin(t * 4.1)
+  brows.forEach(({ mesh, s: sx }) => {
+    const r = raise + (act === 'think' ? aw * (sx > 0 ? 0.07 : -0.02) : 0)   // one brow up: considering
+    mesh.position.copy(onSphere(0.26 * sx, 0.39 + r, 0.03)); mesh.rotation.z = Math.PI / 2 - sx * (0.12 + r * 1.5)
+  })
+  mouthHole.scale.set(0.9, Math.max(0.001, syll * 0.8), 0.25); mouthHole.visible = syll > 0.02
+  const smile = st.mode === 'wave' ? 0.16 : act === 'think' ? THREE.MathUtils.lerp(0.1, 0.02, aw) : 0.1 - syll * 0.06
+  mouth.geometry.dispose(); mouth.geometry = new THREE.TubeGeometry(mouthCurve(0.2 + (smile - 0.1) * 0.5, smile), 16, 0.024, 6)
+  if (mouth.userData.line) mouth.userData.line.geometry = mouth.geometry
+
+  // --- the warp. Out: crouch, hop, whirl fast into light at the top, gone.
+  // In: a point of light unwinds into him, then a landing.
+  let hop = 0, sqY = 1, lights = { core: [0, 0.1], streak: [0, 0.1], ring: [0, 0.1] }
+  const clamp01 = (k) => Math.min(1, Math.max(0, k))
+  if (st.mode === 'out') {
+    const T = st.modeT
+    const crouch = clamp01(T / 0.14), air = clamp01((T - 0.14) / 0.22)
+    sqY = T < 0.14 ? 1 - 0.14 * ease(crouch) : 0.86 + 0.26 * ease(air)
+    hop = T < 0.14 ? 0 : 0.85 * Math.sin(air * Math.PI / 2)
+    const w = clamp01((T - 0.3) / 0.38)
+    U.uTwist.value = w * w * Math.PI * 7
+    U.uPinch.value = Math.pow(w, 1.4)
+    U.uLight.value = clamp01((T - 0.34) / 0.22)
+    U.uBoost.value = 1 + 3 * w
+    // Collapsed: the light gathers to a hot point, flares, and snaps shut.
+    const g = clamp01((T - 0.6) / 0.14), off = clamp01((T - 0.74) / 0.16)
+    lights = { core: [g * (1 - off), 0.9 * (1 - off * off) + 0.04], streak: [g * (1 - off), 3.2 * g * (1 - off)], ring: [off > 0 ? 0.7 * (1 - off) : 0, 0.3 + 2.4 * off] }
+    if (T > 0.95) { st.x = st.target; st.mode = 'in'; st.modeT = 0 }
+  } else if (st.mode === 'in') {
+    const T = st.modeT
+    const spark = clamp01(T / 0.22), u = clamp01((T - 0.18) / 0.42), e = 1 - Math.pow(1 - u, 2)
+    hop = T < 0.6 ? 0.7 : 0.7 * (1 - ease(clamp01((T - 0.6) / 0.18)))
+    U.uTwist.value = -(1 - e) * Math.PI * 7
+    U.uPinch.value = 1 - e
+    U.uLight.value = 1 - clamp01((T - 0.3) / 0.3)
+    U.uBoost.value = 1 + 3 * (1 - e)
+    // The reverse: a ring closes in, a point flares, and he unwinds out of it.
+    const close = clamp01(T / 0.16), fade = clamp01((T - 0.22) / 0.2)
+    lights = { ring: [0.7 * close * (1 - clamp01((T - 0.12) / 0.06)), 2.7 - 2.4 * close], core: [Math.min(1, spark * 1.6) * (1 - fade), 0.1 + 0.9 * spark], streak: [spark * (1 - fade), 3.2 * spark * (1 - fade)] }
+    const land = clamp01((T - 0.78) / 0.25)
+    sqY = T < 0.78 ? 1.06 : 1 - 0.14 * Math.sin(land * Math.PI) * (1 - land * 0.4)
+    if (T > 1.05) { st.mode = 'walk'; st.modeT = 0; U.uTwist.value = 0; U.uPinch.value = 0; U.uBoost.value = 1; U.uLight.value = 0 }
+  }
+  figure.position.y = hop
+  bodyG.scale.set(1 + (1 - sqY) * 0.6, sqY, 1 + (1 - sqY) * 0.6)
+  U.uWarpC.value.set(st.x, 1.7 + hop, 0)
+  // Exactly the vortex's centre, depth included: in front of it, perspective
+  // pushed the light off the point he collapsed into.
+  const at = U.uWarpC.value.clone()
+  core.position.copy(at); core.material.opacity = lights.core[0]; core.scale.setScalar(Math.max(0.01, lights.core[1]))
+  streak.position.copy(at); streak.material.opacity = lights.streak[0]; streak.scale.set(Math.max(0.01, lights.streak[1]), 0.22, 1)
+  ring.position.copy(at); ring.material.opacity = lights.ring[0]; ring.scale.setScalar(Math.max(0.01, lights.ring[1]))
+  puddle.position.x = st.x; puddle.material.opacity = 0.32 * (1 - U.uPinch.value)
+  puddle.material.color.copy(U.uColor.value)
+
+  renderer.setRenderTarget(rt); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(scene, camera)
+  renderer.setRenderTarget(null); renderer.clear()
+  renderer.autoClear = false
+  renderer.render(fx, camera)            // the glow on the floor, and the warp's light
+  renderer.render(passScene, passCam)    // the drawing, as a hologram
+  renderer.render(fx, camera)
+  renderer.autoClear = true
+  requestAnimationFrame(frame)
+}
+frame()
+
+document.getElementById('warp').onclick = () => {
+  if (st.mode === 'out' || st.mode === 'in') return
+  let to; do { to = (Math.random() * 2 - 1) * halfW } while (Math.abs(to - st.x) < halfW * 0.5)
+  st.target = to; st.mode = 'out'; st.modeT = 0; st.v = 0
+}
+const ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -0.6)
+renderer.domElement.addEventListener('pointermove', (e) => {
+  const r = renderer.domElement.getBoundingClientRect()
+  ray.setFromCamera(new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), camera)
+  st.cursor = ray.ray.intersectPlane(plane, new THREE.Vector3()); st.cursorAt = clock.elapsedTime
+})
+renderer.domElement.addEventListener('pointerleave', () => { st.cursor = null })
+document.querySelectorAll('[data-act]').forEach((b) => b.onclick = () => {
+  const on = st.act === b.dataset.act ? null : b.dataset.act
+  st.act = on; st.actUntil = 0
+  document.querySelectorAll('[data-act]').forEach((o) => o.classList.toggle('on', o.dataset.act === on))
+})
+renderer.domElement.onclick = () => { if (st.mode === 'walk' || st.mode === 'pause') { st.mode = 'wave'; st.modeT = 0 } }
+document.querySelectorAll('[data-col]').forEach((b) => b.onclick = () => {
+  document.querySelectorAll('[data-col]').forEach((o) => o.classList.toggle('on', o === b))
+  U.uColor.value.copy(COLOURS[b.dataset.col])
+  const c = COLOURS[b.dataset.col], rgb = `${Math.round(c.r * 255)},${Math.round(c.g * 255)},${Math.round(c.b * 255)}`
+  stage.style.setProperty('--glow', `rgba(${rgb},.85)`)
+  stage.style.setProperty('--glow2', `rgba(${rgb},.45)`)
+})
+document.querySelectorAll('[data-bg]').forEach((b) => b.onclick = () => {
+  document.querySelectorAll('[data-bg]').forEach((o) => o.classList.toggle('on', o === b))
+  stage.className = b.dataset.bg === 'dark' ? '' : b.dataset.bg
+})
+document.getElementById('op').oninput = (e) => { U.uOpacity.value = +e.target.value }
+window.__st = st
+window.__legs = () => [0, 1].map((i) => { const c = limbs[2 + i].geometry.parameters.path; const end = c.getPoint(1); const sh = shoes[i]; const o = V(0, 0.16, 0.1).applyQuaternion(sh.quaternion).add(sh.position); return end.distanceTo(o) })
+window.__glove = () => hands[1].quaternion
+window.__probe = () => { const c = U.uWarpC.value.clone().project(camera), k = core.position.clone().project(camera); return { centre: [c.x, c.y], light: [k.x, k.y] } }
+</script>
+</body>
+</html>
