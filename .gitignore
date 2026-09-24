@@ -49,3 +49,6 @@ next-env.d.ts
 # local session handoff notes, not for the repo
 MEMORY.md
 memory.md
+
+# Brainstorming companion mockups
+.superpowers/

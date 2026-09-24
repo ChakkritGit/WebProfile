@@ -890,7 +890,7 @@ html:not([data-hero-art='off']) [data-grid] {
 .hero-anim-twinkle { animation: hero-twinkle 4s ease-in-out infinite; will-change: opacity; }
 .hero-anim-sway { animation: hero-sway 10s ease-in-out infinite; will-change: transform; }
 .hero-anim-fall { animation: hero-fall 10s linear infinite; will-change: transform; }
-.hero-anim-kenburns { animation: hero-kenburns 30s ease-out forwards; }
+.hero-anim-kenburns { animation: hero-kenburns 30s ease-out forwards; will-change: transform; }
 
 [data-art][data-paused] * {
   animation-play-state: paused !important;

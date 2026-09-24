@@ -81,16 +81,22 @@ function Photo({ photo, thumb = false }: { photo: HeroPhoto; thumb?: boolean }) 
   }
   return (
     <div className="duotone absolute inset-0 overflow-hidden">
-      {/* eslint-disable-next-line @next/next/no-img-element -- a full-bleed
-          background from /public, already sized; the optimiser adds nothing. */}
-      <img
-        ref={thumb ? undefined : shown}
-        src={thumb ? `/hero/thumb/${photo.id}.webp` : `/hero/${photo.id}.webp`}
-        alt=""
-        onLoad={thumb ? undefined : (e) => e.currentTarget.classList.add('is-loaded')}
-        className={thumb ? 'absolute inset-0 size-full object-cover' : 'hero-photo hero-anim-kenburns absolute inset-0 size-full object-cover'}
-        style={{ objectPosition: photo.focus ?? '50% 50%' }}
-      />
+      {/* The drift is on a wrapper, not the image: the duotone's filter sits on
+          the <img>, and Chrome will not run a transform animation on the
+          compositor for an element that has a filter. On the image itself it
+          ran on the main thread and the slow zoom stepped visibly. */}
+      <div className={thumb ? 'absolute inset-0' : 'hero-anim-kenburns absolute inset-0'}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- a full-bleed
+            background from /public, already sized; the optimiser adds nothing. */}
+        <img
+          ref={thumb ? undefined : shown}
+          src={thumb ? `/hero/thumb/${photo.id}.webp` : `/hero/${photo.id}.webp`}
+          alt=""
+          onLoad={thumb ? undefined : (e) => e.currentTarget.classList.add('is-loaded')}
+          className={thumb ? 'absolute inset-0 size-full object-cover' : 'hero-photo absolute inset-0 size-full object-cover'}
+          style={{ objectPosition: photo.focus ?? '50% 50%' }}
+        />
+      </div>
     </div>
   )
 }
