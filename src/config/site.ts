@@ -42,9 +42,9 @@ export const socials = [
   { id: 'github', label: 'GitHub', href: 'https://github.com/ChakkritGit', handle: '@ChakkritGit' },
   { id: 'email', label: 'Email', href: `mailto:${profile.email}`, handle: profile.email },
   { id: 'phone', label: 'Phone', href: `tel:${profile.phone}`, handle: profile.phoneDisplay },
-  { id: 'facebook', label: 'Facebook', href: 'https://facebook.com/ton.chakkrit22', handle: 'ton.chakkrit22' },
-  { id: 'instagram', label: 'Instagram', href: 'https://instagram.com/__Konmek', handle: '@__Konmek' },
-  { id: 'tiktok', label: 'TikTok', href: 'https://tiktok.com/@__tonchakkrit', handle: '@__tonchakkrit' },
+  { id: 'facebook', label: 'Facebook', href: 'https://facebook.com/ton.chakkrit24', handle: 'ton.chakkrit24' },
+  { id: 'instagram', label: 'Instagram', href: 'https://instagram.com/tt.chktton', handle: '@tt.chktton' },
+  { id: 'tiktok', label: 'TikTok', href: 'https://tiktok.com/@tt.chktton', handle: '@tt.chktton' },
 ] as const
 
 export type SocialId = (typeof socials)[number]['id']
