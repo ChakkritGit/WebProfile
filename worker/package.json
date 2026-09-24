@@ -1,0 +1,17 @@
+{
+  "name": "mr-worldwide",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5",
+    "tsx": "^4",
+    "typescript": "^5",
+    "wrangler": "^4"
+  }
+}
