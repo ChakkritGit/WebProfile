@@ -6,7 +6,9 @@ import type { PostRecord, ProjectRecord } from '@/lib/content-types'
 
 /** RSS 2.0 feed of the articles and project write-ups, in Thai — the site's primary locale. */
 
-export const revalidate = 3600
+// Rendered per request, like the sitemap: the hourly ISR copy is what left
+// sitemap.xml a day stale on Vercel. The CDN may hold it a minute, no more.
+export const dynamic = 'force-dynamic'
 
 const FEED_LOCALE = routing.defaultLocale
 
@@ -78,7 +80,7 @@ ${entries.map(item).join('\n')}
   return new Response(xml, {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400',
+      'Cache-Control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=300',
     },
   })
 }
