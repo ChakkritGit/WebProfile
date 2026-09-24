@@ -18,7 +18,8 @@ const stub = (page) =>
 // Headful, so WebGL runs on the GPU as it does for visitors.
 const browser = await chromium.launch({ headless: false, args: ['--window-position=3000,3000'] })
 for (const [label, viewport] of [['desktop', { width: 1440, height: 900 }], ['mobile', { width: 390, height: 844 }]]) {
-  const page = await browser.newPage({ viewport })
+  const touch = label === 'mobile'
+  const page = await browser.newPage({ viewport, hasTouch: touch, isMobile: touch })
   const errors = []
   page.on('pageerror', (e) => errors.push(e.message))
   await stub(page)
@@ -34,6 +35,22 @@ for (const [label, viewport] of [['desktop', { width: 1440, height: 900 }], ['mo
   })
   ok(hit !== 'CANVAS', `${label}: the strip blocks the page (${hit})`)
 
+  if (touch) {
+    // A phone has no hover before a tap: tapping him must still open the screen.
+    const url = page.url()
+    const box = await page.evaluate(() => { const r = document.querySelector('canvas.mw-stage').getBoundingClientRect(); return { top: r.top, h: r.height } })
+    // He stands in the bottom-left corner on a phone; his globe is about here.
+    await page.touchscreen.tap(60, box.top + box.h * 0.5)
+    await page.waitForTimeout(300)
+    const opened = !!(await page.$('dialog.mw-screen[open]'))
+    ok(opened, `${label}: tapping him does not open the screen`)
+    ok(page.url() === url, `${label}: the tap went through him to the page`)
+    if (!opened) {
+      await page.close()
+      continue
+    }
+    await page.keyboard.press('Escape')
+  }
   // Open with the keyboard, ask, see a card, close with Esc, focus comes back to him.
   await page.focus('canvas.mw-stage')
   await page.keyboard.press('Enter')

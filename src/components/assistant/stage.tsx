@@ -19,6 +19,8 @@ export default function Stage({ onReady, onOpen, busy }: { onReady(e: Engine | n
   const engine = useRef<Engine | null>(null)
   const [fallback, setFallback] = useState(false)
   const [hidden, setHidden] = useState(false)
+  // The latest open(), for the listeners set up once below.
+  const openRef = useRef<() => void>(() => {})
 
   useEffect(() => {
     const el = canvas.current
@@ -48,6 +50,29 @@ export default function Stage({ onReady, onOpen, busy }: { onReady(e: Engine | n
     addEventListener('pointermove', move, { passive: true })
     document.addEventListener('pointerleave', leave)
 
+    // Touch has no hover, so the canvas is still pass-through when a finger lands
+    // on him: a tap is recognised here instead, and the click it would send to
+    // whatever lies under him is swallowed. A drag that starts on him still scrolls.
+    let tap: { x: number; y: number; t: number } | null = null
+    const swallow = (ev: MouseEvent) => {
+      ev.preventDefault()
+      ev.stopPropagation()
+    }
+    const down = (ev: PointerEvent) => {
+      tap = ev.pointerType !== 'mouse' && e.hitTest(ev.clientX, ev.clientY) ? { x: ev.clientX, y: ev.clientY, t: ev.timeStamp } : null
+    }
+    const up = (ev: PointerEvent) => {
+      if (!tap) return
+      const still = Math.hypot(ev.clientX - tap.x, ev.clientY - tap.y) < 12 && ev.timeStamp - tap.t < 600
+      tap = null
+      if (!still) return
+      addEventListener('click', swallow, { capture: true, once: true })
+      setTimeout(() => removeEventListener('click', swallow, { capture: true }), 500)
+      openRef.current()
+    }
+    addEventListener('pointerdown', down, { capture: true, passive: true })
+    addEventListener('pointerup', up, { capture: true })
+
     // Phones: out of the way while scrolling down, back when it stops.
     let lastY = scrollY, timer = 0
     const scroll = () => {
@@ -61,6 +86,8 @@ export default function Stage({ onReady, onOpen, busy }: { onReady(e: Engine | n
     return () => {
       removeEventListener('pointermove', move)
       document.removeEventListener('pointerleave', leave)
+      removeEventListener('pointerdown', down, { capture: true })
+      removeEventListener('pointerup', up, { capture: true })
       removeEventListener('scroll', scroll)
       mobile.removeEventListener('change', opts)
       reduce.removeEventListener('change', opts)
@@ -79,6 +106,9 @@ export default function Stage({ onReady, onOpen, busy }: { onReady(e: Engine | n
     engine.current?.wave()
     onOpen()
   }
+  useEffect(() => {
+    openRef.current = open
+  })
 
   if (fallback) {
     return (

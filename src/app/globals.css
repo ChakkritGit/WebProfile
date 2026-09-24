@@ -891,6 +891,12 @@ html:not([data-hero-art='off']) [data-grid] {
 .hero-anim-sway { animation: hero-sway 10s ease-in-out infinite; will-change: transform; }
 .hero-anim-fall { animation: hero-fall 10s linear infinite; will-change: transform; }
 .hero-anim-kenburns { animation: hero-kenburns 30s ease-out forwards; will-change: transform; }
+/* Firefox runs this zoom on the main thread here (it will not hand it to the
+   compositor), where it stepped against the orb and Mr. Worldwide. In Firefox the
+   picture only fades in and holds still; Chrome and Safari keep the drift. */
+@supports (-moz-appearance: none) {
+  .hero-anim-kenburns { animation: none; will-change: auto; }
+}
 
 [data-art][data-paused] * {
   animation-play-state: paused !important;
