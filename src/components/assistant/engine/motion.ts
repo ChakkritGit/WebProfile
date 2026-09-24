@@ -335,9 +335,13 @@ export function step(
   mouthHole.scale.set(0.9, Math.max(0.001, syll * 0.8), 0.25)
   mouthHole.visible = syll > 0.02
   const smile = st.mode === 'wave' ? 0.16 : act === 'think' ? THREE.MathUtils.lerp(0.1, 0.02, aw) : 0.1 - syll * 0.06
-  mouth.geometry.dispose()
-  mouth.geometry = new THREE.TubeGeometry(F.mouthCurve(0.2 + (smile - 0.1) * 0.5, smile), 16, 0.024, 6)
-  if (mouth.userData.line) (mouth.userData.line as THREE.Mesh).geometry = mouth.geometry
+  // Rebuilt only when the smile changes shape; it holds still most of the time.
+  if (Math.abs(smile - (mouth.userData.smile ?? -1)) > 0.002) {
+    mouth.userData.smile = smile
+    mouth.geometry.dispose()
+    mouth.geometry = new THREE.TubeGeometry(F.mouthCurve(0.2 + (smile - 0.1) * 0.5, smile), 16, 0.024, 6)
+    if (mouth.userData.line) (mouth.userData.line as THREE.Mesh).geometry = mouth.geometry
+  }
 
   // --- the warp. Out: crouch, hop, whirl fast into light at the top, gone.
   // In: a point of light unwinds into him, then a landing.

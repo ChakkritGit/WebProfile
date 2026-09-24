@@ -79,7 +79,7 @@ export function createEngine(canvas: HTMLCanvasElement, landUrl: string, o: Engi
   resize()
 
   const clock = new THREE.Clock()
-  let raf = 0, last = 0, visible = !document.hidden
+  let raf = 0, last = 0, full = true, visible = !document.hidden
   const onVis = () => {
     visible = !document.hidden
     if (visible) {
@@ -106,13 +106,14 @@ export function createEngine(canvas: HTMLCanvasElement, landUrl: string, o: Engi
   function loop(now: number) {
     if (!visible) return // resumed by onVis; a hidden tab costs nothing
     raf = requestAnimationFrame(loop)
+    // Idling: 30 fps is enough, and a frame not drawn is not computed either.
+    if (!full && now - last < 30) return
+    last = now
     const dt = Math.min(0.05, clock.getDelta())
     U.uTime.value = clock.elapsedTime
     st.mobile = opts.mobile
     st.reduced = opts.reducedMotion
-    const { full } = step(F, U, st, dt, clock.elapsedTime, world)
-    if (!full && now - last < 30) return // idling: 30 fps is enough
-    last = now
+    full = step(F, U, st, dt, clock.elapsedTime, world).full
     draw()
   }
   raf = requestAnimationFrame(loop)
