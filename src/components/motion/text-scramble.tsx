@@ -12,9 +12,13 @@ const NOISE = Array.from('!<>-_\\/[]{}=+*^?#%$&@01')
  * Tifinagh, Ethiopic, Armenian, Greek, Cyrillic, katakana and Braille. Nothing
  * right-to-left — a Hebrew or Arabic letter would reorder the string around it
  * mid-word. The faces the rarer scripts need are cut to exactly these
- * characters and declared in globals.css.
+ * characters and declared in globals.css. The ASCII noise is mixed in too, so
+ * a frame reads as code as much as as the world's scripts.
  */
-const WORLD = [...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(WORLD_GLYPHS)].map((g) => g.segment)
+const WORLD = [
+  ...[...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(WORLD_GLYPHS)].map((g) => g.segment),
+  ...NOISE,
+]
 
 /**
  * Split into what a reader sees as characters. `Array.from` splits by code
