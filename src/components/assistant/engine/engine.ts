@@ -35,6 +35,8 @@ export function createEngine(canvas: HTMLCanvasElement, landUrl: string, o: Engi
   const U = createUniforms(new THREE.TextureLoader().load(landUrl))
   const F = buildFigure(scene, U)
   const st = createState()
+  // He arrives the way he leaves: unwinding out of a point of light.
+  if (!o.reducedMotion) st.mode = 'in'
   let opts = { ...o }
 
   // The figure is drawn solid into this texture, then laid over the page as a hologram.
