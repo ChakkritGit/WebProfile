@@ -53,3 +53,4 @@ memory.md
 # Brainstorming companion mockups
 .superpowers/
 worker/.wrangler/
+worker/node_modules/
