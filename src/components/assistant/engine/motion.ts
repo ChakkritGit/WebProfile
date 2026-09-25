@@ -104,6 +104,8 @@ const IDLE: [ActName, number, number][] = [
 ]
 const gh = (n: number) => { const x = Math.sin(n) * 43758.5453; return x - Math.floor(x) }
 const bell = (k: number) => Math.sin(Math.PI * c01(k))
+/** Where the browse act's fist closes on the search page (x on the page's side). */
+const FIST = V(1.42, 1.9, 0.66)
 
 type Mood = { brow: number; tilt: number; lid: number; smile: number; width: number; open: number; skew: number; head: number }
 const CALM: Mood = { brow: 0, tilt: 0, lid: 0, smile: 0.1, width: 0, open: 0, skew: 0, head: 0 }
@@ -455,15 +457,17 @@ export function step(
     drum.rotation.y += (st.drumW + 0.25 * fs) * dt
     cards.forEach((c, i) => (c.rotation.x = Math.sin(t * 17 + i * 1.7) * Math.min(0.25, Math.abs(st.drumW) * 0.03)))
   }
-  // the search page: switches on like his screen (in steps), off by folding up
+  // the search page: switches on like his screen (in steps); at the end he takes
+  // hold of it and it's crushed down into his closing fist
   const browsing = act === 'browse' && aw > 0.001
   F.browser.visible = browsing
   if (browsing) {
     const T2 = st.actT
-    const on = Math.floor(c01(T2 / 0.35) * 6) / 6, off = ease(c01((T2 - 3.85) / 0.3))
-    F.browser.position.set(2.05 * fs, 2.2, 0.35)
-    F.browser.rotation.set(0, -fs * 0.32, 0)
-    F.browser.scale.set(Math.max(0.02, 1 - off), Math.max(0.02, (on < 0.4 ? 0.02 : on) * (1 - off * 0.98)), 1)
+    const on = Math.floor(c01(T2 / 0.35) * 6) / 6, off = ease(c01((T2 - 3.62) / 0.28))
+    F.browser.position.set(2.05 * fs, 2.2, 0.35).lerp(FIST.clone().setX(FIST.x * fs), off)
+    F.browser.rotation.set(0, -fs * 0.32, fs * 0.5 * off)
+    F.browser.scale.set(Math.max(0.02, 1 - off), Math.max(0.02, (on < 0.4 ? 0.02 : on) * (1 - off)), 1)
+    F.browser.visible = off < 0.97
     const typed = Math.floor(c01((T2 - 0.45) / 1.1) * F.chars.length)
     F.chars.forEach((c, i) => (c.visible = i < typed))
     F.caret.visible = T2 > 0.35 && T2 < 1.75 && Math.sin(T2 * 12) > 0
@@ -475,11 +479,13 @@ export function step(
   const typing = browsing ? ease(c01(st.actT / 0.3)) * (1 - ease(c01((st.actT - 1.8) / 0.25))) : 0
   F.keyboard.visible = typing > 0.02
   if (F.keyboard.visible) {
-    F.keyboard.position.set(0, 1.47, 1.02)
-    F.keyboard.rotation.set(0.45, 0, 0) // tipped toward you, so it reads as a keyboard
+    // laid out for him (space bar his side), near flat under his fingertips —
+    // tipped just enough that the keys don't close up into a line from the camera
+    F.keyboard.position.set(0, 1.29, 1.25)
+    F.keyboard.rotation.set(0.15, Math.PI, 0)
     F.keyboard.scale.setScalar(Math.min(1, typing * 2))
     const hit = st.actT < 1.25 ? (Math.floor(st.actT * 11) * 7) % F.keys.length : -1
-    const enter = fs > 0 ? 18 : 10 // the middle row's end key, on his pressing hand's side
+    const enter = fs > 0 ? 10 : 18 // the middle row's end key, under his pressing hand (the board is turned round)
     const down = st.actT > 1.6 && st.actT < 1.78
     F.keys.forEach((k, i) => (k.position.y = i === hit || (i === enter && down) ? 0.012 : 0.03))
   }
@@ -592,18 +598,19 @@ export function step(
         // enter: the finger lifts a little and comes down on the end key — kept
         // low over the keyboard, so the hand never rises in front of his mouth
         const lift = T < 1.52 ? ease(c01((T - 1.36) / 0.16)) : 1 - c01((T - 1.52) / 0.08) ** 2
-        const enter: Pose = { E: V(1.05 * fs, 1.45, 0.5), H: V(0.42 * fs, 1.6 + 0.07 * lift, 1.04), dir: V(0.1 * fs, -0.8, 0.6), curl: 1.25, index: true, roll: Math.PI }
+        const enter: Pose = { E: V(1.05 * fs, 1.45, 0.5), H: V(0.435 * fs, 1.645 + 0.06 * lift, 1.03), dir: V(0.1 * fs, -0.8, 0.6), curl: 1.25, index: true, roll: Math.PI } // fingertip on the key top at 0
         const line = c01((T - 2.0) / 1.4)
         const trace: Pose = { E: V(1.1 * fs, 1.55, 0.3), H: V((1.3 + 0.08 * Math.sin(line * Math.PI * 3)) * fs, 1.82 - 0.16 * line, 0.62), dir: V(0.8 * fs, 0.3, -0.2), curl: 1.25, index: true }
-        const corner = V(1.45 * fs, 1.85, 0.62)
+        // open hand up at the window, palm to it; then the fist closes and the page goes with it
+        const grab: Pose = { E: V(1.25 * fs, 1.62, 0.3), H: V(1.5 * fs, 1.95, 0.62), dir: V(0.25 * fs, 1, 0.1), curl: 0.08, roll: -fs * 1.2 }
         pose =
           side === fs
             ? keyed([
                 [0, type(side)],
                 [1.28, enter],
                 [1.85, trace],
-                [3.5, { E: V(1.2 * fs, 1.55, 0.3), H: corner, dir: V(0.3 * fs, 1, 0.25), curl: 0.1, roll: fs * 0.4 }],
-                [3.8, { E: V(1.23 * fs, 1.57, 0.3), H: corner.clone().add(V(0.06 * fs, 0.04, 0.02)), dir: V(1 * fs, 0.25, 0.1), curl: 0.2, roll: fs * 0.4 }], // the wrist sweeps it shut
+                [3.3, grab],
+                [3.62, { ...grab, H: V(FIST.x * fs, FIST.y, FIST.z), curl: 1.55 }], // squeezes shut
                 [4.1, hips],
               ], T)
             : keyed([
