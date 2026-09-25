@@ -26,6 +26,10 @@ import { PHOTOS, type HeroPhoto } from './hero-photos'
  *
  * On by default. The reader can switch it off for the page grid, and that is
  * remembered: `HeroArtScript` applies it before paint.
+ *
+ * Easter egg: typing "ton" (the keys, so a Thai layout works too) swaps the
+ * picture for Gargantua, a ray-traced black hole (`black-hole.ts`, loaded only
+ * then). "ton" again puts the picture back.
  */
 
 const KEY = 'hero-art'
@@ -118,6 +122,27 @@ let visitSeed: number | null = null
 const noSubscribe = () => () => {}
 const readSeed = () => (visitSeed ??= Math.floor(Math.random() * 2 ** 31))
 
+/** The easter egg's black hole: three.js, fetched the first time it is asked for. */
+function Gargantua({ reduce }: { reduce: boolean }) {
+  const canvas = useRef<HTMLCanvasElement>(null)
+  useEffect(() => {
+    let dispose: (() => void) | undefined
+    let gone = false
+    import('./black-hole')
+      .then(({ createBlackHole }) => {
+        if (!gone && canvas.current) dispose = createBlackHole(canvas.current, { reducedMotion: reduce })
+      })
+      .catch(() => {}) // no WebGL: the dark ground stays
+    return () => {
+      gone = true
+      dispose?.()
+    }
+  }, [reduce])
+  return <canvas ref={canvas} className="hero-art-in absolute inset-0 size-full" />
+}
+
+const TON = ['KeyT', 'KeyO', 'KeyN']
+
 /** The timelapse's pace: fast, then slowing into the final picture. */
 const BEATS = [70, 70, 70, 75, 85, 100, 125, 160, 210, 280]
 
@@ -128,7 +153,56 @@ export function HeroArt() {
   const seed = useSyncExternalStore(noSubscribe, readSeed, () => null)
   const [frame, setFrame] = useState<HeroPhoto | null>(null)
   const [settled, setSettled] = useState(false)
+  const [egg, setEgg] = useState(false)
+  // The picture being pulled into the black hole as it is born.
+  const [swallow, setSwallow] = useState(false)
   const art = useRef<HTMLDivElement>(null)
+  const eggNow = useRef(false)
+  const reduceNow = useRef(reduce)
+  useEffect(() => {
+    reduceNow.current = reduce
+  }, [reduce])
+
+  // "ton", typed anywhere but a text field, toggles the black hole.
+  useEffect(() => {
+    let at = 0
+    let swallowing: ReturnType<typeof setTimeout> | undefined
+    let quaking: ReturnType<typeof setTimeout> | undefined
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null
+      if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return
+      if (el?.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el?.tagName ?? '')) return
+      at = e.code === TON[at] ? at + 1 : e.code === TON[0] ? 1 : 0
+      if (at === 2) void import('./black-hole') // "to…": fetch it now, so the birth is on time
+      if (at < TON.length) return
+      at = 0
+      const next = !(eggNow.current && isOn())
+      if (!isOn()) {
+        // The picture was switched off: show it for this, without remembering.
+        document.documentElement.dataset.heroArt = 'on'
+        listeners.forEach((notify) => notify())
+      }
+      eggNow.current = next
+      setEgg(next)
+      clearTimeout(swallowing)
+      clearTimeout(quaking)
+      setSwallow(next && !reduceNow.current)
+      if (next) swallowing = setTimeout(() => setSwallow(false), 1100)
+      // the whole first screen shakes with the birth (see .egg-quake)
+      if (next && !reduceNow.current)
+        quaking = setTimeout(() => {
+          document.documentElement.dataset.quake = ''
+          quaking = setTimeout(() => delete document.documentElement.dataset.quake, 1300)
+        }, 950)
+    }
+    addEventListener('keydown', onKey)
+    return () => {
+      removeEventListener('keydown', onKey)
+      clearTimeout(swallowing)
+      clearTimeout(quaking)
+      delete document.documentElement.dataset.quake
+    }
+  }, [])
 
   useEffect(
     () => () => {
@@ -213,26 +287,34 @@ export function HeroArt() {
       <div
         ref={art}
         data-art
-        data-busy={entry && settled && isBusy(entry) ? '' : undefined}
+        data-busy={!egg && entry && settled && isBusy(entry) ? '' : undefined}
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[#0b0b12]"
       >
-        {frame && <Photo key={frame.id} photo={frame} thumb />}
-        {!frame && settled && entry && seed !== null && (
-          <>
-            {entry.kind === 'design' && <Drawn seed={seed} index={entry.index} />}
-            {entry.kind === 'motion' && (
-              <div className="duotone hero-art-in absolute inset-0">
-                <div data-motion className="absolute inset-0">
-                  {MOTION_DESIGNS[entry.index](random(seed))}
-                </div>
-              </div>
+        {egg && <Gargantua reduce={Boolean(reduce)} />}
+        {(!egg || swallow) && (
+          <div className={`absolute inset-0 ${swallow ? 'egg-swallow' : ''}`}>
+            {frame && <Photo key={frame.id} photo={frame} thumb />}
+            {!frame && settled && entry && seed !== null && (
+              <>
+                {entry.kind === 'design' && <Drawn seed={seed} index={entry.index} />}
+                {entry.kind === 'motion' && (
+                  <div className="duotone hero-art-in absolute inset-0">
+                    <div data-motion className="absolute inset-0">
+                      {MOTION_DESIGNS[entry.index](random(seed))}
+                    </div>
+                  </div>
+                )}
+                {entry.kind === 'photo' && <Photo photo={entry.photo} />}
+              </>
             )}
-            {entry.kind === 'photo' && <Photo photo={entry.photo} />}
-          </>
+          </div>
         )}
-        {/* A scrim under the text column, so white type reads on any design. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/10" />
+        {/* A scrim under the text column, so white type reads on any design.
+            The black hole is its own dark ground: a lighter one lets it glow. */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-r ${egg ? 'from-black/55 via-black/10 to-transparent' : 'from-black/75 via-black/45 to-black/10'}`}
+        />
       </div>
       {/* Bottom-left: the quick-contact dock owns the bottom-right corner of the
           screen, and scrolled a little it lands right over this spot. */}
@@ -246,7 +328,8 @@ export function HeroArt() {
           {on ? <ImageOff aria-hidden className="size-3.5" /> : <ImageIcon aria-hidden className="size-3.5" />}
           {t(on ? 'bgOff' : 'bgOn')}
         </button>
-        {on && photo && settled && (
+        {on && egg && <span className="min-w-0 truncate font-mono text-[0.7rem] text-white/75">{t('egg')}</span>}
+        {on && !egg && photo && settled && (
           <a
             href={photo.url}
             target="_blank"
