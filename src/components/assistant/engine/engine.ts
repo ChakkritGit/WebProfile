@@ -9,6 +9,8 @@ export interface EngineOptions {
   reducedMotion: boolean
   /** Pixels kept clear at the right edge (the quick-contact dock). */
   rightReserve: number
+  /** Off the home page: he keeps to the bottom-left corner instead of strolling over what is being read. */
+  parked?: boolean
 }
 export interface Engine {
   setAct(act: Act): void
@@ -35,6 +37,7 @@ export function createEngine(canvas: HTMLCanvasElement, landUrl: string, o: Engi
   const U = createUniforms(new THREE.TextureLoader().load(landUrl))
   const F = buildFigure(scene, U)
   const st = createState()
+  if (o.parked) st.x = -1e9 // clamped to the left edge by the first resize
   // He arrives the way he leaves: unwinding out of a point of light.
   if (!o.reducedMotion) st.mode = 'in'
   let opts = { ...o }
@@ -73,7 +76,7 @@ export function createEngine(canvas: HTMLCanvasElement, landUrl: string, o: Engi
     world.halfW = (w / 2) * unitsPerPx()
     world.minX = -world.halfW + 1.8 * scale
     world.maxX = world.halfW - 1.8 * scale - opts.rightReserve * unitsPerPx()
-    if (opts.mobile) st.x = world.minX
+    if (opts.mobile || (opts.parked && st.mode !== 'out' && st.mode !== 'in')) st.x = world.minX
     st.x = Math.min(Math.max(st.x, world.minX), world.maxX)
   }
   const ro = new ResizeObserver(resize)
@@ -114,6 +117,7 @@ export function createEngine(canvas: HTMLCanvasElement, landUrl: string, o: Engi
     const dt = Math.min(0.05, clock.getDelta())
     U.uTime.value = clock.elapsedTime
     st.mobile = opts.mobile
+    st.parked = !!opts.parked
     st.reduced = opts.reducedMotion
     full = step(F, U, st, dt, clock.elapsedTime, world).full
     draw()
@@ -165,7 +169,15 @@ export function createEngine(canvas: HTMLCanvasElement, landUrl: string, o: Engi
     },
     anchor: () => project(new THREE.Vector3(st.x, 3.2 * F.figure.scale.x + F.figure.position.y, 0)),
     setOptions: (p) => {
+      const was = opts.parked
       opts = { ...opts, ...p }
+      // Sent off the home page mid-stroll: he warps to his corner rather than jump.
+      if (opts.parked && !was && !opts.mobile && st.mode !== 'out' && st.mode !== 'in' && Math.abs(st.x - world.minX) > 0.3) {
+        st.target = world.minX
+        st.mode = 'out'
+        st.modeT = 0
+        st.v = 0
+      }
       resize()
     },
     setBusy: (busy) => {

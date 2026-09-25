@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import land from '@/assets/ai/land.png'
+import { usePathname } from '@/i18n/navigation'
 import { createEngine, type Engine } from './engine/engine'
 
 const DOCK_PX = 72 // the quick-contact dock's column at the right (quick-contact.tsx)
@@ -21,6 +22,9 @@ export default function Stage({ onReady, onOpen, busy }: { onReady(e: Engine | n
   const [hidden, setHidden] = useState(false)
   // The latest open(), for the listeners set up once below.
   const openRef = useRef<() => void>(() => {})
+  // He strolls on the home page only; elsewhere he keeps to his corner, out of the reading.
+  const home = usePathname() === '/'
+  const homeRef = useRef(home)
 
   useEffect(() => {
     const el = canvas.current
@@ -32,7 +36,7 @@ export default function Stage({ onReady, onOpen, busy }: { onReady(e: Engine | n
     }
     const mobile = matchMedia('(max-width: 639px)')
     const reduce = matchMedia('(prefers-reduced-motion: reduce)')
-    const e = createEngine(el, land.src, { mobile: mobile.matches, reducedMotion: reduce.matches, rightReserve: DOCK_PX })
+    const e = createEngine(el, land.src, { mobile: mobile.matches, reducedMotion: reduce.matches, rightReserve: DOCK_PX, parked: !homeRef.current })
     engine.current = e
     onReady(e)
     const opts = () => e.setOptions({ mobile: mobile.matches, reducedMotion: reduce.matches })
@@ -101,6 +105,10 @@ export default function Stage({ onReady, onOpen, busy }: { onReady(e: Engine | n
   }, [])
 
   useEffect(() => engine.current?.setBusy(busy), [busy])
+  useEffect(() => {
+    homeRef.current = home
+    engine.current?.setOptions({ parked: !home })
+  }, [home])
 
   const open = () => {
     engine.current?.wave()

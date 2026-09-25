@@ -38,6 +38,7 @@ export function createState() {
     busy: false,
     nextWarp: 40 + Math.random() * 50,
     mobile: false,
+    parked: false,
     reduced: false,
     actT: 0,
     nextGlance: 4 + Math.random() * 4,
@@ -174,7 +175,7 @@ export function step(
   world: { halfW: number; minX: number; maxX: number; camZ: number },
 ): { full: boolean } {
   const { figure, turn, bodyG, torso, globe, face, eyes, brows, mouth, mouthHole, hands, shoes, limbs, puddle, core, streak, ring, files, drum, cards } = F
-  const canWalk = !(st.reduced || st.mobile || st.busy)
+  const canWalk = !(st.reduced || st.mobile || st.parked || st.busy)
   st.modeT += dt
 
   // --- where he is going, and how fast
