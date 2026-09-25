@@ -588,11 +588,11 @@ export function step(
         // down on enter; follows the results line by line with a fingertip; then
         // a hand to the window's near corner and a turn of the wrist sweeps it
         // shut. Every reach is an easy one, and nothing crosses his face.
-        const type = (sd: number): Pose => ({ E: V(1.05 * sd, 1.5, 0.5), H: V(0.36 * sd, 1.6 + 0.05 * Math.max(0, Math.sin(T * 22 + sd * 1.6)), 0.98), dir: V(0.1 * sd, -0.55, 1), curl: 0.55 })
+        const type = (sd: number): Pose => ({ E: V(1.05 * sd, 1.5, 0.5), H: V(0.36 * sd, 1.6 + 0.05 * Math.max(0, Math.sin(T * 22 + sd * 1.6)), 0.98), dir: V(0.1 * sd, -0.55, 1), curl: 0.55, roll: Math.PI }) // palms down on the keys
         // enter: the finger lifts a little and comes down on the end key — kept
         // low over the keyboard, so the hand never rises in front of his mouth
         const lift = T < 1.52 ? ease(c01((T - 1.36) / 0.16)) : 1 - c01((T - 1.52) / 0.08) ** 2
-        const enter: Pose = { E: V(1.05 * fs, 1.45, 0.5), H: V(0.42 * fs, 1.6 + 0.07 * lift, 1.04), dir: V(0.1 * fs, -0.8, 0.6), curl: 1.25, index: true }
+        const enter: Pose = { E: V(1.05 * fs, 1.45, 0.5), H: V(0.42 * fs, 1.6 + 0.07 * lift, 1.04), dir: V(0.1 * fs, -0.8, 0.6), curl: 1.25, index: true, roll: Math.PI }
         const line = c01((T - 2.0) / 1.4)
         const trace: Pose = { E: V(1.1 * fs, 1.55, 0.3), H: V((1.3 + 0.08 * Math.sin(line * Math.PI * 3)) * fs, 1.82 - 0.16 * line, 0.62), dir: V(0.8 * fs, 0.3, -0.2), curl: 1.25, index: true }
         const corner = V(1.45 * fs, 1.85, 0.62)
