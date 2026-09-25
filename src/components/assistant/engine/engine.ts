@@ -44,7 +44,7 @@ export function createEngine(canvas: HTMLCanvasElement, landUrl: string, o: Engi
   const pass = new THREE.Mesh(
     new THREE.PlaneGeometry(2, 2),
     new THREE.ShaderMaterial({
-      uniforms: { tDraw: { value: rt.texture }, uTime: U.uTime, uOpacity: U.uOpacity, uRes: U.uRes },
+      uniforms: { tDraw: { value: rt.texture }, uTime: U.uTime, uOpacity: U.uOpacity, uRes: U.uRes, uGlitch: U.uGlitch },
       vertexShader: PASS_VERT,
       fragmentShader: PASS_FRAG,
       transparent: true,
@@ -57,7 +57,7 @@ export function createEngine(canvas: HTMLCanvasElement, landUrl: string, o: Engi
   const passCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
 
   // World units across the canvas at the figure's depth; he walks between minX and maxX.
-  const world = { halfW: 5, minX: -4, maxX: 4 }
+  const world = { halfW: 5, minX: -4, maxX: 4, camZ: camera.position.z }
   const unitsPerPx = () => (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z) / Math.max(1, canvas.clientHeight)
   function resize() {
     const w = canvas.clientWidth, h = canvas.clientHeight

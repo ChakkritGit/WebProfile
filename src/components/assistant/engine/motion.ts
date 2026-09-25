@@ -10,7 +10,7 @@ import type { Figure, Uniforms } from './figure'
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 
 export type Mode = 'walk' | 'pause' | 'wave' | 'notice' | 'act' | 'out' | 'in'
-export type ActName = 'hips' | 'think' | 'talk' | 'point'
+export type ActName = 'hips' | 'think' | 'talk' | 'point' | 'search' | 'glitch' | 'stretch' | 'dizzy' | 'hop' | 'dance' | 'browse' | 'singularity'
 
 export function createState() {
   return {
@@ -39,6 +39,13 @@ export function createState() {
     nextWarp: 40 + Math.random() * 50,
     mobile: false,
     reduced: false,
+    actT: 0,
+    nextGlance: 4 + Math.random() * 4,
+    glanceT: 0,
+    mood: { brow: 0, tilt: 0, lid: 0, smile: 0.1, width: 0, open: 0, skew: 0, head: 0 },
+    filesSide: 1,
+    drumW: 0,
+    flickF: 0,
   }
 }
 export type State = ReturnType<typeof createState>
@@ -74,7 +81,88 @@ interface Pose {
   dir: THREE.Vector3
   curl: number
   index?: boolean
+  /** How much of it, over the act's time (1 when left out). */
+  w?: number
+  /** A turn of the hand about its own length: π shows the palm up. */
+  roll?: number
 }
+
+/** The idle acts, and how long each runs (s). */
+const IDLE: [ActName, number, number][] = [
+  // act, weight, seconds
+  ['hips', 0.18, 2.6],
+  ['search', 0.16, 4.2],
+  ['think', 0.08, 2.6],
+  ['glitch', 0.12, 2.4],
+  ['stretch', 0.1, 3.0],
+  ['dizzy', 0.1, 3.4],
+  ['hop', 0.12, 1.7],
+  ['dance', 0.14, 4.2],
+  ['browse', 0.12, 4.3],
+  ['singularity', 0.12, 4.2],
+]
+const gh = (n: number) => { const x = Math.sin(n) * 43758.5453; return x - Math.floor(x) }
+const bell = (k: number) => Math.sin(Math.PI * c01(k))
+
+type Mood = { brow: number; tilt: number; lid: number; smile: number; width: number; open: number; skew: number; head: number }
+const CALM: Mood = { brow: 0, tilt: 0, lid: 0, smile: 0.1, width: 0, open: 0, skew: 0, head: 0 }
+
+/** The face through an idle act, T seconds in. */
+function actMood(act: ActName, T: number, t: number): Mood {
+  const m = CALM
+  switch (act) {
+    case 'hop':
+      return { ...m, brow: 0.08, lid: -0.5, smile: 0.2, width: 0.04, open: 0.35 * bell((T - 0.28) / 0.45) }
+    case 'dance':
+      return { ...m, brow: 0.04, lid: -0.9, smile: 0.18, width: 0.03, head: 0.05 * Math.sin(Math.PI * T * 4) }
+    case 'stretch': {
+      const a = ease(c01((T - 0.1) / 0.6)) * (1 - ease(c01((T - 1.9) / 0.5))), yawn = bell((T - 0.5) / 1.3)
+      return { ...m, brow: 0.06 * a, lid: -3.2 * yawn - 0.3 * a, smile: 0.1 - 0.08 * yawn, width: -0.08 * yawn, open: 0.95 * yawn }
+    }
+    case 'dizzy': {
+      const spinning = bell((T - 0.25) / 1.1), wob = T > 1.35 ? Math.exp(-(T - 1.35) * 1.4) : 0
+      return { ...m, brow: 0.06 * spinning, tilt: 0.9 * wob, lid: -0.25 * wob, smile: 0.05 + 0.15 * spinning, open: 0.35 * spinning, skew: 0.45 * wob * Math.sin(T * 3) }
+    }
+    case 'glitch':
+      if (T < 0.9) return { ...m, brow: 0.1, lid: 1, smile: 0.03, width: -0.06, open: 0.4 } // startled
+      if (T < 1.6) return { ...m, brow: -0.03, tilt: 0.6, smile: 0.04, skew: 0.35 } // annoyed
+      return { ...m, brow: 0.05, lid: -0.3, smile: 0.16 } // fixed it
+    case 'singularity':
+      if (T < 0.5) return { ...m, brow: 0.02, smile: 0.1 }
+      if (T < 1.4) return { ...m, brow: 0.1, lid: 0.9, open: 0.35, smile: 0.04, width: -0.05 } // whoa
+      if (T < 2.9) return { ...m, brow: 0.05, lid: 0.25, smile: 0.16, width: 0.02 } // delighted
+      if (T < 3.4) return { ...m, brow: -0.02, smile: 0.08 } // and... closed
+      return { ...m, brow: 0.03, tilt: 0.4, lid: -0.35, smile: 0.15, skew: -0.25 } // pleased with himself
+    case 'browse':
+      if (T < 1.8) return { ...m, brow: -0.02, lid: -0.1, smile: 0.06, skew: 0.2 } // typing
+      if (T < 3.2) return { ...m, brow: 0.02, smile: 0.08, head: 0.02 * Math.sin(t * 3) } // reading
+      if (T < 3.7) return { ...m, brow: 0.1, lid: 0.6, open: 0.3, smile: 0.14 } // aha
+      return { ...m, brow: 0.04, lid: -0.3, smile: 0.16 }
+    default:
+      return m
+  }
+}
+
+/** Key poses in time, each eased into the next over its first 0.18 s. */
+function keyed(keys: [number, Pose][], T: number): Pose {
+  let i = 0
+  while (i + 1 < keys.length && T >= keys[i + 1][0]) i++
+  const [t0, a] = keys[i], prev = keys[Math.max(0, i - 1)][1]
+  const k = i === 0 ? 1 : ease(c01((T - t0) / 0.18))
+  return {
+    E: prev.E.clone().lerp(a.E, k),
+    H: prev.H.clone().lerp(a.H, k),
+    dir: prev.dir.clone().lerp(a.dir, k),
+    curl: THREE.MathUtils.lerp(prev.curl, a.curl, k),
+    index: k > 0.5 ? a.index : prev.index,
+    roll: THREE.MathUtils.lerp(prev.roll ?? 0, a.roll ?? 0, k),
+  }
+}
+
+// A walking foot's place in its cycle: planted for STANCE of it (heel strike at
+// 0), swinging through the rest.
+const STANCE = 0.6
+const cyc = (a: number) => (((a / (Math.PI * 2)) % 1) + 1) % 1
 
 /** Advance one frame. `full` is false while he only idles or cruises (the loop then draws at 30 fps). */
 export function step(
@@ -83,9 +171,9 @@ export function step(
   st: State,
   dt: number,
   t: number,
-  world: { halfW: number; minX: number; maxX: number },
+  world: { halfW: number; minX: number; maxX: number; camZ: number },
 ): { full: boolean } {
-  const { figure, turn, bodyG, torso, globe, face, eyes, brows, mouth, mouthHole, hands, shoes, limbs, puddle, core, streak, ring } = F
+  const { figure, turn, bodyG, torso, globe, face, eyes, brows, mouth, mouthHole, hands, shoes, limbs, puddle, core, streak, ring, files, drum, cards } = F
   const canWalk = !(st.reduced || st.mobile || st.busy)
   st.modeT += dt
 
@@ -116,20 +204,29 @@ export function step(
     if (!st.reduced) st.nextPause -= dt
     if (st.mode === 'walk' && st.nextPause < 0) {
       st.nextPause = 8 + Math.random() * 8
-      // An idle fidget: half the time he just stands and looks about; otherwise
-      // hands on hips for a moment (the reference's own stance).
-      if (Math.random() < 0.5) {
+      // An idle fidget: stand and look about, hands on hips, a think, or a
+      // flick through the files.
+      if (Math.random() < 0.22) {
         st.mode = 'pause'
         st.modeT = 0
       } else {
-        st.act = 'hips'
-        st.actUntil = t + 2.6
+        let r = Math.random() * IDLE.reduce((a, [, w]) => a + w, 0)
+        const [name, , secs] = IDLE.find(([, w]) => (r -= w) < 0) ?? IDLE[0]
+        st.act = name
+        st.actUntil = t + secs
       }
+    }
+    // Now and then, strolling, he glances out at you.
+    st.nextGlance -= dt
+    if (st.nextGlance < 0) {
+      st.nextGlance = 5 + Math.random() * 6
+      st.glanceT = 1.4
     }
   } else if (st.mode === 'pause' && st.modeT > 2.4) {
     st.mode = 'walk'
     st.modeT = 0
   }
+  st.glanceT = Math.max(0, st.glanceT - dt)
   // Someone's pointer comes close: he stops and turns to see who it is.
   const near = !!st.cursor && Math.abs(st.cursor.x - st.x) < 2.3 && t - st.cursorAt < 1.2
   if (near && (st.mode === 'walk' || st.mode === 'pause')) {
@@ -156,56 +253,174 @@ export function step(
     st.modeT = 0
   }
   st.v += (Math.max(0, wantV) - st.v) * Math.min(1, dt * 2.6)
+  if (st.act && st.act !== st.lastAct) st.actT = 0
   if (st.act) st.lastAct = st.act
+  st.actT += dt
   st.actW += ((st.act ? 1 : 0) - st.actW) * Math.min(1, dt * 5)
   const aw = ease(c01(st.actW)), act = st.lastAct
   st.x += st.dir * st.v * dt * 1.15
-  st.ph += st.v * dt * 6.2 // cadence follows speed: no sliding feet
   const s = st.v
 
-  // --- facing: a damped spring, so the turn overshoots a touch and settles
+  // --- facing: a damped spring, so the turn overshoots a touch and settles.
+  // The camera is in perspective and he walks the width of the screen: seen
+  // from off to one side, "facing the way he walks" would show his back near
+  // the edges. The view's own angle to him is added, so what you see is right
+  // wherever he is on the screen.
   const walking = st.mode === 'walk' && canWalk
-  const facingTarget = walking ? st.dir * 1.25 : 0
+  const facingTarget = walking ? st.dir * 1.05 : 0
   st.faceV += (38 * (facingTarget - st.face) - 8.5 * st.faceV) * dt
   st.face += st.faceV * dt
-  turn.rotation.y = st.face
+  const view = Math.atan2(-st.x * figure.scale.x, world.camZ)
+  turn.rotation.y = st.face + view
   figure.position.x = st.x
 
-  // --- the body: dip on each footfall, weight over the standing leg, lean in
+  // --- the gait. Cadence follows speed; the planted foot slides back exactly
+  // as fast as he goes forward, so it stays put on the floor (no skating).
+  // Turning on the spot, he takes small steps round.
+  const turning = Math.min(1, Math.abs(st.faceV) / 3) * (1 - s)
+  st.ph += (s * 6.2 + turning * 7) * dt
   const ph = st.ph
+  const yaw = Math.max(0.45, Math.abs(Math.sin(turn.rotation.y)))
+  const A = Math.max((0.35 / yaw) * Math.min(1, s * 2.5), 0.1 * turning)
+  const uL = cyc(ph), uR = cyc(ph + Math.PI)
+  // Lowest just after each heel strike (taking the weight), highest as the legs pass.
+  const bob = -0.06 * s * 0.5 * (1 - Math.cos(4 * Math.PI * (uL - 0.3)))
+  const overL = Math.cos(2 * Math.PI * (uL - 0.3)) // +1 over the left foot, -1 over the right
   const breathe = Math.sin(t * 1.9) * 0.018 * (1 - s)
-  const bob = -0.075 * s * (0.5 + 0.5 * Math.cos(2 * ph))
-  bodyG.position.set(0.05 * s * Math.sin(ph), bob, 0)
+  bodyG.position.set(-0.045 * s * overL, bob, 0) // weight over the standing foot
   torso.position.y = 2.0 + breathe
   torso.scale.setScalar(1 + breathe * 0.4)
-  torso.rotation.set(0.1 * s, 0.09 * s * Math.sin(ph), 0.05 * s * Math.sin(ph))
+  // lean into the walk; roll over the standing foot; shoulders twist against the hips
+  torso.rotation.set(0.1 * s, -0.08 * s * Math.cos(2 * Math.PI * uL), 0.035 * s * overL)
   globe.rotation.y += dt * (0.12 + 0.35 * s)
-  // The face slides round the globe: toward the way he walks, or toward you.
+
+  // --- mood: what the face is doing, eased toward the moment's expression
   const cur = st.cursor && t - st.cursorAt < 1.2 ? st.cursor : null
-  const faceY = walking ? -st.dir * 0.55 * Math.min(1, s * 3) : cur ? THREE.MathUtils.clamp((cur.x - st.x) * 0.09, -0.5, 0.5) : 0
-  const faceX = !walking && cur ? THREE.MathUtils.clamp(-(cur.y - 2.0) * 0.07, -0.3, 0.25) : act === 'think' ? -0.12 * aw : 0
-  face.rotation.y += (faceY - face.rotation.y) * Math.min(1, dt * 5)
-  face.rotation.x += (faceX - face.rotation.x) * Math.min(1, dt * 5)
-  if (st.mode === 'pause') torso.rotation.z = Math.sin(st.modeT * 1.6) * 0.04
+  const glance = walking ? ease(c01(Math.min(st.glanceT, 1.4 - st.glanceT) / 0.3)) : 0
+  const W = { brow: 0, tilt: 0, lid: 0, smile: 0.1, width: 0, open: 0, skew: 0, head: 0 }
+  if (st.mode === 'notice') {
+    const jolt = 1 - c01((st.modeT - 0.3) / 0.35) // surprised, then curious
+    Object.assign(W, { brow: 0.1 * jolt + 0.05 * (1 - jolt), lid: 1 * jolt, open: 0.45 * jolt, smile: 0.12 - 0.1 * jolt, width: -0.06 * jolt, head: 0.1 * (1 - jolt) })
+  } else if (st.mode === 'wave') Object.assign(W, { brow: 0.06, lid: -0.4, smile: 0.18, width: 0.03 })
+  else if (st.mode === 'pause') Object.assign(W, { brow: 0.02 + Math.sin(st.modeT * 2) * 0.015, head: 0.05 * Math.sin(st.modeT * 1.3) })
+  else if (walking && glance > 0) Object.assign(W, { brow: 0.03 * glance, smile: 0.1 + 0.06 * glance })
+  if (act && aw > 0) {
+    const M: Mood =
+      act === 'search' ? { brow: -0.035, tilt: 0.9, lid: -0.15, smile: 0.03, width: -0.06, skew: 0.35, head: 0.04, open: 0 }
+      : act === 'think' ? { brow: 0.02, tilt: -0.6, lid: 0, smile: 0.03, width: -0.04, skew: -0.3, head: -0.06, open: 0 }
+      : act === 'talk' ? { brow: 0.02 + 0.03 * Math.max(0, Math.sin(t * 4.1)), tilt: 0, lid: 0.1, smile: 0.11, width: 0, skew: 0, head: 0.03 * Math.sin(t * 2.3), open: 0 }
+      : act === 'point' ? { brow: 0.05, tilt: 0, lid: 0.2, smile: 0.15, width: 0.02, skew: 0, head: 0.05, open: 0 }
+      : act === 'hips' ? { brow: 0.03, tilt: 0, lid: 0, smile: 0.13, width: 0, skew: 0, head: 0.04, open: 0 } // pleased with himself
+      : actMood(act, st.actT, t)
+    for (const k of Object.keys(M) as (keyof typeof M)[]) W[k] += (M[k] - W[k]) * aw
+  }
+  for (const k of Object.keys(W) as (keyof typeof W)[]) st.mood[k] += (W[k] - st.mood[k]) * Math.min(1, dt * 9)
+  const mood = st.mood
+  torso.rotation.z += mood.head // a tilt of the head (he is all head)
+
+  // The face slides round the globe: toward the way he walks (glancing out at
+  // you now and then), toward your pointer, toward the files he is searching.
+  const faceY =
+    walking ? -st.dir * (0.45 + 0.6 * glance) * Math.min(1, s * 3)
+    : cur ? THREE.MathUtils.clamp((cur.x - st.x) * 0.09, -0.5, 0.5)
+    : act === 'search' || act === 'browse' ? st.filesSide * 0.38 * aw
+    : 0
+  const faceX = !walking && cur ? THREE.MathUtils.clamp(-(cur.y - 2.0) * 0.07, -0.3, 0.25) : act === 'think' ? -0.12 * aw : act === 'search' ? 0.08 * aw : 0
+  face.rotation.y += (faceY - face.rotation.y) * Math.min(1, dt * 6)
+  face.rotation.x += (faceX - face.rotation.x) * Math.min(1, dt * 6)
   if (st.mode === 'wave') {
     const w = waveState(st.modeT)
     torso.rotation.z = 0.09 * w.k + 0.02 * w.amp * Math.sin(st.modeT * 11 - 1.2) // leans away, swayed by the arm
     torso.rotation.x = -0.05 * w.k // and back a little
     bodyG.position.y += 0.05 * Math.sin(c01(st.modeT / 0.3) * Math.PI) // a small bounce as it starts
   }
+  if (st.mode === 'notice') bodyG.position.y += 0.06 * Math.sin(c01(st.modeT / 0.28) * Math.PI) // a start
 
-  // --- legs: heel strike in front, toe-off behind, knee lifts through the swing
+  // --- the idle acts' whole-body moves
+  const T = st.actT
+  let jump = 0, squash = 1, toes = 0, spin = 0
+  const footUp = [0, 0], stepX = [0, 0]
+  let wob = 0
+  if (act && aw > 0.001) {
+    if (act === 'hop') {
+      // crouch, spring up with the arms thrown up, land into the knees, a little one more
+      const crouch = T < 0.22 ? ease(T / 0.22) : 1 - c01((T - 0.22) / 0.08)
+      const k = c01((T - 0.28) / 0.45), k2 = c01((T - 0.95) / 0.3)
+      jump = 1.0 * Math.sin(Math.PI * k) + 0.35 * Math.sin(Math.PI * k2)
+      squash = 1 - 0.16 * crouch + 0.08 * bell(k) - 0.13 * bell((T - 0.73) / 0.22) - 0.07 * bell((T - 1.25) / 0.18)
+      footUp[0] = footUp[1] = 0.2 * bell(k) + 0.08 * bell(k2)
+    } else if (act === 'dance') {
+      // a groove at 120 bpm: down on every beat, hips side to side, stepping out
+      const beat = T * 2
+      bodyG.position.y += -0.06 * 0.5 * (1 - Math.cos(2 * Math.PI * beat))
+      bodyG.position.x += 0.1 * Math.sin(Math.PI * beat)
+      torso.rotation.z += 0.08 * Math.sin(Math.PI * beat)
+      footUp[0] = 0.14 * Math.max(0, Math.sin(Math.PI * beat))
+      footUp[1] = 0.14 * Math.max(0, -Math.sin(Math.PI * beat))
+      stepX[0] = -0.08 * Math.max(0, Math.sin(Math.PI * beat))
+      stepX[1] = 0.08 * Math.max(0, -Math.sin(Math.PI * beat))
+    } else if (act === 'stretch') {
+      // up on the toes, reaching high, a yawn; then down again
+      const a2 = ease(c01((T - 0.1) / 0.6)) * (1 - ease(c01((T - 1.9) / 0.5)))
+      squash = 1 + 0.07 * a2
+      toes = 0.45 * a2
+      jump = 0.06 * a2
+      torso.rotation.x -= 0.1 * a2
+    } else if (act === 'dizzy') {
+      // wind up, spin twice with the arms flung out, then reel
+      squash = 1 - 0.08 * bell(T / 0.3)
+      spin = Math.PI * 4 * ease(c01((T - 0.25) / 1.1))
+      wob = T > 1.35 ? Math.exp(-(T - 1.35) * 1.4) : 0
+      torso.rotation.z += 0.16 * wob * Math.sin((T - 1.35) * 7)
+      bodyG.position.x += 0.1 * wob * Math.sin((T - 1.35) * 5)
+      footUp[0] = 0.1 * Math.max(0, Math.sin(T * 14)) * bell((T - 0.25) / 1.1)
+      footUp[1] = 0.1 * Math.max(0, -Math.sin(T * 14)) * bell((T - 0.25) / 1.1)
+    } else if (act === 'glitch') {
+      // the signal breaks up; he jumps, taps the side of his head, and it clears
+      const g = T < 0.9 ? 0.55 + 0.45 * Math.round(gh(Math.floor(T * 14))) : T < 1.6 ? 0.6 * (1 - c01((T - 0.9) / 0.7)) * Math.round(gh(Math.floor(T * 20) + 3)) : 0
+      U.uGlitch.value = g * aw
+      if (g > 0.3) bodyG.position.x += (gh(Math.floor(T * 24) + 9) - 0.5) * 0.16 * g
+      jump = 0.08 * bell(T / 0.25)
+      // his workings spill out round him: binary behind, a stack trace in front
+      F.code.draw(T) // scrolling: redrawn every frame it shows
+      const tick = Math.floor(T * 14)
+      const shown = T < 0.9 ? 0.95 : 0.95 * (1 - c01((T - 0.9) / 0.75))
+      F.code.mats.forEach((m, i) => (m.opacity = aw * shown * (0.6 + 0.4 * gh(tick * 3 + i))))
+    }
+    jump *= aw
+    squash = 1 + (squash - 1) * aw
+    toes *= aw
+    spin *= aw
+  }
+  if (act !== 'glitch' || !st.act) {
+    U.uGlitch.value *= Math.exp(-dt * 12)
+    F.code.mats.forEach((m) => (m.opacity *= Math.exp(-dt * 12)))
+  }
+  F.code.group.visible = F.code.mats[0].opacity > 0.01
+  turn.rotation.y += spin
+
+  // --- legs: heel strike, weight onto a flat foot, heel up, toe-off, swing through
   for (const side of [-1, 1]) {
-    const phi = ph + (side > 0 ? Math.PI : 0)
-    const fz = 0.42 * s * Math.sin(phi)
-    const swing = Math.max(0, Math.cos(phi))
-    const lift = 0.22 * s * Math.pow(swing, 1.5)
+    const u = side < 0 ? uL : uR
+    let fz: number, lift = 0, pitch: number
+    if (u < STANCE) {
+      const k = u / STANCE
+      fz = A * (1 - 2 * k)
+      pitch = -0.32 * (1 - ease(c01(k / 0.2))) + 0.5 * ease(c01((k - 0.6) / 0.4)) // toe up at the strike, heel up at the push
+    } else {
+      const k = (u - STANCE) / (1 - STANCE)
+      fz = A * (-1 + 2 * ease(k))
+      lift = (0.1 + 0.28 * A) * Math.pow(Math.sin(Math.PI * k), 0.8)
+      pitch = THREE.MathUtils.lerp(0.5, -0.32, ease(k)) // toes trail, then lift for the next strike
+    }
+    pitch *= Math.min(1, A / 0.25)
+    const fi = side < 0 ? 0 : 1
     const hip = V(0.27 * side, 1.18, 0)
-    const foot = V(0.33 * side, 0.1 + lift - bob, fz)
+    const foot = V(0.33 * side + stepX[fi] * aw, 0.1 + lift + footUp[fi] * aw - bob, fz)
+    pitch += toes
     // The shoe first: it rocks on the heel as it lands (toe up) and on the toe
     // as it pushes off (heel up), so whichever end is on the floor stays there.
     const shoe = shoes[side < 0 ? 0 : 1]
-    let pitch = -0.42 * s * Math.sin(phi) * (1 - swing * 0.4)
     if (act === 'think' && side > 0) pitch -= 0.3 * aw * Math.max(0, Math.sin(t * 8)) // tapping, heel down
     const rock = new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), pitch)
     const pivot = pitch < 0 ? V(0, 0, 0) : V(0, 0, 0.48)
@@ -223,14 +438,47 @@ export function step(
     F.legHose(limbs[side < 0 ? 2 : 3], new THREE.QuadraticBezierCurve3(hip, ctrl, ankle))
   }
 
-  // --- arms: against the legs, a beat behind them; wrists a beat behind that
+  // --- the files: a rolodex on whichever side has room, flicked round
+  const searching = act === 'search' ? aw : 0
+  const props = act === 'search' || act === 'browse'
+  if (props && aw > 0.001 && st.actT < 0.05) st.filesSide = st.x > (world.minX + world.maxX) / 2 ? -1 : 1
+  const fs = st.filesSide
+  const pop = act === 'search' && st.act ? backOut(c01(st.actT / 0.4)) : searching
+  files.visible = pop > 0.01
+  const FS = 1.25, FX = 2.25 * fs, FY = 1.55, FZ = 0.3
+  if (files.visible) {
+    files.position.set(FX, FY, FZ)
+    files.scale.set(pop * FS, Math.max(0.02, pop) * FS, pop * FS)
+    st.drumW *= Math.exp(-dt * 1.5)
+    drum.rotation.y += (st.drumW + 0.25 * fs) * dt
+    cards.forEach((c, i) => (c.rotation.x = Math.sin(t * 17 + i * 1.7) * Math.min(0.25, Math.abs(st.drumW) * 0.03)))
+  }
+  // the search page: switches on like his screen (in steps), off by folding up
+  const browsing = act === 'browse' && aw > 0.001
+  F.browser.visible = browsing
+  if (browsing) {
+    const T2 = st.actT
+    const on = Math.floor(c01(T2 / 0.35) * 6) / 6, off = ease(c01((T2 - 3.85) / 0.3))
+    F.browser.position.set(2.05 * fs, 2.2, 0.35)
+    F.browser.rotation.set(0, -fs * 0.32, 0)
+    F.browser.scale.set(Math.max(0.02, 1 - off), Math.max(0.02, (on < 0.4 ? 0.02 : on) * (1 - off * 0.98)), 1)
+    const typed = Math.floor(c01((T2 - 0.45) / 1.1) * F.chars.length)
+    F.chars.forEach((c, i) => (c.visible = i < typed))
+    F.caret.visible = T2 > 0.35 && T2 < 1.75 && Math.sin(T2 * 12) > 0
+    F.caret.position.x = -0.355 + typed * 0.052
+    F.rows.forEach((r, i) => (r.scale.x = Math.max(0.001, ease(c01((T2 - 1.95 - i * 0.2) / 0.28)))))
+  }
+
+  // --- arms: each swings with the opposite leg, a beat behind it, on an arc
   for (const side of [-1, 1]) {
-    const phi = ph + (side > 0 ? 0 : Math.PI) - 0.35
+    const uArm = cyc((side < 0 ? ph + Math.PI : ph) - 0.35)
+    const swing = Math.cos(2 * Math.PI * uArm) // +1 forward
     const shoulder = V(0.88 * side, 1.87, 0)
+    const hz = 0.36 * s * swing
     let hand = V(
-      (1.22 + 0.05 * Math.abs(Math.sin(phi))) * side,
-      1.23 + 0.12 * s * Math.max(0, Math.sin(phi)),
-      0.38 * s * Math.sin(phi) + 0.05 + 0.03 * Math.sin(t * 1.3 + side) * (1 - s),
+      (1.22 - 0.06 * s * Math.max(0, swing)) * side, // forward, it comes in toward the middle
+      1.23 + 0.5 * hz * hz, // a pendulum's arc
+      hz + 0.05 + 0.03 * Math.sin(t * 1.3 + side) * (1 - s),
     )
     let up: THREE.Vector3 | null = null, k = 0
     const wave = st.mode === 'wave' && side > 0
@@ -242,13 +490,13 @@ export function step(
       // Upper arm out and up, held; the forearm swings from the elbow; the
       // wrist follows a beat behind (follow-through).
       const w = waveState(st.modeT), T = st.modeT
-      const swing = 0.42 * w.amp * Math.sin(T * 11)
+      const sw = 0.42 * w.amp * Math.sin(T * 11)
       const E = V(1.42, 2.25 - w.drop, 0.22)
-      const H = E.clone().add(V(Math.sin(swing) * 0.62, Math.cos(swing) * 0.62, 0.12))
+      const H = E.clone().add(V(Math.sin(sw) * 0.62, Math.cos(sw) * 0.62, 0.12))
       elbow = elbow.lerp(E, w.k)
       hand = hand.lerp(H, w.k)
       const wrist = 0.35 * w.amp * Math.sin(T * 11 - 0.7)
-      up = V(Math.sin(swing + wrist), Math.cos(swing + wrist), 0.15).normalize()
+      up = V(Math.sin(sw + wrist), Math.cos(sw + wrist), 0.15).normalize()
       k = c01(w.k)
     }
     // Acts: whole-arm poses blended in over the walk. Each gives an elbow, a hand,
@@ -267,46 +515,144 @@ export function step(
         pose = side > 0
           ? { E: shoulder.clone().add(d.clone().multiplyScalar(0.55)), H: shoulder.clone().add(d.clone().multiplyScalar(1.12)), dir: d, curl: 1.4, index: true }
           : hips
+      } else if (act === 'search') {
+        if (side === fs) {
+          // Leafing through a rolodex, as in the reference: the arm out level
+          // with it, the index finger pointing along its face; the tip rides the
+          // round front of the cards (never into them), pushing them his way;
+          // it lifts off, comes back, and goes again.
+          const T2 = Math.max(0, st.actT - 0.45), f = cyc(((T2 / 1.3) % 1) * Math.PI * 2)
+          const R = 0.71 * FS, mid = FY + 0.02
+          const along = (u: number) => {
+            // a point on the drum's front, u from its near side (0) to past the middle (1)
+            const dx = THREE.MathUtils.lerp(-0.62, 0.28, u) * R
+            return V(FX + fs * dx, mid, FZ + Math.sqrt(Math.max(0, R * R - dx * dx)) + 0.05)
+          }
+          const tip =
+            f < 0.25 ? along(0).add(V(0, 0, 0.18 * (1 - ease(f / 0.25))))
+            : f < 0.45 ? along(ease((f - 0.25) / 0.2))
+            : along(1 - ease((f - 0.45) / 0.55)).add(V(0, 0.06 * bell((f - 0.45) / 0.55), 0.2 * bell((f - 0.45) / 0.55)))
+          if (st.actT > 0.45 && f >= 0.35 && st.flickF < 0.35) st.drumW += 7 * fs // the flick: the front goes his way
+          st.flickF = f
+          const d = V(fs, 0.05, -0.25).normalize() // along the face, a touch in toward it
+          const H = tip.clone().sub(d.clone().multiplyScalar(0.36)) // the hand, a finger's length back from the tip
+          pose = { E: shoulder.clone().lerp(H, 0.5).add(V(0, -0.08, 0.05)), H, dir: d, curl: 1.3, index: true, roll: -fs * Math.PI / 2 }
+        } else pose = hips
+      } else if (act === 'hop') {
+        const upW = Math.min(1, 1.3 * (bell((T - 0.28) / 0.45) + 0.6 * bell((T - 0.95) / 0.3)))
+        pose = { E: V(1.25 * side, 2.45, 0.1), H: V(1.4 * side, 3.0, 0.2), dir: V(0.2 * side, 1, 0.1), curl: 0.15, w: upW }
+      } else if (act === 'dance') {
+        if (side > 0) {
+          // disco: up to the corner, down across, on the beat
+          const k = ease(0.5 + 0.5 * Math.sin(Math.PI * T * 2))
+          pose = { E: V(1.2, 2.2, 0.3), H: V(0.6, 1.2, 0.6).lerp(V(1.6, 3.0, 0.3), k), dir: V(-0.4, -1, 0.3).lerp(V(0.45, 1, 0.2), k), curl: 1.3, index: true }
+        } else pose = { E: V(-1.3, 1.5, 0.3), H: V(-0.75, 1.7 + 0.12 * Math.sin(4 * Math.PI * T), 0.75), dir: V(0.3, 0.4, 0.9), curl: 1.2 }
+      } else if (act === 'stretch') {
+        const a2 = ease(c01((T - 0.1) / 0.6)) * (1 - ease(c01((T - 1.9) / 0.5)))
+        pose = { E: V(0.8 * side, 2.75, -0.05), H: V(0.32 * side, 3.4, 0), dir: V(0, 1, 0), curl: 0.35, w: a2 }
+      } else if (act === 'dizzy') {
+        pose = { E: V(1.3 * side, 1.95, 0.05), H: V(1.8 * side, 1.95 + 0.1 * Math.sin(T * 9 + side), 0.15), dir: V(side, 0.1, 0), curl: 0.15, w: bell((T - 0.2) / 1.25) }
+      } else if (act === 'glitch') {
+        if (side > 0) {
+          // taps the side of his head, like a set on the blink
+          const tap = T > 0.9 && T < 1.6 ? 0.07 * Math.abs(Math.sin((T - 0.9) * 14)) : 0
+          pose = { E: V(1.05, 2.55, 0.4), H: V(0.66, 2.95 + tap, 0.55), dir: V(-0.45, -1, 0.1), curl: 0.55, w: c01((T - 0.75) / 0.2) * (1 - c01((T - 1.75) / 0.25)) }
+        } else pose = { E: V(-1.25, 1.7, 0.25), H: V(-1.35, 2.05, 0.45), dir: V(-0.3, 0.6, 0.7), curl: 0.1, w: bell(T / 0.9) } // startled
+      } else if (act === 'singularity') {
+        // opens his hand, palm up; the hole comes and goes above it; he closes on it
+        // fingers out to his side, palm turned up (so you see the open hand side-on)
+        const palm: Pose = { E: V(1.3, 1.45, 0.3), H: V(1.55, 1.3, 0.6), dir: V(1, 0.12, 0.2), curl: 0.03 + 0.08 * Math.max(0, Math.sin(T * 23)) * bell((T - 0.9) / 2), roll: Math.PI / 2 }
+        pose =
+          side > 0
+            ? keyed([
+                [0, palm],
+                [2.9, { ...palm, curl: 1.55 }],
+                [3.45, { E: V(1.2, 1.45, 0.2), H: V(1.12, 1.28, 0.42), dir: V(0, -1, 0.3), curl: 0.5 }],
+              ], T)
+            : { E: V(-1.2, 1.55, 0.2), H: V(-1.12, 1.25, 0.35), dir: V(0.2, -1, 0.3), curl: 0.3 }
+        if (side > 0) face.rotation.y += (0.3 * aw - face.rotation.y) * Math.min(1, dt * 4) // turned to it
+      } else if (act === 'browse') {
+        const type = (sd: number): Pose => ({ E: V(1.1 * sd, 1.45, 0.55), H: V(0.42 * sd, 1.62 + 0.045 * Math.max(0, Math.sin(T * 22 + sd * 1.6)), 0.95), dir: V(0, -0.5, 1), curl: 0.55 })
+        const bx = 2.05 * fs
+        pose =
+          side === fs
+            ? keyed([
+                [0, type(side)],
+                [1.62, { E: V(1.2 * fs, 1.85, 0.35), H: V(bx - 0.62 * fs, 2.2, 0.62), dir: V(0.9 * fs, 0.05, 0.3), curl: 1.25, index: true }], // enter
+                [1.9, hips],
+                [3.55, { E: V(1.35 * fs, 2.1, 0.35), H: V(bx - 0.4 * fs, 2.35, 0.7), dir: V(0.5 * fs, 0.7, 0.4), curl: 0.1 }],
+                [3.8, { E: V(1.5 * fs, 2.05, 0.35), H: V(bx + 0.5 * fs, 2.2, 0.7), dir: V(0.8 * fs, 0.4, 0.3), curl: 0.1 }], // swipes it shut
+                [4.1, hips],
+              ], T)
+            : keyed([
+                [0, type(side)],
+                [1.62, hips],
+                [1.9, { E: V(1.0 * side, 1.0, 0.75), H: V(0.3 * side, 1.2, 1.02), dir: V(-0.2 * side, 0.9, 0.35), curl: 1.05 }], // chin in hand, reading
+                [3.5, hips],
+              ], T)
       }
     }
+    const pw = pose ? aw * (pose.w ?? 1) : 0
     if (pose) {
-      elbow = elbow.lerp(pose.E, aw)
-      hand = hand.lerp(pose.H, aw)
+      elbow = elbow.lerp(pose.E, pw)
+      hand = hand.lerp(pose.H, pw)
     }
     F.hose(limbs[side < 0 ? 0 : 1], [shoulder, elbow, hand], 0.07)
     const g = hands[side < 0 ? 0 : 1]
     g.position.copy(hand)
     // Two whole orientations, blended by rotation (slerp): hanging — palm to the
     // thigh, thumb forward, wrist trailing the swing — and waving, palm to you.
-    const qRest = handFrame(restDir).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0.35 * s * Math.sin(phi - 0.5), -side * 1.25, 0, 'YXZ')))
+    const drag = -Math.sin(2 * Math.PI * uArm) * s // the swing's velocity: the wrist trails it
+    const qRest = handFrame(restDir).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0.3 * drag, -side * 1.25, 0, 'YXZ')))
     g.quaternion.copy(up ? qRest.slerp(handFrame(up), k) : qRest)
-    if (pose) g.quaternion.slerp(handFrame(pose.dir.clone().normalize()), aw)
+    if (pose) g.quaternion.slerp(handFrame(pose.dir.clone().normalize()).multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), pose.roll ?? 0)), pw)
+    if (side > 0) {
+      // the palm's black hole: over the open hand, sized by how open it still is
+      const T2 = st.actT
+      const grow = act === 'singularity' && aw > 0.01 ? backOut(c01((T2 - 0.5) / 0.45)) * (1 - ease(c01((T2 - 2.9) / 0.25))) * (1 + 0.03 * Math.sin(T2 * 20)) : 0
+      F.hole.visible = grow > 0.01
+      F.hole.material.uniforms.uGrow.value = grow * 1.35
+      F.hole.position.copy(hand).add(V(0.3, 0.72, 0.12))
+    }
     const open = wave ? waveState(st.modeT).k : 0
     // At rest a hand is open and loose: fingers together and gently curved, the
-    // little finger a touch more, moving a little with the swing.
-    const rest = 0.22 + 0.06 * Math.sin(phi) * s + 0.03 * Math.sin(t * 0.9 + side)
+    // little finger a touch more, curling a little as the swing drags them.
+    const rest = 0.22 + 0.08 * drag + 0.03 * Math.sin(t * 0.9 + side)
     const indexI = side > 0 ? 0 : 3
     const { fingers, thumb } = g.userData as { fingers: THREE.Group[]; thumb: THREE.Group }
     fingers.forEach((f, i) => {
       let x = THREE.MathUtils.lerp(rest + (side > 0 ? 3 - i : i) * 0.05, 0.02, open)
-      if (pose) x = THREE.MathUtils.lerp(x, pose.index && i === indexI ? 0 : pose.curl + (i === indexI ? -0.15 : 0.05 * i), aw)
+      if (pose) x = THREE.MathUtils.lerp(x, pose.index && i === indexI ? 0 : pose.curl + (i === indexI ? -0.15 : 0.05 * i), pw)
       f.rotation.x = x
-      f.rotation.z = THREE.MathUtils.lerp((i - 1.5) * 0.04, (i - 1.5) * 0.2, open)
+      const spread = act === 'singularity' && side > 0 && pose ? pw * c01(1 - pose.curl * 1.5) : 0
+      f.rotation.z = THREE.MathUtils.lerp((i - 1.5) * 0.04, (i - 1.5) * 0.2, Math.max(open, spread))
     })
-    thumb.rotation.x = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.25, 0, open), pose ? (pose.curl > 0.9 ? 0.9 : 0.2) : 0.25, pose ? aw : 0)
+    thumb.rotation.x = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.25, 0, open), pose ? (pose.curl > 0.9 ? 0.9 : 0.2) : 0.25, pw)
     thumb.rotation.z = -side * THREE.MathUtils.lerp(0.45, 1.0, open)
   }
 
-  // --- eyes: saccades, blinks at random, brows that move with the mood
+  // --- eyes: saccades, blinks at random; lids, brows and mouth from the mood
   st.nextLook -= dt
   if (st.nextLook < 0) {
     st.nextLook = 0.8 + Math.random() * 2.2
     st.lookTo.set(st.mode === 'walk' ? 0.03 * st.dir + (Math.random() - 0.5) * 0.04 : (Math.random() - 0.5) * 0.09, (Math.random() - 0.5) * 0.06, 0)
     if (st.mode === 'wave') st.lookTo.set(0, 0, 0)
   }
+  if (walking && glance > 0.5) st.lookTo.set(-0.05 * st.dir, 0.01, 0) // at you
   if (!walking && cur) st.lookTo.set(THREE.MathUtils.clamp((cur.x - st.x) * 0.02, -0.07, 0.07), THREE.MathUtils.clamp((cur.y - 2.0) * 0.025, -0.05, 0.06), 0)
   if (act === 'think' && aw > 0.5) st.lookTo.set(-0.06, 0.055, 0)
   if (act === 'point' && aw > 0.5) st.lookTo.set(0.06, 0.05, 0)
+  if (act === 'singularity' && aw > 0.5 && st.actT > 0.45 && st.actT < 3.3) st.lookTo.set(0.07, -0.01, 0) // at the hole in his hand
+  if (act === 'dizzy' && aw > 0.5 && st.actT > 1.3) st.lookTo.set(0.07 * Math.cos(t * 10), 0.05 * Math.sin(t * 10), 0) // seeing stars
+  if (act === 'browse' && aw > 0.5) {
+    const T2 = st.actT
+    // at the box while typing, then line by line down the results
+    if (T2 < 1.9) st.lookTo.set(0.07 * fs, 0.03, 0)
+    else if (T2 < 3.5) st.lookTo.set(0.05 * fs + 0.025 * Math.sin(T2 * 7), 0.02 - 0.02 * ((T2 - 1.9) / 1.6), 0)
+    else st.lookTo.set(0.02 * fs, 0.01, 0)
+  }
+  // searching, the eyes follow the cards going past
+  if (act === 'search' && aw > 0.5) st.lookTo.set(0.075 * fs + 0.012 * Math.sin(t * 9), -0.015 + 0.01 * Math.sin(t * 5), 0)
   st.look.lerp(st.lookTo, Math.min(1, dt * 14))
   st.blinkT -= dt
   if (st.blinkT < 0) {
@@ -317,29 +663,30 @@ export function step(
   const shut = st.blink > 0 ? Math.sin((1 - st.blink / 0.14) * Math.PI) : 0
   eyes.forEach(({ gaze, lid, glint }) => {
     gaze.rotation.set(-st.look.y * 5, st.look.x * 6, 0)
-    lid.rotation.x = -1.25 + shut * 1.6
+    // wide open when surprised, a little shut when smiling hard or concentrating
+    lid.rotation.x = Math.min(0.35, -1.25 - mood.lid * 0.3 + shut * 1.6)
     glint.visible = shut < 0.6
   })
   const talking = act === 'talk' ? aw : 0
   const syll = talking * Math.max(0, Math.sin(t * 13) * 0.6 + Math.sin(t * 7.3) * 0.4) // uneven, like speech
-  const raise =
-    st.mode === 'wave' ? 0.07
-    : st.mode === 'notice' ? 0.06 * ease(c01(st.modeT / 0.25))
-    : st.mode === 'pause' ? 0.03 + Math.sin(st.modeT * 2) * 0.015
-    : talking * 0.02 * Math.sin(t * 4.1)
   brows.forEach(({ mesh, s: sx }) => {
-    const r = raise + (act === 'think' ? aw * (sx > 0 ? 0.07 : -0.02) : 0) // one brow up: considering
+    // tilt: one brow up, the other down (considering, concentrating)
+    const r = mood.brow + mood.tilt * (sx > 0 ? 0.06 : -0.025)
     mesh.position.copy(F.onSphere(0.26 * sx, 0.39 + r, 0.03))
     mesh.rotation.z = Math.PI / 2 - sx * (0.12 + r * 1.5)
   })
-  mouthHole.scale.set(0.9, Math.max(0.001, syll * 0.8), 0.25)
-  mouthHole.visible = syll > 0.02
-  const smile = st.mode === 'wave' ? 0.16 : act === 'think' ? THREE.MathUtils.lerp(0.1, 0.02, aw) : 0.1 - syll * 0.06
+  const open = Math.max(syll, mood.open)
+  mouthHole.scale.set(0.9 - mood.open * 0.35, Math.max(0.001, open * 0.8), 0.25)
+  mouthHole.visible = open > 0.02
+  mouth.rotation.z = mood.skew * 0.25 // a sideways, thinking mouth
+  const smile = mood.smile - syll * 0.06
+  const width = 0.2 + (smile - 0.1) * 0.5 + mood.width
   // Rebuilt only when the smile changes shape; it holds still most of the time.
-  if (Math.abs(smile - (mouth.userData.smile ?? -1)) > 0.002) {
+  if (Math.abs(smile - (mouth.userData.smile ?? -1)) > 0.003 || Math.abs(width - (mouth.userData.width ?? -1)) > 0.003) {
     mouth.userData.smile = smile
+    mouth.userData.width = width
     mouth.geometry.dispose()
-    mouth.geometry = new THREE.TubeGeometry(F.mouthCurve(0.2 + (smile - 0.1) * 0.5, smile), 16, 0.024, 6)
+    mouth.geometry = new THREE.TubeGeometry(F.mouthCurve(width, smile), 16, 0.024, 6)
     if (mouth.userData.line) (mouth.userData.line as THREE.Mesh).geometry = mouth.geometry
   }
 
@@ -391,8 +738,9 @@ export function step(
       U.uLight.value = 0
     }
   }
-  figure.position.y = hop
-  bodyG.scale.set(1 + (1 - sqY) * 0.6, sqY, 1 + (1 - sqY) * 0.6)
+  figure.position.y = hop + jump
+  const sq = sqY * squash
+  bodyG.scale.set(1 + (1 - sq) * 0.6, sq, 1 + (1 - sq) * 0.6)
   const scale = figure.scale.x
   U.uWarpC.value.set(st.x, (1.7 + hop) * scale, 0)
   // Exactly the vortex's centre, depth included: in front of it, perspective
@@ -413,5 +761,5 @@ export function step(
   puddle.material.color.copy(U.uColor.value)
 
   // Warps, waves, noticing, acts and an open chat get every frame; strolling and idling get 30 fps.
-  return { full: st.busy || (st.mode !== 'walk' && st.mode !== 'pause') }
+  return { full: st.busy || files.visible || F.browser.visible || F.hole.visible || (st.mode !== 'walk' && st.mode !== 'pause') }
 }

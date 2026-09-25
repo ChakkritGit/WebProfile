@@ -40,7 +40,7 @@ export function HologramChat({ open, onClose, engine }: { open: boolean; onClose
   useEffect(() => {
     if (!engine) return
     const last = messages.at(-1)
-    if (status === 'thinking') engine.setAct('think')
+    if (status === 'thinking') engine.setAct('search') // flicking through the site's files
     else if (status === 'talking') engine.setAct('talk')
     else if (open && last?.role === 'assistant' && last.cards?.length) engine.setAct('point')
     else engine.setAct(null)
