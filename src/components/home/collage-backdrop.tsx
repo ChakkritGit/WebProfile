@@ -8,6 +8,7 @@ import { DESIGNS, H, W, full, random } from './hero-designs'
 import { MOTION_DESIGNS } from './hero-motion'
 import { PHOTOS, type HeroPhoto } from './hero-photos'
 import type { Picture } from './black-hole'
+import { TON_EVENT, TON_HASH } from '@/lib/easter-egg'
 
 /**
  * The picture behind the first screen, a new one every time the page is
@@ -193,6 +194,7 @@ export function HeroArt() {
   // first frame has the same picture ('hold'), or fades as it is born ('fade').
   const [cover, setCover] = useState<'hold' | 'fade' | null>(null)
   const [picture, setPicture] = useState<Picture | null>(null)
+  const [run, setRun] = useState(0)
   const art = useRef<HTMLDivElement>(null)
   const eggNow = useRef(false)
   const quaking = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -219,7 +221,9 @@ export function HeroArt() {
       if (at === 2) void import('./black-hole') // "to…": fetch it now, so the birth is on time
       if (at < TON.length) return
       at = 0
-      const next = !(eggNow.current && isOn())
+      play(!(eggNow.current && isOn()))
+    }
+    const play = (next: boolean) => {
       if (!isOn()) {
         // The picture was switched off: show it for this, without remembering.
         document.documentElement.dataset.heroArt = 'on'
@@ -230,9 +234,26 @@ export function HeroArt() {
       setPicture(still)
       setCover(next && !reduceNow.current ? (still ? 'hold' : 'fade') : null)
       setEgg(next)
+      if (next) setRun((n) => n + 1) // asked again while it plays: from the start
     }
+    // From Mr. Worldwide's chat: back up to the hero first if it is out of sight.
+    let later: ReturnType<typeof setTimeout> | undefined
+    const fromChat = (e: Event) => {
+      e.preventDefault()
+      const away = (art.current?.getBoundingClientRect().bottom ?? 0) < innerHeight * 0.4
+      if (away) scrollTo({ top: 0, behavior: 'smooth' })
+      later = setTimeout(() => play(true), away ? 700 : 0)
+    }
+    if (location.hash === TON_HASH)
+      later = setTimeout(() => {
+        history.replaceState(null, '', location.pathname + location.search)
+        play(true)
+      }, 500)
     addEventListener('keydown', onKey)
+    addEventListener(TON_EVENT, fromChat)
     return () => {
+      clearTimeout(later)
+      removeEventListener(TON_EVENT, fromChat)
       removeEventListener('keydown', onKey)
       clearTimeout(quaking.current)
       delete document.documentElement.dataset.quake
@@ -328,6 +349,7 @@ export function HeroArt() {
       >
         {egg && (
           <Gargantua
+            key={run}
             reduce={Boolean(reduce)}
             picture={picture}
             onReady={() => setCover((c) => (c === 'hold' ? null : c))}

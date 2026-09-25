@@ -144,43 +144,82 @@ void main() {
 const PULL = /* glsl */ `
 uniform sampler2D tDiffuse;
 uniform sampler2D uPic;
-uniform float uSuck, uAspect, uPicAspect, uScale;
+uniform float uT, uBirth, uAspect, uPicAspect, uScale;
 uniform vec2 uFocus;
 varying vec2 vUv;
 float h1(float n) { return fract(sin(n) * 43758.5453); }
-float vnoise(float x) { float i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f); return mix(h1(i), h1(i + 1.0), f); }
+// noise round the circle in n cells, so there is no seam where the angle wraps
+float pnoise(float a, float n) {
+  float x = (a / 6.2831853 + 0.5) * n, i = floor(x), f = fract(x);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(h1(mod(i, n)), h1(mod(i + 1.0, n)), f);
+}
 // object-fit: cover, at the picture's object-position and its drift's scale
 vec4 pic(vec2 s) {
   s = (s - 0.5) / uScale + 0.5;
   vec2 win = uAspect > uPicAspect ? vec2(1.0, uPicAspect / uAspect) : vec2(uAspect / uPicAspect, 1.0);
   vec2 uv = (1.0 - win) * vec2(uFocus.x, 1.0 - uFocus.y) + s * win;
-  float inside = step(0.0, s.x) * step(s.x, 1.0) * step(0.0, s.y) * step(s.y, 1.0);
+  // soft edges, so the picture's border falling in is not a hard line across the screen
+  vec2 e = smoothstep(0.0, 0.04, s) * smoothstep(0.0, 0.04, 1.0 - s);
+  float inside = e.x * e.y;
   vec3 c = texture2D(uPic, uv).rgb;
   float g = clamp((dot(c, vec3(0.2126, 0.7152, 0.0722)) - 0.5) * 1.1 + 0.5, 0.0, 1.0);
   return vec4(g, g, 1.0, inside);                          // grayscale, screened with #0000ff
 }
+// Radial free fall from rest: material starting at r0 is at
+// r0 (1 - tau^2)^(2/3) after time t, tau = t / T(r0), with the fall time
+// T = k r0^1.5 (Kepler) — so it leaves slowly, speeds up, and the inside goes
+// first. For a pixel at r, find by bisection the r0 whose material is there.
+float fallenFrom(float r, float t, float k) {
+  float lo = max(r, pow(t / k, 0.6667)), hi = lo + 2.5;
+  for (int i = 0; i < 13; i++) {
+    float mid = 0.5 * (lo + hi), tau = t / (k * pow(mid, 1.5));
+    float at = mid * pow(max(1.0 - tau * tau, 0.0), 0.6667);
+    if (at < r) lo = mid; else hi = mid;
+  }
+  return 0.5 * (lo + hi);
+}
 void main() {
   vec4 base = texture2D(tDiffuse, vUv);
-  float p = uSuck;
   vec2 d = (vUv - 0.5) * vec2(uAspect, 1.0);
-  float r = length(d), a = atan(d.y, d.x);
-  // Torn into strands: each thin wedge of angle falls at its own pace.
-  float strand = vnoise(a * 40.0 + 3.0) * 0.65 + vnoise(a * 110.0 + 9.0) * 0.35;
-  float fall = p * p * (0.9 + 1.3 * strand) * (0.35 + 0.18 / (r + 0.1)); // faster near the centre: stretched
-  float wind = p * p * 2.8 / (r + 0.1);                                   // inner parts wind faster: spirals
-  vec4 acc = vec4(0.0);
-  for (int k = 0; k < 8; k++) {
-    float tt = float(k) / 7.0;                             // smeared along the flow: streaks
-    float rs = r + fall + tt * 0.12 * p;
-    float as_ = a - wind - tt * 0.25 * p / (r + 0.2);
-    vec2 s = vec2(cos(as_), sin(as_)) * rs / vec2(uAspect, 1.0) + 0.5;
-    acc += pic(s);
+  float r = max(length(d), 1e-3), a = atan(d.y, d.x);
+  // The mass is forming, so its pull switches on gradually: time runs as t²/B.
+  float t = uT * uT / uBirth;
+  // Clumps: each thin wedge falls at its own pace, which tears the picture into strands.
+  float k = uBirth * (0.8 + 0.45 * (pnoise(a, 36.0) * 0.7 + pnoise(a, 96.0) * 0.3));
+  // Each wavelength bends a little differently (dispersion), more the deeper
+  // it falls, so the strands' edges split into a rainbow.
+  float p = uT / uBirth;
+  vec3 col = vec3(0.0), cover = vec3(0.0), wsum = vec3(0.0);
+  for (int w = 0; w < 5; w++) {
+    float x = (float(w) + 0.5) / 5.0;
+    vec3 hue = clamp(vec3(abs(x * 6.0 - 3.0) - 1.0, 2.0 - abs(x * 6.0 - 2.0), 2.0 - abs(x * 6.0 - 4.0)), 0.0, 1.0);
+    float disp = (x - 0.5) * 0.65 * p;
+    for (int j = 0; j < 3; j++) {
+      float tj = t * (1.0 - 0.06 * float(j));               // a little earlier on the path: motion blur
+      float r0 = fallenFrom(r, tj, k * (1.0 + disp));
+      float ratio = r0 / r;
+      // A little angular momentum, conserved: it winds up as it closes in.
+      float a0 = a - min(0.22 * (pow(ratio, 1.5) - 1.0), 40.0) + disp * 0.9;
+      vec4 c = pic(vec2(cos(a0), sin(a0)) * r0 / vec2(uAspect, 1.0) + 0.5);
+      // Sinking: the deeper into the well, the darker — the middle caves in
+      // first — and only the very last of it, crushed, glows hot.
+      float depth = log(ratio);
+      c.rgb *= 1.0 - 0.8 * smoothstep(0.05, 1.3, depth);
+      c.rgb += vec3(1.0, 0.7, 0.45) * smoothstep(1.6, 2.6, depth) * 0.9;
+      c.a *= 1.0 - smoothstep(2.3, 3.1, depth);             // and then it is gone
+      col += hue * c.rgb * c.a;
+      cover += hue * c.a;
+      wsum += hue;
+    }
   }
-  acc /= 8.0;
-  // heated as it falls, swallowed at the centre, gone by the birth
-  acc.rgb = mix(acc.rgb, vec3(1.0, 0.86, 0.7), clamp(p * exp(-r * 7.0) * 1.6, 0.0, 1.0));
-  acc.a *= smoothstep(0.0, 0.03 + 0.12 * p * p, r) * (1.0 - smoothstep(0.82, 1.0, p));
-  gl_FragColor = vec4(mix(base.rgb, acc.rgb, acc.a), 1.0);
+  col /= wsum;
+  cover /= wsum;
+  // where the colours part, let them show: saturate the fringes
+  float grey = dot(col, vec3(0.3333));
+  col = max(mix(vec3(grey), col, 1.0 + 1.4 * length(cover - dot(cover, vec3(0.3333))) * 4.0), 0.0);
+  float fade = smoothstep(0.0, 0.025, r) * (1.0 - smoothstep(0.9, 1.0, p));
+  gl_FragColor = vec4(base.rgb * (1.0 - cover * fade) + col * fade, 1.0);
 }
 `
 
@@ -242,7 +281,8 @@ export function createBlackHole(
     uniforms: {
       tDiffuse: { value: null },
       uPic: { value: null },
-      uSuck: { value: 0 },
+      uT: { value: 0 },
+      uBirth: { value: 0 },
       uAspect: { value: 1 },
       uPicAspect: { value: 1 },
       uScale: { value: picture?.scale ?? 1 },
@@ -273,12 +313,13 @@ export function createBlackHole(
   const smooth = (x: number) => (x = clamp01(x)) * x * x * (x * (x * 6 - 15) + 10)
   let last = 0
   // The birth, in seconds from the first frame (reduced motion starts at the end).
-  const BIRTH = 1.5
+  const BIRTH = 2.2
   let born = false
   function frame(t: number) {
     uniforms.uTime.value = t
     const since = t - BIRTH
-    pull.uniforms.uSuck.value = clamp01(t / (BIRTH - 0.05))
+    pull.uniforms.uT.value = t
+    pull.uniforms.uBirth.value = BIRTH
     pull.enabled = !!pull.uniforms.uPic.value && since < 0.1
     if (since >= 0 && !born) {
       born = true

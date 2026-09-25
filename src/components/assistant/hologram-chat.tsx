@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { plain } from '@/lib/assistant-client'
+import { isTon, TON_EVENT, TON_HASH } from '@/lib/easter-egg'
+import { useRouter } from '@/i18n/navigation'
 import { useAssistant } from './use-assistant'
 import type { Engine } from './engine/engine'
 
@@ -19,6 +21,7 @@ export function HologramChat({ open, onClose, engine }: { open: boolean; onClose
   const dialog = useRef<HTMLDialogElement>(null)
   const log = useRef<HTMLDivElement>(null)
   const [draft, setDraft] = useState('')
+  const router = useRouter()
 
   useEffect(() => {
     const d = dialog.current
@@ -48,8 +51,15 @@ export function HologramChat({ open, onClose, engine }: { open: boolean; onClose
   }, [messages])
 
   const submit = (text: string) => {
-    send(text)
     setDraft('')
+    if (isTon(text)) {
+      // The easter egg, not a question: close, and let the hero play it — or
+      // go home and play it there.
+      dialog.current?.close()
+      if (dispatchEvent(new Event(TON_EVENT, { cancelable: true }))) router.push(`/${TON_HASH}`)
+      return
+    }
+    send(text)
   }
   const errorText = error && t(`err_${error.code}` as 'err_quota', { s: error.retryAfter ?? 60 })
 
