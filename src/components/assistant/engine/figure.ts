@@ -70,6 +70,9 @@ export interface Figure {
   chars: THREE.Mesh[]
   caret: THREE.Mesh
   rows: THREE.Group[]
+  /** A projected keyboard under his hands while he types the search (hidden until then). */
+  keyboard: THREE.Group
+  keys: THREE.Mesh[]
   /** A black hole to hold in his palm (a billboard; hidden until then). */
   hole: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>
   /** The glitch's error dump: code and binary behind him and in front (hidden until then). */
@@ -548,6 +551,19 @@ export function buildFigure(scene: THREE.Scene, U: Uniforms): Figure {
     back.tex.needsUpdate = front.tex.needsUpdate = true
   }
 
+  // The keyboard he types the search on: a slab of light and three rows of keys.
+  const keyboard = new THREE.Group()
+  keyboard.visible = false
+  bodyG.add(keyboard)
+  box(1.05, 0.03, 0.4, dim, 0, 0, 0, keyboard)
+  const keys: THREE.Mesh[] = []
+  for (let r = 0; r < 3; r++)
+    for (let c = 0; c < 10 - r; c++) {
+      const k = box(0.075, 0.03, 0.075, bright, -0.4 + c * 0.09 + r * 0.045, 0.03, -0.11 + r * 0.11, keyboard)
+      keys.push(k)
+    }
+  box(0.45, 0.03, 0.06, bright, 0, 0.03, 0.16, keyboard) // the space bar
+
   const hole = new THREE.Mesh(
     new THREE.PlaneGeometry(1.1, 1.1),
     new THREE.ShaderMaterial({ uniforms: { uTime: U.uTime, uGrow: { value: 0 } }, vertexShader: HOLE_VERT, fragmentShader: HOLE_FRAG, transparent: true, depthWrite: false }),
@@ -559,12 +575,13 @@ export function buildFigure(scene: THREE.Scene, U: Uniforms): Figure {
 
   hands.forEach((h) => ink(h, FINE))
   ink(browser, FINE)
+  ink(keyboard, FINE)
   ink(files, FINE)
   ink(bodyG)
   const core = spr(coreTex), streak = spr(streakTex), ring = spr(ringTex)
 
   return {
-    figure, turn, bodyG, torso, globe, face, eyes, brows, mouth, mouthHole, hands, shoes, limbs, files, drum, cards, browser, chars, caret, rows, hole, fx, puddle,
+    figure, turn, bodyG, torso, globe, face, eyes, brows, mouth, mouthHole, hands, shoes, limbs, files, drum, cards, browser, chars, caret, rows, keyboard, keys, hole, fx, puddle,
     code: { group: code, mats: [back.mat, front.mat], draw: drawCode },
     core, streak, ring, mouthCurve, onSphere, hose, legHose,
   }
