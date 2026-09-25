@@ -7,6 +7,7 @@ import { Image as ImageIcon, ImageOff } from 'lucide-react'
 import { DESIGNS, H, W, full, random } from './hero-designs'
 import { MOTION_DESIGNS } from './hero-motion'
 import { PHOTOS, type HeroPhoto } from './hero-photos'
+import type { Picture } from './black-hole'
 
 /**
  * The picture behind the first screen, a new one every time the page is
@@ -123,22 +124,56 @@ const noSubscribe = () => () => {}
 const readSeed = () => (visitSeed ??= Math.floor(Math.random() * 2 ** 31))
 
 /** The easter egg's black hole: three.js, fetched the first time it is asked for. */
-function Gargantua({ reduce }: { reduce: boolean }) {
+function Gargantua({
+  reduce,
+  picture,
+  onReady,
+  onBirth,
+}: {
+  reduce: boolean
+  picture: Picture | null
+  onReady: () => void
+  onBirth: () => void
+}) {
   const canvas = useRef<HTMLCanvasElement>(null)
+  const hooks = useRef({ picture, onReady, onBirth })
   useEffect(() => {
     let dispose: (() => void) | undefined
     let gone = false
+    const { picture, onReady, onBirth } = hooks.current
     import('./black-hole')
       .then(({ createBlackHole }) => {
-        if (!gone && canvas.current) dispose = createBlackHole(canvas.current, { reducedMotion: reduce })
+        if (!gone && canvas.current) dispose = createBlackHole(canvas.current, { reducedMotion: reduce, picture, onReady, onBirth })
       })
-      .catch(() => {}) // no WebGL: the dark ground stays
+      .catch(onBirth) // no WebGL: let the picture go; the dark ground stays
     return () => {
       gone = true
       dispose?.()
     }
   }, [reduce])
-  return <canvas ref={canvas} className="hero-art-in absolute inset-0 size-full" />
+  return <canvas ref={canvas} className="absolute inset-0 size-full" />
+}
+
+/**
+ * The picture on screen, for the black hole to tear apart: a found picture as
+ * it is drawn (source, object-position, the drift's scale), or a drawn design's
+ * SVG at its rendered size. The moving designs are live DOM and have no still;
+ * they fade instead.
+ */
+function snapshot(root: HTMLElement | null): Picture | null {
+  if (!root || root.querySelector('[data-motion]')) return null
+  const img = root.querySelector('img')
+  if (img?.complete && img.naturalWidth) {
+    const [x = '50%', y = '50%'] = (img.style.objectPosition || '50% 50%').split(' ')
+    const drift = getComputedStyle(img.parentElement!).transform
+    return { src: img.currentSrc || img.src, focus: [parseFloat(x) / 100, parseFloat(y) / 100], scale: drift === 'none' ? 1 : new DOMMatrix(drift).a }
+  }
+  const svg = root.querySelector('svg')
+  if (!svg) return null
+  const still = svg.cloneNode(true) as SVGSVGElement
+  still.setAttribute('width', String(root.clientWidth))
+  still.setAttribute('height', String(root.clientHeight))
+  return { src: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(still))}`, focus: [0.5, 0.5], scale: 1 }
 }
 
 const TON = ['KeyT', 'KeyO', 'KeyN']
@@ -154,10 +189,20 @@ export function HeroArt() {
   const [frame, setFrame] = useState<HeroPhoto | null>(null)
   const [settled, setSettled] = useState(false)
   const [egg, setEgg] = useState(false)
-  // The picture being pulled into the black hole as it is born.
-  const [swallow, setSwallow] = useState(false)
+  // While the black hole starts: the page's picture stays over it until the
+  // first frame has the same picture ('hold'), or fades as it is born ('fade').
+  const [cover, setCover] = useState<'hold' | 'fade' | null>(null)
+  const [picture, setPicture] = useState<Picture | null>(null)
   const art = useRef<HTMLDivElement>(null)
   const eggNow = useRef(false)
+  const quaking = useRef<ReturnType<typeof setTimeout>>(undefined)
+  // The whole first screen shakes with the birth (see .egg-quake).
+  const birth = () => {
+    setCover(null)
+    document.documentElement.dataset.quake = ''
+    clearTimeout(quaking.current)
+    quaking.current = setTimeout(() => delete document.documentElement.dataset.quake, 1300)
+  }
   const reduceNow = useRef(reduce)
   useEffect(() => {
     reduceNow.current = reduce
@@ -166,8 +211,6 @@ export function HeroArt() {
   // "ton", typed anywhere but a text field, toggles the black hole.
   useEffect(() => {
     let at = 0
-    let swallowing: ReturnType<typeof setTimeout> | undefined
-    let quaking: ReturnType<typeof setTimeout> | undefined
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null
       if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return
@@ -183,23 +226,15 @@ export function HeroArt() {
         listeners.forEach((notify) => notify())
       }
       eggNow.current = next
+      const still = next && !reduceNow.current ? snapshot(art.current) : null
+      setPicture(still)
+      setCover(next && !reduceNow.current ? (still ? 'hold' : 'fade') : null)
       setEgg(next)
-      clearTimeout(swallowing)
-      clearTimeout(quaking)
-      setSwallow(next && !reduceNow.current)
-      if (next) swallowing = setTimeout(() => setSwallow(false), 1100)
-      // the whole first screen shakes with the birth (see .egg-quake)
-      if (next && !reduceNow.current)
-        quaking = setTimeout(() => {
-          document.documentElement.dataset.quake = ''
-          quaking = setTimeout(() => delete document.documentElement.dataset.quake, 1300)
-        }, 950)
     }
     addEventListener('keydown', onKey)
     return () => {
       removeEventListener('keydown', onKey)
-      clearTimeout(swallowing)
-      clearTimeout(quaking)
+      clearTimeout(quaking.current)
       delete document.documentElement.dataset.quake
     }
   }, [])
@@ -291,9 +326,16 @@ export function HeroArt() {
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[#0b0b12]"
       >
-        {egg && <Gargantua reduce={Boolean(reduce)} />}
-        {(!egg || swallow) && (
-          <div className={`absolute inset-0 ${swallow ? 'egg-swallow' : ''}`}>
+        {egg && (
+          <Gargantua
+            reduce={Boolean(reduce)}
+            picture={picture}
+            onReady={() => setCover((c) => (c === 'hold' ? null : c))}
+            onBirth={birth}
+          />
+        )}
+        {(!egg || cover) && (
+          <div className={`absolute inset-0 ${cover === 'fade' ? 'egg-fade' : ''}`}>
             {frame && <Photo key={frame.id} photo={frame} thumb />}
             {!frame && settled && entry && seed !== null && (
               <>
@@ -313,7 +355,10 @@ export function HeroArt() {
         {/* A scrim under the text column, so white type reads on any design.
             The black hole is its own dark ground: a lighter one lets it glow. */}
         <div
-          className={`absolute inset-0 bg-gradient-to-r ${egg ? 'from-black/55 via-black/10 to-transparent' : 'from-black/75 via-black/45 to-black/10'}`}
+          className={`absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/10 transition-opacity duration-[2500ms] ${egg ? 'opacity-0' : ''}`}
+        />
+        <div
+          className={`absolute inset-0 bg-gradient-to-r from-black/55 via-black/10 to-transparent transition-opacity duration-[2500ms] ${egg ? '' : 'opacity-0'}`}
         />
       </div>
       {/* Bottom-left: the quick-contact dock owns the bottom-right corner of the

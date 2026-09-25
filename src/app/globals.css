@@ -824,13 +824,13 @@ html:not([data-hero-art='off']) section:has([data-art]) [data-orb] > .border-t {
   animation: hero-art-in 450ms ease;
 }
 
-/* The easter egg ("ton"): the picture is pulled, whirling, into the black hole
-   being born behind it. */
-@keyframes egg-swallow {
-  to { transform: scale(0.01) rotate(600deg); filter: brightness(2.5) blur(4px); opacity: 0; }
+/* The easter egg ("ton"): the black hole tears the picture apart itself
+   (black-hole.ts); a moving design, which has no still to hand over, fades. */
+@keyframes egg-fade {
+  to { opacity: 0; filter: brightness(1.8) blur(6px); }
 }
-.egg-swallow {
-  animation: egg-swallow 1.1s cubic-bezier(0.6, 0, 0.9, 0.35) forwards;
+.egg-fade {
+  animation: egg-fade 1.5s ease-in forwards;
 }
 /* …and the first screen shakes as it is born: the words and the orb with it. */
 @keyframes egg-quake {

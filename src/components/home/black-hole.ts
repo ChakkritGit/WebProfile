@@ -3,6 +3,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 
 /**
  * Gargantua, after Interstellar — the hero's easter egg (type "ton"). Every
@@ -12,7 +13,9 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
  * radius is 1 (horizon r = 1, photon sphere 1.5, innermost stable orbit 3).
  * Prototype and tuning panel: ../blackhole next to this repo.
  *
- * It is born on screen: a flash and a shock ring, then the mass grows from
+ * It is born on screen. First the hero's own picture is torn into strands
+ * and pulled in, whirling (spaghettification); then a flash and a shock ring,
+ * then the mass grows from
  * nothing — the stars bend more and more, the shadow opens from a point — and
  * the disk gathers from the outside in, spinning hard until it settles.
  */
@@ -135,7 +138,69 @@ void main() {
 }
 `
 
-export function createBlackHole(canvas: HTMLCanvasElement, { reducedMotion }: { reducedMotion: boolean }) {
+// The picture that was on screen, drawn in display space (after tone mapping)
+// with the page's duotone, so the hand-over from the DOM is seamless — then
+// stretched, torn and wound into the centre.
+const PULL = /* glsl */ `
+uniform sampler2D tDiffuse;
+uniform sampler2D uPic;
+uniform float uSuck, uAspect, uPicAspect, uScale;
+uniform vec2 uFocus;
+varying vec2 vUv;
+float h1(float n) { return fract(sin(n) * 43758.5453); }
+float vnoise(float x) { float i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f); return mix(h1(i), h1(i + 1.0), f); }
+// object-fit: cover, at the picture's object-position and its drift's scale
+vec4 pic(vec2 s) {
+  s = (s - 0.5) / uScale + 0.5;
+  vec2 win = uAspect > uPicAspect ? vec2(1.0, uPicAspect / uAspect) : vec2(uAspect / uPicAspect, 1.0);
+  vec2 uv = (1.0 - win) * vec2(uFocus.x, 1.0 - uFocus.y) + s * win;
+  float inside = step(0.0, s.x) * step(s.x, 1.0) * step(0.0, s.y) * step(s.y, 1.0);
+  vec3 c = texture2D(uPic, uv).rgb;
+  float g = clamp((dot(c, vec3(0.2126, 0.7152, 0.0722)) - 0.5) * 1.1 + 0.5, 0.0, 1.0);
+  return vec4(g, g, 1.0, inside);                          // grayscale, screened with #0000ff
+}
+void main() {
+  vec4 base = texture2D(tDiffuse, vUv);
+  float p = uSuck;
+  vec2 d = (vUv - 0.5) * vec2(uAspect, 1.0);
+  float r = length(d), a = atan(d.y, d.x);
+  // Torn into strands: each thin wedge of angle falls at its own pace.
+  float strand = vnoise(a * 40.0 + 3.0) * 0.65 + vnoise(a * 110.0 + 9.0) * 0.35;
+  float fall = p * p * (0.9 + 1.3 * strand) * (0.35 + 0.18 / (r + 0.1)); // faster near the centre: stretched
+  float wind = p * p * 2.8 / (r + 0.1);                                   // inner parts wind faster: spirals
+  vec4 acc = vec4(0.0);
+  for (int k = 0; k < 8; k++) {
+    float tt = float(k) / 7.0;                             // smeared along the flow: streaks
+    float rs = r + fall + tt * 0.12 * p;
+    float as_ = a - wind - tt * 0.25 * p / (r + 0.2);
+    vec2 s = vec2(cos(as_), sin(as_)) * rs / vec2(uAspect, 1.0) + 0.5;
+    acc += pic(s);
+  }
+  acc /= 8.0;
+  // heated as it falls, swallowed at the centre, gone by the birth
+  acc.rgb = mix(acc.rgb, vec3(1.0, 0.86, 0.7), clamp(p * exp(-r * 7.0) * 1.6, 0.0, 1.0));
+  acc.a *= smoothstep(0.0, 0.03 + 0.12 * p * p, r) * (1.0 - smoothstep(0.82, 1.0, p));
+  gl_FragColor = vec4(mix(base.rgb, acc.rgb, acc.a), 1.0);
+}
+`
+
+export interface Picture {
+  src: string
+  /** CSS object-position, as fractions. */
+  focus: [number, number]
+  /** The drift's current scale (Ken Burns), so the hand-over does not jump. */
+  scale: number
+}
+
+export function createBlackHole(
+  canvas: HTMLCanvasElement,
+  {
+    reducedMotion,
+    picture,
+    onReady,
+    onBirth,
+  }: { reducedMotion: boolean; picture: Picture | null; onReady?: () => void; onBirth?: () => void },
+) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' })
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 1.05
@@ -173,6 +238,21 @@ export function createBlackHole(canvas: HTMLCanvasElement, { reducedMotion }: { 
   const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.85, 0.5, 0.75)
   composer.addPass(bloom)
   composer.addPass(new OutputPass())
+  const pull = new ShaderPass({
+    uniforms: {
+      tDiffuse: { value: null },
+      uPic: { value: null },
+      uSuck: { value: 0 },
+      uAspect: { value: 1 },
+      uPicAspect: { value: 1 },
+      uScale: { value: picture?.scale ?? 1 },
+      uFocus: { value: new THREE.Vector2(...(picture?.focus ?? [0.5, 0.5])) },
+    },
+    vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: PULL,
+  })
+  pull.enabled = false
+  composer.addPass(pull)
 
   function resize() {
     const w = canvas.clientWidth, h = canvas.clientHeight
@@ -186,18 +266,26 @@ export function createBlackHole(canvas: HTMLCanvasElement, { reducedMotion }: { 
     camera.aspect = w / h
     camera.updateProjectionMatrix()
     uniforms.uRes.value.set(w * pr, h * pr)
+    pull.uniforms.uAspect.value = w / h
   }
 
   const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
   const smooth = (x: number) => (x = clamp01(x)) * x * x * (x * (x * 6 - 15) + 10)
   let last = 0
-  // The birth, in seconds from the moment it is asked for (reduced motion starts at the end).
-  const BIRTH = 1.0
+  // The birth, in seconds from the first frame (reduced motion starts at the end).
+  const BIRTH = 1.5
+  let born = false
   function frame(t: number) {
     uniforms.uTime.value = t
     const since = t - BIRTH
+    pull.uniforms.uSuck.value = clamp01(t / (BIRTH - 0.05))
+    pull.enabled = !!pull.uniforms.uPic.value && since < 0.1
+    if (since >= 0 && !born) {
+      born = true
+      onBirth?.()
+    }
     const mass = smooth(since / 3)
-    const form = smooth((t - 1.8) / 4.2)
+    const form = smooth((since - 0.8) / 4.2)
     uniforms.uMass.value = Math.max(mass, 1e-4)
     uniforms.uForm.value = form
     // spins hard while it gathers, then settles to its own pace
@@ -235,20 +323,47 @@ export function createBlackHole(canvas: HTMLCanvasElement, { reducedMotion }: { 
   let visible = true
   const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting))
   io.observe(canvas)
-  const timer = new THREE.Timer()
   const ro = new ResizeObserver(() => {
     resize()
     if (reducedMotion) frame(12)
   })
   ro.observe(canvas)
   resize()
-  if (!reducedMotion)
+  let gone = false
+  const start = () => {
+    if (gone) return
+    if (reducedMotion) {
+      frame(12)
+      onReady?.()
+      return
+    }
+    let t0 = -1
     renderer.setAnimationLoop((now) => {
-      timer.update(now)
-      if (visible && !document.hidden) frame(timer.getElapsed())
+      const first = t0 < 0
+      if (first) t0 = now
+      if (visible && !document.hidden) frame((now - t0) / 1000)
+      if (first) onReady?.()
     })
+  }
+  // The picture is loaded before the first frame, so the hand-over shows it.
+  let texture: THREE.Texture | null = null
+  if (picture && !reducedMotion)
+    new THREE.TextureLoader().load(
+      picture.src,
+      (tex) => {
+        texture = tex
+        pull.uniforms.uPic.value = tex
+        pull.uniforms.uPicAspect.value = tex.image.width / tex.image.height
+        start()
+      },
+      undefined,
+      start,
+    )
+  else start()
 
   return () => {
+    gone = true
+    texture?.dispose()
     renderer.setAnimationLoop(null)
     ro.disconnect()
     io.disconnect()
