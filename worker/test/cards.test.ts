@@ -39,3 +39,24 @@ test('a CARDS line of ids that do not exist falls back like a missing one', () =
   const named = [{ ...it('post:th:llms', 'th', 'llms'), title: 'llms.txt คืออะไร?' }]
   assert.deepEqual(chooseCards(['post:th:llms-txt-wrong'], named, 'th', { text: 'บทความนี้ดีมาก', ranked: ['post:th:llms'] }), ['post:th:llms'])
 })
+
+test('a reply that talks about topics without full titles gets the items those topics belong to', () => {
+  const site = [
+    { ...it('post:en:llms', 'en', 'llms'), kind: 'post' as const, title: 'What is llms.txt? A new standard for the AI web', tags: ['llms.txt', 'AI'] },
+    { ...it('post:en:mole', 'en', 'mole'), kind: 'post' as const, title: 'Clean macOS caches with Mole', tags: ['macOS', 'Mole'] },
+    it('project:en:smt', 'en', 'smtrack'),
+  ]
+  const text = "Let's start with the basics of llms.txt, then some macOS tips."
+  assert.deepEqual(chooseCards([], site, 'en', { text, ranked: [], question: 'ขอดูบทความทั้งหมด' }).sort(), ['post:en:llms', 'post:en:mole'])
+})
+
+test('asked for all the articles (or projects), with nothing better, the cards are the latest of them', () => {
+  const site = [
+    { ...it('post:th:a', 'th', 'a'), kind: 'post' as const },
+    { ...it('post:th:b', 'th', 'b'), kind: 'post' as const },
+    it('project:th:smt', 'th', 'smtrack'),
+  ]
+  assert.deepEqual(chooseCards([], site, 'th', { text: 'นี่คือบทความทั้งหมดครับ', ranked: [], question: 'ขอดูบทความทั้งหมด' }), ['post:th:a', 'post:th:b'])
+  assert.deepEqual(chooseCards([], site, 'th', { text: 'Here you go!', ranked: [], question: 'show me all your projects' }), ['project:th:smt'])
+  assert.deepEqual(chooseCards([], site, 'th', { text: 'Hello!', ranked: [], question: 'hello' }), [])
+})

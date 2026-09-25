@@ -21,8 +21,8 @@ function overlap(q: ReturnType<typeof terms>, field: string): number {
   return n
 }
 
-/** Items that match the question, best first: title counts most, then tags, then summary. */
-export function rank(items: Item[], query: string, lang: Lang): Item[] {
+/** Items that match the question, best first: title counts most, then tags, then summary. `min` 2 asks for a title or tag hit. */
+export function rank(items: Item[], query: string, lang: Lang, min = 1): Item[] {
   const q = terms(query)
   return items
     .map((it) => ({
@@ -33,7 +33,7 @@ export function rank(items: Item[], query: string, lang: Lang): Item[] {
         overlap(q, it.summary) +
         (it.locale === lang ? 0.25 : 0),
     }))
-    .filter((x) => x.score >= 1)
+    .filter((x) => x.score >= min)
     .sort((a, b) => b.score - a.score)
     .map((x) => x.it)
 }

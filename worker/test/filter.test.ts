@@ -27,3 +27,9 @@ test('the word "cards" inside a sentence is text, not a command', () => {
 test('a think block, even split, never reaches the reader', () => {
   assert.equal(run(['<thi', 'nk>plan</th', 'ink>Hi']).shown, 'Hi')
 })
+
+test('the blank lines an emptied think block leaves at the start are dropped', () => {
+  const f = createReplyFilter()
+  const shown = f.push('<think>\n\n</think>\n\n') + f.push('\nHello there.\n') + f.push('Bye.')
+  assert.equal(shown + f.end().text, 'Hello there.\nBye.')
+})

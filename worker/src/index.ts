@@ -73,7 +73,7 @@ export default {
       const messages = buildMessages({ items, details: details.filter((d) => d.text), history: body.messages, lang: body.lang })
       // A low temperature: he is cheerful in voice, not inventive with facts.
       const upstream = (await env.AI.run(MODEL as never, { messages, stream: true, max_tokens: 400, temperature: 0.3 } as never)) as ReadableStream<Uint8Array>
-      return new Response(toClientStream(upstream, (ids, text) => chooseCards(ids, items, body.lang, { text, ranked: picked.map((i) => i.id) })), {
+      return new Response(toClientStream(upstream, (ids, text) => chooseCards(ids, items, body.lang, { text, ranked: picked.map((i) => i.id), question })), {
         headers: { ...h, 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store' },
       })
     } catch (err) {

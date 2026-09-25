@@ -43,6 +43,14 @@ export function createReplyFilter() {
   }
 
   let pending = '' // text already free of think blocks, not yet shown
+  // Nothing shown yet: the blank lines an emptied think block leaves are dropped.
+  let started = false
+  const lead = (s: string) => {
+    if (started) return s
+    const t = s.replace(/^\s+/, '')
+    if (t) started = true
+    return t
+  }
   const mayBeCards = (line: string) => {
     const head = line.trimStart().toUpperCase()
     return head.length < TAG.length ? TAG.startsWith(head) : head.startsWith(TAG)
@@ -68,7 +76,7 @@ export function createReplyFilter() {
         shown += tail
         pending = kept
       } else pending = kept + tail
-      return shown
+      return lead(shown)
     },
     end(): { text: string; ids: string[] } {
       pending += stripThink() + (inThink ? '' : buf)
@@ -83,7 +91,7 @@ export function createReplyFilter() {
         })
         .join('\n')
       pending = ''
-      return { text, ids }
+      return { text: lead(text), ids }
     },
   }
 }
