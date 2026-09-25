@@ -132,12 +132,14 @@ export function createDebris(uniforms: { uPhase: { value: number }; uForm: { val
         p.set(Math.cos(a) * k.r, k.y, Math.sin(a) * k.r)
         d.copy(p).sub(cam)
         const L = d.length(), tc = -cam.dot(d.divideScalar(L))
-        const hid = tc > 0 && tc < L && s.copy(cam).addScaledVector(d, tc).length() < SHADOW
+        // behind the shadow it shrinks away over its edge, rather than blink out
+        const miss = tc > 0 && tc < L ? s.copy(cam).addScaledVector(d, tc).length() : Infinity
+        const shown = c01((miss - SHADOW) / 0.4)
         // far off they'd only speckle the disk; right at the lens they'd fill the frame
         const far = c01((L - 8) / 6), close = c01((L - 0.3) / 0.6)
-        const size = (1 - far * far * (3 - 2 * far)) * close * close * (3 - 2 * close) * gathered
+        const size = (1 - far * far * (3 - 2 * far)) * close * close * (3 - 2 * close) * gathered * shown
         q.setFromAxisAngle(k.axis, k.tumble * t)
-        m4.compose(p, q, hid || size <= 0 ? zero : s.copy(k.scale).multiplyScalar(size))
+        m4.compose(p, q, size <= 0 ? zero : s.copy(k.scale).multiplyScalar(size))
         rocks.setMatrixAt(i, m4)
       }
       rocks.instanceMatrix.needsUpdate = true

@@ -38,6 +38,7 @@ uniform float uPhase;   // the disk's turn, integrated (it spins fast while form
 uniform vec3 uFlash;    // birth: point glow, shock-ring radius (rad), ring glow
 uniform float uNear;    // 1 on the close shots: the dust round the camera is marched (VOL, at half size)
 uniform sampler2D uNearTex;
+uniform vec2 uNearTexel; // one of its pixels, in uv
 varying vec2 vUv;
 
 const float DISK_IN = 2.6, DISK_OUT = 14.0, DOPPLER = 0.25, GAIN = 1.0, DUST = 1.0;
@@ -105,7 +106,11 @@ vec4 dustVol(vec3 ro, vec3 rd) {
   float b = dot(ro, rd), h = b * b - (dot(ro, ro) - 7.3 * uMass * uMass);
   if (h > 0.0) { float t0 = -b - sqrt(h); if (t0 > 0.0) tMax = min(tMax, t0); }
   vec3 emit = vec3(0.0);
-  float T = 1.0, dt = tMax / 28.0, j = hash(vec3(gl_FragCoord.xy, fract(uTime) * 61.0));
+  // the march's start, dithered per pixel with interleaved gradient noise (the
+  // lattice hash lines up along rows and columns: a faint grid, scaled up) — held
+  // still, frame to frame: a dither that moves makes the dust's shadows flicker
+  vec2 fc = gl_FragCoord.xy;
+  float T = 1.0, dt = tMax / 28.0, j = fract(52.9829189 * fract(dot(fc, vec2(0.06711056, 0.00583715))));
   for (int i = 0; i < 28; i++) {
     float t = (float(i) + j) * dt;
     vec3 p = ro + rd * t;
@@ -134,17 +139,60 @@ vec4 dustVol(vec3 ro, vec3 rd) {
   return vec4(emit, T);
 }
 
+// The planet: a small world of seas, land and ice under drifting cloud, turning
+// slowly, with a thin air round its rim — lit warm by the inner disk (a soft
+// terminator, glints off the water) and from below by the disk it rides above.
+// fbm with each octave faded to its mean where it is finer than a pixel (fw: a
+// pixel's width in p's units), so a small planet turning does not shimmer
+float fbmAA(vec3 p, float fw) {
+  float v = 0.0, a = 0.5, f = 1.0;
+  for (int i = 0; i < 5; i++) { v += a * mix(noise(p * f), 0.5, smoothstep(0.3, 0.7, f * fw)); f *= 2.03; a *= 0.5; }
+  return v;
+}
+vec3 planetShade(vec3 n, vec3 v, float fw) {
+  float spin = uTime * 0.04, cs = cos(spin), sn = sin(spin);
+  vec3 lp = vec3(cs * n.x - sn * n.z, n.y, sn * n.x + cs * n.z);
+  // terrain: continents, then finer relief on them
+  float h = fbmAA(lp * 2.6 + 11.0, fw * 2.6) + 0.3 * (fbmAA(lp * 11.0 + 5.0, fw * 11.0) - 0.5);
+  float land = smoothstep(0.5 - fw, 0.53 + fw, h);
+  vec3 alb = mix(vec3(0.04, 0.08, 0.12), mix(vec3(0.3, 0.26, 0.22), vec3(0.66, 0.6, 0.52), smoothstep(0.53, 0.85, h)), land);
+  alb = mix(alb, vec3(0.86, 0.89, 0.92), smoothstep(0.7 - fw, 0.84 + fw, abs(lp.y) + 0.1 * (h - 0.5))); // ice caps
+  // relief catches the light: the normal tipped by the terrain's slope, on land
+  vec3 g = vec3(fbmAA(lp * 14.0 + 1.0, fw * 14.0), fbmAA(lp * 14.0 + 7.0, fw * 14.0), fbmAA(lp * 14.0 + 13.0, fw * 14.0)) - 0.5;
+  vec3 nb = normalize(n + (g - n * dot(g, n)) * 0.5 * land);
+  float cloud = smoothstep(0.52 - fw, 0.78 + fw, fbmAA(lp * 5.0 + vec3(uTime * 0.01, 0.0, 0.0) + 3.0, fw * 5.0) + 0.15 * (fbmAA(lp * 18.0 + 9.0, fw * 18.0) - 0.5));
+  alb = mix(alb, vec3(0.93), cloud * 0.85);
+  nb = normalize(mix(nb, n, cloud));
+  // lit by the hot inner disk, and from below by the disk it rides above
+  vec3 L = normalize(-uPlanet.xyz), L2 = vec3(0.0, -sign(uPlanet.y), 0.0);
+  vec3 sun = vec3(1.0, 0.72, 0.45) * 1.6;
+  float d1 = smoothstep(-0.15, 0.6, dot(nb, L)), d2 = max(dot(nb, L2), 0.0);
+  float spec = pow(max(dot(n, normalize(L + v)), 0.0), 60.0) * (1.0 - land) * (1.0 - cloud) * step(0.0, dot(n, L));
+  float lit = max(d1, 0.6 * d2);
+  vec3 air = vec3(0.55, 0.7, 1.0) * pow(1.0 - max(dot(n, v), 0.0), 3.0) * (0.15 + 0.85 * lit);
+  return alb * (sun * d1 + vec3(1.0, 0.62, 0.36) * (0.55 * d2 + 0.04)) + sun * spec * 0.6 + air * 0.9;
+}
+
 void main() {
   vec2 uv = (vUv - 0.5) * vec2(uRes.x / uRes.y, 1.0); // (the camera itself rolls, so the debris lines up)
   vec3 dir = normalize(uCamRot * vec3(uv * tan(uFov * 0.5) * 2.0, -1.0));
   vec3 pos = uCamPos, vel = dir;
   float h2 = dot(cross(pos, vel), cross(pos, vel));
   vec3 dir0 = dir;
-  vec4 near = uNear > 0.0 ? texture2D(uNearTex, vUv) : vec4(0.0, 0.0, 0.0, 1.0);
+  // Read soft — four bilinear taps round the pixel — or on a 2× screen its
+  // pixels, each carrying its own dither, show as a faint grid of squares.
+  vec2 k = uNearTexel * 0.75;
+  vec4 near = uNear > 0.0
+    ? 0.25 * (texture2D(uNearTex, vUv + vec2(-k.x, -k.y)) + texture2D(uNearTex, vUv + vec2(k.x, -k.y)) + texture2D(uNearTex, vUv + vec2(-k.x, k.y)) + texture2D(uNearTex, vUv + k))
+    : vec4(0.0, 0.0, 0.0, 1.0);
 
   vec3 col = vec3(0.0);
   float alpha = 0.0;
   bool escaped = false;
+  // the planet: how much of the pixel it covers, the colour and cover so far when
+  // the ray met it, and its normal and the view there
+  float pCover = 0.0, pA = 0.0; vec3 pC = vec3(0.0), pN = vec3(0.0, 1.0, 0.0), pV = pN;
+  float px = length(uPlanet.xyz - uCamPos) * tan(uFov * 0.5) * 2.0 / uRes.y, pFw = px / uPlanet.w; // a pixel, at the planet's distance
   for (int i = 0; i < STEPS; i++) {
     float r2 = dot(pos, pos), r = sqrt(r2);
     if (r < uMass) break;                                    // into the horizon
@@ -160,21 +208,31 @@ void main() {
       alpha += (1.0 - alpha) * d.a;
       if (alpha > 0.99) break;
     }
-    // a small planet, lensed like everything else
-    vec3 seg = pos - prev, oc = prev - uPlanet.xyz;
-    float a = dot(seg, seg), b = dot(oc, seg), cc = dot(oc, oc) - uPlanet.w * uPlanet.w, disc = b * b - a * cc;
-    if (disc > 0.0) {
-      float t = (-b - sqrt(disc)) / a;
-      if (t >= 0.0 && t <= 1.0) {
-        vec3 n = normalize(prev + seg * t - uPlanet.xyz);
-        float lit = max(dot(n, normalize(-uPlanet.xyz)), 0.0);
-        col += (1.0 - alpha) * (vec3(0.05, 0.045, 0.04) + vec3(1.0, 0.6, 0.3) * lit * 0.9);
-        alpha = 1.0;
+    // a small planet, lensed like everything else. A ray that enters it stops
+    // there; one that only grazes it covers part of the pixel (the edge is
+    // antialiased) — measured at each step's nearest point to it, the best kept,
+    // so the edge holds steady wherever the steps fall.
+    vec3 oc = prev - uPlanet.xyz;
+    float reach = 1.5 * dt + uPlanet.w + px; // how near a step must start to touch it
+    if (dot(oc, oc) < reach * reach) {
+      vec3 seg = pos - prev;
+      float a = dot(seg, seg), b = dot(oc, seg), cc = dot(oc, oc) - uPlanet.w * uPlanet.w, disc = b * b - a * cc;
+      float tHit = disc > 0.0 ? (-b - sqrt(disc)) / a : -1.0;
+      if (tHit >= 0.0 && tHit <= 1.0) {
+        pCover = 1.0; pA = alpha; pC = col;
+        pN = normalize(oc + seg * tHit);
+        pV = -normalize(vel);
         break;
       }
+      vec3 off = oc + seg * clamp(-b / a, 0.0, 1.0);
+      float cover = 1.0 - smoothstep(uPlanet.w - px, uPlanet.w + px, length(off));
+      if (cover > pCover) { pCover = cover; pA = alpha; pC = col; pN = normalize(off); pV = -normalize(vel); }
     }
   }
   if (escaped) col += (1.0 - alpha) * sky(normalize(vel));
+  // the planet, over whatever was behind it (shaded once, after the march: its
+  // noise inside the loop slows every pixel)
+  if (pCover > 0.0) col = pC + (1.0 - pA) * pCover * planetShade(pN, pV, pFw) + (1.0 - pCover) * (col - pC);
   col = near.rgb + near.a * col;
   // The birth: a point of light at the centre and a shock ring racing out.
   float ang0 = acos(clamp(dot(dir0, normalize(-uCamPos)), -1.0, 1.0));
@@ -316,6 +374,7 @@ export function createBlackHole(
     uFlash: { value: new THREE.Vector3() },
     uNear: { value: 0 },
     uNearTex: { value: null as THREE.Texture | null },
+    uNearTexel: { value: new THREE.Vector2(1, 1) },
   }
   const scene = new THREE.Scene()
   scene.add(
@@ -390,6 +449,7 @@ export function createBlackHole(
     pull.uniforms.uAspect.value = w / h
     debris.setPx((h * pr) / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))))
     nearRT.setSize(Math.ceil((w * pr) / 2), Math.ceil((h * pr) / 2))
+    uniforms.uNearTexel.value.set(1 / nearRT.width, 1 / nearRT.height)
     const size = renderer.getDrawingBufferSize(new THREE.Vector2())
     still.tex?.dispose()
     still.tex = new THREE.FramebufferTexture(size.x, size.y)
