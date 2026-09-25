@@ -55,6 +55,12 @@ for (const [label, viewport] of [['desktop', { width: 1440, height: 900 }], ['mo
   await page.focus('canvas.mw-stage')
   await page.keyboard.press('Enter')
   await page.waitForSelector('dialog.mw-screen[open]')
+  // The page behind the open screen stays put.
+  const y0 = await page.evaluate(() => scrollY)
+  await page.mouse.move(viewport.width - 20, 80)
+  await page.mouse.wheel(0, 600)
+  await page.waitForTimeout(400)
+  ok((await page.evaluate(() => scrollY)) === y0, `${label}: the page scrolls behind the open screen`)
   await page.fill('.mw-input input', 'Any IoT projects?')
   await page.keyboard.press('Enter')
   await page.waitForSelector('.mw-card', { timeout: 5000 })

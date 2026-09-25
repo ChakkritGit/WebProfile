@@ -945,6 +945,12 @@ html:not([data-hero-art='off']) [data-grid] {
   box-shadow: 0 0 18px rgb(255 138 61 / 0.7);
 }
 
+/* A modal <dialog> (his screen, the search) makes the page inert but leaves it
+   scrolling under the backdrop; hold it still while one is open. */
+html:has(dialog:modal) {
+  overflow: hidden;
+}
+
 /* The hologram screen he talks through (mock-up C): an amber terminal. */
 .mw-screen {
   width: min(560px, calc(100vw - 32px));
