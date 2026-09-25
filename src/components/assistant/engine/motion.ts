@@ -471,14 +471,17 @@ export function step(
     F.rows.forEach((r, i) => (r.scale.x = Math.max(0.001, ease(c01((T2 - 1.95 - i * 0.2) / 0.28)))))
   }
   // the keyboard: up while he types, a key going down under each tap
-  const typing = browsing ? bell(st.actT / 1.85) : 0
+  // (held up through the enter press; it goes only once his hand has left it)
+  const typing = browsing ? ease(c01(st.actT / 0.3)) * (1 - ease(c01((st.actT - 1.8) / 0.25))) : 0
   F.keyboard.visible = typing > 0.02
   if (F.keyboard.visible) {
     F.keyboard.position.set(0, 1.47, 1.02)
     F.keyboard.rotation.set(0.45, 0, 0) // tipped toward you, so it reads as a keyboard
-    F.keyboard.scale.set(Math.min(1, typing * 2), Math.min(1, typing * 2), Math.min(1, typing * 2))
-    const hit = Math.floor(st.actT * 11)
-    F.keys.forEach((k, i) => (k.position.y = i === (hit * 7) % F.keys.length ? 0.012 : 0.03))
+    F.keyboard.scale.setScalar(Math.min(1, typing * 2))
+    const hit = st.actT < 1.25 ? (Math.floor(st.actT * 11) * 7) % F.keys.length : -1
+    const enter = fs > 0 ? 18 : 10 // the middle row's end key, on his pressing hand's side
+    const down = st.actT > 1.6 && st.actT < 1.78
+    F.keys.forEach((k, i) => (k.position.y = i === hit || (i === enter && down) ? 0.012 : 0.03))
   }
 
   // --- arms: each swings with the opposite leg, a beat behind it, on an arc
@@ -586,8 +589,10 @@ export function step(
         // a hand to the window's near corner and a turn of the wrist sweeps it
         // shut. Every reach is an easy one, and nothing crosses his face.
         const type = (sd: number): Pose => ({ E: V(1.05 * sd, 1.5, 0.5), H: V(0.36 * sd, 1.6 + 0.05 * Math.max(0, Math.sin(T * 22 + sd * 1.6)), 0.98), dir: V(0.1 * sd, -0.55, 1), curl: 0.55 })
-        const press = bell((T - 1.45) / 0.3)
-        const enter: Pose = { E: V(1.0 * fs, 1.55, 0.45), H: V(0.5 * fs, 1.78 - 0.14 * press, 0.95), dir: V(0.05 * fs, -1, 0.35), curl: 1.25, index: true }
+        // enter: the finger lifts a little and comes down on the end key — kept
+        // low over the keyboard, so the hand never rises in front of his mouth
+        const lift = T < 1.52 ? ease(c01((T - 1.36) / 0.16)) : 1 - c01((T - 1.52) / 0.08) ** 2
+        const enter: Pose = { E: V(1.05 * fs, 1.45, 0.5), H: V(0.42 * fs, 1.6 + 0.07 * lift, 1.04), dir: V(0.1 * fs, -0.8, 0.6), curl: 1.25, index: true }
         const line = c01((T - 2.0) / 1.4)
         const trace: Pose = { E: V(1.1 * fs, 1.55, 0.3), H: V((1.3 + 0.08 * Math.sin(line * Math.PI * 3)) * fs, 1.82 - 0.16 * line, 0.62), dir: V(0.8 * fs, 0.3, -0.2), curl: 1.25, index: true }
         const corner = V(1.45 * fs, 1.85, 0.62)
@@ -595,7 +600,7 @@ export function step(
           side === fs
             ? keyed([
                 [0, type(side)],
-                [1.38, enter],
+                [1.28, enter],
                 [1.85, trace],
                 [3.5, { E: V(1.2 * fs, 1.55, 0.3), H: corner, dir: V(0.3 * fs, 1, 0.25), curl: 0.1, roll: fs * 0.4 }],
                 [3.8, { E: V(1.23 * fs, 1.57, 0.3), H: corner.clone().add(V(0.06 * fs, 0.04, 0.02)), dir: V(1 * fs, 0.25, 0.1), curl: 0.2, roll: fs * 0.4 }], // the wrist sweeps it shut
@@ -603,7 +608,7 @@ export function step(
               ], T)
             : keyed([
                 [0, type(side)],
-                [1.4, hips],
+                [1.7, hips], // rests on the keys till enter is down
               ], T)
       }
     }
