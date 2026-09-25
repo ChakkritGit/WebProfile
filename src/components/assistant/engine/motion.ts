@@ -106,6 +106,8 @@ const gh = (n: number) => { const x = Math.sin(n) * 43758.5453; return x - Math.
 const bell = (k: number) => Math.sin(Math.PI * c01(k))
 /** Where the browse act's fist closes on the search page (x on the page's side). */
 const FIST = V(1.42, 1.9, 0.66)
+/** The glitch act's head scratch: where on the globe, the way the hand rubs, where the fingers point. */
+const SCRATCH = { n: V(0.78, 0.5, 0.38).normalize(), across: V(-0.437, 0, 0.899), dir: V(-0.764, 0.526, -0.372) }
 
 type Mood = { brow: number; tilt: number; lid: number; smile: number; width: number; open: number; skew: number; head: number }
 const CALM: Mood = { brow: 0, tilt: 0, lid: 0, smile: 0.1, width: 0, open: 0, skew: 0, head: 0 }
@@ -379,7 +381,7 @@ export function step(
       footUp[0] = 0.1 * Math.max(0, Math.sin(T * 14)) * bell((T - 0.25) / 1.1)
       footUp[1] = 0.1 * Math.max(0, -Math.sin(T * 14)) * bell((T - 0.25) / 1.1)
     } else if (act === 'glitch') {
-      // the signal breaks up; he jumps, taps the side of his head, and it clears
+      // the signal breaks up; he jumps, scratches his head, and it clears
       const g = T < 0.9 ? 0.55 + 0.45 * Math.round(gh(Math.floor(T * 14))) : T < 1.6 ? 0.6 * (1 - c01((T - 0.9) / 0.7)) * Math.round(gh(Math.floor(T * 20) + 3)) : 0
       U.uGlitch.value = g * aw
       if (g > 0.3) bodyG.position.x += (gh(Math.floor(T * 24) + 9) - 0.5) * 0.16 * g
@@ -572,9 +574,12 @@ export function step(
         pose = { E: V(1.3 * side, 1.95, 0.05), H: V(1.8 * side, 1.95 + 0.1 * Math.sin(T * 9 + side), 0.15), dir: V(side, 0.1, 0), curl: 0.15, w: bell((T - 0.2) / 1.25) }
       } else if (act === 'glitch') {
         if (side > 0) {
-          // taps the side of his head, like a set on the blink
-          const tap = T > 0.9 && T < 1.6 ? 0.07 * Math.abs(Math.sin((T - 0.9) * 14)) : 0
-          pose = { E: V(1.05, 2.55, 0.4), H: V(0.66, 2.95 + tap, 0.55), dir: V(-0.45, -1, 0.1), curl: 0.55, w: c01((T - 0.75) / 0.2) * (1 - c01((T - 1.75) / 0.25)) }
+          // scratches his head: fingers curled over onto the upper side of the
+          // globe, palm to it, the hand rubbing to and fro across the curve. The
+          // wrist sits 1.27 out from the centre — there the fingertips just meet it.
+          const rub = Math.sin((T - 0.8) * 26)
+          const n = SCRATCH.n.clone().addScaledVector(SCRATCH.across, 0.12 * rub).normalize()
+          pose = { E: V(1.55, 2.2, 0.05), H: V(0, 2, 0).addScaledVector(n, 1.27), dir: SCRATCH.dir, curl: 1.0 + 0.12 * rub, roll: 1.82, w: c01((T - 0.75) / 0.2) * (1 - c01((T - 1.75) / 0.25)) }
         } else pose = { E: V(-1.25, 1.7, 0.25), H: V(-1.35, 2.05, 0.45), dir: V(-0.3, 0.6, 0.7), curl: 0.1, w: bell(T / 0.9) } // startled
       } else if (act === 'singularity') {
         // opens his hand, palm up; the hole comes and goes above it; he closes on it
