@@ -446,7 +446,8 @@ export function step(
   const fs = st.filesSide
   const pop = act === 'search' && st.act ? backOut(c01(st.actT / 0.4)) : searching
   files.visible = pop > 0.01
-  const FS = 1.25, FX = 2.25 * fs, FY = 1.55, FZ = 0.3
+  // set a little back, so the hand can rest in front of it at an arm's easy reach
+  const FS = 1.25, FX = 2.0 * fs, FY = 1.55, FZ = -0.38
   if (files.visible) {
     files.position.set(FX, FY, FZ)
     files.scale.set(pop * FS, Math.max(0.02, pop) * FS, pop * FS)
@@ -518,26 +519,23 @@ export function step(
           : hips
       } else if (act === 'search') {
         if (side === fs) {
-          // Leafing through a rolodex, as in the reference: the arm out level
-          // with it, the index finger pointing along its face; the tip rides the
-          // round front of the cards (never into them), pushing them his way;
-          // it lifts off, comes back, and goes again.
+          // Leafing through a rolodex, as in the reference: the arm held still
+          // at an easy reach, the hand resting in front of the drum; only the
+          // wrist works — cocked back so the fingertip is on the cards, a quick
+          // flick that pushes them round, then an easy return. The arm gives a
+          // little with each flick, no more.
           const T2 = Math.max(0, st.actT - 0.45), f = cyc(((T2 / 1.3) % 1) * Math.PI * 2)
-          const R = 0.71 * FS, mid = FY + 0.02
-          const along = (u: number) => {
-            // a point on the drum's front, u from its near side (0) to past the middle (1)
-            const dx = THREE.MathUtils.lerp(-0.62, 0.28, u) * R
-            return V(FX + fs * dx, mid, FZ + Math.sqrt(Math.max(0, R * R - dx * dx)) + 0.05)
-          }
-          const tip =
-            f < 0.25 ? along(0).add(V(0, 0, 0.18 * (1 - ease(f / 0.25))))
-            : f < 0.45 ? along(ease((f - 0.25) / 0.2))
-            : along(1 - ease((f - 0.45) / 0.55)).add(V(0, 0.06 * bell((f - 0.45) / 0.55), 0.2 * bell((f - 0.45) / 0.55)))
-          if (st.actT > 0.45 && f >= 0.35 && st.flickF < 0.35) st.drumW += 7 * fs // the flick: the front goes his way
+          const cocked = V(0.6 * fs, -0.1, -0.65).normalize(), out = V(fs, -0.1, 0.15).normalize()
+          const w =
+            f < 0.3 ? 0.35 * (1 - ease(f / 0.3)) // settle back onto the cards
+            : f < 0.42 ? ease((f - 0.3) / 0.12) // the flick
+            : 1 - ease((f - 0.42) / 0.58) * 0.65 // and ease back
+          const d = cocked.clone().lerp(out, w).normalize()
+          const give = f >= 0.3 && f < 0.6 ? bell((f - 0.3) / 0.3) : 0
+          const H = V((1.5 + 0.05 * give) * fs, FY + 0.05 + 0.02 * give, 0.75 - 0.02 * give)
+          if (st.actT > 0.45 && f >= 0.34 && st.flickF < 0.34) st.drumW += 7 * fs // the flick: the front goes his way
           st.flickF = f
-          const d = V(fs, 0.05, -0.25).normalize() // along the face, a touch in toward it
-          const H = tip.clone().sub(d.clone().multiplyScalar(0.36)) // the hand, a finger's length back from the tip
-          pose = { E: shoulder.clone().lerp(H, 0.5).add(V(0, -0.08, 0.05)), H, dir: d, curl: 1.3, index: true, roll: -fs * Math.PI / 2 }
+          pose = { E: shoulder.clone().lerp(H, 0.5).add(V(0.04 * fs, -0.12, 0.02)), H, dir: d, curl: 1.3, index: true, roll: -fs * Math.PI / 2 }
         } else pose = hips
       } else if (act === 'hop') {
         const upW = Math.min(1, 1.3 * (bell((T - 0.28) / 0.45) + 0.6 * bell((T - 0.95) / 0.3)))
