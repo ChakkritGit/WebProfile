@@ -408,24 +408,23 @@ export function step(
     U.uGlitch.value *= Math.exp(-dt * 12)
     // Now and then, strolling or at rest, he drops to his wireframe for a
     // while — the outline alone, or with the globe's lines — maybe switches
-    // to the other, and comes back; a blip of the glitch at each change.
+    // to the other, and comes back. Only when calm; no glitch with it.
     const calm = !st.act && !st.busy && (st.mode === 'walk' || st.mode === 'pause')
     st.wireT -= dt
-    if (!calm && st.wire) {
-      st.wire = 0
-      st.wireT = 8
+    if (!calm) {
+      if (st.wire) st.wire = 0
+      st.wireT = Math.max(st.wireT, 6) // and a while after, before the next
     } else if (st.wireT < 0) {
-      if (st.wire === 0 && calm) {
+      if (st.wire === 0) {
         st.wire = Math.random() < 0.5 ? 1 : 2
         st.wireT = 2.5 + Math.random() * 2
-      } else if (st.wire && Math.random() < 0.4) {
+      } else if (Math.random() < 0.4) {
         st.wire = 3 - st.wire
         st.wireT = 2 + Math.random() * 1.5
       } else {
         st.wire = 0
         st.wireT = 10 + Math.random() * 12
       }
-      U.uGlitch.value = Math.max(U.uGlitch.value, 0.6)
     }
     U.uWire.value = st.wire
     F.code.mats.forEach((m) => (m.opacity *= Math.exp(-dt * 12)))
