@@ -21,6 +21,7 @@ export interface Uniforms {
   uRes: THREE.IUniform<THREE.Vector2>
   uLine: THREE.IUniform<number>
   uGlitch: THREE.IUniform<number>
+  uWire: THREE.IUniform<number>
 }
 
 export function createUniforms(land: THREE.Texture): Uniforms {
@@ -38,6 +39,7 @@ export function createUniforms(land: THREE.Texture): Uniforms {
     uRes: { value: new THREE.Vector2(1, 1) },
     uLine: { value: 2.6 },
     uGlitch: { value: 0 },
+    uWire: { value: 0 },
   }
 }
 
@@ -445,6 +447,20 @@ export function buildFigure(scene: THREE.Scene, U: Uniforms): Figure {
     // drawn straight into his (linear, unconverted) render target: no colour-space trip, or it comes out dim
     tex.colorSpace = THREE.NoColorSpace
     const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide })
+    // Blended into the glitch: strong only in the bands the hologram pass tears
+    // sideways (its own bands, on its clock), faint between — so the code goes
+    // where he slips, and slips with him.
+    mat.onBeforeCompile = (sh) => {
+      Object.assign(sh.uniforms, { uTime: U.uTime, uRes: U.uRes })
+      sh.fragmentShader =
+        'uniform float uTime; uniform vec2 uRes;\nfloat gh(float n) { return fract(sin(n) * 43758.5453); }\n' +
+        sh.fragmentShader.replace(
+          '#include <dithering_fragment>',
+          `#include <dithering_fragment>
+          float band = floor(gl_FragCoord.y / uRes.y * 26.0) + floor(uTime * 18.0) * 7.0;
+          gl_FragColor.a *= mix(0.12, 1.0, step(0.55, gh(band + 3.1)));`,
+        )
+    }
     return { c, g: c.getContext('2d')!, tex, mat }
   }
   const back = codeCanvas(512, 384), front = codeCanvas(512, 256)

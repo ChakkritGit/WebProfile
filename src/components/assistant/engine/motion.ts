@@ -47,6 +47,9 @@ export function createState() {
     filesSide: 1,
     drumW: 0,
     flickF: 0,
+    /** His wireframe at rest: 0 none, 1 the outline, 2 with the globe's lines; and time to the next change. */
+    wire: 0,
+    wireT: 12,
   }
 }
 export type State = ReturnType<typeof createState>
@@ -384,6 +387,10 @@ export function step(
       // the signal breaks up; he jumps, scratches his head, and it clears
       const g = T < 0.9 ? 0.55 + 0.45 * Math.round(gh(Math.floor(T * 14))) : T < 1.6 ? 0.6 * (1 - c01((T - 0.9) / 0.7)) * Math.round(gh(Math.floor(T * 20) + 3)) : 0
       U.uGlitch.value = g * aw
+      // where the picture used to cut out, he drops to his wireframe, at
+      // random: the outline alone, or with the globe's longitude and latitude
+      const wt = Math.floor(T * 14)
+      U.uWire.value = g > 0.3 && aw > 0.5 && gh(wt + 0.5) > 0.55 ? (gh(wt + 7.3) > 0.5 ? 2 : 1) : 0
       if (g > 0.3) bodyG.position.x += (gh(Math.floor(T * 24) + 9) - 0.5) * 0.16 * g
       jump = 0.08 * bell(T / 0.25)
       // his workings spill out round him: binary behind, a stack trace in front
@@ -399,6 +406,28 @@ export function step(
   }
   if (act !== 'glitch' || !st.act) {
     U.uGlitch.value *= Math.exp(-dt * 12)
+    // Now and then, strolling or at rest, he drops to his wireframe for a
+    // while — the outline alone, or with the globe's lines — maybe switches
+    // to the other, and comes back; a blip of the glitch at each change.
+    const calm = !st.act && !st.busy && (st.mode === 'walk' || st.mode === 'pause')
+    st.wireT -= dt
+    if (!calm && st.wire) {
+      st.wire = 0
+      st.wireT = 8
+    } else if (st.wireT < 0) {
+      if (st.wire === 0 && calm) {
+        st.wire = Math.random() < 0.5 ? 1 : 2
+        st.wireT = 2.5 + Math.random() * 2
+      } else if (st.wire && Math.random() < 0.4) {
+        st.wire = 3 - st.wire
+        st.wireT = 2 + Math.random() * 1.5
+      } else {
+        st.wire = 0
+        st.wireT = 10 + Math.random() * 12
+      }
+      U.uGlitch.value = Math.max(U.uGlitch.value, 0.6)
+    }
+    U.uWire.value = st.wire
     F.code.mats.forEach((m) => (m.opacity *= Math.exp(-dt * 12)))
   }
   F.code.group.visible = F.code.mats[0].opacity > 0.01
@@ -450,8 +479,8 @@ export function step(
   const fs = st.filesSide
   const pop = act === 'search' && st.act ? backOut(c01(st.actT / 0.4)) : searching
   files.visible = pop > 0.01
-  // set a little back, so the hand can rest in front of it at an arm's easy reach
-  const FS = 1.25, FX = 2.0 * fs, FY = 1.55, FZ = -0.38
+  // up beside his head, as Miss Minute's files are: his hand works it from below
+  const FS = 1.25, FX = 2.2 * fs, FY = 2.15, FZ = -0.38
   if (files.visible) {
     files.position.set(FX, FY, FZ)
     files.scale.set(pop * FS, Math.max(0.02, pop) * FS, pop * FS)
@@ -540,23 +569,25 @@ export function step(
           : hips
       } else if (act === 'search') {
         if (side === fs) {
-          // Leafing through a rolodex, as in the reference: the arm held still
-          // at an easy reach, the hand resting in front of the drum; only the
-          // wrist works — cocked back so the fingertip is on the cards, a quick
-          // flick that pushes them round, then an easy return. The arm gives a
-          // little with each flick, no more.
-          const T2 = Math.max(0, st.actT - 0.45), f = cyc(((T2 / 1.3) % 1) * Math.PI * 2)
-          const cocked = V(0.6 * fs, -0.1, -0.65).normalize(), out = V(fs, -0.1, 0.15).normalize()
-          const w =
-            f < 0.3 ? 0.35 * (1 - ease(f / 0.3)) // settle back onto the cards
-            : f < 0.42 ? ease((f - 0.3) / 0.12) // the flick
-            : 1 - ease((f - 0.42) / 0.58) * 0.65 // and ease back
-          const d = cocked.clone().lerp(out, w).normalize()
-          const give = f >= 0.3 && f < 0.6 ? bell((f - 0.3) / 0.3) : 0
-          const H = V((1.5 + 0.05 * give) * fs, FY + 0.05 + 0.02 * give, 0.75 - 0.02 * give)
-          if (st.actT > 0.45 && f >= 0.34 && st.flickF < 0.34) st.drumW += 7 * fs // the flick: the front goes his way
+          // As Miss Minute does it: the hand held just under the cards, index
+          // finger up, and quick little flicks up into them — each one sends
+          // the drum round; between flicks the finger drops back a touch. The
+          // arm stays put; the hand and finger do the work.
+          const T2 = Math.max(0, st.actT - 0.45), f = cyc(((T2 / 0.62) % 1) * Math.PI * 2)
+          const jab = f < 0.18 ? ease(f / 0.18) : 1 - ease(c01((f - 0.18) / 0.42)) // up fast, down easy
+          if (st.actT > 0.45 && f >= 0.12 && st.flickF < 0.12) st.drumW += 5 * fs // the flick: the front goes his way
           st.flickF = f
-          pose = { E: shoulder.clone().lerp(H, 0.5).add(V(0.04 * fs, -0.12, 0.02)), H, dir: d, curl: 1.3, index: true, roll: -fs * Math.PI / 2 }
+          // the fingertip just at the rim of the cards' lower edge, on his side of
+          // the drum (0.89 out from the axle); a flick lifts it into them
+          const H = V((1.55 + 0.03 * jab) * fs, FY - 0.63 + 0.06 * jab, 0.28)
+          pose = {
+            E: V(1.35 * fs, 1.45, 0.32),
+            H,
+            dir: V(0.12 * fs, 1, 0.22 - 0.1 * jab),
+            curl: 1.35,
+            index: true,
+            roll: -fs * Math.PI * 0.35, // palm half to the cards, half to you
+          }
         } else pose = hips
       } else if (act === 'hop') {
         const upW = Math.min(1, 1.3 * (bell((T - 0.28) / 0.45) + 0.6 * bell((T - 0.95) / 0.3)))
@@ -684,7 +715,7 @@ export function step(
     else st.lookTo.set(0.02 * fs, 0.01, 0)
   }
   // searching, the eyes follow the cards going past
-  if (act === 'search' && aw > 0.5) st.lookTo.set(0.075 * fs + 0.012 * Math.sin(t * 9), -0.015 + 0.01 * Math.sin(t * 5), 0)
+  if (act === 'search' && aw > 0.5) st.lookTo.set(0.075 * fs + 0.012 * Math.sin(t * 9), 0.03 + 0.01 * Math.sin(t * 5), 0) // up at the cards
   st.look.lerp(st.lookTo, Math.min(1, dt * 14))
   st.blinkT -= dt
   if (st.blinkT < 0) {

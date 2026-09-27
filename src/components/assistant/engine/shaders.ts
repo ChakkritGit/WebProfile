@@ -36,11 +36,28 @@ export const VERT = `
     gl_Position = projectionMatrix * viewMatrix * wp;
   }`
 
+/* His wireframe, where a glitch used to cut the picture out (uWire): 1, the
+   outline alone; 2, with the globe's lines of longitude and latitude. Fills
+   write depth but no colour, so of the ink lines behind them only the rim shows;
+   the inked parts (legs, pupils, brows, mouth) are lines already, and glow. */
+export const WIRE = `vec3(1.0, 0.94, 0.62)` // pale yellow
+
 export const TOON = `
-  uniform vec3 uColor, uFixed; uniform float uTint, uWhite, uUseFixed, uGlobe, uLight;
+  uniform vec3 uColor, uFixed; uniform float uTint, uWhite, uUseFixed, uGlobe, uLight, uWire;
   uniform sampler2D uLand;
   varying vec3 vN; varying vec2 vUv;
   void main() {
+    if (uWire > 0.5) {
+      if (uUseFixed > 0.5) { gl_FragColor = vec4(${WIRE}, 1.0); return; }
+      float grid = 0.0;
+      if (uGlobe > 0.5 && uWire > 1.5) {
+        vec2 g = vUv * vec2(24.0, 12.0), w = fwidth(g);
+        vec2 d = abs(fract(g - 0.5) - 0.5) / max(w, 1e-4);
+        grid = 1.0 - min(min(d.x, d.y), 1.0);
+      }
+      gl_FragColor = grid > 0.0 ? vec4(${WIRE} * grid, grid) : vec4(0.0);
+      return;
+    }
     vec3 fill = uUseFixed > 0.5 ? uFixed : mix(uColor * uTint, vec3(1.0, 0.97, 0.92), uWhite);
     if (uGlobe > 0.5) {
       float m = texture2D(uLand, vUv).r;
@@ -66,8 +83,11 @@ export const LINE_VERT = `
   }`
 
 export const LINE_FRAG = `
-  uniform float uLight;
-  void main() { gl_FragColor = vec4(mix(vec3(0.13, 0.06, 0.03), vec3(1.0, 0.96, 0.88) * 1.6, uLight), 1.0); }`
+  uniform float uLight, uWire;
+  void main() {
+    vec3 ink = uWire > 0.5 ? ${WIRE} : vec3(0.13, 0.06, 0.03);
+    gl_FragColor = vec4(mix(ink, vec3(1.0, 0.96, 0.88) * 1.6, uLight), 1.0);
+  }`
 
 /** The hologram pass: the drawing, see-through, with scanlines, an RGB fringe and flicker. */
 export const PASS_VERT = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }'
@@ -77,8 +97,7 @@ export const PASS_FRAG = `
   float gh(float n) { return fract(sin(n) * 43758.5453); }
   void main() {
     vec2 px = 1.0 / uRes;
-    // A bad signal (uGlitch): bands of him slip sideways, the colours split
-    // wide and the picture stutters off for a frame or two.
+    // A bad signal (uGlitch): bands of him slip sideways and the colours split wide.
     vec2 uv = vUv;
     float tick = floor(uTime * 18.0), band = floor(uv.y * 26.0) + tick * 7.0;
     uv.x += (gh(band) - 0.5) * step(0.55, gh(band + 3.1)) * uGlitch * 0.1;
@@ -87,7 +106,7 @@ export const PASS_FRAG = `
     float r = texture2D(tDraw, uv + vec2(sp, 0.0) * px).r, b = texture2D(tDraw, uv - vec2(sp, 0.0) * px).b;
     float a = max(c.a, max(texture2D(tDraw, uv + vec2(sp, 0.0) * px).a, texture2D(tDraw, uv - vec2(sp, 0.0) * px).a));
     float scan = 0.8 + 0.2 * sin(gl_FragCoord.y * 1.3 - uTime * 9.0);
-    float flick = (0.93 + 0.07 * sin(uTime * 37.0) * sin(uTime * 3.1)) * (1.0 - uGlitch * 0.7 * step(0.82, gh(tick + 0.5)));
+    float flick = 0.93 + 0.07 * sin(uTime * 37.0) * sin(uTime * 3.1); // (where it cut out, he drops to his wireframe: uWire)
     vec3 col = vec3(r, c.g, b) * (0.9 + 0.25 * scan);
     gl_FragColor = vec4(col, a * uOpacity * scan * flick);
   }`
