@@ -82,7 +82,7 @@ export async function ArticleShell({
             {/* Narrow screens have no room for the art to sit beside the text, so
                 the wash covers the whole panel and reads as a tint. Desktop has
                 the room, so the fade is pulled into the first third and the rest
-                of the picture is left alone — spreading it further washed the
+                of the picture is left alone - spreading it further washed the
                 cover out to the point of being unreadable. */}
             <div className="from-paper-alt via-paper-alt/92 via-50% to-paper-alt/45 sm:via-paper-alt/55 sm:via-30% sm:to-transparent sm:to-78% absolute inset-0 bg-gradient-to-r" />
             <div className="from-paper-alt to-transparent sm:to-35% absolute inset-0 bg-gradient-to-t" />
@@ -139,7 +139,7 @@ export async function ArticleShell({
           {/* A flex column bounded by the viewport, not two cards stacked: with a
               long outline the list used to push the size control past the bottom
               of the screen, where it could not be reached at all. The outline is
-              what gives way — it takes the space the card does not need, and
+              what gives way - it takes the space the card does not need, and
               scrolls inside it. */}
           <aside className="hidden lg:sticky lg:top-[calc(var(--header-h)+1.5rem)] lg:flex lg:max-h-[calc(100vh-var(--header-h)-3rem)] lg:flex-col lg:gap-4 lg:self-start">
             <TableOfContents items={toc} variant="rail" className="min-h-0 flex-1" />

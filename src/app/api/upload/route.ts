@@ -8,7 +8,7 @@ const MAX_BYTES = 5 * 1024 * 1024
  * GIFs get more room: they are never recompressed on the way up (a re-encode
  * would flatten the animation), and a few seconds of one is easily 10MB.
  * ponytail: a *file* upload still passes through this function's request body,
- * which Vercel caps at 4.5MB — a bigger GIF goes in by URL (fetched server-side,
+ * which Vercel caps at 4.5MB - a bigger GIF goes in by URL (fetched server-side,
  * no cap). Direct-to-storage signed uploads lift that if it ever matters.
  */
 const MAX_GIF_BYTES = 15 * 1024 * 1024
@@ -60,7 +60,7 @@ async function store(bytes: ArrayBuffer, contentType: string) {
    * Editor.js keeps whatever this returns on the block, and the renderer reserves
    * the box from it. Without them it fell back to 16:9, so a wide picture
    * reserved 198px, loaded 85px tall, and every heading below it moved up 113px
-   * mid-scroll — which is a jump in the reading position and a jump in anything
+   * mid-scroll - which is a jump in the reading position and a jump in anything
    * aiming at an anchor. `sharp` already ships with the image optimiser.
    */
   const size = await sharp(Buffer.from(bytes))

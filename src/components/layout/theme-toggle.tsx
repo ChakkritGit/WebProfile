@@ -27,8 +27,8 @@ export function ThemeToggle({ className }: { className?: string }) {
     <button
       type="button"
       onClick={() => fadeTheme(() => setTheme(ORDER[(ORDER.indexOf(mode) + 1) % ORDER.length]))}
-      aria-label={`${t('toggleTheme')} — ${label}`}
-      title={`${t('toggleTheme')} — ${label}`}
+      aria-label={`${t('toggleTheme')} - ${label}`}
+      title={`${t('toggleTheme')} - ${label}`}
       className={cn(
         'hover:text-brand-strong grid size-10 place-items-center transition-colors',
         !mounted && 'opacity-0',

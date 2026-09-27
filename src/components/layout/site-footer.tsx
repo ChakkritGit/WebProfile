@@ -50,7 +50,7 @@ export async function SiteFooter() {
                     <a
                       href={social.href}
                       aria-label={`${social.label}: ${social.handle}`}
-                      title={`${social.label} — ${social.handle}`}
+                      title={`${social.label} - ${social.handle}`}
                       {...(external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
                       className={icon}
                     >

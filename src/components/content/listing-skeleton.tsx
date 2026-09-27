@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
  *
  * The blog and projects pages read `searchParams`, which makes them dynamic:
  * nothing can be prerendered and nothing can be prefetched, so a tap on "Blog"
- * used to leave the previous page on screen for as long as the database took —
+ * used to leave the previous page on screen for as long as the database took -
  * measured on a throttled phone, 372ms warm and 2.5s cold. As a `loading.tsx`
  * this hands the route its shell immediately and the rows arrive into it.
  *

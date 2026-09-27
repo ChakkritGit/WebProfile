@@ -29,7 +29,7 @@ const urlOrPath = z
 
 const optionalUrl = emptyToNull(urlOrPath.nullish())
 
-/** Accepts 2024, "2024" or "" — the year input posts whichever it has. */
+/** Accepts 2024, "2024" or "" - the year input posts whichever it has. */
 const optionalYear = z
   .preprocess(
     (value) => (value === '' || value === undefined ? null : value),
@@ -43,7 +43,7 @@ const stringList = z
   .default([])
   .transform((values) => [...new Set(values)])
 
-/** Editor.js block payloads are open-ended by design — validate the envelope only. */
+/** Editor.js block payloads are open-ended by design - validate the envelope only. */
 export const editorBlockSchema = z.object({
   id: z.string().optional(),
   type: z.string().min(1),

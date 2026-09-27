@@ -1,6 +1,6 @@
 /**
  * The characters the scrambles churn through, and the Google stylesheet that
- * cuts the rarer scripts' faces to exactly these characters — a few kilobytes
+ * cuts the rarer scripts' faces to exactly these characters - a few kilobytes
  * rather than whole fonts. The cut files are saved into src/assets/fonts/world by
  * scripts/fetch-world-glyph-fonts.mts; change WORLD_GLYPHS, run it again.
  */

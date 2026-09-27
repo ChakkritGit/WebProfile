@@ -24,7 +24,7 @@ function CoverArt({
         alt=""
         width={640}
         height={360}
-        // Our own uploads go through the optimiser — a card slot is 640px wide
+        // Our own uploads go through the optimiser - a card slot is 640px wide
         // and the originals are ~600KB. Anything else was pasted in as a link to
         // a host outside next.config's remotePatterns, where it answers 400.
         unoptimized={!optimisable(record.coverImage)}
@@ -35,8 +35,8 @@ function CoverArt({
         // 75 is 10-15KB a card, flagged by PageSpeed.
         quality={60}
         className="size-full object-cover"
-        // The card is narrower than the viewport it sits in — one column inside
-        // the container's padding, then two, then three — and `100vw` had the
+        // The card is narrower than the viewport it sits in - one column inside
+        // the container's padding, then two, then three - and `100vw` had the
         // browser fetching a step larger than the slot at every width.
         sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) calc(50vw - 2rem), 368px"
       />

@@ -41,10 +41,10 @@ export interface ListOptions {
   limit?: number
   tag?: string
   featuredOnly?: boolean
-  /** Order by view count instead of date — used by the "most read" strip. */
+  /** Order by view count instead of date - used by the "most read" strip. */
   orderBy?: 'recent' | 'views'
   /**
-   * Return every row in every language, untouched — no collapsing of translations.
+   * Return every row in every language, untouched - no collapsing of translations.
    * Only the studio wants this: it manages each translation as its own entry, and
    * must never hide a row just because a sibling translation ranked higher.
    */

@@ -9,7 +9,7 @@ import type { PostRecord, ProjectRecord } from './content-types'
 /**
  * The site as a document, for something that reads rather than browses.
  *
- * Two files come out of here. `/llms.txt` is the index llmstxt.org describes —
+ * Two files come out of here. `/llms.txt` is the index llmstxt.org describes -
  * a heading, a summary, then links with a sentence each. `/llms-full.txt` is the
  * same index followed by every piece in full, for a reader that would otherwise
  * fetch thirty pages of HTML to get thirty articles out of them.
@@ -28,7 +28,7 @@ function line(title: string, url: string, notes?: string | null) {
   return `- [${title}](${url})${tail ? `: ${tail}` : ''}`
 }
 
-/** A heading and its lines, or nothing — an empty section promises and fails. */
+/** A heading and its lines, or nothing - an empty section promises and fails. */
 function section(heading: string, lines: string[]) {
   return lines.length ? [`## ${heading}`, '', ...lines, ''] : []
 }
@@ -45,7 +45,7 @@ function projectUrl(project: ProjectRecord) {
  * Every tag in use, most-used first.
  *
  * Read off the work rather than typed out, so it cannot drift from what is
- * actually written about — and so a subject that stops appearing stops being
+ * actually written about - and so a subject that stops appearing stops being
  * claimed.
  */
 function topics(items: { tags?: string[] }[]) {
@@ -68,7 +68,7 @@ async function gather() {
 
 function header() {
   return [
-    `# ${profile.name} — ${profile.role}`,
+    `# ${profile.name} - ${profile.role}`,
     '',
     `> ${siteDescription(LOCALE)}`,
     '',

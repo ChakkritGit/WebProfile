@@ -45,7 +45,7 @@ async function pathsInUse(): Promise<Set<string> | null> {
 
 /**
  * Removes `candidates` that nothing references any more. Call it *after* the
- * write, so the record's surviving state counts as a reference — a translation
+ * write, so the record's surviving state counts as a reference - a translation
  * sharing a cover image keeps that file alive.
  *
  * Never throws: losing a stale file is not worth failing the author's save, and

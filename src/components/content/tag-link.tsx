@@ -6,7 +6,7 @@ import { tagSlug } from '@/lib/search'
 /**
  * A tag/tech chip that navigates to everything sharing that topic.
  *
- * Note this must never be rendered inside another anchor — nested links are
+ * Note this must never be rendered inside another anchor - nested links are
  * invalid HTML. Cards that are themselves links render plain `Badge` instead.
  */
 export function TagLink({ tag, className }: { tag: string; className?: string }) {

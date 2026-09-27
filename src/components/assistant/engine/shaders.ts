@@ -2,7 +2,7 @@
  * The look is a drawing, not a render: flat fills with one hard shadow step,
  * and an ink line of the same pixel width round every part (an inverted hull
  * pushed out in screen space). The figure is drawn solid into a texture; the
- * hologram — see-through, scanlines, fringe, flicker — is laid over that one
+ * hologram - see-through, scanlines, fringe, flicker - is laid over that one
  * picture, so parts never show through one another. Every stage shares the
  * vortex, so the warp twists fills and lines together.
  *
@@ -111,7 +111,7 @@ export const PASS_FRAG = `
     gl_FragColor = vec4(col, a * uOpacity * scan * flick);
   }`
 
-/* A black hole he holds in his palm: a billboard drawn like Gargantua — the
+/* A black hole he holds in his palm: a billboard drawn like Gargantua - the
    shadow, the photon ring, the disk nearly edge-on, and the disk's far side
    lensed into an arc over the top. uGrow brings it in and out. */
 export const HOLE_VERT = `

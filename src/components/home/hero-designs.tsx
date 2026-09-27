@@ -11,7 +11,7 @@ import type { ReactNode } from 'react'
  * terrazzo…) were cut, and so were the still versions of the aurora, glyph
  * rain and radar, which exist as moving designs.
  *
- * All SVG: gradients, noise filters and shapes — nothing photographic, so
+ * All SVG: gradients, noise filters and shapes - nothing photographic, so
  * nothing to license and nothing to download. Each is drawn on a 1600×900
  * canvas and cropped to the hero with `slice`.
  */
@@ -58,7 +58,7 @@ function stars(rnd: Rnd, count: number, maxY = H) {
   ))
 }
 
-/** Smooth noise from a few sines — enough to shape a field without a library. */
+/** Smooth noise from a few sines - enough to shape a field without a library. */
 function field(rnd: Rnd) {
   const waves = Array.from({ length: 4 }, () => ({ fx: 0.001 + rnd() * 0.006, fy: 0.001 + rnd() * 0.006, p: rnd() * 6.28 }))
   return (x: number, y: number) => waves.reduce((s, w) => s + Math.sin(x * w.fx + y * w.fy + w.p), 0) / waves.length

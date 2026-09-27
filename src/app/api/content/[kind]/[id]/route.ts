@@ -29,7 +29,7 @@ async function resolve(ctx: Ctx) {
   return { db, kind: kindResult.data, id }
 }
 
-/** PATCH /api/content/:kind/:id — partial update. */
+/** PATCH /api/content/:kind/:id - partial update. */
 export async function PATCH(request: Request, ctx: Ctx) {
   try {
     const { db, kind, id } = await resolve(ctx)
@@ -77,8 +77,8 @@ export async function PATCH(request: Request, ctx: Ctx) {
       // The first transition to PUBLISHED stamps the publication date.
       if (input.status === 'PUBLISHED' && !existing.publishedAt) data.publishedAt = new Date()
 
-      // Snapshot before the write: whatever the edit drops — a replaced cover, a
-      // deleted image block — is only detectable against the previous version.
+      // Snapshot before the write: whatever the edit drops - a replaced cover, a
+      // deleted image block - is only detectable against the previous version.
       const previousMedia = mediaPathsIn(existing)
       const record = await db.post.update({ where: { id }, data })
       await pruneOrphanedMedia(previousMedia)

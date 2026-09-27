@@ -18,11 +18,11 @@ const WHITE = '#FFFFFF'
 
 /**
  * The mark, on a 64-unit grid: a white "C" cut from straight segments on
- * electric blue — the same drawing as `LogoMark` in `src/components/brand/logo.tsx`.
+ * electric blue - the same drawing as `LogoMark` in `src/components/brand/logo.tsx`.
  */
 const ART = `<path d="M44 18.7H20v26.6h24" fill="none" stroke="${WHITE}" stroke-width="6.7" stroke-linecap="square"/>`
 
-/** Square blue badge — favicon / browser / PWA "any". */
+/** Square blue badge - favicon / browser / PWA "any". */
 function badgeSvg(size) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="${size}" height="${size}">
   <rect width="64" height="64" fill="${BLUE}"/>${ART}</svg>`
@@ -98,7 +98,7 @@ async function main() {
   for (const relativePath of written) {
     if (relativePath.endsWith('.png')) {
       const { width, height, format } = await sharp(join(ROOT, relativePath)).metadata()
-      console.log(`  ${relativePath} — ${format} ${width}x${height}`)
+      console.log(`  ${relativePath} - ${format} ${width}x${height}`)
     } else {
       console.log(`  ${relativePath}`)
     }

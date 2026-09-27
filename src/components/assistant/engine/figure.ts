@@ -34,7 +34,7 @@ export function createUniforms(land: THREE.Texture): Uniforms {
     uTwist: { value: 0 },
     uPinch: { value: 0 },
     uLight: { value: 0 },
-    // Natural Earth 1:50m land (public domain), equirectangular — the globe's own map.
+    // Natural Earth 1:50m land (public domain), equirectangular - the globe's own map.
     uLand: { value: land },
     uRes: { value: new THREE.Vector2(1, 1) },
     uLine: { value: 2.6 },
@@ -195,7 +195,7 @@ export function buildFigure(scene: THREE.Scene, U: Uniforms): Figure {
       knuckle.rotation.z = (i - 1.5) * 0.12
       fingers.push(knuckle)
     }
-    // The thumb on the side toward the body — mirrored for the left hand — and a
+    // The thumb on the side toward the body - mirrored for the left hand - and a
     // touch toward the palm (-z), which is the side the fingers bend to.
     const thumb = new THREE.Group()
     thumb.position.set(-0.12 * side, -0.1, -0.03)
@@ -251,7 +251,7 @@ export function buildFigure(scene: THREE.Scene, U: Uniforms): Figure {
     bodyG.add(mesh)
     return mesh
   })
-  // The legs are ink already — a single clean line, like the reference; an outline
+  // The legs are ink already - a single clean line, like the reference; an outline
   // round them only fattened them.
   limbs[2].userData.noLine = limbs[3].userData.noLine = true
   const legHose = (mesh: THREE.Mesh, curve: THREE.Curve<THREE.Vector3>) => {
@@ -274,7 +274,7 @@ export function buildFigure(scene: THREE.Scene, U: Uniforms): Figure {
     })
   }
 
-  // A glow he casts on the floor — the grounding a hologram gets instead of a shadow.
+  // A glow he casts on the floor - the grounding a hologram gets instead of a shadow.
   const tex = (size: number, draw: (g: CanvasRenderingContext2D) => void) => {
     const c = document.createElement('canvas')
     c.width = c.height = size
@@ -448,7 +448,7 @@ export function buildFigure(scene: THREE.Scene, U: Uniforms): Figure {
     tex.colorSpace = THREE.NoColorSpace
     const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide })
     // Blended into the glitch: strong only in the bands the hologram pass tears
-    // sideways (its own bands, on its clock), faint between — so the code goes
+    // sideways (its own bands, on its clock), faint between - so the code goes
     // where he slips, and slips with him.
     mat.onBeforeCompile = (sh) => {
       Object.assign(sh.uniforms, { uTime: U.uTime, uRes: U.uRes })
@@ -505,7 +505,7 @@ export function buildFigure(scene: THREE.Scene, U: Uniforms): Figure {
     "  shoe.position.copy(foot).add(V(0, -0.06, -0.12)).add(pivot.c",
     "  // Then the leg: a rubber hose, one smooth arc from hip to t",
     "  // wherever the shoe now is, bowed forward by as much as the",
-    "  // from the leg's full length — straight when stretched, ben",
+    "  // from the leg's full length - straight when stretched, ben",
     "  const ankle = V(0, 0.16, 0.1).applyQuaternion(rock).add(shoe",
     "  const span = ankle.clone().sub(hip), d = span.length(), LEG ",
     "  const sag = Math.sqrt(Math.max(0, LEG * LEG - d * d)) * 0.55",

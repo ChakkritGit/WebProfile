@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
  * Search input that writes to the URL so every result set is shareable.
  *
  * The field owns its text outright and is never re-seeded from the URL while
- * the reader is typing — an earlier version synced state back from the query on
+ * the reader is typing - an earlier version synced state back from the query on
  * every render, which meant each keystroke was immediately overwritten by the
  * value the previous keystroke had just pushed. Back/forward is handled through
  * `popstate` instead, which cannot fire mid-keystroke.

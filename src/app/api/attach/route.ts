@@ -8,7 +8,7 @@ import { StudioError, jsonError, requireOwner } from '@/lib/studio-service'
  * Separate from `/api/upload` rather than folded into it. That one re-hosts
  * images so a published post does not depend on somebody else's server staying
  * up, and answers with the one field the image tool reads. This one keeps a file
- * to be downloaded, and has to answer with its name, size and extension — the
+ * to be downloaded, and has to answer with its name, size and extension - the
  * card in the article is built from those. Two different jobs behind one
  * endpoint would have meant a union of two shapes and a flag to tell them apart.
  */

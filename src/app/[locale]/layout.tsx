@@ -18,7 +18,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
  * One family at two widths.
  *
  * Noto Sans and Noto Sans Thai both carry a `wdth` axis, so the condensed
- * headings and the running text are the same face — and a Thai heading narrows
+ * headings and the running text are the same face - and a Thai heading narrows
  * with its Latin neighbours instead of falling back to something wide mid-line.
  * JetBrains Mono sets the dates, tags and counts.
  *
@@ -67,7 +67,7 @@ export async function generateMetadata({
   return {
     metadataBase: new URL(SITE_URL),
     title: {
-      default: `${t('siteName')} — ${t('tagline')}`,
+      default: `${t('siteName')} - ${t('tagline')}`,
       template: `%s · ${t('siteName')}`,
     },
     description: t('defaultDescription'),
@@ -91,7 +91,7 @@ export async function generateMetadata({
     openGraph: {
       type: 'website',
       siteName: t('siteName'),
-      title: `${t('siteName')} — ${t('tagline')}`,
+      title: `${t('siteName')} - ${t('tagline')}`,
       description: t('defaultDescription'),
       url: locale === routing.defaultLocale ? SITE_URL : `${SITE_URL}/${locale}`,
       locale: locale === 'th' ? 'th_TH' : 'en_US',
@@ -112,8 +112,8 @@ export default async function LocaleLayout({
   /**
    * An unknown locale is rendered as the default one, and refused by the page.
    *
-   * `notFound()` here reached no not-found boundary — this layout *is* the top of
-   * the tree — so Next answered with its own built-in 404 instead of the site's.
+   * `notFound()` here reached no not-found boundary - this layout *is* the top of
+   * the tree - so Next answered with its own built-in 404 instead of the site's.
    * Anything with a dot in it skips the proxy's matcher and arrives with the
    * filename as its locale (`/nope.txt`), which is what made that visible. The
    * page below refuses it, and that `notFound()` lands inside this layout, where

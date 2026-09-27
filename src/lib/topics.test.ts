@@ -11,7 +11,7 @@ test('layers follow where a tag is used most, articles winning ties', () => {
   const layer = Object.fromEntries(nodes.map((n) => [n.tag, n.layer]))
   assert.equal(layer.React, 'inner') // 2 posts vs 1 project
   assert.equal(layer.Kotlin, 'outer') // projects only
-  assert.equal(layer.Thai, 'inner') // 1 vs 1 — a tie
+  assert.equal(layer.Thai, 'inner') // 1 vs 1 - a tie
   assert.equal(nodes[0].tag, 'React') // most used first
 })
 

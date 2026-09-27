@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils'
  *
  * Not every action deserves one: flipping a status in a list already shows the
  * new badge in place, and a toast for it is noise. These are for writes whose
- * outcome happens elsewhere — a delete that navigates away, a save that changes
- * nothing visible — and for every failure.
+ * outcome happens elsewhere - a delete that navigates away, a save that changes
+ * nothing visible - and for every failure.
  */
 
 type ToastTone = 'success' | 'error'
@@ -20,7 +20,7 @@ type Toast = { id: number; tone: ToastTone; message: string }
 
 const ToastContext = createContext<((message: string, tone?: ToastTone) => void) | null>(null)
 
-/** Announces a result. Safe to call outside the provider — it simply does nothing. */
+/** Announces a result. Safe to call outside the provider - it simply does nothing. */
 export function useToast() {
   return useContext(ToastContext) ?? (() => {})
 }

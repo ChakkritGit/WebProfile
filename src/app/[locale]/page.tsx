@@ -28,13 +28,13 @@ export const revalidate = 60
 const LATEST = 6
 
 /**
- * The front page is the articles and the projects — the site as a place to
+ * The front page is the articles and the projects - the site as a place to
  * read. Who wrote them is one paragraph here and the whole of `/about`.
  */
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
   // `[locale]` matches any single segment, so this is where a URL like
-  // `/nope.txt` — one that skipped the proxy and never had a locale — arrives.
+  // `/nope.txt` - one that skipped the proxy and never had a locale - arrives.
   // Refusing it here rather than in the layout is what lets the site's own
   // not-found page render, inside the site's own layout.
   if (!hasLocale(routing.locales, locale)) notFound()
@@ -57,7 +57,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     .slice(0, 3)
 
   const latest = posts.slice(0, LATEST)
-  // Featured first, then the rest by date — so the strip is never empty just
+  // Featured first, then the rest by date - so the strip is never empty just
   // because nothing has been marked featured.
   const shownProjects = [...projects]
     .sort((a, b) => Number(b.featured) - Number(a.featured))
@@ -111,7 +111,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* ---------------------------- most read ---------------------------- */}
       {popular.length > 0 && (
         <Section className="border-line border-b">
-          <SectionHeading eyebrow={`01 — ${t('popularTitle')}`} title={t('popularTitle')} description={t('popularSubtitle')} />
+          <SectionHeading eyebrow={`01 - ${t('popularTitle')}`} title={t('popularTitle')} description={t('popularSubtitle')} />
           <RevealGroup className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {popular.map(({ kind, item }, i) => (
               <RevealItem key={`${kind}-${item.id}`} className="h-full">
@@ -129,7 +129,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* ----------------------------- latest ------------------------------ */}
       <Section className="border-line border-b">
         <SectionHeading
-          eyebrow={`02 — ${t('latestTitle')}`}
+          eyebrow={`02 - ${t('latestTitle')}`}
           title={t('latestTitle')}
           description={t('latestSubtitle')}
           action={
@@ -153,7 +153,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* ---------------------------- projects ----------------------------- */}
       <Section>
         <SectionHeading
-          eyebrow={`03 — ${t('projectsTitle')}`}
+          eyebrow={`03 - ${t('projectsTitle')}`}
           title={t('projectsTitle')}
           description={t('projectsSubtitle')}
           action={

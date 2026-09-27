@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils'
  *
  * DOM nodes rather than a canvas, because every node is a link: focusable, a
  * real `href`, text that selects and translates. Positions are written straight
- * to `style.transform` from one animation frame loop — React renders the nodes
+ * to `style.transform` from one animation frame loop - React renders the nodes
  * once and never re-renders them for motion. Written by hand rather than with a
  * 3D library: the projection is four lines of arithmetic.
  */
@@ -85,7 +85,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
     mode: 'orb' as Mode,
     filter: 'all' as Filter,
     spinning: true,
-    /** Spin time, velocities (rad/s) and the way it turns — see `tick`. */
+    /** Spin time, velocities (rad/s) and the way it turns - see `tick`. */
     t: 0,
     vx: 0,
     vy: 0,
@@ -137,7 +137,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
   }, [mode, layers.inner.length, layers.outer.length])
 
   // The loop. It stops itself whenever nothing is moving or the orb is off
-  // screen — an animation nobody can see still costs a phone its main thread.
+  // screen - an animation nobody can see still costs a phone its main thread.
   useEffect(() => {
     const el = stage.current
     if (!el) return
@@ -193,7 +193,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
 
     const written = nodes.map(() => ({ o: '', z: -1, visible: null as boolean | null }))
 
-    // The canvas cannot read CSS variables, so the colours are resolved here —
+    // The canvas cannot read CSS variables, so the colours are resolved here -
     // and again when the theme flips.
     const colours = { inner: '', outer: '', muted: '' }
     const readColours = () => {
@@ -260,7 +260,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
       })
 
       // Edges and orbits on one canvas: drawing them as SVG lines cost a
-      // style recalculation of every line, every frame — most of the orb's
+      // style recalculation of every line, every frame - most of the orb's
       // main-thread time (measured: ~880ms in 4s on a 4x-slowed CPU).
       const canvas = lines.current
       const ctx = canvas?.getContext('2d')
@@ -328,7 +328,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
       let cruising = false
       if (s.spinning && s.mode === 'orb' && !s.dragging) {
         // Not a spit roast: the speed swells and slackens, the axis nods, and a
-        // flick carries on under its own momentum before easing back — in
+        // flick carries on under its own momentum before easing back - in
         // whichever direction it was flicked.
         s.t += dt
         const cruise = s.dir * (0.2 + 0.13 * Math.sin(s.t * 0.37))
@@ -341,7 +341,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
         cruising = s.blend === target && s.hovered < 0 && Math.abs(s.vy - cruise) < 0.05
       }
       // Left to itself the orb turns slowly enough that 30fps reads the same,
-      // at half the main thread — it was most of a phone's work on this page.
+      // at half the main thread - it was most of a phone's work on this page.
       // A drag, a flick, a hover or the grid morph get every frame.
       if (!cruising || now - drawn > 30) {
         drawn = now
@@ -434,7 +434,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
       travelled += Math.abs(dx) + Math.abs(dy)
       if (travelled > 4) el.setPointerCapture?.(event.pointerId)
       // Minus: the front of the orb is at negative z, where a growing angle
-      // carries a point leftward — so a drag to the right turns it the other way.
+      // carries a point leftward - so a drag to the right turns it the other way.
       s.ry -= dx * 0.006
       s.rx = Math.min(1.2, Math.max(-1.2, s.rx + dy * 0.006))
       const dt = Math.max(8, event.timeStamp - stamp) / 1000
@@ -513,7 +513,7 @@ export function TagOrb({ map }: { map: TopicMap }) {
 
   return (
     // `isolate`: the nodes carry a depth z-index up to 100, and without a
-    // stacking context of its own that competed with the sticky header's —
+    // stacking context of its own that competed with the sticky header's -
     // tags drew over the festival menu dropping out of it.
     <div data-orb className="border-line bg-surface relative isolate overflow-hidden border">
       <div aria-hidden className="star-grid pointer-events-none absolute inset-0" />

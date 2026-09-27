@@ -1,7 +1,7 @@
 /**
  * Languages offered in the studio's code block.
  *
- * Kept in step with the grammars loaded in `src/lib/highlight.ts` — offering a
+ * Kept in step with the grammars loaded in `src/lib/highlight.ts` - offering a
  * language the highlighter cannot render would silently produce plain output.
  */
 export const CODE_LANGUAGES = [

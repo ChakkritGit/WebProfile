@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
  * What an article looks like while it is being fetched.
  *
  * Without this the nearest loading state was the listing's, one segment up, so
- * tapping a card replaced the list with a skeleton of *the list* — a grid of
+ * tapping a card replaced the list with a skeleton of *the list* - a grid of
  * cards where an article was supposed to be arriving. A route gets the closest
  * one, so this sits with the article.
  *

@@ -27,7 +27,7 @@ export function TagFilter({
   keep?: Record<string, string | undefined>
 }) {
   // The key must be the tag's identity, not the href. Href encodes the current
-  // filter state, so keying on it remounted every chip on each change — which
+  // filter state, so keying on it remounted every chip on each change - which
   // moved focus to a fresh node and made the browser scroll it into view.
   const chip = (key: string, label: string, href: string, isActive: boolean) => (
     <Link

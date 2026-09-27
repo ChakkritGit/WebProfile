@@ -1,4 +1,4 @@
-/** Nav is data — adding a future module means adding one entry here. */
+/** Nav is data - adding a future module means adding one entry here. */
 export const navItems = [
   { key: 'home', href: '/' },
   { key: 'blog', href: '/blog' },

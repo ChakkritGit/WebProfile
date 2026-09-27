@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
  *
  * Deliberately outside React. Whether the picker unmounts across a locale change
  * depends on how Next reconciles the `[locale]` segment, and both a ref and a
- * mount effect turned out to be unreliable places to put this — a plain rAF loop
+ * mount effect turned out to be unreliable places to put this - a plain rAF loop
  * runs regardless and stops itself.
  *
  * It re-asserts every frame rather than setting the offset once: until the new
@@ -61,8 +61,8 @@ export function LocaleToggle({ block = false }: { block?: boolean }) {
     if (next === locale) return
     const search = typeof window === 'undefined' ? '' : window.location.search
 
-    // Stay where the reader was. Scrolling to the top was a deliberate choice —
-    // translations differ in length, so the same offset is not the same place —
+    // Stay where the reader was. Scrolling to the top was a deliberate choice -
+    // translations differ in length, so the same offset is not the same place -
     // but in practice it threw anyone reading halfway down a page back to the
     // start and made them find their spot again.
     //
@@ -104,8 +104,8 @@ export function LocaleToggle({ block = false }: { block?: boolean }) {
   return (
     // `block` is the mobile menu's layout, where the picker spans the row. Passing
     // that as a className landed it on this wrapper instead of the button: the
-    // wrapper stretched, the button stayed its own size on the left, and the list —
-    // anchored to the wrapper's end edge — opened over on the far right, detached
+    // wrapper stretched, the button stayed its own size on the left, and the list -
+    // anchored to the wrapper's end edge - opened over on the far right, detached
     // from the control that opened it.
     <div ref={rootRef} className={cn('relative', block && 'w-full')}>
       <button

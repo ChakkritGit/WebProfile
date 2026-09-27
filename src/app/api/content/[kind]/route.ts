@@ -11,7 +11,7 @@ import {
 import type { Prisma } from '@/generated/prisma/client'
 
 /**
- * POST /api/content/posts | /api/content/projects — create a record.
+ * POST /api/content/posts | /api/content/projects - create a record.
  *
  * The two kinds are handled in explicit branches rather than through a shared
  * generic: it keeps the Prisma create payloads exactly typed per model.

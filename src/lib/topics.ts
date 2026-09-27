@@ -4,7 +4,7 @@
  *
  * The layers are what the tag is mostly *about*: the inner core is the writing,
  * the outer shell is the building. A tag used on both goes to whichever side
- * uses it more, articles winning a tie — the core is the reason the site exists.
+ * uses it more, articles winning a tie - the core is the reason the site exists.
  */
 
 export type TopicLayer = 'inner' | 'outer'
@@ -18,7 +18,7 @@ export interface TopicNode {
 
 export interface TopicMap {
   nodes: TopicNode[]
-  /** `[a, b, weight]` — indexes into `nodes`, `a < b`, weight = pieces shared. */
+  /** `[a, b, weight]` - indexes into `nodes`, `a < b`, weight = pieces shared. */
   edges: [number, number, number][]
 }
 

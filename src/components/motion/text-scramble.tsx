@@ -10,7 +10,7 @@ const NOISE = Array.from('!<>-_\\/[]{}=+*^?#%$&@01')
 /**
  * The button's churn reaches further: Egyptian hieroglyphs, cuneiform, runes,
  * Tifinagh, Ethiopic, Armenian, Greek, Cyrillic, katakana and Braille. Nothing
- * right-to-left — a Hebrew or Arabic letter would reorder the string around it
+ * right-to-left - a Hebrew or Arabic letter would reorder the string around it
  * mid-word. The faces the rarer scripts need are cut to exactly these
  * characters and declared in globals.css. The ASCII noise is mixed in too, so
  * a frame reads as code as much as as the world's scripts.
@@ -23,7 +23,7 @@ const WORLD = [
 /**
  * Split into what a reader sees as characters. `Array.from` splits by code
  * point, which tears a Thai consonant from the vowel and tone marks stacked on
- * it — each mark then got its own full-width slot of noise, and "อ่านบทความ"
+ * it - each mark then got its own full-width slot of noise, and "อ่านบทความ"
  * churned at nearly twice its settled width.
  */
 const graphemes = (text: string): string[] =>
@@ -54,7 +54,7 @@ type Slot = {
  * start frame, churns through noise until its end frame, then settles on the
  * incoming one. The windows are staggered and of different lengths, so the
  * phrase resolves raggedly from no particular direction rather than sweeping
- * left to right — a uniform stagger reads as a wipe, not a scramble.
+ * left to right - a uniform stagger reads as a wipe, not a scramble.
  *
  * Split by grapheme, so Thai combining marks and emoji are never torn off the
  * character they belong to.
@@ -128,7 +128,7 @@ const noiseFor = (text: string, pool: string[] = NOISE) =>
     .join('')
 
 /**
- * Cycles through phrases, scrambling from one to the next — and scrambles the
+ * Cycles through phrases, scrambling from one to the next - and scrambles the
  * first one in on arrival, out of noise, rather than showing it already settled.
  */
 export function TextScramble({
@@ -160,7 +160,7 @@ export function TextScramble({
       cancel.current = scramble(from, to, setText, done, world ? WORLD : NOISE)
     }
 
-    // The first phrase is scrambled in as well, from noise, with no wait — the
+    // The first phrase is scrambled in as well, from noise, with no wait - the
     // line should be resolving as the page arrives rather than sitting there
     // already settled for two seconds.
     if (!revealed) {
@@ -198,12 +198,12 @@ export function TextScramble({
 }
 
 /**
- * A fixed label — a button's — that scrambles in on arrival and again whenever
+ * A fixed label - a button's - that scrambles in on arrival and again whenever
  * the control it sits in is hovered or focused.
  *
  * The settled label always takes the space; the churn is laid over it out of
  * flow. Noise characters run wider than letters, so a frame that comes out
- * wider than the label is squeezed horizontally to fit — measured each frame —
+ * wider than the label is squeezed horizontally to fit - measured each frame -
  * rather than clipped (which cut the last characters off) or allowed to push
  * the button wider (which made it breathe under the pointer).
  */

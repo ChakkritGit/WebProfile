@@ -9,7 +9,7 @@ import { useEffect } from 'react'
  * the count. The guard is written *when the request fires*, not when the effect
  * starts: React StrictMode runs the effect twice, and marking it up front meant
  * the first pass claimed the key, its cleanup cancelled the pending request, and
- * the second pass saw "already counted" and did nothing — so no view was ever
+ * the second pass saw "already counted" and did nothing - so no view was ever
  * recorded.
  */
 export function ViewTracker({

@@ -103,7 +103,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       {/* ------------------------------ skills ----------------------------- */}
       <Section className="border-line border-b">
-        <SectionHeading eyebrow="01 — Stack" title={tHome('skillsTitle')} description={tHome('skillsSubtitle')} />
+        <SectionHeading eyebrow="01 - Stack" title={tHome('skillsTitle')} description={tHome('skillsSubtitle')} />
         <Reveal className="space-y-3">
           <MarqueeRow items={allSkills} duration={46} />
           <MarqueeRow items={[...allSkills].reverse()} duration={54} reverse />
@@ -126,12 +126,12 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       {/* ------------------------ experience · study ----------------------- */}
       <Section className="border-line border-b">
-        <SectionHeading eyebrow="02 — Career" title={t('experienceTitle')} />
+        <SectionHeading eyebrow="02 - Career" title={t('experienceTitle')} />
         <ol className="border-line border-t">
           {experience.map((job) => (
             <li key={job.id} className="border-line grid gap-4 border-b py-7 lg:grid-cols-[14rem_1fr]">
               <p className="text-muted font-mono text-xs uppercase">
-                {formatMonthYear(job.start, locale)} — {job.end ? formatMonthYear(job.end, locale) : tCommon('present')}
+                {formatMonthYear(job.start, locale)} - {job.end ? formatMonthYear(job.end, locale) : tCommon('present')}
               </p>
               <div>
                 <h3 className="flex items-center gap-2 text-3xl">
@@ -159,7 +159,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           {education.map((school) => (
             <li key={school.id} className="border-line grid gap-4 border-b py-7 lg:grid-cols-[14rem_1fr]">
               <p className="text-muted font-mono text-xs uppercase">
-                {formatMonthYear(school.start, locale)} — {formatMonthYear(school.end, locale)}
+                {formatMonthYear(school.start, locale)} - {formatMonthYear(school.end, locale)}
               </p>
               <div>
                 <h3 className="flex items-center gap-2 text-2xl">
@@ -177,7 +177,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       {/* ----------------------------- languages --------------------------- */}
       <Section className="border-line border-b">
-        <SectionHeading eyebrow="03 — Languages" title={t('languagesTitle')} />
+        <SectionHeading eyebrow="03 - Languages" title={t('languagesTitle')} />
         <div className="border-line grid border-t border-l sm:grid-cols-2">
           {languages.map((language) => (
             <div key={language.id} className="border-line border-r border-b p-6">
@@ -218,7 +218,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       {/* ------------------------------ contact ---------------------------- */}
       <Section id="contact" className="border-line scroll-mt-16 border-b">
-        <SectionHeading eyebrow="04 — Contact" title={tContact('title')} description={tContact('subtitle')} />
+        <SectionHeading eyebrow="04 - Contact" title={tContact('title')} description={tContact('subtitle')} />
         <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr]">
           <div className="space-y-8">
             <div>

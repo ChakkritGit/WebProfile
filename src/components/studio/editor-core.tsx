@@ -46,7 +46,7 @@ interface EditorCoreProps {
  *     teardown are serialised through `teardownRef`: a new instance waits for
  *     the previous one to finish destroying. Without this the first instance's
  *     async `destroy()` lands *after* the second has rendered and empties the
- *     holder — a blank editor with no error anywhere.
+ *     holder - a blank editor with no error anywhere.
  *  2. `destroy()` must never run mid-initialisation, so it is chained onto the
  *     creation promise rather than fired independently.
  *  3. `onChange` is kept in a ref so changing the callback identity never
@@ -139,7 +139,7 @@ export default function EditorCore({ initialData, onChange, placeholder }: Edito
         linkTool: {
           class: LinkTool as never,
           // Without an endpoint the tool can only report "Couldn't get this
-          // link data" — it has no way to resolve a title or preview itself.
+          // link data" - it has no way to resolve a title or preview itself.
           config: { endpoint: '/api/link-preview' },
         },
         warning: {
@@ -153,8 +153,8 @@ export default function EditorCore({ initialData, onChange, placeholder }: Edito
           config: { defaultType: 'primary', messagePlaceholder: 'Alert message' },
         },
         embed: { class: Embed as never, inlineToolbar: true },
-        // The tool above has no toolbox entry of its own — it only ever
-        // answers a pasted link — so this is the one that appears in the `+`
+        // The tool above has no toolbox entry of its own - it only ever
+        // answers a pasted link - so this is the one that appears in the `+`
         // menu, and it hands over to `embed` as soon as it has a URL.
         embedLink: { class: EmbedPrompt as never },
         attaches: {
@@ -195,7 +195,7 @@ export default function EditorCore({ initialData, onChange, placeholder }: Edito
         tunes: ['alignment'],
         tools: tools as never,
         /**
-         * Undo, which Editor.js does not have — see `history.ts` for why it is
+         * Undo, which Editor.js does not have - see `history.ts` for why it is
          * written here rather than taken off the shelf. `CMD+Z` back,
          * `CMD+SHIFT+Z` or `CMD+Y` forward.
          */
@@ -228,7 +228,7 @@ export default function EditorCore({ initialData, onChange, placeholder }: Edito
       try {
         await instance.isReady
       } catch {
-        // Destroyed while still initialising — nothing more to do.
+        // Destroyed while still initialising - nothing more to do.
       }
     })()
 
@@ -242,7 +242,7 @@ export default function EditorCore({ initialData, onChange, placeholder }: Edito
           instance?.destroy()
         })
         .catch(() => {
-          /* never initialised — nothing to tear down */
+          /* never initialised - nothing to tear down */
         })
     }
     // Intentionally mount-only: re-running would discard the author's work.

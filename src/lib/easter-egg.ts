@@ -6,5 +6,5 @@
 export const TON_EVENT = 'ton'
 export const TON_HASH = '#ton'
 
-/** The word typed into a text field — also t-o-n typed on a Thai keyboard. */
+/** The word typed into a text field - also t-o-n typed on a Thai keyboard. */
 export const isTon = (text: string) => ['ton', 'ะนื'].includes(text.trim().toLowerCase())

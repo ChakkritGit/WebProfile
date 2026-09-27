@@ -76,7 +76,7 @@ export function TagPicker({
     inputRef.current?.focus()
 
     // Register unseen names centrally so other forms can reuse them. A failure
-    // here is not worth blocking the edit — the tag is already on the record.
+    // here is not worth blocking the edit - the tag is already on the record.
     if (!(master ?? []).includes(name)) {
       setMaster((m) => (m ? [...m, name].sort((a, b) => a.localeCompare(b)) : m))
       void fetch('/api/tags', {

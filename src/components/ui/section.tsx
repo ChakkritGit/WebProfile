@@ -13,7 +13,7 @@ export function Section({
   id,
 }: {
   children: ReactNode
-  /** Applied to the <section> — backgrounds, borders, vertical padding. */
+  /** Applied to the <section> - backgrounds, borders, vertical padding. */
   className?: string
   /**
    * Applied to the inner container. Layout classes for the children belong

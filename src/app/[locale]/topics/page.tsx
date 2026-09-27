@@ -46,7 +46,7 @@ export default async function TopicsPage({ params }: { params: Promise<{ locale:
     listProjects({ locale: locale as Locale }),
   ])
 
-  // Stack entries are topics too — that is what makes the tech chips clickable.
+  // Stack entries are topics too - that is what makes the tech chips clickable.
   const counts = new Map<string, number>()
   for (const record of [...posts, ...projects]) {
     for (const tag of record.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1)

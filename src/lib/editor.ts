@@ -48,7 +48,7 @@ export function stripTags(html: string): string {
     .trim()
 }
 
-/** Plain-text projection of a document — used for reading time and meta descriptions. */
+/** Plain-text projection of a document - used for reading time and meta descriptions. */
 export function documentToText(doc: EditorDocument): string {
   const parts: string[] = []
   for (const block of doc.blocks) {
@@ -83,7 +83,7 @@ export function readingMinutes(doc: EditorDocument): number {
   return Math.max(1, Math.round(minutes))
 }
 
-/** First paragraph, trimmed — a sensible default summary. */
+/** First paragraph, trimmed - a sensible default summary. */
 export function autoSummary(doc: EditorDocument, max = 180): string {
   const text = documentToText(doc)
   if (text.length <= max) return text

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { usePathname } from '@/i18n/navigation'
 
 // Nothing of him is in the first load. The chunk is fetched on the visitor's
-// first move, touch, scroll or key — or after 12 s without one. Loading on idle
+// first move, touch, scroll or key - or after 12 s without one. Loading on idle
 // alone still landed inside the page's first seconds: three.js and his shaders
 // took Lighthouse desktop from 0.96 to 0.89 (TBT 0 → 90 ms).
 const Assistant = dynamic(() => import('./assistant'), { ssr: false })

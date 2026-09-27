@@ -16,8 +16,8 @@ export const MORPH = { type: 'spring', stiffness: 200, damping: 24 } as const
 /**
  * The control a `MorphingDialog` grows out of.
  *
- * It carries the shared `layoutId` — the panel morphs out of this box, and this
- * box is exactly the control — and it hides itself while the panel is up.
+ * It carries the shared `layoutId` - the panel morphs out of this box, and this
+ * box is exactly the control - and it hides itself while the panel is up.
  * Without that it comes back: Motion projects the trigger onto the panel for the
  * morph and then, the moment the layout animation ends, hands it back to its own
  * box at full opacity. Measured on the résumé button: the panel opened over
@@ -50,7 +50,7 @@ export function MorphingTrigger({
  * A dialog that grows out of the control that opened it.
  *
  * The trigger and the panel carry the same `layoutId`, so Motion measures both
- * boxes and animates one into the other — the panel appears to be the button,
+ * boxes and animates one into the other - the panel appears to be the button,
  * unfolded. Both are mounted while it is open, which is what gives the morph
  * something to travel between.
  *
@@ -82,7 +82,7 @@ export function MorphingDialog({
   className?: string
   /** Shared with the trigger, and the whole point of this component. */
   layoutId: string
-  /** Fires once the panel has finished growing — for contents too expensive to
+  /** Fires once the panel has finished growing - for contents too expensive to
       render while it is still in flight. */
   onOpened?: () => void
 }) {
@@ -162,7 +162,7 @@ export function MorphingDialog({
                 // it is still the size and shape of a button.
                 className={cn('sticker bg-surface text-ink pointer-events-auto overflow-hidden', className)}
               >
-                {/* The panel's own contents fade in once there is room for them —
+                {/* The panel's own contents fade in once there is room for them -
                     at button size they would be a smear of overlapping text. */}
                 <motion.div
                   initial={{ opacity: 0 }}

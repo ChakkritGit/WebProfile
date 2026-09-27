@@ -11,8 +11,8 @@ interface CodeData {
  * Written in-house rather than pulled from a package: the third-party options
  * either had no visible language control, shipped their own stacking context
  * that fought the editor's toolbars, or stored a shape the renderer would have
- * to translate. This emits exactly `{ code, language }` — what Shiki needs on
- * the server — and styles through the same tokens as the rest of the studio.
+ * to translate. This emits exactly `{ code, language }` - what Shiki needs on
+ * the server - and styles through the same tokens as the rest of the studio.
  */
 export class CodeTool {
   static get toolbox() {
@@ -31,7 +31,7 @@ export class CodeTool {
    *
    * Without it Editor.js has no way to move a paragraph's text into this tool,
    * so choosing Code left the paragraph alone and inserted an empty code block
-   * beside it — twice, if you pressed it twice, which is what a first press that
+   * beside it - twice, if you pressed it twice, which is what a first press that
    * appeared to do nothing invited. `import` names the field the incoming text
    * lands in and `export` the one it comes back out of, so converting away
    * returns the code as text instead of losing it.
@@ -144,7 +144,7 @@ export class CodeTool {
    * An empty code block is not a block.
    *
    * `typeof data.code === 'string'` accepted `""`, so adding one from the
-   * toolbox and not filling it in saved an empty box — two of them, stacked, if
+   * toolbox and not filling it in saved an empty box - two of them, stacked, if
    * the button was pressed twice, which is exactly how it looked on the page.
    * An abandoned block now leaves nothing behind.
    */

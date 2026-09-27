@@ -16,7 +16,7 @@ const PREVIEW = 6
  * The navbar's search: a button that opens a dialog, results as you type, and
  * Enter for the full page at `/search?q=`.
  *
- * A native `<dialog>` with `showModal()` — focus trapping, Escape, the inert page
+ * A native `<dialog>` with `showModal()` - focus trapping, Escape, the inert page
  * behind it and the backdrop all come from the platform. `⌘K` / `Ctrl K` opens
  * it from anywhere.
  */

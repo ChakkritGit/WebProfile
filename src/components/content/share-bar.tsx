@@ -14,7 +14,7 @@ import {
 /**
  * Where each network wants the post handed to it.
  *
- * Only Facebook takes a bare URL — the other three compose a post, so the title
+ * Only Facebook takes a bare URL - the other three compose a post, so the title
  * goes in the text and the link rides along with it. Bluesky has no separate
  * url field at all; it reads the link out of the text the way a post does.
  */

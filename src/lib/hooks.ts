@@ -74,7 +74,7 @@ export function useAtFooter(band: number, narrow = band): boolean {
  * width is padded back on so the page does not shift sideways as it disappears.
  *
  * Restores whatever the body carried before rather than clearing the properties,
- * because two of these can overlap — a dialog opened from a page that already
+ * because two of these can overlap - a dialog opened from a page that already
  * locked.
  */
 export function useScrollLock(active: boolean): void {

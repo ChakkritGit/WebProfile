@@ -1,4 +1,4 @@
-// Portfolio content schema — Supabase Postgres.
+// Portfolio content schema - Supabase Postgres.
 // Editor.js output is stored verbatim in `content` (JSON) so the editor and the
 // public renderer share one shape. New content modules = new model here.
 
@@ -33,7 +33,7 @@ model Post {
   readingMinutes Int           @default(1)
   featured       Boolean       @default(false)
   /// Lifetime page views. Incremented from the detail page, deliberately
-  /// approximate — it is a popularity signal, not analytics.
+  /// approximate - it is a popularity signal, not analytics.
   views          Int           @default(0)
   publishedAt    DateTime?
   createdAt      DateTime      @default(now())
@@ -67,7 +67,7 @@ model Project {
   featured       Boolean       @default(false)
   /// Manual ordering on the projects index (lower first).
   sortOrder      Int           @default(0)
-  /// Lifetime page views — see the note on Post.views.
+  /// Lifetime page views - see the note on Post.views.
   views          Int           @default(0)
   publishedAt    DateTime?
   createdAt      DateTime      @default(now())

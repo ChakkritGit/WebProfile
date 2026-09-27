@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ------------------------------------------------------------------ *
- * Design tokens — neo-editorial: off-white paper and pitch black, one
+ * Design tokens - neo-editorial: off-white paper and pitch black, one
  * electric blue, 1px rules, square corners.
  *
  * The token *names* are the ones the site has always used, so every
@@ -26,7 +26,7 @@
   /**
    * Electric blue is both the fill and the text colour in the light theme:
    * 8.15:1 on the paper, and white on it 8.59:1. The dark theme cannot say the
-   * same — pure blue on black is 2.4:1 — so `--brand-strong`, the colour text
+   * same - pure blue on black is 2.4:1 - so `--brand-strong`, the colour text
    * and rules take, is lifted there while the fill stays the same blue.
    */
   --brand: #0000ff;
@@ -75,7 +75,7 @@
   --line-soft: #1c1c20;
 
   --brand: #0000ff;
-  /* 5.88:1 on the paper — the blue that can be read here. */
+  /* 5.88:1 on the paper - the blue that can be read here. */
   --brand-strong: #7a7aff;
   --brand-ink: #ffffff;
   --brand-soft: #0d0d3a;
@@ -133,7 +133,7 @@
   --color-toast-error-ink: var(--toast-error-ink);
 
   /* Noto Sans and Noto Sans Thai both carry a width axis, so a condensed
-     heading is the same face narrowed rather than a second family — and Thai
+     heading is the same face narrowed rather than a second family - and Thai
      narrows with it instead of falling back to a wide face mid-line. */
   --font-display: var(--font-sans-latin), var(--font-sans-thai), 'Noto Sans JP', ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-sans-latin), var(--font-sans-thai), 'Noto Sans JP', ui-sans-serif, system-ui, sans-serif;
@@ -144,7 +144,7 @@
     ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
     'Noto Sans Thai', 'Noto Sans JP', Arial, sans-serif;
 
-  /* Square, everywhere. `rounded-full` is not a token and stays round — it is
+  /* Square, everywhere. `rounded-full` is not a token and stays round - it is
      what the dots and avatars ask for. */
   --radius-xs: 0;
   --radius-sm: 0;
@@ -246,7 +246,7 @@
 }
 
 /* Condensed display type. Unlayered so it reaches a heading that also carries
-   a utility class. Headings only — nav labels and buttons that ask for
+   a utility class. Headings only - nav labels and buttons that ask for
    `font-display` stay at full width, where small condensed type turns to
    stripes. */
 :is(h1, h2, h3, h4, h5, h6) {
@@ -305,7 +305,7 @@
   text-wrap: pretty;
 }
 
-/* Mono labels — dates, tags, counts, eyebrows. */
+/* Mono labels - dates, tags, counts, eyebrows. */
 @utility label-mono {
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -334,18 +334,18 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Shiki output — dual themes selected by CSS variable
+ * Shiki output - dual themes selected by CSS variable
  * ------------------------------------------------------------------ */
 /* The syntax colours are the highlighter's; the paper and the plain text are
-   ours. Left alone a block sat on GitHub's #0d1117 in GitHub's #e6edf3 —
-   measured on the published page — which is another theme parked inside this
+   ours. Left alone a block sat on GitHub's #0d1117 in GitHub's #e6edf3 -
+   measured on the published page - which is another theme parked inside this
    one. The block takes the site's surface and ink; the spans keep the token
    colours, since colouring those by hand would be writing a syntax theme. */
 .shiki-block .shiki {
   color: var(--ink);
   /* `--surface`, not `--surface-2`: GitHub's token colours are drawn against
      white, and on the warmer panel the comment grey measured 4.49:1 and the
-     keyword red 4.27:1 — both under the 4.5 that 14px text needs. The same
+     keyword red 4.27:1 - both under the 4.5 that 14px text needs. The same
      colours on this one measure 4.69 and 5.36. */
   background-color: var(--surface) !important;
 }
@@ -399,13 +399,13 @@
 }
 /* The hero's entrance, in CSS rather than JavaScript.
  *
- * Motion could only start it once React had hydrated — 2.5s on a throttled phone
- * — so the first screen was still arriving at 3.5s and Speed Index counted every
+ * Motion could only start it once React had hydrated - 2.5s on a throttled phone
+ * - so the first screen was still arriving at 3.5s and Speed Index counted every
  * millisecond of it. A stylesheet animation starts at the first paint instead, so
  * the same movement happens while the page is arriving rather than after it.
  *
  * `ease-out` over 0.55s is what Motion was doing before this moved to CSS, so
- * the movement is the one that was there — it just no longer waits for the
+ * the movement is the one that was there - it just no longer waits for the
  * JavaScript. The paragraph it fades in is the page's largest paint, so this
  * costs a little LCP; measured, 60ms to around 400ms, against a 2.5s budget. */
 @keyframes hero-rise {
@@ -422,7 +422,7 @@
 /* A meteor: it falls along its own line, and it is rare.
  *
  * The trail is a horizontal gradient and the whole thing is rotated first, so the
- * travel is along the streak rather than across it — a dash sliding diagonally is
+ * travel is along the streak rather than across it - a dash sliding diagonally is
  * what it looked like before. The flight is 3.5% of the cycle, so a long duration
  * buys a long wait rather than a slow meteor: 26s gives a streak of about 0.9s
  * and then nothing. */
@@ -459,7 +459,7 @@
 @utility hero-in {
   animation: hero-rise 0.55s ease-out both;
   /* Its own layer while it moves. The entrance now runs during the page's busiest
-     moment — hydration, the font swap, the first images — and without this the
+     moment - hydration, the font swap, the first images - and without this the
      text under it is re-rastered every frame: measured, three frames over 33ms in
      the first two and a half seconds, worst 100ms. */
   will-change: transform, opacity;
@@ -467,7 +467,7 @@
 @utility animate-pop { animation: pop-in 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 
 /* ------------------------------------------------------------------ *
- * Accessibility — everything decorative stops for reduced motion
+ * Accessibility - everything decorative stops for reduced motion
  * ------------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -480,7 +480,7 @@
 
   /* Scroll reveals are rendered hidden and animated in by JavaScript, so a
      visitor who wants no motion would otherwise wait for hydration to see any
-     content at all — and saw none when the reveal fell back to a plain div.
+     content at all - and saw none when the reveal fell back to a plain div.
      This shows it from the first paint, before any script runs. */
   [data-reveal] {
     opacity: 1 !important;
@@ -518,7 +518,7 @@
 
 /* The rising glyphs start parked just under the header and travel *up* through
    it. The first attempt translated +900% from that same starting point, which
-   pushed them further down and out of the clipped box — they were only visible in
+   pushed them further down and out of the clipped box - they were only visible in
    the last moments of each cycle, which read as no animation at all. */
 @keyframes festival-rise {
   0% { transform: translate3d(0, 0, 0) scale(0.7); opacity: 0; }
@@ -601,7 +601,7 @@
 
 /* The choice has to reach everything the article is set in, not only its running
    text. --font-display is what dresses the headings, the table headers, the pull quotes, the code
-   block's language label and the list markers — each through its own class, so
+   block's language label and the list markers - each through its own class, so
    swapping the body face alone left all of them in the face the reader had just
    turned off. */
 .article-body :is(h1, h2, h3, h4, h5, h6, th, blockquote, figcaption, summary),
@@ -610,7 +610,7 @@
   font-family: var(--reading-font, var(--font-display));
 }
 
-/* Code stays monospace either way — that is what makes it readable as code. It
+/* Code stays monospace either way - that is what makes it readable as code. It
    is the tail of the stack that follows the reader: the fallback the monospace
    faces hand off to for anything they have no glyph for, Thai above all. */
 .article-body :is(code, pre, kbd, samp),
@@ -624,7 +624,7 @@
  *
  * `<details>` has never animated: its content goes from absent to present, and
  * a height of `auto` is not a number to interpolate between. Two recent
- * additions change that — `interpolate-size` makes `auto` interpolable, and
+ * additions change that - `interpolate-size` makes `auto` interpolable, and
  * `::details-content` gives the hidden part a box to put a height on. Browsers
  * without them ignore all of it and snap open exactly as before, which is why
  * there is no script here doing it by hand.
@@ -698,8 +698,8 @@
   line-height: 1.25;
 }
 
-/* Letter-spacing is a Latin habit. Thai is written without it — spaced out, a
-   word falls apart into its letters — so tracked labels set none in Thai. */
+/* Letter-spacing is a Latin habit. Thai is written without it - spaced out, a
+   word falls apart into its letters - so tracked labels set none in Thai. */
 :lang(th) :is(.label-mono, [class*='tracking-[0.']) {
   letter-spacing: 0;
 }
@@ -707,7 +707,7 @@
 /**
  * Long things that cannot break, breaking.
  *
- * A bare URL in a list — `https://developer.chrome.com/...` — is one word with
+ * A bare URL in a list - `https://developer.chrome.com/...` - is one word with
  * nowhere to wrap, so on a phone it pushed the page 132px past the viewport and
  * everything scrolled sideways under a fixed header. A file path in inline code
  * does the same.
@@ -734,7 +734,7 @@
  * Covers in blue ink.
  *
  * The photograph goes to greyscale and the brand blue is screened over it, so
- * its shadows print blue and its highlights stay white — one ink, like the
+ * its shadows print blue and its highlights stay white - one ink, like the
  * rest of the page. Hovering the card (the `group`) brings the colour back.
  */
 .duotone img,
@@ -771,7 +771,7 @@
 }
 
 /* The home hero over a collage (see `CollageBackdrop`): the text column turns
-   to white on the scrim. Scoped to the column — the orb beside it keeps its
+   to white on the scrim. Scoped to the column - the orb beside it keeps its
    own surface and its own colours. */
 html:not([data-hero-art='off']) section:has([data-art]) .hero-text {
   --ink: #ffffff;
@@ -785,7 +785,7 @@ html:not([data-hero-art='off']) section:has([data-art]) .hero-text {
 
 /* The caption under the orb joins the orb's card over a collage, rather than
    sitting on whatever the draw put behind it. */
-/* Over a picture the caption and controls only change colour — never size or
+/* Over a picture the caption and controls only change colour - never size or
    place, so switching the picture on and off does not move the orb. */
 html:not([data-hero-art='off']) section:has([data-art]) .hero-caption {
   background: color-mix(in srgb, var(--surface) 72%, transparent);
@@ -802,7 +802,7 @@ html:not([data-hero-art='off']) section:has([data-art]) [data-orb] > .star-grid 
   display: none;
 }
 /* Over the dense designs (marked `busy` in hero-designs.tsx) the lines would
-   vanish into the pattern, so the card tints — faintly, and never blurred: the
+   vanish into the pattern, so the card tints - faintly, and never blurred: the
    picture is the point, and the user asked for it sharp. */
 html:not([data-hero-art='off']) section:has([data-art][data-busy]) [data-orb] {
   background: color-mix(in srgb, var(--surface) 28%, transparent);
@@ -848,7 +848,7 @@ html[data-quake] section:has(> [data-art]) > :not([data-art], [data-grid]) {
   animation: egg-quake 1.3s linear;
 }
 
-/* The hero picture or the page grid, whichever the reader chose — decided in
+/* The hero picture or the page grid, whichever the reader chose - decided in
    CSS so the choice made before paint (`HeroArtScript`) is the first frame. */
 html[data-hero-art='off'] [data-art],
 html:not([data-hero-art='off']) [data-grid] {

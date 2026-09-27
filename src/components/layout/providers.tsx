@@ -14,7 +14,7 @@ import { ToastProvider } from '@/components/ui/toast'
 /*
  * `disableTransitionOnChange` is deliberately absent. It exists to stop a theme
  * switch from dragging every hover and layout transition on the page along with
- * it — but the switch is meant to fade now, and the fade is turned on for
+ * it - but the switch is meant to fade now, and the fade is turned on for
  * exactly the moment it takes and off again (see `fadeTheme`), so nothing is
  * left transitioning afterwards.
  */

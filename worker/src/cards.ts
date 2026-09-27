@@ -26,8 +26,8 @@ function pick(ids: string[], items: Item[], lang: Lang): string[] {
 
 /**
  * The model's CARDS ids turned into what the reader sees. The model does not
- * always get its CARDS line right — it leaves it out, or writes ids that do not
- * exist — so when nothing valid is left, the cards are, in turn: the items the
+ * always get its CARDS line right - it leaves it out, or writes ids that do not
+ * exist - so when nothing valid is left, the cards are, in turn: the items the
  * reply names by title; the ones whose titles or tags it talks about ("llms.txt",
  * "macOS"); the ones the ranking picked for the question; and, when the question
  * asks for all or the latest articles or projects, the latest of those.

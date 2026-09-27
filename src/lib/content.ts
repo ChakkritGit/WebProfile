@@ -12,7 +12,7 @@ import { contentLocalePreference, type Locale } from '@/i18n/routing'
  * a thousand lines of sample content standing behind these functions for the case
  * where Supabase could not be reached; a personal site showing invented articles
  * is worse than one showing none, and the same content kept leaking into empty
- * results — "nothing is featured" and "that slug was deleted" are real answers.
+ * results - "nothing is featured" and "that slug was deleted" are real answers.
  */
 
 function iso(value: Date | string | null | undefined): string | null {
@@ -165,7 +165,7 @@ export async function getPost(
 
   return safely(async () => {
     // The slug is unique per locale, so this returns at most one row per language.
-    // Reading `/ja/blog/<thai-only-post>` must serve the Thai text rather than 404 —
+    // Reading `/ja/blog/<thai-only-post>` must serve the Thai text rather than 404 -
     // the listing offered the entry, so the URL has to resolve.
     const rows = await prisma!.post.findMany({ where: { slug } })
     const row = best(readable(rows))

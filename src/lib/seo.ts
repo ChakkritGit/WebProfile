@@ -80,7 +80,7 @@ export function buildMetadata({
   tags,
 }: BuildMetadataOptions): Metadata {
   const name = siteName(locale)
-  const resolvedTitle = title ?? `${name} — ${profile.role}`
+  const resolvedTitle = title ?? `${name} - ${profile.role}`
   const resolvedDescription = description ?? siteDescription(locale)
   const url = absoluteUrl(path, locale)
   const otherLocale = routing.locales.find((l) => l !== locale) ?? routing.defaultLocale
@@ -132,7 +132,7 @@ export function buildMetadata({
 
 /**
  * The author, as structured data. One object for every page, because Google's
- * rich-result test flags a `Person` without a `url` — and the home page's
+ * rich-result test flags a `Person` without a `url` - and the home page's
  * lists had three that did not match the one on each article. `/about` is the
  * page that is about the person.
  */

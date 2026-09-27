@@ -9,11 +9,11 @@ const bodySchema = z.object({
 })
 
 /**
- * POST /api/views — record one view.
+ * POST /api/views - record one view.
  *
  * Public by design: it only ever increments a counter on a published record.
  * The client sends this once per session per item (see ViewTracker), so a
- * reload does not inflate the number. It is a popularity signal, not analytics —
+ * reload does not inflate the number. It is a popularity signal, not analytics -
  * no identifiers are stored.
  */
 export async function POST(request: Request) {

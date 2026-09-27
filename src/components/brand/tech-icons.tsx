@@ -4,7 +4,7 @@ import type { SVGProps } from 'react'
  * Technology marks for the tags.
  *
  * The brands are Simple Icons' own paths and colours (CC0, simple-icons 16.32),
- * pasted in rather than depended on — a few dozen strings, not a package. The
+ * pasted in rather than depended on - a few dozen strings, not a package. The
  * earlier hand-drawn approximations read wrong at a glance. A brand colour too
  * dark to see on the dark theme is left to `currentColor`, which inverts with it.
  * The generic marks below them are drawn here, for tags that are not a brand.

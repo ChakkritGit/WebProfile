@@ -5,7 +5,7 @@ import type { API, OutputBlockData, ToolSettings } from '@editorjs/editorjs'
  * Collapsible sections: one of them is a toggle, several are an accordion.
  *
  * Both were third-party tools first. `editorjs-toggle-block` does not put the
- * hidden content inside the block — it records how many of the blocks after it
+ * hidden content inside the block - it records how many of the blocks after it
  * are its own and leaves them in the document as siblings, tracked by a key
  * written into the DOM. Everything that went wrong followed from that: a caret
  * 25px above its own title, a first click on the empty section that did not put
@@ -14,15 +14,15 @@ import type { API, OutputBlockData, ToolSettings } from '@editorjs/editorjs'
  * after one.
  *
  * So the content lives in the block. A section holds real blocks rather than a
- * line of rich text, which is what an aside usually needs — a list, a picture,
- * a snippet — and it holds them as block data, not as HTML: the article page
+ * line of rich text, which is what an aside usually needs - a list, a picture,
+ * a snippet - and it holds them as block data, not as HTML: the article page
  * renders them with the same per-type renderers as everything else, so nothing
  * had to be added to the small set of inline tags it trusts.
  *
  * Each section body is its own editor. That is the price of nesting without the
  * sibling bookkeeping, and it is a real one: two Editor.js instances share a
  * document, so a keystroke inside a section is a keystroke the outer editor can
- * also see. What that costs is contained here — see `stopBubbling`.
+ * also see. What that costs is contained here - see `stopBubbling`.
  */
 
 export interface Section {
@@ -70,7 +70,7 @@ function blocksOf(item: Section): OutputBlockData[] {
  * every Enter and Backspace typed inside a section: Enter would split the
  * section's own block in two, and Backspace at the start of a nested paragraph
  * would delete the section. Listening in the capture phase on the section's
- * wrapper stops the event before it reaches the document at all — the nested
+ * wrapper stops the event before it reaches the document at all - the nested
  * editor binds to its own elements, so it still gets everything it needs.
  */
 function stopBubbling(node: HTMLElement) {
@@ -174,7 +174,7 @@ abstract class SectionsTool {
     row.append(head, body)
 
     // Editor.js wants a holder that is in the document, and `render` returns
-    // before the block is attached — so the nested editor is built on the next
+    // before the block is attached - so the nested editor is built on the next
     // frame rather than here.
     requestAnimationFrame(() => this.mount(row, body, blocksOf(item)))
     return row

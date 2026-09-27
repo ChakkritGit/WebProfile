@@ -76,7 +76,7 @@ interface ButtonLinkProps {
   size?: Size
   className?: string
   children: ReactNode
-  /** Set for links leaving the site — adds target/rel and skips locale routing. */
+  /** Set for links leaving the site - adds target/rel and skips locale routing. */
   external?: boolean
   download?: boolean
   'aria-label'?: string

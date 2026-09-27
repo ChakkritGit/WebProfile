@@ -2,7 +2,7 @@ import type { SVGProps } from 'react'
 
 /**
  * Every interface icon is Lucide's. The names are this file's own so the call
- * sites never learned which set they came from — swapping the set was this file.
+ * sites never learned which set they came from - swapping the set was this file.
  *
  * Lucide carries no brand marks (it dropped them on purpose), so the logos below
  * are the brands' own single-path glyphs, filled rather than stroked.

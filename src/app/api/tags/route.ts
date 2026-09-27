@@ -8,7 +8,7 @@ const nameSchema = z
   .min(1, 'A tag needs a name.')
   .max(40, 'Tags are limited to 40 characters.')
 
-/** GET /api/tags — the master vocabulary, plus tags already in use. */
+/** GET /api/tags - the master vocabulary, plus tags already in use. */
 export async function GET() {
   try {
     await requireOwner()
@@ -37,7 +37,7 @@ export async function GET() {
   }
 }
 
-/** POST /api/tags — add a name to the master list. */
+/** POST /api/tags - add a name to the master list. */
 export async function POST(request: Request) {
   try {
     await requireOwner()
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   }
 }
 
-/** DELETE /api/tags?name=… — remove from the vocabulary (content keeps its copy). */
+/** DELETE /api/tags?name=… - remove from the vocabulary (content keeps its copy). */
 export async function DELETE(request: Request) {
   try {
     await requireOwner()

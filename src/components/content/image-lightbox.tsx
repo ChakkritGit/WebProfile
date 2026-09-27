@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
  * click handler would ship the whole block tree to the browser to gain nothing
  * else. The images carry `data-zoom`; this finds them by delegation.
  *
- * A native `<dialog>` does the rest — the top layer, the backdrop, Escape, and
+ * A native `<dialog>` does the rest - the top layer, the backdrop, Escape, and
  * returning focus to the image on close, none of which has to be written here.
  *
  * Zoom is one transform with three ways in, because the devices ask
@@ -90,8 +90,8 @@ export function ImageLightbox() {
   /**
    * The picture on the page, hidden while it is the one on the screen.
    *
-   * The opened picture is that picture — it grows out of its box and lands back
-   * in it — so leaving the original showing underneath meant two of them, and the
+   * The opened picture is that picture - it grows out of its box and lands back
+   * in it - so leaving the original showing underneath meant two of them, and the
    * one on the page sat there through the whole preview. It is hidden rather than
    * removed so the article does not reflow, and given back the moment the exit
    * lands on it. The scroll lock is what makes that box still be there.
@@ -210,8 +210,8 @@ export function ImageLightbox() {
             drag.current = null
             setMoving(false)
           }}
-          // A touch that the browser takes over — a scroll gesture it decides is
-          // its own — fires this and not pointerup, and the drag stayed armed.
+          // A touch that the browser takes over - a scroll gesture it decides is
+          // its own - fires this and not pointerup, and the drag stayed armed.
           onPointerCancel={(event) => {
             pointers.current.delete(event.pointerId)
             pinch.current = null
@@ -265,11 +265,11 @@ export function ImageLightbox() {
               cursor: scale > 1 ? 'grab' : 'zoom-in',
             }}
             // A tap toggles, rather than a tap in and a double tap out: a
-            // double tap is two taps, so the pair fought each other — in, then
+            // double tap is two taps, so the pair fought each other - in, then
             // straight back out, which measured as never zooming at all.
             // A tap toggles between fit and 2.5×; a drag is not a tap. Dragging a
             // zoomed picture ended in a click, and the click read `scale > 1` and
-            // put it back where it started — which is why panning kept snapping
+            // put it back where it started - which is why panning kept snapping
             // to the beginning.
             onClick={() => {
               if (travel.current > 6) return
@@ -294,7 +294,7 @@ export function ImageLightbox() {
             aria-label="Close"
             // White, fixed, for the same reason the ground behind it is a fixed
             // near-black: `--paper` flips with the theme, so the icon measured
-            // rgb(20,18,28) in dark mode — near-black on near-black, invisible.
+            // rgb(20,18,28) in dark mode - near-black on near-black, invisible.
             className="absolute end-3 top-3 grid size-11 place-items-center rounded-full text-[#fffcf7] hover:bg-[#fffcf7]/15"
           >
             <CloseIcon className="size-6" />

@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 /**
  * The zone every date on this site is read in.
  *
- * Without it `Intl` uses the runtime's, which on the server is UTC — so a post
+ * Without it `Intl` uses the runtime's, which on the server is UTC - so a post
  * published at two in the morning in Bangkok, seven in the evening UTC the day
  * before, was dated the previous day everywhere it appeared. Pinned rather than
  * taken from the reader, so the date is the same on the server and in the

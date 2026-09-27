@@ -85,7 +85,7 @@ export interface OgCardOptions {
   /** Small uppercase label above the title. */
   eyebrow: string
   title: string
-  /** Blue line under the title — role, summary or stack. */
+  /** Blue line under the title - role, summary or stack. */
   subtitle?: string
   /** Small grey text bottom-left. Defaults to the site domain. */
   footer?: string

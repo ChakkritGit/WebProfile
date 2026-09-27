@@ -10,7 +10,7 @@ import type { API, BlockToolData } from '@editorjs/editorjs'
  * and this could not be found at all.
  *
  * So this is the entry, and nothing more. It asks for a URL, resolves it against
- * the tool's own service table, and replaces itself with a real `embed` block —
+ * the tool's own service table, and replaces itself with a real `embed` block -
  * which then renders, saves and re-opens exactly as a pasted one does. Nothing
  * here re-implements what the tool already knows, and nothing of it survives in
  * a saved document.
@@ -30,7 +30,7 @@ type EmbedBlockData = {
  * The first service whose pattern claims this URL.
  *
  * `Embed.services` is the table the tool builds in `prepare`, which Editor.js
- * runs for every registered tool before any block exists — so by the time
+ * runs for every registered tool before any block exists - so by the time
  * anyone can click the toolbox entry, it is populated, defaults and any
  * configured additions alike.
  */

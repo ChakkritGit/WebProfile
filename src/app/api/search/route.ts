@@ -4,7 +4,7 @@ import { listPosts, listProjects } from '@/lib/content'
 import type { SearchEntry } from '@/lib/search'
 
 /**
- * GET /api/search?locale=th — everything published, as a search index.
+ * GET /api/search?locale=th - everything published, as a search index.
  *
  * The instant search in the navbar filters this in the browser rather than
  * asking the server once per keystroke: the whole corpus is a few kilobytes,

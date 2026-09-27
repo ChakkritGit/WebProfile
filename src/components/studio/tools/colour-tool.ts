@@ -1,5 +1,5 @@
 /**
- * Inline colour tools — text colour and highlight.
+ * Inline colour tools - text colour and highlight.
  *
  * Written in-house because `editorjs-text-color-plugin` renders nothing under
  * Editor.js 2.31: it targets an older inline-tool API, so both buttons appeared
@@ -7,7 +7,7 @@
  *
  * Emits `<span style="color:…">` / `<span style="background-color:…">`, which is
  * exactly the subset `rich-text.tsx` validates and re-renders on the public
- * side (literal colour values only — never arbitrary CSS).
+ * side (literal colour values only - never arbitrary CSS).
  */
 
 interface ToolConfig {
@@ -71,7 +71,7 @@ class ColourTool {
    * The palette is mounted on `document.body`, not returned from `renderActions()`.
    *
    * Editor.js owns whatever `renderActions()` returns and pulls it out of the DOM
-   * each time the inline toolbar closes — which it does the moment a swatch is
+   * each time the inline toolbar closes - which it does the moment a swatch is
    * clicked. The palette was therefore gone before a second colour could be
    * picked, and re-opening the tool removed it again. Owning the element here
    * keeps it alive across picks; it is positioned against the button by hand.
@@ -174,7 +174,7 @@ class ColourTool {
   }
 
   clear(): void {
-    // Editor.js tears the inline toolbar down on every selection change —
+    // Editor.js tears the inline toolbar down on every selection change -
     // including the one our own edit causes. Honouring that here closed the
     // palette and dropped the range after a single pick, so the second colour
     // had nothing to act on. While the palette is open it closes on its own
@@ -214,7 +214,7 @@ class ColourTool {
 
     // Strip the property wherever the selection already carries it. Wrapping a
     // second colour around the first left the old span nested inside the new
-    // one, where being deeper won it the cascade — so every colour after the
+    // one, where being deeper won it the cascade - so every colour after the
     // first looked like it did nothing.
     contents.querySelectorAll('span[style]').forEach((span) => {
       const el = span as HTMLElement

@@ -21,7 +21,7 @@ export function SiteHeader() {
   const reduce = useReducedMotion()
   const festival = useFestival()
 
-  // Close the sheet whenever the route changes — including via back/forward.
+  // Close the sheet whenever the route changes - including via back/forward.
   // Adjusting state during render is React's documented alternative to an
   // effect here, and avoids a wasted frame with the menu still open.
   const [menuRoute, setMenuRoute] = useState(pathname)

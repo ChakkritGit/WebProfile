@@ -3,7 +3,7 @@ import { defineRouting } from 'next-intl/routing'
 export const routing = defineRouting({
   locales: ['th', 'en', 'ja'],
   defaultLocale: 'th',
-  // Thai lives at `/`, the others at `/en/…` and `/ja/…` — best of clean URLs
+  // Thai lives at `/`, the others at `/en/…` and `/ja/…` - best of clean URLs
   // and hreflang SEO.
   localePrefix: 'as-needed',
   // Without an explicit maxAge the preference cookie is session-only, so the
@@ -18,7 +18,7 @@ export type Locale = (typeof routing.locales)[number]
 
 /**
  * Any locale can hold content. Japanese started as a UI-only translation, but the
- * studio has always let an author pick it, and two posts were saved that way —
+ * studio has always let an author pick it, and two posts were saved that way -
  * treating `ja` as "reads the English corpus" made those rows unreachable from
  * the studio while still being served at their URLs.
  */
@@ -44,8 +44,8 @@ const FALLBACK_ORDER: Record<Locale, readonly ContentLocale[]> = {
 /**
  * The argument is typed `Locale`, and at runtime it is sometimes not one.
  *
- * A URL that matches no route — `/nope.txt`, anything with a dot, which the
- * proxy's matcher skips — still gets the `[locale]` page evaluated on the way to
+ * A URL that matches no route - `/nope.txt`, anything with a dot, which the
+ * proxy's matcher skips - still gets the `[locale]` page evaluated on the way to
  * `global-not-found`, with no locale to pass. `FALLBACK_ORDER[undefined]` is
  * `undefined`, and `preferLocale` mapped over it: the whole 500 that
  * `globalNotFound` was supposed to have fixed was this line, not the routing.

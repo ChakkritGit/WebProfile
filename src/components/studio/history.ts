@@ -6,7 +6,7 @@ import type { OutputData } from '@editorjs/editorjs'
  *
  * The browser's own history covers typing inside one block and nothing else:
  * delete a block, move one, or turn a paragraph into a heading, and there is
- * nothing to go back to — pressing undo after any of those eats a character
+ * nothing to go back to - pressing undo after any of those eats a character
  * somewhere instead.
  *
  * `editorjs-undo` is the usual answer and it corrupted the document on the first
@@ -125,7 +125,7 @@ export function bindHistoryKeys(holder: HTMLElement, history: History) {
 /**
  * Enter inside a quote, as a line break rather than a paragraph.
  *
- * The quote tool turns off block-splitting, so Enter stays inside the quote —
+ * The quote tool turns off block-splitting, so Enter stays inside the quote -
  * but what the browser inserts is a `<div>`, and the tool's own sanitiser keeps
  * only `<br>`. The div was stripped on save and took the line break with it, so
  * a two-line quote arrived on the page as one line with the words run together.

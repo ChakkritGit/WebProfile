@@ -14,15 +14,15 @@ import { TON_EVENT, TON_HASH } from '@/lib/easter-egg'
  * The picture behind the first screen, a new one every time the page is
  * opened, from three collections:
  *
- * - drawn designs (`hero-designs.tsx`) — SVG from noise and gradients,
+ * - drawn designs (`hero-designs.tsx`) - SVG from noise and gradients,
  *   blended blue like everything else;
- * - moving designs (`hero-motion.tsx`) — composited layers in motion, blended
+ * - moving designs (`hero-motion.tsx`) - composited layers in motion, blended
  *   blue the same way (the filter and the blend run on the GPU);
- * - found pictures (`hero-photos.ts`) — public-domain art and NASA imagery,
+ * - found pictures (`hero-photos.ts`) - public-domain art and NASA imagery,
  *   blended blue like the article covers, drifting slowly (Ken Burns).
  *
- * It opens with a timelapse — a run of the found pictures, fast and then
- * slowing — before settling on the one chosen. Chosen in the browser, so it
+ * It opens with a timelapse - a run of the found pictures, fast and then
+ * slowing - before settling on the one chosen. Chosen in the browser, so it
  * cannot be in the server's markup: until then the hero is a dark ground under
  * the same scrim, so the white text is right from the first frame.
  *
@@ -81,7 +81,7 @@ function Drawn({ seed, index }: { seed: number; index: number }) {
 /** A found picture, blended blue like the covers; `thumb` for the timelapse. */
 function Photo({ photo, thumb = false }: { photo: HeroPhoto; thumb?: boolean }) {
   // A cached image can finish before hydration attaches `onLoad`, so the ref
-  // checks `complete` too — otherwise it would stay invisible for ever.
+  // checks `complete` too - otherwise it would stay invisible for ever.
   const shown = (el: HTMLImageElement | null) => {
     if (el?.complete) el.classList.add('is-loaded')
   }
@@ -402,9 +402,9 @@ export function HeroArt() {
             target="_blank"
             rel="noreferrer noopener"
             className="min-w-0 truncate font-mono text-[0.7rem] text-white/75 no-underline hover:text-white"
-            title={`${photo.title} — ${photo.by}${photo.date ? `, ${photo.date}` : ''} · ${photo.source}`}
+            title={`${photo.title} - ${photo.by}${photo.date ? `, ${photo.date}` : ''} · ${photo.source}`}
           >
-            {photo.title} — {photo.by}
+            {photo.title} - {photo.by}
             {photo.date ? `, ${photo.date}` : ''} · {photo.source}
           </a>
         )}

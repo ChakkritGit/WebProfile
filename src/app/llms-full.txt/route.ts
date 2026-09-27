@@ -1,7 +1,7 @@
 import { llmsFull } from '@/lib/llms'
 
 /**
- * `/llms-full.txt` — the index, then everything it points at.
+ * `/llms-full.txt` - the index, then everything it points at.
  *
  * The companion llmstxt.org describes for readers that would otherwise fetch
  * every page in turn and strip the HTML off each one. Same content, one request.

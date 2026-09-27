@@ -130,7 +130,7 @@ export default function Stage({ onReady, onOpen, busy }: { onReady(e: Engine | n
       ref={canvas}
       role="button"
       tabIndex={0}
-      aria-label="Mr. Worldwide — ask about this site"
+      aria-label="Mr. Worldwide - ask about this site"
       onClick={open}
       onKeyDown={(ev) => {
         if (ev.key === 'Enter' || ev.key === ' ') {

@@ -2,7 +2,7 @@
   "meta": {
     "siteName": "Chakkrit Laolit",
     "tagline": "ソフトウェア・Web・モバイル開発の記事",
-    "defaultDescription": "実務から生まれた Web・モバイル・ソフトウェア開発の記事 — Next.js、React、TypeScript、Kotlin とその裏側のツール、そして制作したプロジェクト。Chakkrit Laolit によるサイト。"
+    "defaultDescription": "実務から生まれた Web・モバイル・ソフトウェア開発の記事 - Next.js、React、TypeScript、Kotlin とその裏側のツール、そして制作したプロジェクト。Chakkrit Laolit によるサイト。"
   },
   "nav": {
     "home": "ホーム",
@@ -132,7 +132,7 @@
     "popularTitle": "よく読まれている",
     "popularSubtitle": "いま最も開かれているもの",
     "webringTitle": "タイのウェブリングに参加しています",
-    "webringBody": "このサイトは วงแหวนเว็บ — タイのアーティスト・デザイナー・開発者による個人サイトの輪 — の一員です。バッジから他のサイトへどうぞ。",
+    "webringBody": "このサイトは วงแหวนเว็บ - タイのアーティスト・デザイナー・開発者による個人サイトの輪 - の一員です。バッジから他のサイトへどうぞ。",
     "webringCta": "ウェブリングを見る",
     "graphExpand": "全画面表示",
     "graphExit": "全画面を終了",
@@ -163,7 +163,7 @@
     "orbPlay": "回転を再開",
     "bgOff": "背景を隠す",
     "bgOn": "背景を表示",
-    "egg": "ガルガンチュア — 『インターステラー』(2014)より。もう一度「ton」と打つと戻ります。"
+    "egg": "ガルガンチュア - 『インターステラー』(2014)より。もう一度「ton」と打つと戻ります。"
   },
   "about": {
     "title": "自己紹介",
@@ -406,7 +406,7 @@
     "post": "Article",
     "minutes": "{n} min",
     "err_rate_limited": "Whoa, slow down! Give me {s} seconds to catch my breath.",
-    "err_quota": "I've talked the whole day away — I'm resting now. Come back tomorrow!",
+    "err_quota": "I've talked the whole day away - I'm resting now. Come back tomorrow!",
     "err_upstream": "My signal flickered. Try that again?",
     "err_network": "Lost you for a second there. Try again?",
     "err_bad_request": "I couldn't read that one. Could you ask it another way?"

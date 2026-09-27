@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Put Mr. Worldwide — a walking, warping hologram globe — on every public page of chakkritton.com, and let visitors ask him about the site's projects and articles through a Cloudflare Worker running Qwen 3 on Workers AI.
+**Goal:** Put Mr. Worldwide - a walking, warping hologram globe - on every public page of chakkritton.com, and let visitors ask him about the site's projects and articles through a Cloudflare Worker running Qwen 3 on Workers AI.
 
 **Architecture:** The portfolio (Next.js on Vercel) publishes a compact content index (`/ai/index.json`) and per-item text (`/ai/item/…/{slug}.txt`). A Cloudflare Worker on the zone route `chakkritton.com/api/assistant*` ranks items for a question, prompts `@cf/qwen/qwen3-30b-a3b-fp8`, and streams the answer back as Server-Sent Events. On the page, a lazily loaded three.js engine (ported from the approved prototype) draws the character on a fixed strip at the bottom of the viewport, and a native `<dialog>` is the hologram screen he talks through.
 
@@ -28,36 +28,36 @@
 
 ## Review Focus
 
-1. **A reply that mentions `CARDS:` in normal prose, or a `CARDS` line split across stream chunks** — the text must not lose words and the ids must still be parsed. Pinned in Task 3 (`reply filter` tests: split line, inline word).
-2. **Thai questions with no spaces** ("อยากดูโปรเจคไวท์บอร์ด") — must still find the Thai item. Pinned in Task 2 (`rank` Thai test).
-3. **The model naming an item that does not exist** — no card, no broken link. Pinned in Task 4 (`toClientStream` drops unknown ids).
-4. **Clicking a link that sits under the character's strip while he is elsewhere** — the click must reach the link. Pinned in Task 11 (Playwright: link under the strip is clickable).
-5. **A second message sent while the first is still streaming** — the first is cancelled; no interleaved text. Pinned in Task 6 (`useAssistant` aborts the previous request; test on `ask` with an aborted signal).
+1. **A reply that mentions `CARDS:` in normal prose, or a `CARDS` line split across stream chunks** - the text must not lose words and the ids must still be parsed. Pinned in Task 3 (`reply filter` tests: split line, inline word).
+2. **Thai questions with no spaces** ("อยากดูโปรเจคไวท์บอร์ด") - must still find the Thai item. Pinned in Task 2 (`rank` Thai test).
+3. **The model naming an item that does not exist** - no card, no broken link. Pinned in Task 4 (`toClientStream` drops unknown ids).
+4. **Clicking a link that sits under the character's strip while he is elsewhere** - the click must reach the link. Pinned in Task 11 (Playwright: link under the strip is clickable).
+5. **A second message sent while the first is still streaming** - the first is cancelled; no interleaved text. Pinned in Task 6 (`useAssistant` aborts the previous request; test on `ask` with an aborted signal).
 
 ---
 
 ## File map
 
 Portfolio (Next.js):
-- Create `src/lib/ai-index.ts` — pure: records → `AiItem[]`. Test `src/lib/ai-index.test.ts`.
-- Create `src/app/ai/index.json/route.ts` — the index endpoint.
-- Create `src/app/ai/item/[kind]/[locale]/[slug]/route.ts` — one item's text.
-- Create `src/lib/assistant-client.ts` — SSE parser + `ask()`. Test `src/lib/assistant-client.test.ts`.
-- Create `src/components/assistant/use-assistant.ts` — conversation state, sessionStorage.
-- Create `src/components/assistant/engine/shaders.ts`, `figure.ts`, `motion.ts`, `engine.ts` — the character.
-- Create `src/assets/ai/land.png` — world land mask (copied from the prototype).
-- Create `src/components/assistant/mr-worldwide.tsx` — idle-loaded mount.
-- Create `src/components/assistant/stage.tsx` — canvas, pointer routing, fallback, chat host.
-- Create `src/components/assistant/hologram-chat.tsx` — the dialog.
-- Modify `src/app/[locale]/layout.tsx` — mount `<MrWorldwide />`.
-- Modify `src/app/globals.css` — hologram screen styles.
-- Modify `src/messages/{th,en,ja}.json` — `assistant` namespace.
-- Modify `tsconfig.json`, `eslint.config.mjs` — exclude `worker/`.
-- Create `scripts/check-assistant.mjs` — Playwright checks.
+- Create `src/lib/ai-index.ts` - pure: records → `AiItem[]`. Test `src/lib/ai-index.test.ts`.
+- Create `src/app/ai/index.json/route.ts` - the index endpoint.
+- Create `src/app/ai/item/[kind]/[locale]/[slug]/route.ts` - one item's text.
+- Create `src/lib/assistant-client.ts` - SSE parser + `ask()`. Test `src/lib/assistant-client.test.ts`.
+- Create `src/components/assistant/use-assistant.ts` - conversation state, sessionStorage.
+- Create `src/components/assistant/engine/shaders.ts`, `figure.ts`, `motion.ts`, `engine.ts` - the character.
+- Create `src/assets/ai/land.png` - world land mask (copied from the prototype).
+- Create `src/components/assistant/mr-worldwide.tsx` - idle-loaded mount.
+- Create `src/components/assistant/stage.tsx` - canvas, pointer routing, fallback, chat host.
+- Create `src/components/assistant/hologram-chat.tsx` - the dialog.
+- Modify `src/app/[locale]/layout.tsx` - mount `<MrWorldwide />`.
+- Modify `src/app/globals.css` - hologram screen styles.
+- Modify `src/messages/{th,en,ja}.json` - `assistant` namespace.
+- Modify `tsconfig.json`, `eslint.config.mjs` - exclude `worker/`.
+- Create `scripts/check-assistant.mjs` - Playwright checks.
 
 Worker (`worker/`, its own package):
 - `package.json`, `tsconfig.json`, `wrangler.toml`
-- `src/types.ts` — `Item`, `Msg`, `Env`.
+- `src/types.ts` - `Item`, `Msg`, `Env`.
 - `src/rank.ts` + `test/rank.test.ts`
 - `src/prompt.ts` + `test/prompt.test.ts`
 - `src/filter.ts` + `test/filter.test.ts`
@@ -75,7 +75,7 @@ Worker (`worker/`, its own package):
 - Consumes: `listPosts`, `listProjects`, `getPost`, `getProject` (`src/lib/content.ts`), `documentToText` (`src/lib/editor.ts`), `absoluteUrl` (`src/lib/seo.ts`), `decodeParam` (`src/lib/slug.ts`), `PostRecord`/`ProjectRecord` (`src/lib/content-types.ts`; both have `readingMinutes`, `coverImage`, `status`, `locale`).
 - Produces: `interface AiItem { id; kind: 'post'|'project'; locale: 'th'|'en'; slug; url; title; summary; tags: string[]; stack: string[]; minutes: number; cover: string|null }`, `toAiItems(posts, projects): AiItem[]`; `GET /ai/index.json` → `{ items: AiItem[] }`; `GET /ai/item/{kind}/{locale}/{slug}.txt` → `text/plain`.
 
-- [ ] **Step 1: Write the failing test** — `src/lib/ai-index.test.ts`
+- [ ] **Step 1: Write the failing test** - `src/lib/ai-index.test.ts`
 
 ```ts
 // Run: npx tsx --test src/lib/ai-index.test.ts
@@ -112,9 +112,9 @@ test('only th and en records are indexed', () => {
 - [ ] **Step 2: Run it to see it fail**
 
 Run: `npx tsx --test src/lib/ai-index.test.ts`
-Expected: FAIL — `Cannot find module './ai-index'`.
+Expected: FAIL - `Cannot find module './ai-index'`.
 
-- [ ] **Step 3: Implement** — `src/lib/ai-index.ts`
+- [ ] **Step 3: Implement** - `src/lib/ai-index.ts`
 
 ```ts
 import { absoluteUrl } from './seo'
@@ -171,9 +171,9 @@ export function toAiItems(posts: PostRecord[], projects: ProjectRecord[]): AiIte
 }
 ```
 
-- [ ] **Step 4: Run the test** — `npx tsx --test src/lib/ai-index.test.ts` → PASS (3 tests).
+- [ ] **Step 4: Run the test** - `npx tsx --test src/lib/ai-index.test.ts` → PASS (3 tests).
 
-- [ ] **Step 5: The index route** — `src/app/ai/index.json/route.ts`
+- [ ] **Step 5: The index route** - `src/app/ai/index.json/route.ts`
 
 ```ts
 import { listPosts, listProjects } from '@/lib/content'
@@ -199,7 +199,7 @@ export async function GET(): Promise<Response> {
 }
 ```
 
-- [ ] **Step 6: The item route** — `src/app/ai/item/[kind]/[locale]/[slug]/route.ts`
+- [ ] **Step 6: The item route** - `src/app/ai/item/[kind]/[locale]/[slug]/route.ts`
 
 ```ts
 import { getPost, getProject } from '@/lib/content'
@@ -263,7 +263,7 @@ git push origin main
 **Interfaces:**
 - Produces: `Item` (same fields as `AiItem`), `Msg = { role: 'user' | 'assistant'; content: string }`, `Lang = 'th' | 'en'`, `rank(items: Item[], query: string, lang: Lang): Item[]` (best first; only items scoring ≥ 1).
 
-- [ ] **Step 1: Scaffold** — `worker/package.json`
+- [ ] **Step 1: Scaffold** - `worker/package.json`
 
 ```json
 {
@@ -337,7 +337,7 @@ export interface Env {
 }
 ```
 
-- [ ] **Step 2: Failing tests** — `worker/test/rank.test.ts`
+- [ ] **Step 2: Failing tests** - `worker/test/rank.test.ts`
 
 ```ts
 // Run: npx tsx --test test/rank.test.ts   (from worker/)
@@ -377,9 +377,9 @@ test('the reader’s language wins a tie', () => {
 })
 ```
 
-- [ ] **Step 3: Run** — `cd worker && npx tsx --test test/rank.test.ts` → FAIL (module missing).
+- [ ] **Step 3: Run** - `cd worker && npx tsx --test test/rank.test.ts` → FAIL (module missing).
 
-- [ ] **Step 4: Implement** — `worker/src/rank.ts`
+- [ ] **Step 4: Implement** - `worker/src/rank.ts`
 
 ```ts
 import type { Item, Lang } from './types'
@@ -423,7 +423,7 @@ export function rank(items: Item[], query: string, lang: Lang): Item[] {
 }
 ```
 
-- [ ] **Step 5: Run** — `npx tsx --test test/rank.test.ts` → PASS (5). Then from the repo root: `npx tsc --noEmit 2>&1 | grep -v '^\.next'` prints nothing (worker excluded).
+- [ ] **Step 5: Run** - `npx tsx --test test/rank.test.ts` → PASS (5). Then from the repo root: `npx tsc --noEmit 2>&1 | grep -v '^\.next'` prints nothing (worker excluded).
 
 - [ ] **Step 6: Commit**
 
@@ -446,7 +446,7 @@ git commit -m "feat(worker): scaffold and rank the site's items for a question"
   - `buildMessages(o: { items: Item[]; details: { item: Item; text: string }[]; history: Msg[]; lang: Lang }): { role: 'system' | 'user' | 'assistant'; content: string }[]`
   - `createReplyFilter(): { push(delta: string): string; end(): { text: string; ids: string[] } }`
 
-- [ ] **Step 1: Failing tests** — `worker/test/prompt.test.ts`
+- [ ] **Step 1: Failing tests** - `worker/test/prompt.test.ts`
 
 ```ts
 // Run: npx tsx --test test/prompt.test.ts   (from worker/)
@@ -514,9 +514,9 @@ test('a think block, even split, never reaches the reader', () => {
 })
 ```
 
-- [ ] **Step 2: Run** — `npx tsx --test test/prompt.test.ts test/filter.test.ts` → FAIL (modules missing).
+- [ ] **Step 2: Run** - `npx tsx --test test/prompt.test.ts test/filter.test.ts` → FAIL (modules missing).
 
-- [ ] **Step 3: Implement** — `worker/src/prompt.ts`
+- [ ] **Step 3: Implement** - `worker/src/prompt.ts`
 
 ```ts
 import type { Item, Lang, Msg } from './types'
@@ -526,10 +526,10 @@ type Out = { role: 'system' | 'user' | 'assistant'; content: string }
 export function indexLine(it: Item): string {
   const kind = it.kind === 'post' ? 'Article' : 'Project'
   const tags = [...it.tags, ...it.stack].join(', ')
-  return `[${it.id}] ${kind} (${it.locale}, ${it.minutes} min) — ${it.title} — ${it.summary.slice(0, 160)} — tags: ${tags}`
+  return `[${it.id}] ${kind} (${it.locale}, ${it.minutes} min) - ${it.title} - ${it.summary.slice(0, 160)} - tags: ${tags}`
 }
 
-const PERSONA = `You are Mr. Worldwide, a cheerful hologram globe who guides visitors around chakkritton.com — Chakkrit Laolit's portfolio of articles and projects.
+const PERSONA = `You are Mr. Worldwide, a cheerful hologram globe who guides visitors around chakkritton.com - Chakkrit Laolit's portfolio of articles and projects.
 Voice: warm, playful, a little teasing, never rude. Short: two to four sentences.
 Rules:
 - Talk only about this site's articles, projects, tags and Chakkrit's work. Politely steer anything else back to them.
@@ -633,7 +633,7 @@ export function createReplyFilter() {
 }
 ```
 
-- [ ] **Step 4: Run** — `npx tsx --test test/prompt.test.ts test/filter.test.ts` → PASS (7).
+- [ ] **Step 4: Run** - `npx tsx --test test/prompt.test.ts test/filter.test.ts` → PASS (7).
 
 - [ ] **Step 5: Commit**
 
@@ -652,13 +652,13 @@ git commit -m "feat(worker): the persona prompt, and a filter that keeps CARDS a
 **Interfaces:**
 - Consumes: `rank` (Task 2), `buildMessages`, `createReplyFilter` (Task 3), `Env`, `Item`, `Msg`.
 - Produces:
-  - `toClientStream(upstream: ReadableStream<Uint8Array>, valid: Set<string>): ReadableStream<Uint8Array>` — emits SSE events `text` (`{"t": string}`), `cards` (`{"ids": string[]}`), `done` (`{}`), and on a broken stream `error` (`{"code":"upstream"}`).
+  - `toClientStream(upstream: ReadableStream<Uint8Array>, valid: Set<string>): ReadableStream<Uint8Array>` - emits SSE events `text` (`{"t": string}`), `cards` (`{"ids": string[]}`), `done` (`{}`), and on a broken stream `error` (`{"code":"upstream"}`).
   - `parseBody(raw: string): { messages: Msg[]; lang: Lang } | null`
   - `errorCode(err: unknown): 'quota' | 'upstream'`
   - default export `{ fetch(req, env, ctx) }`.
   - HTTP: `POST /api/assistant` → `200 text/event-stream`; errors → JSON `{ code, retryAfter? }` with 400/403/405/429/502/503.
 
-- [ ] **Step 1: Failing tests** — `worker/test/stream.test.ts`
+- [ ] **Step 1: Failing tests** - `worker/test/stream.test.ts`
 
 ```ts
 // Run: npx tsx --test test/stream.test.ts   (from worker/)
@@ -753,9 +753,9 @@ test('a bad body answers 400 bad_request', async () => {
 })
 ```
 
-- [ ] **Step 2: Run** — `npx tsx --test test/stream.test.ts test/handler.test.ts` → FAIL (modules missing).
+- [ ] **Step 2: Run** - `npx tsx --test test/stream.test.ts test/handler.test.ts` → FAIL (modules missing).
 
-- [ ] **Step 3: Implement** — `worker/src/stream.ts`
+- [ ] **Step 3: Implement** - `worker/src/stream.ts`
 
 ```ts
 import { createReplyFilter } from './filter'
@@ -765,7 +765,7 @@ const event = (name: string, data: unknown) => enc.encode(`event: ${name}\ndata:
 
 /**
  * Workers AI streams `data: {"response": "…"}` events. This reads them (whole
- * events only — a network chunk can end mid-event), runs the text through the
+ * events only - a network chunk can end mid-event), runs the text through the
  * reply filter, and emits the page's own events: text, cards, done.
  */
 export function toClientStream(upstream: ReadableStream<Uint8Array>, valid: Set<string>): ReadableStream<Uint8Array> {
@@ -909,7 +909,7 @@ namespace_id = "1001"
 simple = { limit = 8, period = 60 }
 ```
 
-- [ ] **Step 4: Run all Worker tests and typecheck** — `npm test && npm run typecheck` (in `worker/`) → all PASS, no type errors.
+- [ ] **Step 4: Run all Worker tests and typecheck** - `npm test && npm run typecheck` (in `worker/`) → all PASS, no type errors.
 
 - [ ] **Step 5: Commit**
 
@@ -924,9 +924,9 @@ git commit -m "feat(worker): stream Qwen's answer as text and card events behind
 
 **Files:** none (deploy only; `worker/.wrangler/` is added to `.gitignore`).
 
-- [ ] **Step 1: Ask the user to log in** — they run, in this session: `! cd worker && npx wrangler login` (a browser page opens for their Cloudflare account). Then `npx wrangler whoami` shows the account.
+- [ ] **Step 1: Ask the user to log in** - they run, in this session: `! cd worker && npx wrangler login` (a browser page opens for their Cloudflare account). Then `npx wrangler whoami` shows the account.
 
-- [ ] **Step 2: Deploy** — `cd worker && npx wrangler deploy`. Expected: `Deployed mr-worldwide` with the route `chakkritton.com/api/assistant*`.
+- [ ] **Step 2: Deploy** - `cd worker && npx wrangler deploy`. Expected: `Deployed mr-worldwide` with the route `chakkritton.com/api/assistant*`.
 
 - [ ] **Step 3: Smoke test production**
 
@@ -938,9 +938,9 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST https://chakkritton.com/api/ass
 
 Expected: `event: text` lines in Thai mentioning SMTrack+, an `event: cards` with `project:th:smtrack-plus`, then `event: done`; the second prints `403`.
 
-- [ ] **Step 4: Rate limit check** — send 9 requests in a loop with the good origin; the 9th prints `429`.
+- [ ] **Step 4: Rate limit check** - send 9 requests in a loop with the good origin; the 9th prints `429`.
 
-- [ ] **Step 5: Commit** — `echo 'worker/.wrangler/' >> .gitignore && git add .gitignore && git commit -m "chore: ignore wrangler state"`
+- [ ] **Step 5: Commit** - `echo 'worker/.wrangler/' >> .gitignore && git add .gitignore && git commit -m "chore: ignore wrangler state"`
 
 ---
 
@@ -958,7 +958,7 @@ Expected: `event: text` lines in Thai mentioning SMTrack+, an `event: cards` wit
   - `type ChatMsg = { role: 'user' | 'assistant'; content: string; cards?: string[] }`
   - `useAssistant(lang): { messages; status: 'idle' | 'thinking' | 'talking' | 'error'; error: { code: ErrorCode; retryAfter?: number } | null; send(text: string): void; retry(): void; items: Map<string, AiItem> }`
 
-- [ ] **Step 1: Failing tests** — `src/lib/assistant-client.test.ts`
+- [ ] **Step 1: Failing tests** - `src/lib/assistant-client.test.ts`
 
 ```ts
 // Run: npx tsx --test src/lib/assistant-client.test.ts
@@ -1007,9 +1007,9 @@ test('a stream that ends without done is a network error', async () => {
 })
 ```
 
-- [ ] **Step 2: Run** — `npx tsx --test src/lib/assistant-client.test.ts` → FAIL.
+- [ ] **Step 2: Run** - `npx tsx --test src/lib/assistant-client.test.ts` → FAIL.
 
-- [ ] **Step 3: Implement** — `src/lib/assistant-client.ts`
+- [ ] **Step 3: Implement** - `src/lib/assistant-client.ts`
 
 ```ts
 export type ErrorCode = 'rate_limited' | 'quota' | 'upstream' | 'bad_request' | 'network'
@@ -1074,9 +1074,9 @@ export async function ask(o: {
 }
 ```
 
-- [ ] **Step 4: Run** — `npx tsx --test src/lib/assistant-client.test.ts` → PASS (5).
+- [ ] **Step 4: Run** - `npx tsx --test src/lib/assistant-client.test.ts` → PASS (5).
 
-- [ ] **Step 5: The hook** — `src/components/assistant/use-assistant.ts`
+- [ ] **Step 5: The hook** - `src/components/assistant/use-assistant.ts`
 
 ```ts
 'use client'
@@ -1150,7 +1150,7 @@ export function useAssistant(lang: 'th' | 'en') {
 }
 ```
 
-- [ ] **Step 6: Typecheck and lint** — `npx tsc --noEmit 2>&1 | grep -v '^\.next'` (nothing), `npx eslint src/lib/assistant-client.ts src/components/assistant/use-assistant.ts` (clean).
+- [ ] **Step 6: Typecheck and lint** - `npx tsc --noEmit 2>&1 | grep -v '^\.next'` (nothing), `npx eslint src/lib/assistant-client.ts src/components/assistant/use-assistant.ts` (clean).
 
 - [ ] **Step 7: Commit**
 
@@ -1161,7 +1161,7 @@ git commit -m "feat(assistant): stream answers from the Worker and keep the conv
 
 ---
 
-### Task 7: Engine — shaders and the figure
+### Task 7: Engine - shaders and the figure
 
 **Files:**
 - Create: `src/components/assistant/engine/shaders.ts`, `src/components/assistant/engine/figure.ts`, `src/assets/ai/land.png`
@@ -1172,9 +1172,9 @@ git commit -m "feat(assistant): stream answers from the Worker and keep the conv
   - `shaders.ts`: `export const VORTEX, VERT, TOON, LINE_VERT, LINE_FRAG, PASS_VERT, PASS_FRAG: string`
   - `figure.ts`: `export interface Uniforms { uTime, uColor, uOpacity, uBoost, uWarpC, uTwist, uPinch, uLight, uLand, uRes, uLine: THREE.IUniform }`, `export function createUniforms(land: THREE.Texture): Uniforms`, `export interface Figure { figure, turn, bodyG, torso, globe, face: THREE.Group | THREE.Mesh; eyes: { gaze: THREE.Group; lid: THREE.Mesh; glint: THREE.Mesh }[]; brows: { mesh: THREE.Mesh; s: number }[]; mouth: THREE.Mesh; mouthHole: THREE.Mesh; hands: THREE.Group[]; shoes: THREE.Group[]; limbs: THREE.Mesh[]; fx: THREE.Scene; puddle: THREE.Mesh; core, streak, ring: THREE.Sprite; mouthCurve(w: number, d: number): THREE.Curve<THREE.Vector3>; onSphere(x: number, y: number, lift?: number): THREE.Vector3; hose(mesh, pts, r): void; legHose(mesh, curve): void }`, `export function buildFigure(scene: THREE.Scene, U: Uniforms): Figure`
 
-- [ ] **Step 1: Dependencies and the map** — `npm install three && npm install -D @types/three`; `mkdir -p src/assets/ai && cp docs/superpowers/prototypes/mr-worldwide/files/land.png src/assets/ai/land.png`.
+- [ ] **Step 1: Dependencies and the map** - `npm install three && npm install -D @types/three`; `mkdir -p src/assets/ai && cp docs/superpowers/prototypes/mr-worldwide/files/land.png src/assets/ai/land.png`.
 
-- [ ] **Step 2: `shaders.ts`** — move the template strings verbatim from the prototype: `VORTEX` (lines 82–96), `VERT` (97–106), `TOON` (107–121), `LINE_VERT` (122–133), `LINE_FRAG` (134–137). Add the hologram pass shaders taken from the `holoPass` material (lines 262–278):
+- [ ] **Step 2: `shaders.ts`** - move the template strings verbatim from the prototype: `VORTEX` (lines 82–96), `VERT` (97–106), `TOON` (107–121), `LINE_VERT` (122–133), `LINE_FRAG` (134–137). Add the hologram pass shaders taken from the `holoPass` material (lines 262–278):
 
 ```ts
 export const PASS_VERT = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }'
@@ -1183,14 +1183,14 @@ export const PASS_FRAG = /* the fragmentShader string of holoPass, lines 266–2
 
 (Copy the string contents exactly; `${VORTEX}` interpolations stay as template interpolation of the exported `VORTEX`.)
 
-- [ ] **Step 3: `figure.ts`** — a module wrapping prototype lines 139–257 inside `buildFigure(scene, U)`:
+- [ ] **Step 3: `figure.ts`** - a module wrapping prototype lines 139–257 inside `buildFigure(scene, U)`:
   - `createUniforms(land)` returns the object from prototype lines 69–75 with `uColor` = `new THREE.Color('#ff8a3d')`, `uOpacity` 0.78, `uLand` = `land`, plus `uRes: { value: new THREE.Vector2(1, 1) }` and `uLine: { value: 2.6 }` (prototype lines ~138).
   - Inside `buildFigure`: the material helpers `toon`, `LINE`, `FINE`, `holo`, `flat`, `INK`, `WHITE`, `SOLE` (139–150), then everything from `const figure = new THREE.Group(); scene.add(figure)` (153) to `const core = spr(coreTex), streak = spr(streakTex), ring = spr(ringTex)` (257) including `ink(bodyG)` and `hands.forEach((h) => ink(h, FINE))`. `V` is `(x, y, z) => new THREE.Vector3(x, y, z)`.
   - Replace `document.createElement('canvas')` texture makers unchanged (they run in the browser).
   - Return every name listed in **Produces**.
   - Types: annotate function parameters; `mouthCurve` returns `THREE.CatmullRomCurve3`.
 
-- [ ] **Step 4: Check it builds** — `npx tsc --noEmit 2>&1 | grep -v '^\.next'` prints nothing; `npx eslint src/components/assistant/engine` clean.
+- [ ] **Step 4: Check it builds** - `npx tsc --noEmit 2>&1 | grep -v '^\.next'` prints nothing; `npx eslint src/components/assistant/engine` clean.
 
 - [ ] **Step 5: Commit**
 
@@ -1201,7 +1201,7 @@ git commit -m "feat(assistant): Mr. Worldwide's shaders and figure, ported from 
 
 ---
 
-### Task 8: Engine — motion and the public API
+### Task 8: Engine - motion and the public API
 
 **Files:**
 - Create: `src/components/assistant/engine/motion.ts`, `src/components/assistant/engine/engine.ts`
@@ -1228,16 +1228,16 @@ export interface Engine {
 export function createEngine(canvas: HTMLCanvasElement, land: string, o: EngineOptions): Engine
 ```
 
-- [ ] **Step 1: `motion.ts`** — the state and the per-frame update, moved from the prototype:
+- [ ] **Step 1: `motion.ts`** - the state and the per-frame update, moved from the prototype:
   - `export function createState()` → the `st` object (lines 289–296) plus fields `busy: false`, `nextWarp: 40 + Math.random() * 50`, `mobile: false`, `reduced: false`.
   - `ease`, `backOut`, `c01`, `handFrame`, `waveState` (297–314) as module functions.
   - `export type State = ReturnType<typeof createState>`
-  - `export function step(F: Figure, U: Uniforms, st: State, dt: number, t: number, world: { halfW: number; minX: number; maxX: number }): { full: boolean }` — the body of `frame()` (lines 318–562) without the three `renderer.*` calls and without `requestAnimationFrame`. Changes while moving it:
+  - `export function step(F: Figure, U: Uniforms, st: State, dt: number, t: number, world: { halfW: number; minX: number; maxX: number }): { full: boolean }` - the body of `frame()` (lines 318–562) without the three `renderer.*` calls and without `requestAnimationFrame`. Changes while moving it:
     1. Replace `halfW` bounds with `world.minX`/`world.maxX` (walking turns at these).
     2. `if (st.reduced || st.mobile || st.busy)` → `wantV = 0` and the idle pause timer is used instead of walking (`st.mode` stays `'pause'`/`'act'`/`'notice'`).
     3. Auto-warp: in `'walk'` mode, `st.nextWarp -= dt`; when `< 0` and not `reduced`/`mobile`/`busy`, set `st.target` to a random x in `[minX, maxX]` at least a third of the range away, `st.mode = 'out'`, `st.modeT = 0`, `st.nextWarp = 40 + Math.random() * 50`.
     4. Return `{ full }` where `full` is `true` for modes `out`, `in`, `wave`, `notice`, `act`, or `st.busy`; otherwise `false` (the loop then draws at 30 fps).
-- [ ] **Step 2: `engine.ts`** — renderer, camera, passes, loop, API:
+- [ ] **Step 2: `engine.ts`** - renderer, camera, passes, loop, API:
 
 ```ts
 import * as THREE from 'three'
@@ -1376,7 +1376,7 @@ export function createEngine(canvas: HTMLCanvasElement, landUrl: string, o: Engi
 }
 ```
 
-- [ ] **Step 3: Check it builds** — `npx tsc --noEmit 2>&1 | grep -v '^\.next'` prints nothing; eslint clean on `src/components/assistant/engine`.
+- [ ] **Step 3: Check it builds** - `npx tsc --noEmit 2>&1 | grep -v '^\.next'` prints nothing; eslint clean on `src/components/assistant/engine`.
 
 - [ ] **Step 4: Commit**
 
@@ -1387,7 +1387,7 @@ git commit -m "feat(assistant): the motion and the engine API he is driven throu
 
 ---
 
-### Task 9: The stage — idle loading, pointer routing, mobile, fallback
+### Task 9: The stage - idle loading, pointer routing, mobile, fallback
 
 **Files:**
 - Create: `src/components/assistant/mr-worldwide.tsx`, `src/components/assistant/assistant.tsx`, `src/components/assistant/stage.tsx`
@@ -1395,7 +1395,7 @@ git commit -m "feat(assistant): the motion and the engine API he is driven throu
 
 **Interfaces:**
 - Consumes: `createEngine`, `Engine`, `Act` (Task 8); `land.png` via `import land from '@/assets/ai/land.png'` (`land.src`).
-- Produces: `<MrWorldwide />` (no props, idle-loads `assistant.tsx`); `assistant.tsx` default export `Assistant()` (owns `open` and the engine; Task 10 adds the chat); `stage.tsx` default export `Stage({ onReady, onOpen, busy }: { onReady(e: Engine | null): void; onOpen(): void; busy: boolean })` — canvas, or the fallback button without WebGL; clicking him calls `engine.wave()` then `onOpen()`.
+- Produces: `<MrWorldwide />` (no props, idle-loads `assistant.tsx`); `assistant.tsx` default export `Assistant()` (owns `open` and the engine; Task 10 adds the chat); `stage.tsx` default export `Stage({ onReady, onOpen, busy }: { onReady(e: Engine | null): void; onOpen(): void; busy: boolean })` - canvas, or the fallback button without WebGL; clicking him calls `engine.wave()` then `onOpen()`.
 
 - [ ] **Step 1: `mr-worldwide.tsx`**
 
@@ -1511,7 +1511,7 @@ export default function Stage({ onReady, onOpen, busy }: { onReady(e: Engine | n
       ref={canvas}
       role="button"
       tabIndex={0}
-      aria-label="Mr. Worldwide — ask about this site"
+      aria-label="Mr. Worldwide - ask about this site"
       onClick={() => { engine.current?.wave(); onOpen() }}
       onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); engine.current?.wave(); onOpen() } }}
       className={`mw-stage pointer-events-none fixed inset-x-0 bottom-0 z-30 h-[300px] w-full transition-transform duration-300 max-sm:h-[210px] ${hidden ? 'translate-y-full' : ''}`}
@@ -1520,7 +1520,7 @@ export default function Stage({ onReady, onOpen, busy }: { onReady(e: Engine | n
 }
 ```
 
-`globals.css` — append:
+`globals.css` - append:
 
 ```css
 /* Mr. Worldwide's glow: the canvas is transparent, the glow follows his shape. */
@@ -1531,9 +1531,9 @@ export default function Stage({ onReady, onOpen, busy }: { onReady(e: Engine | n
 .mw-fallback { background: #ff8a3d; color: #1a0d05; box-shadow: 0 0 18px rgb(255 138 61 / 0.7); }
 ```
 
-- [ ] **Step 3: Mount** — in `src/app/[locale]/layout.tsx` import `{ MrWorldwide } from '@/components/assistant/mr-worldwide'` and render `<MrWorldwide />` directly after `<QuickContactDock />`.
+- [ ] **Step 3: Mount** - in `src/app/[locale]/layout.tsx` import `{ MrWorldwide } from '@/components/assistant/mr-worldwide'` and render `<MrWorldwide />` directly after `<QuickContactDock />`.
 
-- [ ] **Step 4: Look at it** — with `npx next dev -p 3100` open `/en` in Playwright (headful, GPU), wait 5 s, screenshot the bottom 320 px: he walks, amber, outlined; move the pointer near him → he stops and turns; `/en/studio` shows no canvas. Check a link under the strip still receives a click (`page.click` on a footer link near the bottom-left while he is at the right). With `page.emulateMedia({ reducedMotion: 'reduce' })`, two screenshots 3 s apart show him in the same place (breathing and blinking only). At 390 px wide he stands small in the bottom-left corner, clear of the quick-contact dock, and slides away while scrolling down.
+- [ ] **Step 4: Look at it** - with `npx next dev -p 3100` open `/en` in Playwright (headful, GPU), wait 5 s, screenshot the bottom 320 px: he walks, amber, outlined; move the pointer near him → he stops and turns; `/en/studio` shows no canvas. Check a link under the strip still receives a click (`page.click` on a footer link near the bottom-left while he is at the right). With `page.emulateMedia({ reducedMotion: 'reduce' })`, two screenshots 3 s apart show him in the same place (breathing and blinking only). At 390 px wide he stands small in the bottom-left corner, clear of the quick-contact dock, and slides away while scrolling down.
 
 - [ ] **Step 5: Commit**
 
@@ -1554,7 +1554,7 @@ git commit -m "feat(assistant): Mr. Worldwide walks the bottom of every page, id
 - Consumes: `useAssistant` (Task 6), `Engine`/`Act` (Task 8), `AiItem` (Task 1).
 - Produces: `HologramChat({ open, onClose, engine }: { open: boolean; onClose(): void; engine: Engine | null })`.
 
-- [ ] **Step 1: Copy** — add an `assistant` namespace to each messages file.
+- [ ] **Step 1: Copy** - add an `assistant` namespace to each messages file.
 
 `en.json`:
 ```json
@@ -1572,7 +1572,7 @@ git commit -m "feat(assistant): Mr. Worldwide walks the bottom of every page, id
   "post": "Article",
   "minutes": "{n} min",
   "err_rate_limited": "Whoa, slow down! Give me {s} seconds to catch my breath.",
-  "err_quota": "I've talked the whole day away — I'm resting now. Come back tomorrow!",
+  "err_quota": "I've talked the whole day away - I'm resting now. Come back tomorrow!",
   "err_upstream": "My signal flickered. Try that again?",
   "err_network": "Lost you for a second there. Try again?",
   "err_bad_request": "I couldn't read that one. Could you ask it another way?"
@@ -1717,7 +1717,7 @@ export default function Assistant() {
 }
 ```
 
-- [ ] **Step 4: Styles** — append to `globals.css` (the amber screen of the approved mock-up C):
+- [ ] **Step 4: Styles** - append to `globals.css` (the amber screen of the approved mock-up C):
 
 ```css
 .mw-screen {
@@ -1748,13 +1748,13 @@ export default function Assistant() {
 @media (max-width: 639px) { .mw-screen { width: 100vw; height: 100dvh; max-height: none; margin: 0; } }
 ```
 
-- [ ] **Step 5: Try it end to end** — set `NEXT_PUBLIC_ASSISTANT_URL=https://chakkritton.com/api/assistant` in `.env.local` and add `http://localhost:3100` to the Worker's `ALLOWED_ORIGINS` (`wrangler.toml`, redeploy) — or leave the default and test against production after pushing. Open `/en`, click him: he waves, the screen switches on, the chips show; ask "Any IoT projects?": he THINKS, then TALKS as the text streams, then POINTS; a card for SMTrack+ links to its page; Esc closes and he waves; focus returns to the canvas. Repeat on `/` (Thai) and at 390 px width (full screen).
+- [ ] **Step 5: Try it end to end** - set `NEXT_PUBLIC_ASSISTANT_URL=https://chakkritton.com/api/assistant` in `.env.local` and add `http://localhost:3100` to the Worker's `ALLOWED_ORIGINS` (`wrangler.toml`, redeploy) - or leave the default and test against production after pushing. Open `/en`, click him: he waves, the screen switches on, the chips show; ask "Any IoT projects?": he THINKS, then TALKS as the text streams, then POINTS; a card for SMTrack+ links to its page; Esc closes and he waves; focus returns to the canvas. Repeat on `/` (Thai) and at 390 px width (full screen).
 
 - [ ] **Step 6: Commit**
 
 ```bash
 git add src/components/assistant src/app/globals.css src/messages
-git commit -m "feat(assistant): the hologram screen — ask Mr. Worldwide about the site"
+git commit -m "feat(assistant): the hologram screen - ask Mr. Worldwide about the site"
 ```
 
 ---
@@ -1764,7 +1764,7 @@ git commit -m "feat(assistant): the hologram screen — ask Mr. Worldwide about 
 **Files:**
 - Create: `scripts/check-assistant.mjs`
 
-- [ ] **Step 1: The browser checks** — `scripts/check-assistant.mjs`
+- [ ] **Step 1: The browser checks** - `scripts/check-assistant.mjs`
 
 ```js
 // Run against a production build: npx next build && npx next start -p 3941, then node scripts/check-assistant.mjs
@@ -1832,11 +1832,11 @@ console.log(fail.length ? `FAIL\n- ${fail.join('\n- ')}` : 'all assistant checks
 process.exit(fail.length ? 1 : 0)
 ```
 
-- [ ] **Step 2: Run it** — `npm run build && (npx next start -p 3941 &) && sleep 8 && node scripts/check-assistant.mjs` → `all assistant checks passed`. Stop the server.
+- [ ] **Step 2: Run it** - `npm run build && (npx next start -p 3941 &) && sleep 8 && node scripts/check-assistant.mjs` → `all assistant checks passed`. Stop the server.
 
-- [ ] **Step 3: Performance** — with the same build, run Lighthouse (`CHROME_PATH=$(node -e "console.log(require('playwright').chromium.executablePath())") npx -y lighthouse@12 http://localhost:3941/en --preset=desktop --only-categories=performance --quiet --output=json --output-path=/tmp/lh-mw.json`) and the mobile run; compare with the numbers before this work (desktop 0.96, mobile 0.76): neither may drop. Confirm the `three` chunk is not in the page's initial `<script>` tags: `curl -s localhost:3941/en | grep -c three` prints `0`.
+- [ ] **Step 3: Performance** - with the same build, run Lighthouse (`CHROME_PATH=$(node -e "console.log(require('playwright').chromium.executablePath())") npx -y lighthouse@12 http://localhost:3941/en --preset=desktop --only-categories=performance --quiet --output=json --output-path=/tmp/lh-mw.json`) and the mobile run; compare with the numbers before this work (desktop 0.96, mobile 0.76): neither may drop. Confirm the `three` chunk is not in the page's initial `<script>` tags: `curl -s localhost:3941/en | grep -c three` prints `0`.
 
-- [ ] **Step 4: Ship** — commit the script, push `main`, then open https://chakkritton.com/en after the deploy and talk to him in both languages.
+- [ ] **Step 4: Ship** - commit the script, push `main`, then open https://chakkritton.com/en after the deploy and talk to him in both languages.
 
 ```bash
 git add scripts/check-assistant.mjs
@@ -1844,4 +1844,4 @@ git commit -m "test(assistant): browser checks for Mr. Worldwide"
 git push origin main
 ```
 
-- [ ] **Step 5: Record** — update `/Users/chakkrit/.claude/projects/-Volumes-SSD256GB-WebProfile/memory/portfolio-neo-editorial.md` (or a new `mr-worldwide.md` memory) with: the Worker's name and route, that deploys run from `worker/` with Wrangler, the free-allowance behaviour, and that the character's reference is `docs/superpowers/prototypes/mr-worldwide/`.
+- [ ] **Step 5: Record** - update `/Users/chakkrit/.claude/projects/-Volumes-SSD256GB-WebProfile/memory/portfolio-neo-editorial.md` (or a new `mr-worldwide.md` memory) with: the Worker's name and route, that deploys run from `worker/` with Wrangler, the free-allowance behaviour, and that the character's reference is `docs/superpowers/prototypes/mr-worldwide/`.

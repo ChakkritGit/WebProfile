@@ -3,7 +3,7 @@ import 'server-only'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 /**
- * Supabase Storage admin client — used only by the studio upload endpoint.
+ * Supabase Storage admin client - used only by the studio upload endpoint.
  *
  * The service-role key bypasses RLS, so this module is server-only and every
  * caller must already have passed `getOwnerSession()`.
@@ -55,7 +55,7 @@ export function storagePathFromUrl(url: string): string | null {
 /**
  * Whether `next/image` should resize this picture.
  *
- * Only our own uploads — anything else is on a host outside `remotePatterns`,
+ * Only our own uploads - anything else is on a host outside `remotePatterns`,
  * where the optimiser answers 400. And never a GIF: resized, it comes back as a
  * still of its first frame, and an animated GIF is posted for its animation.
  */

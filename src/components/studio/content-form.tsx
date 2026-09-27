@@ -75,7 +75,7 @@ export function ContentForm({
   const t = useTranslations('studio')
   const tCommon = useTranslations('common')
   const router = useRouter()
-  // Back to the tab this kind lives on — `/studio` alone always opened Posts.
+  // Back to the tab this kind lives on - `/studio` alone always opened Posts.
   const listHref = kind === 'projects' ? '/studio?tab=projects' : '/studio'
 
   const [values, setValues] = useState<FormValues>({ ...emptyValues, ...initial })
@@ -137,7 +137,7 @@ export function ContentForm({
 
   /**
    * The id of a record created in this session, before the router has moved to
-   * its URL. Without it, "Save" then "Publish" on a new post sent two POSTs —
+   * its URL. Without it, "Save" then "Publish" on a new post sent two POSTs -
    * the `id` prop only arrives with the page the redirect renders, so the second
    * click still looked like a create and made a duplicate at `<slug>-2`.
    */

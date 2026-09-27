@@ -46,7 +46,7 @@ export function requireDatabase() {
  * The database only enforces `(slug, locale)`, which was enough while each locale
  * had its own URL space. It no longer does: `/blog/<slug>` resolves to whichever
  * language suits the reader, so two unrelated pieces sharing a slug meant one of
- * them was listed but unreachable — every link went to the other.
+ * them was listed but unreachable - every link went to the other.
  *
  * Translations are the deliberate exception. Rows paired by `translationKey` are
  * the same article written twice and are *supposed* to share a slug, so a sibling
@@ -91,7 +91,7 @@ export async function uniqueSlugFor(
  * Refreshes every cached route that could show this record.
  *
  * Both spellings of every path, because there are two and only one of them is
- * the URL. `localePrefix: 'as-needed'` means Thai — the default locale — lives
+ * the URL. `localePrefix: 'as-needed'` means Thai - the default locale - lives
  * at `/` and `/blog`, while the rendered entry Next knows about is `/th` and
  * `/th/blog`. Revalidating one form left the other serving whatever it had:
  * measured on production, the home page answered a `HIT` five hours old with a
@@ -116,7 +116,7 @@ export function revalidateContent(kind: ContentKindParam, slug?: string) {
 
   // Tag pages list posts and projects, and the affected tags are not known here
   // (an edit can remove a tag as easily as add one). The 'page' form clears every
-  // rendered tag page at once, but only when the argument is the *route pattern* —
+  // rendered tag page at once, but only when the argument is the *route pattern* -
   // every dynamic segment in brackets, `[locale]` included. A half-concrete
   // `/th/topics/[tag]` matches no cache entry and fails silently.
   revalidatePath('/[locale]/topics/[tag]', 'page')

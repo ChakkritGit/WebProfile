@@ -3,8 +3,8 @@ import { llmsIndex } from '@/lib/llms'
 /**
  * `/llms.txt`, as specified at llmstxt.org.
  *
- * A model reading this site otherwise gets HTML built for a browser —
- * navigation, a theme toggle, a table of contents, a footer — and has to guess
+ * A model reading this site otherwise gets HTML built for a browser -
+ * navigation, a theme toggle, a table of contents, a footer - and has to guess
  * which part is the writing. This is the same site as an index.
  */
 

@@ -21,7 +21,7 @@ const offsets: Record<Direction, { x: number; y: number }> = {
  * it for a plain `<div>` when the visitor prefers reduced motion left every
  * revealed card permanently invisible: the server, which cannot know the
  * preference, renders `initial` as an inline `opacity: 0`, and React does not
- * patch attribute mismatches — so the style stayed and nothing ever animated it
+ * patch attribute mismatches - so the style stayed and nothing ever animated it
  * away. Reduced motion now means a zero-length transition, and the CSS rule
  * under `prefers-reduced-motion` in `globals.css` un-hides `[data-reveal]`
  * before any of this loads.
@@ -43,8 +43,8 @@ export function Reveal({
    * Enter in CSS, at the first paint, instead of waiting to be scrolled to.
    *
    * For anything already on screen when the page arrives. A scroll reveal cannot
-   * start until React has hydrated — two and a half seconds on a throttled phone
-   * — so the top of the page sat half-faded until 3.2s, which is exactly what
+   * start until React has hydrated - two and a half seconds on a throttled phone
+   * - so the top of the page sat half-faded until 3.2s, which is exactly what
    * Speed Index measures. The stylesheet has no such wait: same movement, run
    * while the page is arriving rather than after it.
    */
@@ -89,7 +89,7 @@ export function Reveal({
  * Deliberately NOT a motion element driving child variants: a parent that has
  * already finished animating never propagates its state to children mounted
  * later, which left filtered-then-restored cards stuck at opacity 0. Each item
- * observes itself instead, so any item — whenever it mounts — animates in on
+ * observes itself instead, so any item - whenever it mounts - animates in on
  * its own. The stagger comes from an index-derived delay injected here.
  */
 export function RevealGroup({

@@ -134,7 +134,7 @@ function Checklist({ items }: { items: ListItem[] }) {
  * The line you click to open one of these.
  *
  * `list-none` takes away the browser's own disclosure triangle, which the frame
- * around these needs — but nothing was put back, so a closed section looked like
+ * around these needs - but nothing was put back, so a closed section looked like
  * a heading in a box and gave no sign it could be opened. The caret is drawn
  * here instead, and turns with the section: the `open` attribute is on the
  * `<details>`, so `group-open` is what reaches it.
@@ -206,8 +206,8 @@ function Block({ block }: { block: AnnotatedBlock }) {
     case 'quote':
       return (
         <figure className={cn('bg-brand-soft relative my-12 px-6 pt-9 pb-8 sm:px-10', alignmentOf(block))}>
-          {/* The marks as two square badges on the panel's corners — opening
-              top-left, closing bottom-right — in the same square blue as the
+          {/* The marks as two square badges on the panel's corners - opening
+              top-left, closing bottom-right - in the same square blue as the
               logo. Hidden from screen readers: <blockquote> already says it. */}
           <span aria-hidden className="bg-brand text-brand-ink absolute -top-4 start-6 grid size-9 place-items-center sm:start-10">
             <Quote className="size-[1.1rem] -scale-x-100" strokeWidth={2.25} />
@@ -217,7 +217,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
           </blockquote>
           {data.caption ? (
             <figcaption className="text-brand-strong mt-4 font-mono text-[0.75em] uppercase">
-              — <RichText html={String(data.caption)} />
+              - <RichText html={String(data.caption)} />
             </figcaption>
           ) : null}
           <span aria-hidden className="bg-brand text-brand-ink absolute end-6 -bottom-4 grid size-9 place-items-center sm:end-10">
@@ -319,7 +319,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
               alt={caption || ''}
               width={file.width ?? 1280}
               height={file.height ?? 720}
-              // Our own uploads go through the optimiser — an article column is
+              // Our own uploads go through the optimiser - an article column is
               // 768px wide and the originals are up to 2400px. Anything else was
               // pasted in as a link to a host outside next.config's
               // remotePatterns, where the optimiser answers 400.
@@ -472,7 +472,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
       }[]
       if (!items.length) return null
 
-      // `name` makes the browser close the others when one opens — an accordion
+      // `name` makes the browser close the others when one opens - an accordion
       // rather than a column of independent toggles, and no script to do it. It
       // has to be the same string on the server and in the browser, and unique
       // among any other groups on the page, so it comes from the block rather
@@ -528,7 +528,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
       )
 
     default:
-      // Unknown block types are skipped rather than crashing the page — new
+      // Unknown block types are skipped rather than crashing the page - new
       // Editor.js tools can be added without breaking already-published posts.
       return null
   }
@@ -546,7 +546,7 @@ const TONES: Record<Tone, { frame: string; ink: string; icon: LucideIcon | null 
 
 /**
  * A note set apart from the text: a heavy rule down its leading edge in the
- * tone's colour, a tinted ground, and the tone's icon — a warning reads as a
+ * tone's colour, a tinted ground, and the tone's icon - a warning reads as a
  * warning before a word of it is read.
  */
 function Callout({
@@ -588,7 +588,7 @@ export function BlockRenderer({ blocks, lang }: { blocks: AnnotatedBlock[]; lang
  * A toggle does not contain its contents: it records how many of the blocks
  * after it are its own, and they sit in the document as ordinary siblings. That
  * is fine inside the editor, where the tool tracks them by a key it writes into
- * the DOM, but a page rendered from the saved array has to do the counting — so
+ * the DOM, but a page rendered from the saved array has to do the counting - so
  * this walks the list rather than mapping over it, and hands each toggle the
  * slice that follows it.
  */

@@ -1,4 +1,4 @@
-# Mr. Worldwide — the site's AI guide
+# Mr. Worldwide - the site's AI guide
 
 Status: design approved in conversation on 2026-09-24; this document awaits review.
 Visual source of truth: `docs/superpowers/prototypes/mr-worldwide/index.html` (v18).
@@ -13,7 +13,7 @@ talk to him; he recommends real pages with cards that link to them.
 Success means:
 
 - A visitor can ask in Thai or English and get a short, correct answer about
-  this site's content, with links to real pages — never an invented one.
+  this site's content, with links to real pages - never an invented one.
 - The character feels alive (walks, reacts, warps) without slowing the site:
   no change to LCP, CLS or the PageSpeed score, and no blocked clicks.
 - It costs nothing at this traffic: it runs inside Workers AI's free daily
@@ -70,11 +70,11 @@ The Worker is a route on the chakkritton.com zone, so it answers
 
 ### 1. Content endpoints (portfolio, Next.js)
 
-- `GET /ai/index.json` — every published post and project in th and en:
+- `GET /ai/index.json` - every published post and project in th and en:
   `{ id, kind, locale, slug, url, title, summary, tags, stack?, minutes, cover }`.
   Built with `listPosts`/`listProjects` (published only), like `llms.txt`.
   Rendered per request (`force-dynamic`), CDN `s-maxage=60`, like the feed.
-- `GET /ai/item/{kind}/{locale}/{slug}.txt` — one published item's full text as
+- `GET /ai/item/{kind}/{locale}/{slug}.txt` - one published item's full text as
   plain text (Editor.js to text via the existing `documentToText`), capped at
   ~6,000 characters. 404 for drafts or unknown items.
 - The Worker caches both for 5 minutes, so a publish reaches the chat within
@@ -98,7 +98,7 @@ The Worker is a route on the chakkritton.com zone, so it answers
   it has no word spaces). The top two items (score above a floor) get their
   full text from `/ai/item/…/{slug}.txt`; every item goes in as one compact index line.
 - **Model:** `@cf/qwen/qwen3-30b-a3b-fp8`, max 400 output tokens, streamed.
-  System prompt sets the persona — a cheerful, playful, slightly teasing host,
+  System prompt sets the persona - a cheerful, playful, slightly teasing host,
   short answers, replies in the user's language, talks only about this site,
   never names a page that is not in the index, and ends recommendations with a
   machine-readable line `CARDS: id1,id2`.
@@ -118,9 +118,9 @@ The Worker is a route on the chakkritton.com zone, so it answers
 - Loaded with `next/dynamic` after `requestIdleCallback`, so none of it is in
   the first load. three.js is imported only inside it.
 - **Stage:** a fixed, transparent canvas along the bottom of the viewport,
-  `pointer-events: none` except when the pointer is over him — tested against
+  `pointer-events: none` except when the pointer is over him - tested against
   his projected outline (the globe's circle plus a box round the legs), not by
-  reading pixels back from the GPU, which would stall a frame — so it never
+  reading pixels back from the GPU, which would stall a frame - so it never
   blocks the page.
 - **Desktop:** walks the bottom edge, turning before the Quick Contact dock at
   the right; warps to a new spot every 40–90 s.
@@ -150,7 +150,7 @@ The Worker is a route on the chakkritton.com zone, so it answers
 
 | Case | Behaviour |
 |---|---|
-| Daily AI allowance used | "I'm resting today — come back tomorrow" in his voice |
+| Daily AI allowance used | "I'm resting today - come back tomorrow" in his voice |
 | Rate limited | Asks the visitor to wait, with a countdown |
 | Off-topic question | Steers back to projects and articles (system prompt) |
 | Stream drops mid-answer | Keeps the partial text, shows "Try again" |

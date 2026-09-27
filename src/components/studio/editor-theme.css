@@ -125,7 +125,7 @@
  *
  * Matched on the inline style itself, in both the forms a browser may serialise
  * it as. `removeFakeBackground` sets it to `transparent`, which stops matching
- * on its own — so nothing here has to undo anything.
+ * on its own - so nothing here has to undo anything.
  */
 .studio-editor [style*='168, 214, 255'],
 .studio-editor [style*='168,214,255'],
@@ -140,7 +140,7 @@
  * The link field in the inline toolbar.
  *
  * Editor.js gives it a pale `#F8F8F8` of its own and sets no colour, so the text
- * falls back to whatever the page is using — which in the dark theme is
+ * falls back to whatever the page is using - which in the dark theme is
  * near-white. The URL you had just pasted was there the whole time, white on
  * white, invisible. Both ends are stated here so neither can drift.
  */
@@ -177,8 +177,8 @@
   background: var(--surface-2);
   border: 1px solid var(--line-soft);
   border-radius: 0;
-  /* Ink, not the brand red. Inline code reads as ink on the published page —
-     the only colour there is the box around it — and the editor showing the
+  /* Ink, not the brand red. Inline code reads as ink on the published page -
+     the only colour there is the box around it - and the editor showing the
      accent instead made the same words look like a different kind of thing
      while writing them. */
   color: var(--ink);
@@ -362,14 +362,14 @@
 .studio-editor .studio-code__area::placeholder { color: var(--muted); }
 
 /* ------------------------------------------------------------------ *
- * Inline toolbar — the defaults render too small to hit reliably
+ * Inline toolbar - the defaults render too small to hit reliably
  * ------------------------------------------------------------------ */
 /* Editor.js 2.31 renders the inline toolbar as a popover whose container is a
-   fixed 38px with `overflow: hidden` — taller buttons overflowed it and the
+   fixed 38px with `overflow: hidden` - taller buttons overflowed it and the
    colour palette was clipped away entirely. Size the popover, not the toolbar. */
 /* Direct children only. As a descendant selector this also caught the nested
-   "convert to" popover, forcing a row of icons' geometry — centred, 2.7rem tall,
-   `overflow: visible` — onto a vertical list, whose rows then spilled past their
+   "convert to" popover, forcing a row of icons' geometry - centred, 2.7rem tall,
+   `overflow: visible` - onto a vertical list, whose rows then spilled past their
    own frame. */
 .studio-editor .ce-popover--inline > .ce-popover__container {
   height: auto;
@@ -418,7 +418,7 @@
   height: 30px;
 }
 
-/* The popover *item* is what sets the bar's height, not `.ce-inline-tool` — the
+/* The popover *item* is what sets the bar's height, not `.ce-inline-tool` - the
    tools are icons in a row here rather than the labelled list the conversion
    menu shows, so they can sit tighter without becoming hard to hit. The child
    chain matters: the conversion menu is a nested popover *inside* this one, and
@@ -438,7 +438,7 @@
 }
 
 /* Built-in inline tools render as `.ce-popover-item-html > .ce-inline-tool`, a
-   path that never passes through `.ce-popover-item__icon` — which is why they were
+   path that never passes through `.ce-popover-item__icon` - which is why they were
    the only icons in the editor without the framed box the block menu gives every
    entry. Frame them to match, and let their wrapper size to the framed icon. */
 .studio-editor .ce-popover--inline .ce-popover-item-html {
@@ -451,7 +451,7 @@
 .studio-editor .ce-popover--inline .ce-inline-tool {
   width: 27px;
   height: 27px;
-  /* Square, like `.ce-popover-item__icon` — Editor.js's own icons have no radius,
+  /* Square, like `.ce-popover-item__icon` - Editor.js's own icons have no radius,
      so a rounded box read as a different kind of control in the same row. */
   border-radius: 0;
   background: var(--surface-2);
@@ -474,7 +474,7 @@
    `cdx-settings-button`s, so its three icons were the only rows in the block menu
    without the framed icon box every other entry has. */
 .studio-editor .cdx-settings-button {
-  /* Matched to `.ce-popover-item__icon` exactly — 26px and square-cornered. Left
+  /* Matched to `.ce-popover-item__icon` exactly - 26px and square-cornered. Left
      at 30px with a 0.55rem radius they were visibly rounder and larger than every
      other icon in the same menu. */
   width: 26px;
@@ -514,7 +514,7 @@
 }
 
 /* The palette lives on `document.body`, outside `.studio-editor`, so that Editor.js
-   cannot remove it when the inline toolbar closes — hence the unprefixed selectors. */
+   cannot remove it when the inline toolbar closes - hence the unprefixed selectors. */
 .studio-colour__palette {
   position: fixed;
   z-index: 1100;
@@ -522,7 +522,7 @@
   flex-wrap: wrap;
   gap: 6px;
   width: max-content;
-  /* Wide enough for all six swatches plus the clear button on one row —
+  /* Wide enough for all six swatches plus the clear button on one row -
      at 14rem the last one wrapped and left half the panel empty. */
   max-width: 17rem;
   padding: 0.5rem;
@@ -567,13 +567,13 @@
  * The toast, wearing the site's own.
  *
  * Editor.js paints the panel a near-white `#fffbfb` and sets no text colour, so
- * the message inherited the page's ink — cream, in the dark theme. Measured off
+ * the message inherited the page's ink - cream, in the dark theme. Measured off
  * the reported screenshot: 1.1:1. The words were there the whole time.
  *
  * Rather than repair the colours in isolation, it takes the frame and the fill
  * the site's own toasts use, so a message from the editor and a message from the
  * app are the same object. The drawn border is the `sticker` treatment copied
- * out of `globals.css` — a Tailwind `@utility` cannot be applied to markup this
+ * out of `globals.css` - a Tailwind `@utility` cannot be applied to markup this
  * stylesheet does not own, so the declarations are repeated here rather than
  * shared. Values track the same variables, so a change to the frame or the
  * palette reaches both.
@@ -582,7 +582,7 @@
  * beat its one, and the cascade needs nothing further.
  *
  * None of it can be scoped under `.studio-editor`: the notifier is appended to
- * `<body>` and never enters the editor. Unscoped is safe — this stylesheet only
+ * `<body>` and never enters the editor. Unscoped is safe - this stylesheet only
  * loads with the editor, and nothing else on the site uses these names.
  */
 .cdx-notifies .cdx-notify,
@@ -642,7 +642,7 @@
 .cdx-notifies .cdx-notify__cross::before,
 .cdx-notifies .cdx-notify__cross::after {
   background: currentColor;
-  /* The two bars are 12px in a 20px box, offset 5px from the top — one pixel
+  /* The two bars are 12px in a 20px box, offset 5px from the top - one pixel
      low, which is visible once the whole control is centred against a line of
      text rather than parked in a corner. */
   top: 4px;
@@ -689,7 +689,7 @@
 }
 
 /**
- * The collapsible sections tool — one section is a toggle, several an accordion.
+ * The collapsible sections tool - one section is a toggle, several an accordion.
  *
  * Each section is a framed row with its title above its body, close enough to
  * how the published group reads that nothing has to be imagined while writing.
@@ -812,7 +812,7 @@
  *
  * Editor.js sizes itself for a page: three hundred pixels of empty space under
  * the last block so there is always somewhere to click, and a wide right margin
- * for the block tunes. Inside a section both are wrong — the space is a hole in
+ * for the block tunes. Inside a section both are wrong - the space is a hole in
  * the middle of an article, and the margin pushes the text off centre.
  */
 .studio-editor .sections-tool__body .codex-editor {
@@ -824,7 +824,7 @@
  *
  * Editor.js reserves three hundred pixels under the last block so there is
  * always somewhere to click to carry on typing. Inside a section that is a hole
- * in the middle of an article — but taking it away altogether left no way in
+ * in the middle of an article - but taking it away altogether left no way in
  * either: the only route to a new paragraph was the `+` on the block above.
  * A strip is enough for both.
  */
@@ -856,7 +856,7 @@
  *
  * Editor.js injects `.codex-editor ::selection { background: #d4ecff }` at
  * runtime, unlayered. The site's own selection rule lives in `@layer base`, and
- * an unlayered rule beats a layered one whatever the specificity — so the
+ * an unlayered rule beats a layered one whatever the specificity - so the
  * editor's pale blue won the background while ours still won the text colour:
  * white on pale blue in the dark theme, the selected words gone. Restated here,
  * unlayered and one class more specific than Editor.js's.
@@ -1039,8 +1039,8 @@
   border-radius: 0;
 }
 
-/* Icons in the tunes and the inline toolbar take the full text colour — white
-   in the dark theme, near-black in the light — not the softer secondary ink.
+/* Icons in the tunes and the inline toolbar take the full text colour - white
+   in the dark theme, near-black in the light - not the softer secondary ink.
    The alignment tune's icons are filled paths with no fill of their own, so
    they defaulted to black and all but vanished in the dark; they take
    `currentColor` like everything else. */

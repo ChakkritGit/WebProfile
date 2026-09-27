@@ -7,7 +7,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { createDebris, type Shot } from './black-hole-debris'
 
 /**
- * Gargantua, after Interstellar — the hero's easter egg (type "ton"). Every
+ * Gargantua, after Interstellar - the hero's easter egg (type "ton"). Every
  * pixel's ray of light is bent by a Schwarzschild black hole on its way through
  * the scene, so the disk behind it shows above and below, a photon ring
  * circles the shadow and the stars smear round it. Units: the Schwarzschild
@@ -17,7 +17,7 @@ import { createDebris, type Shot } from './black-hole-debris'
  * It is born on screen. First the hero's own picture is torn into strands
  * and pulled in, whirling (spaghettification); then a flash and a shock ring,
  * then the mass grows from
- * nothing — the stars bend more and more, the shadow opens from a point — and
+ * nothing - the stars bend more and more, the shadow opens from a point - and
  * the disk gathers from the outside in, spinning hard until it settles.
  *
  * Then a camera tour: a while at the wide angle, then a run of close shots in
@@ -97,7 +97,7 @@ vec3 sky(vec3 d) {
 
 // --- the dust the disk sits in, close to the camera: a thick, billowing layer of
 // fine gas, lit from within by the disk, that turns with it (and so shears into
-// streaks). Marched straight — over a few units the light barely bends — up to
+// streaks). Marched straight - over a few units the light barely bends - up to
 // the shadow, and faded out with distance, so only the near field carries it.
 vec2 rot2(vec2 v, float a) { float c = cos(a), s = sin(a); return mat2(c, -s, s, c) * v; }
 float fbm3(vec3 p) { return 0.57 * noise(p) + 0.29 * noise(p * 2.03) + 0.14 * noise(p * 4.1); } // (cheaper: it runs per step)
@@ -107,7 +107,7 @@ vec4 dustVol(vec3 ro, vec3 rd) {
   if (h > 0.0) { float t0 = -b - sqrt(h); if (t0 > 0.0) tMax = min(tMax, t0); }
   vec3 emit = vec3(0.0);
   // the march's start, dithered per pixel with interleaved gradient noise (the
-  // lattice hash lines up along rows and columns: a faint grid, scaled up) — held
+  // lattice hash lines up along rows and columns: a faint grid, scaled up) - held
   // still, frame to frame: a dither that moves makes the dust's shadows flicker
   vec2 fc = gl_FragCoord.xy;
   float T = 1.0, dt = tMax / 28.0, j = fract(52.9829189 * fract(dot(fc, vec2(0.06711056, 0.00583715))));
@@ -140,7 +140,7 @@ vec4 dustVol(vec3 ro, vec3 rd) {
 }
 
 // The planet: a small world of seas, land and ice under drifting cloud, turning
-// slowly, with a thin air round its rim — lit warm by the inner disk (a soft
+// slowly, with a thin air round its rim - lit warm by the inner disk (a soft
 // terminator, glints off the water) and from below by the disk it rides above.
 // fbm with each octave faded to its mean where it is finer than a pixel (fw: a
 // pixel's width in p's units), so a small planet turning does not shimmer
@@ -179,7 +179,7 @@ void main() {
   vec3 pos = uCamPos, vel = dir;
   float h2 = dot(cross(pos, vel), cross(pos, vel));
   vec3 dir0 = dir;
-  // Read soft — four bilinear taps round the pixel — or on a 2× screen its
+  // Read soft - four bilinear taps round the pixel - or on a 2× screen its
   // pixels, each carrying its own dither, show as a faint grid of squares.
   vec2 k = uNearTexel * 0.75;
   vec4 near = uNear > 0.0
@@ -210,7 +210,7 @@ void main() {
     }
     // a small planet, lensed like everything else. A ray that enters it stops
     // there; one that only grazes it covers part of the pixel (the edge is
-    // antialiased) — measured at each step's nearest point to it, the best kept,
+    // antialiased) - measured at each step's nearest point to it, the best kept,
     // so the edge holds steady wherever the steps fall.
     vec3 oc = prev - uPlanet.xyz;
     float reach = 1.5 * dt + uPlanet.w + px; // how near a step must start to touch it
@@ -244,7 +244,7 @@ void main() {
 `
 
 // The picture that was on screen, drawn in display space (after tone mapping)
-// with the page's duotone, so the hand-over from the DOM is seamless — then
+// with the page's duotone, so the hand-over from the DOM is seamless - then
 // stretched, torn and wound into the centre.
 const PULL = /* glsl */ `
 uniform sampler2D tDiffuse;
@@ -273,7 +273,7 @@ vec4 pic(vec2 s) {
 }
 // Radial free fall from rest: material starting at r0 is at
 // r0 (1 - tau^2)^(2/3) after time t, tau = t / T(r0), with the fall time
-// T = k r0^1.5 (Kepler) — so it leaves slowly, speeds up, and the inside goes
+// T = k r0^1.5 (Kepler) - so it leaves slowly, speeds up, and the inside goes
 // first. For a pixel at r, find by bisection the r0 whose material is there.
 float fallenFrom(float r, float t, float k) {
   float lo = max(r, pow(t / k, 0.6667)), hi = lo + 2.5;
@@ -307,8 +307,8 @@ void main() {
       // A little angular momentum, conserved: it winds up as it closes in.
       float a0 = a - min(0.22 * (pow(ratio, 1.5) - 1.0), 40.0) + disp * 0.9;
       vec4 c = pic(vec2(cos(a0), sin(a0)) * r0 / vec2(uAspect, 1.0) + 0.5);
-      // Sinking: the deeper into the well, the darker — the middle caves in
-      // first — and only the very last of it, crushed, glows hot.
+      // Sinking: the deeper into the well, the darker - the middle caves in
+      // first - and only the very last of it, crushed, glows hot.
       float depth = log(ratio);
       c.rgb *= 1.0 - 0.8 * smoothstep(0.05, 1.3, depth);
       c.rgb += vec3(1.0, 0.7, 0.45) * smoothstep(1.6, 2.6, depth) * 0.9;
@@ -390,8 +390,8 @@ export function createBlackHole(
     ),
   )
   const debris = createDebris(uniforms)
-  // The dust round the camera, marched at half size — it is soft, and costs as
-  // much as the rest of the frame at full — then laid over it by the main pass.
+  // The dust round the camera, marched at half size - it is soft, and costs as
+  // much as the rest of the frame at full - then laid over it by the main pass.
   const nearRT = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType })
   uniforms.uNearTex.value = nearRT.texture
   const volScene = new THREE.Scene().add(
@@ -437,7 +437,7 @@ export function createBlackHole(
   function resize() {
     const w = canvas.clientWidth, h = canvas.clientHeight
     if (!w || !h) return
-    // ponytail: capped at 1.25× — the march is per pixel; lift it if a 2× screen looks soft.
+    // ponytail: capped at 1.25× - the march is per pixel; lift it if a 2× screen looks soft.
     const pr = Math.min(devicePixelRatio, 1.25)
     renderer.setPixelRatio(pr)
     renderer.setSize(w, h, false)

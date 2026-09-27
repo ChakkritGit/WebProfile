@@ -15,7 +15,7 @@ const INDENT: Record<number, string> = { 2: 'ps-0', 3: 'ps-4', 4: 'ps-8' }
  * The observer's rootMargin creates a band near the top of the viewport; the
  * heading closest to the top of that band wins. This avoids the classic bug
  * where the last section never highlights because it can't reach the middle of
- * the screen — we also force the final item active once the page is scrolled
+ * the screen - we also force the final item active once the page is scrolled
  * to the bottom.
  */
 /** Reading progress: a 1px rule with the read part drawn over it in blue. */
@@ -33,8 +33,8 @@ function ReadingProgress({ progress }: { progress: number }) {
 /**
  * One outline, drawn as whichever of the two it is asked for.
  *
- * It used to render both and let CSS hide one, and it is mounted twice — once in
- * the article column, once in the sidebar — so every article carried four
+ * It used to render both and let CSS hide one, and it is mounted twice - once in
+ * the article column, once in the sidebar - so every article carried four
  * `<nav>`s and showed two.
  */
 export function TableOfContents({
@@ -103,7 +103,7 @@ export function TableOfContents({
      * Collapse first, then aim.
      *
      * On a phone this list sits *above* the article, so closing it moves every
-     * heading up by its own height — and it was being closed after the scroll
+     * heading up by its own height - and it was being closed after the scroll
      * had already been aimed at where the heading used to be. Measured on a
      * 390px viewport: the panel was 560px tall and the heading ended up 577px
      * above the top of the screen. `flushSync` is what makes the layout true
@@ -121,7 +121,7 @@ export function TableOfContents({
      * Pictures between here and there load on the way past and settle at their
      * real height, and the heading goes with them: measured on a phone, 17px
      * above the top of the screen, under the header. The aim is checked once the
-     * scroll has stopped and corrected if it is out — but only within a screen of
+     * scroll has stopped and corrected if it is out - but only within a screen of
      * where it should be, so that a reader who grabbed the page mid-flight and
      * went somewhere else is not dragged back.
      */

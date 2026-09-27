@@ -14,7 +14,7 @@ export interface ProfileStat {
 }
 
 /**
- * The top of `/about`: who, what, and the few numbers — what the home page used
+ * The top of `/about`: who, what, and the few numbers - what the home page used
  * to open with before it became the articles' page.
  *
  * The entrance is the stylesheet's `hero-in`, not Motion: it starts at the

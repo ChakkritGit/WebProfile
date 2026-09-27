@@ -85,8 +85,8 @@ export function createDebris(uniforms: { uPhase: { value: number }; uForm: { val
   dust.frustumCulled = false
   scene.add(dust)
 
-  // Rocks: one finely divided sphere pushed about by layered noise — big lumps,
-  // then dents and grit — with smooth normals; stretched and turned per rock.
+  // Rocks: one finely divided sphere pushed about by layered noise - big lumps,
+  // then dents and grit - with smooth normals; stretched and turned per rock.
   const rockGeo = mergeVertices(new THREE.IcosahedronGeometry(1, 12))
   {
     const pos = rockGeo.attributes.position, v = new THREE.Vector3()

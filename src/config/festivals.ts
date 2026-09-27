@@ -76,8 +76,8 @@ function peakIn(festival: Festival, year: number): [number, number] | null {
  * The festival covering `date`, or `null` on an ordinary day.
  *
  * Neighbouring years are checked as well, so New Year's build-up reaches back
- * into December. Where two windows overlap — Christmas's afterglow runs into New
- * Year's build-up — the one whose own day is nearer wins, which needs no ordering
+ * into December. Where two windows overlap - Christmas's afterglow runs into New
+ * Year's build-up - the one whose own day is nearer wins, which needs no ordering
  * rule and keeps working if another festival is added later.
  */
 export function festivalOn(date: Date): Festival | null {

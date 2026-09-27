@@ -9,7 +9,7 @@ export interface TocItem {
 }
 
 export interface AnnotatedBlock extends EditorBlock {
-  /** Present on heading blocks — the element id the TOC links to. */
+  /** Present on heading blocks - the element id the TOC links to. */
   anchor?: string
 }
 

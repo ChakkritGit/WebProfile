@@ -45,7 +45,7 @@ export function ContactForm({ email }: { email: string }) {
     if (Object.keys(next).length > 0) return
 
     const subject = `[Portfolio] ${values.name.trim()}`
-    const body = `${values.message.trim()}\n\n— ${values.name.trim()} <${values.email.trim()}>`
+    const body = `${values.message.trim()}\n\n- ${values.name.trim()} <${values.email.trim()}>`
     window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
     setSent(true)
   }

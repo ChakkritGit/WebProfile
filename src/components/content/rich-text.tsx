@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
  * marker, inline code, links…). Rather than trusting it with
  * `dangerouslySetInnerHTML`, we tokenise that subset into React elements and
  * escape everything else. Unknown tags are dropped but their text is kept, and
- * link hrefs are restricted to safe schemes — so a stray `<script>` or
+ * link hrefs are restricted to safe schemes - so a stray `<script>` or
  * `javascript:` URL in stored content can never execute.
  */
 
@@ -32,7 +32,7 @@ const SAFE_SCHEME = /^(https?:|mailto:|tel:|#|\/)/i
 
 /**
  * The colour tools emit inline colours. Only literal colour values are copied
- * through — anything that isn't a hex/rgb/hsl triple is dropped, so a style
+ * through - anything that isn't a hex/rgb/hsl triple is dropped, so a style
  * attribute can never smuggle in `url()`, `expression()` or another property.
  */
 const COLOR_VALUE = /^(#[0-9a-f]{3,8}|rgba?\([\d\s.,%/]+\)|hsla?\([\d\s.,%/deg]+\))$/i

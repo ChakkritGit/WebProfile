@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 
 type Tone = 'neutral' | 'brand' | 'mint' | 'sun' | 'violet' | 'sky'
 
-/** A state rather than a label: filled, borderless, with a dot — never mistaken for a button. */
+/** A state rather than a label: filled, borderless, with a dot - never mistaken for a button. */
 type Status = 'ok' | 'warn' | 'muted'
 
 const tones: Record<Tone, string> = {

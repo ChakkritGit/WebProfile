@@ -13,7 +13,7 @@ import { PrismaClient } from '../src/generated/prisma/client'
  * page as the reader scrolled past it.
  *
  * Nothing but `file.width` and `file.height` is touched, and only where both are
- * missing — an author who set them by hand keeps them.
+ * missing - an author who set them by hand keeps them.
  *
  *   npx tsx scripts/backfill-image-sizes.ts          # says what it would do
  *   npx tsx scripts/backfill-image-sizes.ts --write  # does it
@@ -61,7 +61,7 @@ async function fill(document: Document): Promise<string[]> {
 
     const size = await measure(url)
     if (!size) {
-      filled.push(`  ? ${url.split('/').pop()} — could not be read`)
+      filled.push(`  ? ${url.split('/').pop()} - could not be read`)
       continue
     }
     if (block.data && !block.data.file) block.data.file = { url }

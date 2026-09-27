@@ -5,13 +5,13 @@ import { festivalById, festivalOn, type Festival, type FestivalId } from '@/conf
 import { useIsMounted } from '@/lib/hooks'
 
 /**
- * Seasonal dressing for the navbar — and only the navbar: a drifting layer of
+ * Seasonal dressing for the navbar - and only the navbar: a drifting layer of
  * glyphs, a tint, and an ornament on the logo. The full-screen greeting and the
  * closing scenes that used to play over the home page are gone on purpose.
  *
  * The date is read **after mount**, never during render. Pages here are
  * prerendered at build time, so a server-side check would freeze whatever
- * festival was running the day the site was deployed — and would disagree with
+ * festival was running the day the site was deployed - and would disagree with
  * the client's clock, which is a hydration error. Nothing renders until the
  * effect has run, so the first paint is always the plain header.
  *
@@ -56,7 +56,7 @@ const FIREWORK_HUES = ['#ffd166', '#ff6b8a', '#4fc3f7', '#7c5cff', '#5ddba4', '#
  * A shell that climbs and then opens into colours.
  *
  * Two layers on one clock: the rocket is a bright head with a short tail, and it
- * is switched off at the exact frame the shell starts to open — see the
+ * is switched off at the exact frame the shell starts to open - see the
  * `festival-launch` rules, where both children take their timing from the
  * parent.
  */
@@ -120,7 +120,7 @@ const GLYPHS: Record<FestivalId, (key: number) => React.ReactNode> = {
   ),
   // Blossom and water together: April is the month the golden shower flowers, and
   // it is the water that makes it Songkran. Every third lane gets a drop, which
-  // on thirteen lanes comes out four to nine — enough water to read as water
+  // on thirteen lanes comes out four to nine - enough water to read as water
   // without the flowers losing the header.
   songkran: (k) =>
     k % 3 === 1 ? (
@@ -137,7 +137,7 @@ const GLYPHS: Record<FestivalId, (key: number) => React.ReactNode> = {
       </svg>
     ),
   'loy-krathong': (k) => (
-    // A sky lantern, which is what actually goes up on the night — the krathong
+    // A sky lantern, which is what actually goes up on the night - the krathong
     // is the thing that goes on the water, and it has the finale to itself.
     <svg key={k} viewBox="0 0 16 16" className="size-full text-[#ffb02e]">
       <path d="M8 1.4c3.1 0 4.9 2.1 4.9 4.6 0 2.1-1.1 3.9-2 5.2H5.1C4.2 9.9 3.1 8.1 3.1 6c0-2.5 1.8-4.6 4.9-4.6Z" fill="currentColor" />
@@ -176,7 +176,7 @@ export function FestivalDecor({ festival }: { festival: Festival }) {
         style={{ background: `linear-gradient(to bottom, ${festival.wash}, transparent 78%)` }}
       />
       {/* The glyphs live behind a mask that fades out at the top and bottom of the
-          header. Without it they were sliced flat by the clip edge — a heart cut
+          header. Without it they were sliced flat by the clip edge - a heart cut
           in half along a straight line reads as a rendering fault, not as one
           drifting out of view. The wash is deliberately outside it: masking that
           too would have eaten the tint at the top, which is the part you see. */}
@@ -223,7 +223,7 @@ export function FestivalOrnament({ id }: { id: FestivalId }) {
   if (id === 'christmas')
     return (
       <svg viewBox="0 0 24 24" className="pointer-events-none absolute -top-3 -right-2.5 size-7">
-        {/* One cone, one band, one pom — the fur band was hidden behind the mark
+        {/* One cone, one band, one pom - the fur band was hidden behind the mark
             before, which left the hat reading as a red blob with a dot. */}
         <path
           d="M4.5 15.8C5.8 9.4 9.6 5 15 4.2c2.4-.4 3.9 1.1 3.6 3.3-.4 3.4-3.6 6.9-8 8.3H4.5Z"

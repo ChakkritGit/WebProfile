@@ -8,7 +8,7 @@ import {
   revalidateContent,
 } from '@/lib/studio-service'
 
-/** POST /api/content/:kind/:id/publish — toggle between DRAFT and PUBLISHED. */
+/** POST /api/content/:kind/:id/publish - toggle between DRAFT and PUBLISHED. */
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ kind: string; id: string }> },

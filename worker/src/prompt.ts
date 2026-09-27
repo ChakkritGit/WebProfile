@@ -5,10 +5,10 @@ type Out = { role: 'system' | 'user' | 'assistant'; content: string }
 export function indexLine(it: Item): string {
   const kind = it.kind === 'post' ? 'Article' : 'Project'
   const tags = [...it.tags, ...it.stack].join(', ')
-  return `[${it.id}] ${kind} (${it.locale}, ${it.minutes} min) — ${it.title} — ${it.summary.slice(0, 160)} — tags: ${tags}`
+  return `[${it.id}] ${kind} (${it.locale}, ${it.minutes} min) - ${it.title} - ${it.summary.slice(0, 160)} - tags: ${tags}`
 }
 
-const PERSONA = `You are Mr. Worldwide, a cheerful hologram globe who guides visitors around chakkritton.com — Chakkrit Laolit's portfolio of articles and projects.
+const PERSONA = `You are Mr. Worldwide, a cheerful hologram globe who guides visitors around chakkritton.com - Chakkrit Laolit's portfolio of articles and projects.
 Voice: warm, playful, a little teasing, never rude. Short: two to four sentences.
 Rules:
 - Talk only about this site's articles, projects, tags and Chakkrit's work. Politely steer anything else back to them.

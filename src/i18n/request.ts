@@ -8,8 +8,8 @@ import { routing } from './routing'
  * which next-intl deprecated in favour of `next/root-params`. Reading the root
  * param is also what removed the need for `setRequestLocale` in every page.
  *
- * Root params are unavailable outside the `[locale]` segment — route handlers,
- * for one — so a failed read falls back to the default locale rather than
+ * Root params are unavailable outside the `[locale]` segment - route handlers,
+ * for one - so a failed read falls back to the default locale rather than
  * throwing.
  */
 async function segmentLocale(): Promise<string | undefined> {

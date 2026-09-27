@@ -46,7 +46,7 @@ function localizedEntries(
 }
 
 /**
- * Records only get an hreflang alternate when a translation actually exists —
+ * Records only get an hreflang alternate when a translation actually exists -
  * slugs differ per locale, and pointing at a missing page is worse than
  * pointing at nothing.
  */
@@ -101,7 +101,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let projects: Record<Locale, ContentEntry[]> = { th: [], en: [], ja: [] }
 
   // `listPosts`/`listProjects` already fall back to seed content, but a sitemap
-  // that throws takes the whole build down — degrade to the static routes.
+  // that throws takes the whole build down - degrade to the static routes.
   try {
     // One listing per interface locale, each already resolved to the best language
     // available. That is exactly the URL space a reader of that locale is served,

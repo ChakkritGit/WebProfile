@@ -42,7 +42,7 @@ function write(key: string, value: string) {
  * `useSyncExternalStore` rather than an effect that calls `setState`: the server
  * snapshot is the default and the client's is whatever is in storage, and React
  * swaps them at hydration itself. The effect version had to render once with the
- * default and then set state — a wasted render for every reader, and the exact
+ * default and then set state - a wasted render for every reader, and the exact
  * shape `react-hooks/set-state-in-effect` exists to catch.
  */
 function useStored<T>(read: () => T, fallback: T): T {
@@ -122,7 +122,7 @@ export function ReadingSize({ className }: { className?: string }) {
 
 function readStep(): number {
   const saved = localStorage.getItem(SCALE_KEY)
-  // `Number(null)` is 0, which is a valid index — without this guard every
+  // `Number(null)` is 0, which is a valid index - without this guard every
   // first-time reader would land on the smallest size.
   if (saved === null) return DEFAULT_STEP
   const index = Number(saved)
@@ -133,7 +133,7 @@ function readStep(): number {
 /**
  * The face the article is set in.
  *
- * The site's own face, or whatever the reader's system sets running text in —
+ * The site's own face, or whatever the reader's system sets running text in -
  * the one they read most comfortably by definition. Each option is shown in the
  * face it selects; the only useful preview of a typeface is the typeface.
  */
@@ -189,7 +189,7 @@ export function ReadingFont({ className }: { className?: string }) {
  *
  * Without this the article renders at 100% in the site's face and then jumps once
  * hydration runs, which is exactly the flash the reader changed the setting to
- * avoid. Inline and synchronous, the way a theme script has to be — and silent on
+ * avoid. Inline and synchronous, the way a theme script has to be - and silent on
  * failure, because storage throws in private-mode Safari and a missing preference
  * is not worth an error.
  */

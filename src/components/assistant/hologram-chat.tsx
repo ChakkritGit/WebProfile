@@ -53,7 +53,7 @@ export function HologramChat({ open, onClose, engine }: { open: boolean; onClose
   const submit = (text: string) => {
     setDraft('')
     if (isTon(text)) {
-      // The easter egg, not a question: close, and let the hero play it — or
+      // The easter egg, not a question: close, and let the hero play it - or
       // go home and play it there.
       dialog.current?.close()
       if (dispatchEvent(new Event(TON_EVENT, { cancelable: true }))) router.push(`/${TON_HASH}`)

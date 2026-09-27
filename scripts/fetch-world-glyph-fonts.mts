@@ -1,6 +1,6 @@
 /**
  * Saves the rare-script faces, cut by Google to exactly WORLD_GLYPHS, into
- * src/assets/fonts/world — the files globals.css declares. Run after changing
+ * src/assets/fonts/world - the files globals.css declares. Run after changing
  * WORLD_GLYPHS: npx tsx scripts/fetch-world-glyph-fonts.mts
  */
 import { writeFileSync } from 'node:fs'

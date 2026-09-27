@@ -5,8 +5,8 @@
  *
  * With the View Transitions API: the browser snapshots the page, the theme
  * changes underneath, and the two pictures crossfade on the compositor. Every
- * pixel moves together — pseudo-elements, scrollbars, the orb's inline
- * opacities, form controls — because it is one image fading into another
+ * pixel moves together - pseudo-elements, scrollbars, the orb's inline
+ * opacities, form controls - because it is one image fading into another
  * rather than two hundred elements each transitioning its own colours while
  * the header re-blurs behind them every frame.
  *
@@ -23,7 +23,7 @@ const DURATION = 320
 let timer: ReturnType<typeof setTimeout> | undefined
 
 /**
- * Resolves once `<html>`'s class changes — which is when next-themes has
+ * Resolves once `<html>`'s class changes - which is when next-themes has
  * actually applied the theme. `setTheme` only sets state; the class lands in
  * an effect a moment later, and a view transition snapshots the "after" state
  * as soon as its callback settles, so it has to wait for that.

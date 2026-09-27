@@ -33,7 +33,7 @@ export function WebringBadge({
       )}
     >
       {mono ? (
-        // Inlined rather than an <img> so it can inherit currentColor — and drawn
+        // Inlined rather than an <img> so it can inherit currentColor - and drawn
         // freehand, like every other icon on the site. The ring is a curve
         // threaded through nine points whose radius wanders, so it comes out as a
         // pen going round rather than a compass. The gap and the star sit at the

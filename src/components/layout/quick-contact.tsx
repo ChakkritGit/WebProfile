@@ -22,7 +22,7 @@ const DOCK_BAND = { column: 190, row: 116 }
 
 /**
  * Always-reachable contact dock. One tap goes straight to GitHub, the phone
- * dialler or the mail client — no intermediate page.
+ * dialler or the mail client - no intermediate page.
  */
 export function QuickContactDock() {
   const t = useTranslations('footer')
@@ -39,7 +39,7 @@ export function QuickContactDock() {
 
   return (
     // Faded rather than unmounted. `inert` is what makes a faded control
-    // genuinely absent — opacity alone leaves it in the tab order and in the
+    // genuinely absent - opacity alone leaves it in the tab order and in the
     // accessibility tree, reachable by people who cannot see that it has gone.
     <aside
       aria-label={t('quickContact')}
@@ -58,7 +58,7 @@ export function QuickContactDock() {
               <a
                 href={link.href}
                 aria-label={`${link.label}: ${link.handle}`}
-                title={`${link.label} — ${link.handle}`}
+                title={`${link.label} - ${link.handle}`}
                 {...(external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
                 className="hover:bg-brand hover:text-brand-ink grid size-11 place-items-center transition-colors"
               >

@@ -2,7 +2,7 @@
   "meta": {
     "siteName": "Chakkrit Laolit",
     "tagline": "Articles on software, web & mobile development",
-    "defaultDescription": "Articles on building web, mobile and software products from real work — Next.js, React, TypeScript, Kotlin and the tools behind them — plus project write-ups, by Chakkrit Laolit."
+    "defaultDescription": "Articles on building web, mobile and software products from real work - Next.js, React, TypeScript, Kotlin and the tools behind them - plus project write-ups, by Chakkrit Laolit."
   },
   "nav": {
     "home": "Home",
@@ -24,7 +24,7 @@
     "backTo": "Back to {page}",
     "loading": "Loading…",
     "empty": "Nothing here yet",
-    "emptyHint": "New pieces are on the way — check back soon.",
+    "emptyHint": "New pieces are on the way - check back soon.",
     "minuteRead": "{minutes} min read",
     "publishedOn": "Published {date}",
     "updatedOn": "Updated {date}",
@@ -109,7 +109,7 @@
       "Web Developer",
       "Windows Developer"
     ],
-    "intro": "I build end-to-end web applications — from responsive interfaces in React and Next.js to REST APIs and the databases behind them. Currently at {company} in Bangkok.",
+    "intro": "I build end-to-end web applications - from responsive interfaces in React and Next.js to REST APIs and the databases behind them. Currently at {company} in Bangkok.",
     "ctaProjects": "See my work",
     "ctaContact": "Say hello",
     "ctaResume": "Resume",
@@ -130,7 +130,7 @@
     "blogTitle": "From the blog",
     "blogSubtitle": "Notes on building things for the web",
     "webringTitle": "Part of the Thai webring",
-    "webringBody": "This site is a member of วงแหวนเว็บ — a ring of personal sites by Thai artists, designers and developers. Follow the badge to discover the neighbours.",
+    "webringBody": "This site is a member of วงแหวนเว็บ - a ring of personal sites by Thai artists, designers and developers. Follow the badge to discover the neighbours.",
     "webringCta": "Explore the ring",
     "popularTitle": "Most read",
     "popularSubtitle": "What people are opening the most right now",
@@ -139,7 +139,7 @@
     "graphHint": "Hover a node to see what it connects to, drag to turn, click to open",
     "introEyebrow": "Articles · Projects · Notes",
     "introTitle": "Notes on building software.",
-    "introBody": "I'm Chakkrit, a software developer in Bangkok. This is where I write about building for the web and mobile and the tools I use at work — and where I keep the projects I've built.",
+    "introBody": "I'm Chakkrit, a software developer in Bangkok. This is where I write about building for the web and mobile and the tools I use at work - and where I keep the projects I've built.",
     "ctaArticles": "Read the articles",
     "ctaAbout": "About me",
     "latestTitle": "Latest articles",
@@ -163,7 +163,7 @@
     "orbPlay": "Resume rotation",
     "bgOff": "Hide backdrop",
     "bgOn": "Show backdrop",
-    "egg": "Gargantua — after Interstellar (2014). Type “ton” again to leave."
+    "egg": "Gargantua - after Interstellar (2014). Type “ton” again to leave."
   },
   "about": {
     "title": "About me",
@@ -248,7 +248,7 @@
     "formMessage": "Message",
     "formSubmit": "Send message",
     "formSending": "Sending…",
-    "formSuccess": "Thanks! Your mail app should be open — hit send and it'll land in my inbox.",
+    "formSuccess": "Thanks! Your mail app should be open - hit send and it'll land in my inbox.",
     "formHint": "This opens your email client with the message pre-filled.",
     "formErrorName": "Please tell me your name.",
     "formErrorEmail": "That doesn't look like an email address.",
@@ -307,8 +307,8 @@
     "requiredTitle": "A title is required.",
     "unsaved": "You have unsaved changes.",
     "backToStudio": "Back to studio",
-    "noPosts": "No posts yet — write your first one.",
-    "noProjects": "No projects yet — add your first one.",
+    "noPosts": "No posts yet - write your first one.",
+    "noProjects": "No projects yet - add your first one.",
     "editorLoading": "Loading editor…",
     "searchPlaceholder": "Search posts and projects…",
     "filterAll": "All",
@@ -363,7 +363,7 @@
     "blog": "Read the blog",
     "blogHint": "Notes on building things for the web",
     "contact": "Get in touch",
-    "contactHint": "Email, phone or GitHub — whichever is easiest"
+    "contactHint": "Email, phone or GitHub - whichever is easiest"
   },
   "toast": {
     "saved": "Saved",
@@ -406,7 +406,7 @@
     "post": "Article",
     "minutes": "{n} min",
     "err_rate_limited": "Whoa, slow down! Give me {s} seconds to catch my breath.",
-    "err_quota": "I've talked the whole day away — I'm resting now. Come back tomorrow!",
+    "err_quota": "I've talked the whole day away - I'm resting now. Come back tomorrow!",
     "err_upstream": "My signal flickered. Try that again?",
     "err_network": "Lost you for a second there. Try again?",
     "err_bad_request": "I couldn't read that one. Could you ask it another way?"

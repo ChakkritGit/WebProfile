@@ -46,7 +46,7 @@ export default async function StudioDashboard({
   // One query per kind, every language, nothing collapsed. Fanning out over a
   // hardcoded list of locales got this wrong twice: mapping over the UI locales
   // listed English rows once per locale that reads them, and narrowing that list
-  // hid the Japanese rows entirely — they stayed live at their URLs with no way
+  // hid the Japanese rows entirely - they stayed live at their URLs with no way
   // to edit or delete them from here.
   const [posts, projects] = await Promise.all([
     listPosts({ locale: locale as Locale, includeDrafts: true, allLocales: true }),

@@ -7,7 +7,7 @@ import type { AnnotatedBlock } from './toc'
  * Server-side syntax highlighting.
  *
  * Runs during render so no highlighter ships to the browser. A curated language
- * set keeps the bundle honest — `codeToHtml` from the shiki entrypoint would
+ * set keeps the bundle honest - `codeToHtml` from the shiki entrypoint would
  * pull in every grammar and theme.
  */
 
@@ -36,7 +36,7 @@ export function normaliseLang(input: unknown): string {
  * Best-effort language guess for blocks saved before the picker existed.
  *
  * Ordered most-specific first. A wrong guess only costs the wrong palette; the
- * alternative — leaving older posts unhighlighted — is worse.
+ * alternative - leaving older posts unhighlighted - is worse.
  */
 export function detectLanguage(code: string): string {
   const text = code.trim()

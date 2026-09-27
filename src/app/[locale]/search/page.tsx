@@ -10,7 +10,7 @@ import { PostRow, ProjectCard } from '@/components/content/content-card'
 
 /**
  * Every article and project matching `?q=`, with the box still on the page so
- * the next query is typed here rather than by reopening the dialog — the way a
+ * the next query is typed here rather than by reopening the dialog - the way a
  * search engine's results page works.
  */
 export async function generateMetadata({

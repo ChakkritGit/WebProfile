@@ -8,7 +8,7 @@ import type { ContentKindParam } from '@/lib/studio-schema'
  *
  * The write went through an API route, which already revalidated the server's
  * cache. But the browser keeps its own copy of pages it has prefetched or
- * visited — up to five minutes for a static page — and a route handler's
+ * visited - up to five minutes for a static page - and a route handler's
  * `revalidatePath` does not reach it; only a Server Function's does. So an
  * article opened right after saving showed the version from before. Calling
  * the same revalidation from here clears both.

@@ -406,8 +406,8 @@ export function step(
   }
   if (act !== 'glitch' || !st.act) {
     U.uGlitch.value *= Math.exp(-dt * 12)
-    // Now and then he drops to his wireframe for a while — the outline alone,
-    // or with the globe's lines — maybe switches to the other, and comes back.
+    // Now and then he drops to his wireframe for a while - the outline alone,
+    // or with the globe's lines - maybe switches to the other, and comes back.
     // It only starts while he's calm, but once on it stays through whatever
     // he does (a hover, an act) until its time is up. A blip of the glitch
     // marks each change of look, and only that.
@@ -464,7 +464,7 @@ export function step(
     shoe.position.copy(foot).add(V(0, -0.06, -0.12)).add(pivot.clone().sub(pivot.clone().applyQuaternion(rock)))
     // Then the leg: a rubber hose, one smooth arc from hip to the shoe's opening
     // wherever the shoe now is, bowed forward by as much as the foot has come in
-    // from the leg's full length — straight when stretched, bent when under.
+    // from the leg's full length - straight when stretched, bent when under.
     const ankle = V(0, 0.16, 0.1).applyQuaternion(rock).add(shoe.position)
     const span = ankle.clone().sub(hip), d = span.length(), LEG = 1.08
     const sag = Math.sqrt(Math.max(0, LEG * LEG - d * d)) * 0.55
@@ -512,7 +512,7 @@ export function step(
   const typing = browsing ? ease(c01(st.actT / 0.3)) * (1 - ease(c01((st.actT - 1.8) / 0.25))) : 0
   F.keyboard.visible = typing > 0.02
   if (F.keyboard.visible) {
-    // laid out for him (space bar his side), near flat under his fingertips —
+    // laid out for him (space bar his side), near flat under his fingertips -
     // tipped just enough that the keys don't close up into a line from the camera
     F.keyboard.position.set(0, 1.29, 1.25)
     F.keyboard.rotation.set(0.15, Math.PI, 0)
@@ -536,7 +536,7 @@ export function step(
     )
     let up: THREE.Vector3 | null = null, k = 0
     const wave = st.mode === 'wave' && side > 0
-    // At rest the arm hangs straight — the elbow on the line from shoulder to hand,
+    // At rest the arm hangs straight - the elbow on the line from shoulder to hand,
     // so the hose has no kink; it bends only for the poses below.
     let elbow = shoulder.clone().lerp(hand, 0.5).add(V(0.02 * side, 0, 0))
     const restDir = hand.clone().sub(elbow).normalize().lerp(V(0, -1, 0), 0.4).normalize()
@@ -572,7 +572,7 @@ export function step(
       } else if (act === 'search') {
         if (side === fs) {
           // As Miss Minute does it: the hand held just under the cards, index
-          // finger up, and quick little flicks up into them — each one sends
+          // finger up, and quick little flicks up into them - each one sends
           // the drum round; between flicks the finger drops back a touch. The
           // arm stays put; the hand and finger do the work.
           const T2 = Math.max(0, st.actT - 0.45), f = cyc(((T2 / 0.62) % 1) * Math.PI * 2)
@@ -609,7 +609,7 @@ export function step(
         if (side > 0) {
           // scratches his head: fingers curled over onto the upper side of the
           // globe, palm to it, the hand rubbing to and fro across the curve. The
-          // wrist sits 1.27 out from the centre — there the fingertips just meet it.
+          // wrist sits 1.27 out from the centre - there the fingertips just meet it.
           const rub = Math.sin((T - 0.8) * 26)
           const n = SCRATCH.n.clone().addScaledVector(SCRATCH.across, 0.12 * rub).normalize()
           pose = { E: V(1.55, 2.2, 0.05), H: V(0, 2, 0).addScaledVector(n, 1.27), dir: SCRATCH.dir, curl: 1.0 + 0.12 * rub, roll: 1.82, w: c01((T - 0.75) / 0.2) * (1 - c01((T - 1.75) / 0.25)) }
@@ -633,7 +633,7 @@ export function step(
         // a hand to the window's near corner and a turn of the wrist sweeps it
         // shut. Every reach is an easy one, and nothing crosses his face.
         const type = (sd: number): Pose => ({ E: V(1.05 * sd, 1.5, 0.5), H: V(0.36 * sd, 1.6 + 0.05 * Math.max(0, Math.sin(T * 22 + sd * 1.6)), 0.98), dir: V(0.1 * sd, -0.55, 1), curl: 0.55, roll: Math.PI }) // palms down on the keys
-        // enter: the finger lifts a little and comes down on the end key — kept
+        // enter: the finger lifts a little and comes down on the end key - kept
         // low over the keyboard, so the hand never rises in front of his mouth
         const lift = T < 1.52 ? ease(c01((T - 1.36) / 0.16)) : 1 - c01((T - 1.52) / 0.08) ** 2
         const enter: Pose = { E: V(1.05 * fs, 1.45, 0.5), H: V(0.435 * fs, 1.645 + 0.06 * lift, 1.03), dir: V(0.1 * fs, -0.8, 0.6), curl: 1.25, index: true, roll: Math.PI } // fingertip on the key top at 0
@@ -665,8 +665,8 @@ export function step(
     F.hose(limbs[side < 0 ? 0 : 1], [shoulder, elbow, hand], 0.07)
     const g = hands[side < 0 ? 0 : 1]
     g.position.copy(hand)
-    // Two whole orientations, blended by rotation (slerp): hanging — palm to the
-    // thigh, thumb forward, wrist trailing the swing — and waving, palm to you.
+    // Two whole orientations, blended by rotation (slerp): hanging - palm to the
+    // thigh, thumb forward, wrist trailing the swing - and waving, palm to you.
     const drag = -Math.sin(2 * Math.PI * uArm) * s // the swing's velocity: the wrist trails it
     const qRest = handFrame(restDir).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0.3 * drag, -side * 1.25, 0, 'YXZ')))
     g.quaternion.copy(up ? qRest.slerp(handFrame(up), k) : qRest)

@@ -5,7 +5,7 @@ const event = (name: string, data: unknown) => enc.encode(`event: ${name}\ndata:
 
 /**
  * Workers AI streams `data: {"response": "…"}` events. This reads them (whole
- * events only — a network chunk can end mid-event), runs the text through the
+ * events only - a network chunk can end mid-event), runs the text through the
  * reply filter, and emits the page's own events: text, cards, done.
  */
 export function toClientStream(

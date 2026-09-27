@@ -1,8 +1,8 @@
 /**
  * The pictures in the hero's collection that are not drawn but found: public
- * domain and CC0 works — statues, strange and old art, the Renaissance and the
+ * domain and CC0 works - statues, strange and old art, the Renaissance and the
  * great paintings after it, Egyptian tomb walls, the sea, European watercolour
- * landscapes, Jupiter, a black hole, and plant cells — and a hundred works of
+ * landscapes, Jupiter, a black hole, and plant cells - and a hundred works of
  * human culture from around the world: Mesopotamia and Persia, Africa, the
  * ancient Americas, the Pacific, South and Southeast Asia (Thailand among
  * them), the Himalayas, China, Korea, Japan, the Islamic world and Egypt.
@@ -12,7 +12,7 @@
  * picture anyway: it is the decent thing, and NASA asks for it.
  *
  * Files live in /public/hero (1920px WebP) and /public/hero/thumb (600px tall,
- * used by the opening timelapse — at 300px the full-screen frames came out
+ * used by the opening timelapse - at 300px the full-screen frames came out
  * visibly soft).
  */
 
@@ -23,7 +23,7 @@ export interface HeroPhoto {
   date: string
   source: string
   url: string
-  /** CSS object-position — where the subject is, for the crop. */
+  /** CSS object-position - where the subject is, for the crop. */
   focus?: string
   /** Busy by default (the orb frosts over it); false for the calm ones. */
   busy?: boolean

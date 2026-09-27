@@ -24,7 +24,7 @@ function renamed(name: string) {
  *
  * It walks two ladders: the long edge comes down first, and at each size the
  * quality comes down, stopping the moment something fits. That ordering keeps
- * the picture as large as it can be — dropping quality is less visible than
+ * the picture as large as it can be - dropping quality is less visible than
  * dropping pixels, so quality is spent first at every size.
  *
  * Anything already small enough is returned untouched, as is anything a canvas
@@ -65,13 +65,13 @@ export async function compressImage(file: File, targetBytes = TARGET_BYTES): Pro
           canvas.toBlob(resolve, 'image/webp', quality)
         })
         // A browser without WebP encoding hands back a PNG instead, which will
-        // not shrink the way this expects — better to send the original.
+        // not shrink the way this expects - better to send the original.
         if (!blob || blob.type !== 'image/webp') return best ? toFile(best, file) : file
         if (!best || blob.size < best.size) best = blob
         if (blob.size <= targetBytes) return toFile(blob, file)
       }
 
-      // Already at native size and still too big — shrinking further is the only
+      // Already at native size and still too big - shrinking further is the only
       // thing left, so carry on down the ladder.
       if (scale === 1 && edge !== EDGES[EDGES.length - 1]) continue
     }

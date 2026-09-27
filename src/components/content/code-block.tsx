@@ -8,7 +8,7 @@ import { CheckIcon, CopyIcon } from '@/components/icons'
  * Code block with a copy button.
  *
  * `highlighted` is markup produced by Shiki on the server. It is generated from
- * the stored code by our own highlighter — not author-supplied HTML — so it is
+ * the stored code by our own highlighter - not author-supplied HTML - so it is
  * safe to insert directly; when highlighting is unavailable the raw text is
  * rendered as a plain React child instead.
  */

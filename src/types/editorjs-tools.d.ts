@@ -1,7 +1,7 @@
 /**
  * These Editor.js tools ship JS without bundled type declarations. They are
  * only ever passed to Editor.js's `tools` map, which types them as
- * `ToolConstructable`, so a nominal class shape is enough — and it keeps
+ * `ToolConstructable`, so a nominal class shape is enough - and it keeps
  * `strict` on for the rest of the codebase.
  */
 declare module '@editorjs/checklist' {
@@ -21,7 +21,7 @@ declare module '@editorjs/link' {
 
 declare module '@editorjs/embed' {
   /**
-   * One entry of the service table the tool assembles in `prepare` — the same
+   * One entry of the service table the tool assembles in `prepare` - the same
    * shape the package documents for `config.services`. Declared here because
    * `embed-tool.ts` reads the table to turn a pasted URL into embed data rather
    * than keeping a second copy of seventeen services' URL patterns.

@@ -6,7 +6,7 @@ import './globals.css'
  * The 404 for anything that matches no route at all.
  *
  * It renders its own document because it has to: this file bypasses the app's
- * layouts entirely, which is the point of it — the root layout is under
+ * layouts entirely, which is the point of it - the root layout is under
  * `[locale]`, and a URL that never reaches that segment has no layout to render
  * inside. That is why `/nope.txt` answered 500 rather than 404.
  *
@@ -19,7 +19,7 @@ const latin = Noto_Sans({ subsets: ['latin'], axes: ['wdth'], variable: '--font-
 const thai = Noto_Sans_Thai({ subsets: ['thai'], axes: ['wdth'], variable: '--font-sans-thai' })
 
 export const metadata: Metadata = {
-  title: '404 — ไม่พบหน้านี้ / Page not found',
+  title: '404 - ไม่พบหน้านี้ / Page not found',
   robots: { index: false, follow: false },
 }
 

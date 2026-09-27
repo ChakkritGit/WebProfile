@@ -4,7 +4,7 @@ import { absoluteUrl, siteDescription, siteName } from '@/lib/seo'
 import { routing } from '@/i18n/routing'
 import type { PostRecord, ProjectRecord } from '@/lib/content-types'
 
-/** RSS 2.0 feed of the articles and project write-ups, in Thai — the site's primary locale. */
+/** RSS 2.0 feed of the articles and project write-ups, in Thai - the site's primary locale. */
 
 // Rendered per request, like the sitemap: the hourly ISR copy is what left
 // sitemap.xml a day stale on Vercel. The CDN may hold it a minute, no more.

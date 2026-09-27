@@ -15,7 +15,7 @@ import { profile } from '@/config/site'
  * it's worth reading; previewing gets them to the content immediately, with the
  * download still one click away.
  *
- * Small screens skip the modal — mobile browsers (iOS especially) refuse to
+ * Small screens skip the modal - mobile browsers (iOS especially) refuse to
  * render a PDF inside an iframe, so they get the browser's own viewer instead.
  */
 export function ResumeButton({

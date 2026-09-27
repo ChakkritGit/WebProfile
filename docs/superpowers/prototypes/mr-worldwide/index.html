@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Mr. Worldwide — 3D</title>
+<title>Mr. Worldwide - 3D</title>
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js" } }</script>
 <style>
   * { box-sizing: border-box; }
@@ -27,7 +27,7 @@
 </style>
 </head>
 <body>
-<h2>Mr. Worldwide — v18</h2>
+<h2>Mr. Worldwide - v18</h2>
 <p class="sub">Five-finger gloves, canvas sneakers, no blush, brows instead of lashes. The warp is now a vortex: he winds into a spiral and is drawn into the centre, then unwinds out of it. The walk is driven by one gait cycle: dip on each footfall, weight shifting side to side, hips and shoulders counter-rotating, arms trailing the legs, heel-strike and toe-off, easing into the turns, and now and then a stop to breathe and look around.</p>
 
 <div id="stage"><span class="name">MR. WORLDWIDE</span></div>
@@ -69,14 +69,14 @@ const COLOURS = { amber: new THREE.Color('#ff8a3d'), gold: new THREE.Color('#ffb
 const U = {
   uTime: { value: 0 }, uColor: { value: COLOURS.amber.clone() }, uOpacity: { value: 0.78 }, uBoost: { value: 1 },
   uWarpC: { value: V(0, 1.45, 0) }, uTwist: { value: 0 }, uPinch: { value: 0 }, uLight: { value: 0 },
-  // Natural Earth 1:50m land (public domain), equirectangular — the globe's own map.
+  // Natural Earth 1:50m land (public domain), equirectangular - the globe's own map.
   uLand: { value: new THREE.TextureLoader().load('files/land.png') },
 }
 
 /* The look is a drawing, not a render: flat fills with one hard shadow step,
    and an ink line of the same pixel width round every part (an inverted hull
    pushed out in screen space). The figure is drawn solid into a texture; the
-   hologram — see-through, scanlines, fringe, flicker — is laid over that one
+   hologram - see-through, scanlines, fringe, flicker - is laid over that one
    picture, so parts never show through one another. Every stage shares the
    vortex, so the warp twists fills and lines together. */
 const VORTEX = `
@@ -191,7 +191,7 @@ function glove(side) {
     const f = new THREE.Mesh(new THREE.CapsuleGeometry(0.036, 0.1 + (i === 1 || i === 2 ? 0.03 : 0), 4, 10), WHITE)
     f.position.y = -0.07; knuckle.add(f); knuckle.rotation.z = (i - 1.5) * 0.12; fingers.push(knuckle)
   }
-  // The thumb on the side toward the body — mirrored for the left hand — and a
+  // The thumb on the side toward the body - mirrored for the left hand - and a
   // touch toward the palm (-z), which is the side the fingers bend to.
   const thumb = new THREE.Group(); thumb.position.set(-0.12 * side, -0.1, -0.03); g.add(thumb)
   const tm = new THREE.Mesh(new THREE.CapsuleGeometry(0.038, 0.08, 4, 10), WHITE); tm.position.y = -0.05; thumb.add(tm)
@@ -228,7 +228,7 @@ const hands = [glove(-1), glove(1)], shoes = [sneaker(), sneaker()]
 hands.forEach((h) => bodyG.add(h)); shoes.forEach((s) => bodyG.add(s))
 const armMat = holo({ tint: 1.1, alpha: 1.2 })
 const limbs = [armMat, armMat, INK, INK].map((m) => { const mesh = new THREE.Mesh(new THREE.BufferGeometry(), m); bodyG.add(mesh); return mesh })
-// The legs are ink already — a single clean line, like the reference; an outline
+// The legs are ink already - a single clean line, like the reference; an outline
 // round them only fattened them.
 limbs[2].userData.noLine = limbs[3].userData.noLine = true
 const legHose = (mesh, curve) => { mesh.geometry.dispose(); mesh.geometry = new THREE.TubeGeometry(curve, 24, 0.038, 8) }
@@ -241,7 +241,7 @@ function ink(root, mat = LINE) {
   })
 }
 
-// A glow he casts on the floor — the grounding a hologram gets instead of a shadow.
+// A glow he casts on the floor - the grounding a hologram gets instead of a shadow.
 const puddleTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const r = g.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, 'rgba(255,255,255,.9)'); r.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = r; g.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c) })()
 const puddle = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 0.9), new THREE.MeshBasicMaterial({ map: puddleTex, color: U.uColor.value, transparent: true, opacity: 0.35, depthWrite: false }))
 puddle.rotation.x = -Math.PI / 2; puddle.position.y = 0.005
@@ -402,7 +402,7 @@ function frame() {
     shoe.position.copy(foot).add(V(0, -0.06, -0.12)).add(pivot.clone().sub(pivot.clone().applyQuaternion(rock)))
     // Then the leg: a rubber hose, one smooth arc from hip to the shoe's opening
     // wherever the shoe now is, bowed forward by as much as the foot has come in
-    // from the leg's full length — straight when stretched, bent when under.
+    // from the leg's full length - straight when stretched, bent when under.
     const ankle = V(0, 0.16, 0.1).applyQuaternion(rock).add(shoe.position)
     const span = ankle.clone().sub(hip), d = span.length(), LEG = 1.08
     const sag = Math.sqrt(Math.max(0, LEG * LEG - d * d)) * 0.55
@@ -454,8 +454,8 @@ function frame() {
     hose(limbs[side < 0 ? 0 : 1], [shoulder, elbow, hand], 0.07)
     const g = hands[side < 0 ? 0 : 1]
     g.position.copy(hand)
-    // Two whole orientations, blended by rotation (slerp): hanging — palm to the
-    // thigh, thumb forward, wrist trailing the swing — and waving, palm to you.
+    // Two whole orientations, blended by rotation (slerp): hanging - palm to the
+    // thigh, thumb forward, wrist trailing the swing - and waving, palm to you.
     // Blending the finger direction as a vector instead passed through nothing
     // on the way from down to up, and the hand snapped.
     const qRest = handFrame(restDir).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0.35 * s * Math.sin(phi - 0.5), -side * 1.25, 0, 'YXZ')))

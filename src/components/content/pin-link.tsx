@@ -7,7 +7,7 @@ import { pinScroll } from '@/lib/pin-scroll'
 /**
  * A locale-aware link that keeps the reader's scroll position.
  *
- * Used for controls that refine what is already on screen — filters, paging —
+ * Used for controls that refine what is already on screen - filters, paging -
  * where jumping to the top of the document loses the reader's place.
  */
 export function PinLink({

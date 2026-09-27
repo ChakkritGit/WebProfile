@@ -3,7 +3,7 @@ import { random } from './hero-designs'
 
 /**
  * The hero designs that move. Each is stacked HTML layers whose motion is a
- * CSS transform or opacity — work the compositor does on its own, frame after
+ * CSS transform or opacity - work the compositor does on its own, frame after
  * frame, without repainting. (Animating shapes inside one big SVG would repaint
  * the whole screen every frame.) Keyframes live in globals.css under
  * `hero-anim-*`; they stop for reduced motion and while the hero is off screen.
