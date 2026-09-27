@@ -28,7 +28,7 @@ function pick(ids: string[], items: Item[], lang: Lang): string[] {
  * The model's CARDS ids turned into what the reader sees. The model does not
  * always get its CARDS line right - it leaves it out, or writes ids that do not
  * exist - so when nothing valid is left, the cards are, in turn: the items the
- * reply names by title; the ones whose titles or tags it talks about ("llms.txt",
+ * reply names by title; the ones whose titles or tags its Latin words name ("llms.txt",
  * "macOS"); the ones the ranking picked for the question; and, when the question
  * asks for all or the latest articles or projects, the latest of those.
  */
@@ -38,7 +38,9 @@ export function chooseCards(ids: string[], items: Item[], lang: Lang, fallback?:
   const said = fallback.text.toLowerCase()
   const named = items.filter((i) => i.title.length >= 3 && said.includes(i.title.toLowerCase())).map((i) => i.id)
   if (named.length) return pick(named, items, lang)
-  const talked = rank(items, fallback.text, lang, 2).map((i) => i.id)
+  // Only the reply's Latin words (Mole, llms.txt, Next.js): it is long, and its
+  // Thai syllables matched titles they had nothing to do with ("ใหม่" in "มาตรฐานใหม่").
+  const talked = rank(items, fallback.text.replace(/[\u0E00-\u0E7F]+/g, ' '), lang, 2).map((i) => i.id)
   if (talked.length) return pick(talked, items, lang)
   if (fallback.ranked.length) return pick(fallback.ranked, items, lang)
   const q = fallback.question ?? ''

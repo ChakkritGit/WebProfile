@@ -4,9 +4,15 @@ const THAI = /[\u0E00-\u0E7F]+/g
 // Words every question has; matching on them made "what is the weather" find "What is llms.txt?".
 const STOP = new Set('a an and any are about can do does for from has have how in is it me my of on or so some that the there this to what which who why with you your'.split(' '))
 
+// Thai words every question and reply has, and words for the site itself. Thai
+// has no spaces, so they're cut out of the text before it's pieced up: left in,
+// "คุณชื่ออะไร" found "llms.txt คืออะไร", and a reply saying "ถามเกี่ยวกับบทความหรือ
+// โปรเจกต์ในเว็บไซต์" matched every piece on the site.
+const THAI_STOP = /อย่างไร|ยังไง|อะไร|ไหม|มั้ย|บ้าง|ครับ|ค่ะ|คะ|คุณ|ผม|ฉัน|เรา|คือ|เป็น|ได้|ที่|และ|หรือ|ของ|ใน|กับ|เกี่ยวกับ|เรื่อง|ถาม|บทความ|โพสต์|โปรเจกต์|โปรเจค|ผลงาน|เว็บไซต์|เว็บ|ไซต์|แนะนำ|เลย|นี้|นั้น|ต่าง ?ๆ/g
+
 /** Latin words, and three-letter pieces of every Thai run (Thai has no spaces). */
 function terms(text: string) {
-  const lower = text.toLowerCase()
+  const lower = text.toLowerCase().replace(THAI_STOP, ' ')
   const words = new Set(lower.replace(THAI, ' ').split(/[^\p{L}\p{N}.+#]+/u).filter((w) => w.length >= 2 && !STOP.has(w)))
   const grams = new Set<string>()
   for (const run of lower.match(THAI) ?? []) for (let i = 0; i + 3 <= run.length; i++) grams.add(run.slice(i, i + 3))

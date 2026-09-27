@@ -2,6 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { chooseCards } from '../src/cards'
+import { rank } from '../src/rank'
 import type { Item } from '../src/types'
 
 const it = (id: string, locale: 'th' | 'en', group: string): Item => ({
@@ -59,4 +60,15 @@ test('asked for all the articles (or projects), with nothing better, the cards a
   assert.deepEqual(chooseCards([], site, 'th', { text: 'นี่คือบทความทั้งหมดครับ', ranked: [], question: 'ขอดูบทความทั้งหมด' }), ['post:th:a', 'post:th:b'])
   assert.deepEqual(chooseCards([], site, 'th', { text: 'Here you go!', ranked: [], question: 'show me all your projects' }), ['project:th:smt'])
   assert.deepEqual(chooseCards([], site, 'th', { text: 'Hello!', ranked: [], question: 'hello' }), [])
+})
+
+test('small talk gets no cards, even when the reply talks about the site', () => {
+  const site: Item[] = [
+    { id: 'post:th:llms', kind: 'post', locale: 'th', title: 'llms.txt คืออะไร? มาตรฐานใหม่สำหรับเว็บไซต์ในยุค AI', summary: 'ทำไม AI ถึงเข้าใจไฟล์เอกสารของบางเว็บได้ไว', tags: ['llms.txt', 'AI'], stack: [], minutes: 6, url: '/blog/llms' } as Item,
+    { id: 'post:th:mole', kind: 'post', locale: 'th', title: 'ล้างแคช macOS ด้วย Mole', summary: 'กู้พื้นที่ดิสก์จาก Terminal', tags: ['macOS'], stack: [], minutes: 20, url: '/blog/mole' } as Item,
+  ]
+  const ask = (question: string, text: string) => chooseCards([], site, 'th', { text, ranked: rank(site, question, 'th').slice(0, 2).map((i) => i.id), question })
+  assert.deepEqual(ask('คุณชื่ออะไร', 'ฉันคือ Mr. Worldwide คุณสามารถถามฉันเกี่ยวกับบทความหรือโปรเจกต์ต่าง ๆ ในเว็บไซต์ได้เลย!'), [])
+  assert.deepEqual(ask('asdfgh', 'ขอโทษครับ ไม่เข้าใจความหมาย คุณสามารถพิมพ์ใหม่หรือถามเกี่ยวกับบทความในเว็บไซต์นี้ได้เลย!'), [])
+  assert.deepEqual(ask('ล้างแคช mac ยังไง', 'ลองอ่านเรื่อง Mole ดูครับ'), ['post:th:mole'])
 })
