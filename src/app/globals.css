@@ -993,8 +993,23 @@ html:has(dialog:modal) {
   display: flex;
   animation: mw-on 380ms steps(6, end);
 }
+/* The dim behind his screen is drawn under him, not as the dialog's backdrop:
+   that sits in the top layer, over everything, and covered him. The backdrop
+   stays (clear) to catch a click outside; the dim goes over the page and the
+   site's own layers, and he is lifted over it, in front with his screen. */
 .mw-screen::backdrop {
+  background: transparent;
+}
+html:has(.mw-screen[open]) body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 200;
   background: rgb(5 5 8 / 0.6);
+  pointer-events: none;
+}
+html:has(.mw-screen[open]) .mw-stage {
+  z-index: 201;
 }
 @keyframes mw-on {
   0% { opacity: 0; transform: scaleY(0.02); }
