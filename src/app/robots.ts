@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: '/',
         // The studio is authenticated and the API surface has nothing to index.
-        disallow: ['/studio', '/en/studio', '/api/'],
+        disallow: ['/studio', '/en/studio', '/ja/studio', '/api/'],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
