@@ -959,6 +959,9 @@ html:not([data-hero-art='off']) [data-grid] {
 .mw-stage {
   filter: drop-shadow(0 0 10px rgb(255 138 61 / 0.85)) drop-shadow(0 0 28px rgb(255 138 61 / 0.45));
 }
+.mw-stage[data-wire] {
+  filter: drop-shadow(0 0 10px rgb(255 240 158 / 0.85)) drop-shadow(0 0 28px rgb(255 240 158 / 0.45));
+}
 .mw-stage:focus-visible {
   outline: 2px solid var(--brand-strong);
   outline-offset: -4px;

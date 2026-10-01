@@ -107,6 +107,8 @@ const IDLE: [ActName, number, number][] = [
 ]
 const gh = (n: number) => { const x = Math.sin(n) * 43758.5453; return x - Math.floor(x) }
 const bell = (k: number) => Math.sin(Math.PI * c01(k))
+/** The wireframe's pale yellow (shaders.ts WIRE), for the light he casts while he's one. */
+const WIRE_GLOW = new THREE.Color(1.0, 0.94, 0.62)
 /** Where the browse act's fist closes on the search page (x on the page's side). */
 const FIST = V(1.42, 1.9, 0.66)
 /** The glitch act's head scratch: where on the globe, the way the hand rubs, where the fingers point. */
@@ -823,7 +825,8 @@ export function step(
   puddle.position.x = st.x
   puddle.scale.setScalar(scale)
   puddle.material.opacity = 0.32 * (1 - U.uPinch.value)
-  puddle.material.color.copy(U.uColor.value)
+  // the glow on the floor takes his wireframe's pale yellow while he is one
+  puddle.material.color.copy(U.uWire.value > 0.5 ? WIRE_GLOW : U.uColor.value)
 
   // Warps, waves, noticing, acts and an open chat get every frame; strolling and idling get 30 fps.
   return { full: st.busy || files.visible || F.browser.visible || F.hole.visible || (st.mode !== 'walk' && st.mode !== 'pause') }

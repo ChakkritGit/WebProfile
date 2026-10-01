@@ -120,6 +120,8 @@ export function createEngine(canvas: HTMLCanvasElement, landUrl: string, o: Engi
     st.parked = !!opts.parked
     st.reduced = opts.reducedMotion
     full = step(F, U, st, dt, clock.elapsedTime, world).full
+    // his halo (a CSS drop-shadow on the canvas) goes pale yellow with the wireframe
+    canvas.toggleAttribute('data-wire', U.uWire.value > 0.5)
     draw()
   }
   raf = requestAnimationFrame(loop)

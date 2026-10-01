@@ -2,6 +2,7 @@ import { Link } from '@/i18n/navigation'
 import { Badge, toneFor } from '@/components/ui/badge'
 import { TechIcon } from '@/components/brand/tech-icons'
 import { tagSlug } from '@/lib/search'
+import { cn } from '@/lib/utils'
 
 /**
  * A tag/tech chip that navigates to everything sharing that topic.
@@ -13,7 +14,9 @@ export function TagLink({ tag, className }: { tag: string; className?: string })
   return (
     <Link
       href={`/topics/${tagSlug(tag)}`}
-      className={className}
+      // top-aligned, not on the baseline: a badge's baseline is its first item's,
+      // which for an iconned tag is the icon's foot, so those rode higher
+      className={cn('inline-flex align-top', className)}
       title={tag}
     >
       <Badge
