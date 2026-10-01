@@ -5,23 +5,23 @@ import { routing, type Locale } from '@/i18n/routing'
 import { getProject, listProjects } from '@/lib/content'
 import { absoluteUrl, buildMetadata, authorJsonLd } from '@/lib/seo'
 import { ArticleShell } from '@/components/content/article-shell'
-import { ViewTracker } from '@/components/content/view-tracker'
+import { ViewCount } from '@/components/content/view-count'
 import { StickerCard } from '@/components/ui/sticker-card'
 import { TagLink } from '@/components/content/tag-link'
 import { ButtonLink } from '@/components/ui/button'
-import { ClockIcon, ExternalLinkIcon, EyeIcon, GitHubIcon } from '@/components/icons'
+import { ClockIcon, ExternalLinkIcon, GitHubIcon } from '@/components/icons'
 import { decodeParam } from '@/lib/slug'
 
 /**
- * A minute, not an hour.
+ * A day, not a minute.
  *
- * The view count is rendered into this page, and it changes on every visit. At
- * an hour the same article showed six on a card, five on its own page and one
- * after a refresh - three copies of different ages, none of them wrong when they
- * were made. A minute keeps the number a cached snapshot rather than a live
- * counter, which is what it is, without it being visibly from another sitting.
+ * Pages are cleared on publish (see `revalidateContent`); this is only the
+ * floor in case a purge is missed. A day keeps Vercel's ISR writes down - at
+ * a minute, every crawler visit regenerated the page. The view count is
+ * refreshed in the browser (`ViewCount`), so the cached HTML may carry
+ * yesterday's number.
  */
-export const revalidate = 60
+export const revalidate = 86400
 
 export async function generateStaticParams() {
   const params: { locale: string; slug: string }[] = []
@@ -89,10 +89,6 @@ export default async function ProjectPage({
 
   return (
     <>
-      {/* The record's own locale, not the interface one: a Thai article read at
-          `/ja/...` must still count against the Thai row, and `/api/views`
-          matches on (slug, locale). Passing the UI locale dropped the view. */}
-      <ViewTracker kind="project" slug={project.slug} locale={project.locale} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
@@ -122,10 +118,7 @@ export default async function ProjectPage({
               <ClockIcon className="size-4" />
               {tCommon('minuteRead', { minutes: project.readingMinutes })}
             </span>
-            <span className="inline-flex items-center gap-1.5">
-              <EyeIcon className="size-4" />
-              {tCommon('views', { count: project.views })}
-            </span>
+            <ViewCount kind="project" slug={project.slug} locale={project.locale} initial={project.views} />
           </>
         }
         aside={

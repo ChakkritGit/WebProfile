@@ -13,14 +13,13 @@ import { TagIcon } from '@/components/icons'
 import { TechIcon, hasTechIcon } from '@/components/brand/tech-icons'
 
 /**
- * Static, but not for ever.
+ * A day, not a minute.
  *
- * These pages list content that changes when something is published, and a
- * publish clears them directly (see `revalidateContent`). This is the floor
- * under that: if a purge is ever missed, the page repairs itself within the
- * minute instead of serving the same copy until the next deploy.
+ * Pages are cleared on publish (see `revalidateContent`); this is only the
+ * floor in case a purge is missed. A day keeps Vercel's ISR writes down - at
+ * a minute, every crawler visit regenerated the page.
  */
-export const revalidate = 60
+export const revalidate = 86400
 
 export async function generateMetadata({
   params,

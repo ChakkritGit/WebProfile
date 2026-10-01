@@ -5,21 +5,21 @@ import { routing, type Locale } from '@/i18n/routing'
 import { getPost, listPosts } from '@/lib/content'
 import { absoluteUrl, buildMetadata, authorJsonLd } from '@/lib/seo'
 import { ArticleShell } from '@/components/content/article-shell'
-import { ViewTracker } from '@/components/content/view-tracker'
-import { ClockIcon, EyeIcon } from '@/components/icons'
+import { ViewCount } from '@/components/content/view-count'
+import { ClockIcon } from '@/components/icons'
 import { formatDate } from '@/lib/utils'
 import { decodeParam } from '@/lib/slug'
 
 /**
- * A minute, not an hour.
+ * A day, not a minute.
  *
- * The view count is rendered into this page, and it changes on every visit. At
- * an hour the same article showed six on a card, five on its own page and one
- * after a refresh - three copies of different ages, none of them wrong when they
- * were made. A minute keeps the number a cached snapshot rather than a live
- * counter, which is what it is, without it being visibly from another sitting.
+ * Pages are cleared on publish (see `revalidateContent`); this is only the
+ * floor in case a purge is missed. A day keeps Vercel's ISR writes down - at
+ * a minute, every crawler visit regenerated the page. The view count is
+ * refreshed in the browser (`ViewCount`), so the cached HTML may carry
+ * yesterday's number.
  */
-export const revalidate = 60
+export const revalidate = 86400
 
 export async function generateStaticParams() {
   const params: { locale: string; slug: string }[] = []
@@ -84,10 +84,6 @@ export default async function BlogPostPage({
 
   return (
     <>
-      {/* The record's own locale, not the interface one: a Thai article read at
-          `/ja/...` must still count against the Thai row, and `/api/views`
-          matches on (slug, locale). Passing the UI locale dropped the view. */}
-      <ViewTracker kind="post" slug={post.slug} locale={post.locale} />
       <script
         type="application/ld+json"
         // Serialised from our own data; `<` is escaped to prevent tag breakout.
@@ -113,10 +109,7 @@ export default async function BlogPostPage({
               <ClockIcon className="size-4" />
               {t('minuteRead', { minutes: post.readingMinutes })}
             </span>
-            <span className="inline-flex items-center gap-1.5">
-              <EyeIcon className="size-4" />
-              {t('views', { count: post.views })}
-            </span>
+            <ViewCount kind="post" slug={post.slug} locale={post.locale} initial={post.views} />
           </>
         }
       />

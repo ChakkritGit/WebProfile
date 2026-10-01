@@ -40,7 +40,8 @@ import { formatMonthYear } from '@/lib/utils'
  * `#contact` here.
  */
 
-export const revalidate = 60
+/** Cleared on publish; a day is only the floor, to keep ISR writes down. */
+export const revalidate = 86400
 
 const ICONS = {
   github: GitHubIcon,

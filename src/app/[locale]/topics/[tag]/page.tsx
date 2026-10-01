@@ -13,15 +13,14 @@ import { PostCard, ProjectCard } from '@/components/content/content-card'
 import { TagIcon } from '@/components/icons'
 
 /**
- * A minute, not an hour.
+ * A day, not a minute.
  *
- * The view count is rendered into this page, and it changes on every visit. At
- * an hour the same article showed six on a card, five on its own page and one
- * after a refresh - three copies of different ages, none of them wrong when they
- * were made. A minute keeps the number a cached snapshot rather than a live
- * counter, which is what it is, without it being visibly from another sitting.
+ * Pages are cleared on publish (see `revalidateContent`); this is only the
+ * floor in case a purge is missed. A day keeps Vercel's ISR writes down - at
+ * a minute, every crawler visit regenerated the page. Card view counts are a
+ * daily snapshot.
  */
-export const revalidate = 60
+export const revalidate = 86400
 
 /** Every tag and stack entry that appears anywhere, for this locale. */
 async function topicsFor(locale: Locale) {
