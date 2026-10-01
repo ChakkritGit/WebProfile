@@ -72,22 +72,25 @@ export function extractJson(text: string): unknown | null {
 export type Plan =
   | { type: 'kanban'; title: string; columns: { title: string; cards: string[] }[] }
   | { type: 'timeline'; title: string; milestones: { title: string; note?: string }[] }
+  | { type: 'flowchart'; title: string; nodes: { id: string; label: string; shape: Shape }[]; edges: { from: string; to: string; label?: string }[] }
+type Shape = 'start' | 'process' | 'decision' | 'end'
+const SHAPES = ['start', 'process', 'decision', 'end']
 export interface Group {
   title: string
   ids: string[]
 }
 
-const clean = (v: unknown) => (typeof v === 'string' ? v.trim().slice(0, 80).trim() : '')
+const clean = (v: unknown, max = 80) => (typeof v === 'string' ? v.trim().slice(0, max).trim() : '')
 const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : [])
 
 export function clampPlan(v: unknown): Plan | null {
-  const o = (v ?? {}) as { type?: unknown; title?: unknown; columns?: unknown; milestones?: unknown }
+  const o = (v ?? {}) as { type?: unknown; title?: unknown; columns?: unknown; milestones?: unknown; nodes?: unknown; edges?: unknown }
   const title = clean(o.title)
   if (o.type === 'kanban') {
     const columns = arr(o.columns)
       .map((c) => {
         const col = (c ?? {}) as { title?: unknown; cards?: unknown }
-        return { title: clean(col.title), cards: arr(col.cards).map(clean).filter(Boolean).slice(0, 8) }
+        return { title: clean(col.title), cards: arr(col.cards).map((c) => clean(c)).filter(Boolean).slice(0, 8) }
       })
       .filter((c) => c.title)
       .slice(0, 6)
@@ -103,6 +106,31 @@ export function clampPlan(v: unknown): Plan | null {
       .filter((m) => m.title)
       .slice(0, 10)
     return milestones.length ? { type: 'timeline', title, milestones } : null
+  }
+  if (o.type === 'flowchart') {
+    const seen = new Set<string>()
+    const nodes: { id: string; label: string; shape: Shape }[] = []
+    for (const n of arr(o.nodes)) {
+      const { id: rawId, label: rawLabel, shape } = (n ?? {}) as { id?: unknown; label?: unknown; shape?: unknown }
+      const id = clean(rawId, 16)
+      const label = clean(rawLabel)
+      if (!id || !label || seen.has(id) || nodes.length >= 14) continue
+      seen.add(id)
+      nodes.push({ id, label, shape: SHAPES.includes(shape as string) ? (shape as Shape) : 'process' })
+    }
+    const pairs = new Set<string>()
+    const edges: { from: string; to: string; label?: string }[] = []
+    for (const e of arr(o.edges)) {
+      const { from: f, to: t, label: l } = (e ?? {}) as { from?: unknown; to?: unknown; label?: unknown }
+      const from = clean(f, 16)
+      const to = clean(t, 16)
+      const pair = `${from}\n${to}`
+      if (!seen.has(from) || !seen.has(to) || from === to || pairs.has(pair) || edges.length >= 20) continue
+      pairs.add(pair)
+      const label = clean(l, 24)
+      edges.push(label ? { from, to, label } : { from, to })
+    }
+    return nodes.length >= 2 && edges.length ? { type: 'flowchart', title, nodes, edges } : null
   }
   return null
 }

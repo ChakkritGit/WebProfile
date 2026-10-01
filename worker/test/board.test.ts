@@ -58,6 +58,41 @@ test('clampPlan handles a timeline and rejects the unusable', () => {
   assert.equal(clampPlan(null), null)
 })
 
+const N = (id: string, shape = 'process') => ({ id, label: `step ${id}`, shape })
+const flow = (nodes: unknown, edges: unknown) => clampPlan({ type: 'flowchart', title: 'F', nodes, edges })
+
+test('clampPlan keeps a valid flowchart unchanged', () => {
+  const nodes = [N('n1', 'start'), N('n2'), N('n3', 'decision'), N('n4'), N('n5', 'end')]
+  const edges = [{ from: 'n1', to: 'n2' }, { from: 'n2', to: 'n3' }, { from: 'n3', to: 'n4', label: 'Yes' }, { from: 'n3', to: 'n5', label: 'No' }, { from: 'n4', to: 'n5' }]
+  assert.deepEqual(flow(nodes, edges), { type: 'flowchart', title: 'F', nodes, edges })
+})
+
+test('clampPlan flowchart drops the unusable and keeps the rest', () => {
+  const two = [N('a'), N('b')]
+  const ab = { from: 'a', to: 'b' }
+  const p = (nodes: unknown, edges: unknown) => flow(nodes, edges) as Extract<NonNullable<ReturnType<typeof clampPlan>>, { type: 'flowchart' }>
+  assert.deepEqual(p([N('a'), N('a'), N('b')], [ab]).nodes.map((n) => n.id), ['a', 'b']) // duplicate id
+  assert.deepEqual(p([...two, { label: 'no id' }, { id: 'c', label: ' ' }], [ab]).nodes.length, 2) // no id, empty label
+  assert.deepEqual(p(two, [{ from: 'a', to: 'zzz' }, ab]).edges, [ab]) // unknown end
+  assert.deepEqual(p(two, [{ from: 'a', to: 'a' }, ab]).edges, [ab]) // self-edge
+  assert.deepEqual(p(two, [ab, { ...ab, label: 'again' }]).edges, [ab]) // repeat
+  assert.equal(p(two, [ab, 'a->b']).edges.length, 1) // string edge ignored
+  assert.equal(p([N('a', 'blob'), N('b')], [ab]).nodes[0].shape, 'process')
+  assert.deepEqual(p(two, [{ ...ab, label: ' ' }]).edges, [ab]) // empty label omitted
+  assert.equal(p(two, [{ ...ab, label: 'x'.repeat(40) }]).edges[0].label!.length, 24)
+  assert.equal(p([{ id: 'i'.repeat(20), label: 'L'.repeat(100) }, N('b')], [{ from: 'i'.repeat(16), to: 'b' }]).nodes[0].label.length, 80)
+  const many = Array.from({ length: 20 }, (_, i) => N(`n${i}`))
+  assert.equal(p(many, many.slice(1).map((n, i) => ({ from: `n${i}`, to: n.id }))).nodes.length, 14)
+})
+
+test('clampPlan flowchart keeps a cycle and rejects too little', () => {
+  const retry = [{ from: 'a', to: 'b' }, { from: 'b', to: 'a', label: 'Retry' }]
+  assert.equal((flow([N('a'), N('b')], retry) as { edges: unknown[] }).edges.length, 2)
+  assert.equal(flow([N('a')], [{ from: 'a', to: 'a' }]), null)
+  assert.equal(flow([N('a'), N('b')], ['a->b']), null)
+  assert.equal(flow([N('a'), N('b')], []), null)
+})
+
 test('filterTidy drops unknown ids, repeats and small groups', () => {
   const ids = new Set(['a', 'b', 'c', 'd'])
   const g = filterTidy({ groups: [{ title: 'one', ids: ['a', 'b', 'zzz', 'a'] }, { title: 'two', ids: ['b', 'c'] }, { title: 'three', ids: ['c', 'd'] }] }, ids)
@@ -170,6 +205,13 @@ test('boardMessages: summary forbids Markdown, tidy asks for full grouping', () 
   assert.match(boardMessages({ ...b, mode: 'summary' })[0].content, /No Markdown/)
   assert.match(boardMessages({ ...b, mode: 'tidy' })[0].content, /exactly one group/)
   assert.match(boardMessages({ ...b, mode: 'plan' })[0].content, /ignore the sentence limit/)
+})
+
+test('boardMessages: the plan prompt offers flowchart and steers to it', () => {
+  const c = boardMessages({ lang: 'th', request: 'go', items: [], mode: 'plan' })[0].content
+  assert.match(c, /"type":"flowchart"/)
+  assert.match(c, /Use flowchart when the request asks for a flow/)
+  assert.match(c, /exactly one start node/)
 })
 
 test('the board system prompt carries the date', () => {
