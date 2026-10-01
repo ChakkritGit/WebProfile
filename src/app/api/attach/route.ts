@@ -22,37 +22,39 @@ const MAX_BYTES = 25 * 1024 * 1024
  *
  * No `html`, `svg`, `js` or anything else a browser executes. The bucket is
  * public and serves what it is given, so an executable document there would run
- * on the storage origin with whatever that origin can reach.
+ * on the storage origin with whatever that origin can reach. The stored type is
+ * looked up from the extension too, so `notes.txt` sent as `text/html` is still
+ * served as text. `xml` is stored as `text/plain`: `text/xml` can carry script.
  */
-const ALLOWED = new Set([
-  'pdf',
-  'doc',
-  'docx',
-  'odt',
-  'rtf',
-  'txt',
-  'md',
-  'csv',
-  'xls',
-  'xlsx',
-  'ods',
-  'ppt',
-  'pptx',
-  'odp',
-  'zip',
-  'gz',
-  'tar',
-  'json',
-  'xml',
-  'mp3',
-  'wav',
-  'mp4',
-  'webm',
-  'png',
-  'jpg',
-  'jpeg',
-  'webp',
-  'gif',
+const ALLOWED = new Map([
+  ['pdf', 'application/pdf'],
+  ['doc', 'application/msword'],
+  ['docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+  ['odt', 'application/vnd.oasis.opendocument.text'],
+  ['rtf', 'application/rtf'],
+  ['txt', 'text/plain'],
+  ['md', 'text/plain'],
+  ['csv', 'text/csv'],
+  ['xls', 'application/vnd.ms-excel'],
+  ['xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+  ['ods', 'application/vnd.oasis.opendocument.spreadsheet'],
+  ['ppt', 'application/vnd.ms-powerpoint'],
+  ['pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'],
+  ['odp', 'application/vnd.oasis.opendocument.presentation'],
+  ['zip', 'application/zip'],
+  ['gz', 'application/gzip'],
+  ['tar', 'application/x-tar'],
+  ['json', 'application/json'],
+  ['xml', 'text/plain'],
+  ['mp3', 'audio/mpeg'],
+  ['wav', 'audio/wav'],
+  ['mp4', 'video/mp4'],
+  ['webm', 'video/webm'],
+  ['png', 'image/png'],
+  ['jpg', 'image/jpeg'],
+  ['jpeg', 'image/jpeg'],
+  ['webp', 'image/webp'],
+  ['gif', 'image/gif'],
 ])
 
 function extensionOf(name: string) {
@@ -83,7 +85,7 @@ export async function POST(request: Request) {
     const extension = extensionOf(file.name)
     if (!ALLOWED.has(extension)) {
       throw new StudioError(
-        `Files of type "${extension || 'unknown'}" are not accepted. Allowed: ${[...ALLOWED].join(', ')}.`,
+        `Files of type "${extension || 'unknown'}" are not accepted. Allowed: ${[...ALLOWED.keys()].join(', ')}.`,
         415,
       )
     }
@@ -108,7 +110,7 @@ export async function POST(request: Request) {
     const { error } = await supabase.storage
       .from(STORAGE_BUCKET)
       .upload(path, await file.arrayBuffer(), {
-        contentType: file.type || 'application/octet-stream',
+        contentType: ALLOWED.get(extension) ?? 'application/octet-stream',
         cacheControl: '31536000',
         upsert: false,
       })

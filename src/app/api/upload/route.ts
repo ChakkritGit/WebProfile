@@ -18,7 +18,6 @@ const ALLOWED_TYPES: Record<string, string> = {
   'image/webp': 'webp',
   'image/gif': 'gif',
   'image/avif': 'avif',
-  'image/svg+xml': 'svg',
 }
 
 function client() {
@@ -102,7 +101,10 @@ export async function POST(request: Request) {
 
       // Re-host the remote image so published posts don't depend on someone
       // else's server staying up (and don't leak referrers to it).
-      const upstream = await fetch(url, { redirect: 'follow' })
+      const upstream = await fetch(url, {
+        redirect: 'follow',
+        signal: AbortSignal.timeout(10000),
+      })
       if (!upstream.ok) throw new StudioError(`Could not fetch ${url} (${upstream.status}).`, 400)
 
       const remoteType = upstream.headers.get('content-type')?.split(';')[0]?.trim() ?? ''
@@ -114,6 +116,9 @@ export async function POST(request: Request) {
     // Editor.js reads `success: 0` to show an inline failure message.
     if (error instanceof StudioError) {
       return Response.json({ success: 0, error: error.message }, { status: error.status })
+    }
+    if (error instanceof Error && error.name === 'TimeoutError') {
+      return Response.json({ success: 0, error: 'That site took too long to respond.' }, { status: 504 })
     }
     return jsonError(error)
   }
