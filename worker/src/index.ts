@@ -1,3 +1,5 @@
+import { clampPlan, extractJson, filterTidy, parseBoardBody } from './board'
+import { boardMessages } from './board-prompt'
 import { chooseCards } from './cards'
 import { buildMessages } from './prompt'
 import { rank } from './rank'
@@ -49,10 +51,40 @@ async function loadText(env: Env, it: Item): Promise<string> {
   return r.ok ? r.text() : ''
 }
 
+async function handleBoard(raw: string, env: Env, h: Record<string, string>): Promise<Response> {
+  const body = parseBoardBody(raw)
+  if (!body) return json({ code: 'bad_request' }, 400, h)
+  const messages = boardMessages(body)
+  try {
+    if (body.mode === 'summary') {
+      const upstream = (await env.AI.run(MODEL as never, { messages, stream: true, max_tokens: 400, temperature: 0.3 } as never)) as ReadableStream<Uint8Array>
+      return new Response(toClientStream(upstream, () => []), {
+        headers: { ...h, 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store' },
+      })
+    }
+    const ids = new Set(body.items.map((i) => i.id))
+    const ask = async (msgs: typeof messages) => {
+      const out = (await env.AI.run(MODEL as never, { messages: msgs, max_tokens: 700, temperature: 0.2 } as never)) as { response?: unknown; choices?: { message?: { content?: unknown } }[] }
+      // Without stream, Qwen 3 answers in the OpenAI shape (choices[0].message.content); `response` may even arrive as an already-parsed object.
+      const raw = out.choices?.[0]?.message?.content ?? out.response
+      const v = extractJson(typeof raw === 'string' ? raw : JSON.stringify(raw ?? ''))
+      return body.mode === 'plan' ? clampPlan(v) : filterTidy(v, ids)
+    }
+    let result = await ask(messages)
+    if (!result) result = await ask([...messages, { role: 'user', content: 'Return only the JSON object, nothing else.' }])
+    if (!result) return json({ code: 'unparseable' }, 422, h)
+    return json(body.mode === 'plan' ? { plan: result } : { groups: result }, 200, h)
+  } catch (err) {
+    const code = errorCode(err)
+    return json({ code }, code === 'quota' ? 503 : 502, h)
+  }
+}
+
 export default {
   async fetch(req: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
     const url = new URL(req.url)
-    if (url.pathname !== '/api/assistant') return fetch(req)
+    const board = url.pathname === '/api/assistant/board'
+    if (url.pathname !== '/api/assistant' && !board) return fetch(req)
     const origin = req.headers.get('Origin')
     const h = cors(origin, env)
     if (req.method === 'OPTIONS') return new Response(null, { status: Object.keys(h).length ? 204 : 403, headers: h })
@@ -61,6 +93,8 @@ export default {
 
     const ip = req.headers.get('CF-Connecting-IP') ?? 'anonymous'
     if (!(await env.LIMITER.limit({ key: ip })).success) return json({ code: 'rate_limited', retryAfter: 60 }, 429, h)
+
+    if (board) return handleBoard(await req.text(), env, h)
 
     const body = parseBody(await req.text())
     if (!body) return json({ code: 'bad_request' }, 400, h)

@@ -5,7 +5,7 @@ routes = [{ pattern = "chakkritton.com/api/assistant*", zone_name = "chakkritton
 
 [vars]
 SITE = "https://chakkritton.com"
-ALLOWED_ORIGINS = "https://chakkritton.com"
+ALLOWED_ORIGINS = "https://chakkritton.com,https://whiteboard.chakkritton.com"
 
 [ai]
 binding = "AI"
