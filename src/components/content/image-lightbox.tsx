@@ -42,11 +42,17 @@ type Shot = { src: string; alt: string; from: From }
  * so the box it will occupy is known before it is rendered and no first frame has
  * to be painted to find out. A picture that has not loaded (no natural size) is
  * taken at the size it is on the page.
+ *
+ * The natural size comes from `full`, the opened source decoded on its own, not
+ * from the picture on the page: that one has a `srcset`, so its `naturalWidth` is
+ * divided by the candidate's density and measured 768 for a 1920 file. The landing
+ * was guessed at 768, so the picture started 1.7x too big and shrank back to the
+ * wrong size on close.
  */
-function fromRect(image: HTMLImageElement): From {
+function fromRect(image: HTMLImageElement, full: HTMLImageElement): From {
   const rect = image.getBoundingClientRect()
-  const naturalW = image.naturalWidth || rect.width
-  const naturalH = image.naturalHeight || rect.height
+  const naturalW = full.naturalWidth || rect.width
+  const naturalH = full.naturalHeight || rect.height
   const fit = Math.min(1, (window.innerWidth * 0.94) / naturalW, (window.innerHeight * 0.92) / naturalH)
   const landedW = naturalW * fit || rect.width
 
@@ -85,7 +91,6 @@ export function ImageLightbox() {
   // behind it scrollable.
   useScrollLock(shot !== null)
 
-  const dismiss = useCallback(() => setClosing(true), [])
 
   /**
    * The picture on the page, hidden while it is the one on the screen.
@@ -115,6 +120,12 @@ export function ImageLightbox() {
     drag.current = null
   }, [])
 
+  // Zoom goes back to fit first, or a zoomed picture shrinks from its zoomed size.
+  const dismiss = useCallback(() => {
+    reset()
+    setClosing(true)
+  }, [reset])
+
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
       const image = (event.target as HTMLElement | null)?.closest?.('[data-zoom]')
@@ -122,12 +133,22 @@ export function ImageLightbox() {
       // A picture inside a link belongs to the link.
       if (image.closest('a')) return
       event.preventDefault()
-      reset()
-      setClosing(false)
-      setShot({ src: image.currentSrc || image.src, alt: image.alt, from: fromRect(image) })
-      release()
-      source.current = image
-      image.style.visibility = 'hidden'
+      const src = image.currentSrc || image.src
+      const full = new Image()
+      full.src = src
+      // Already in the cache, so this is a few milliseconds. A failed decode
+      // leaves no natural size and `fromRect` falls back to the page size.
+      void full
+        .decode()
+        .catch(() => {})
+        .then(() => {
+          reset()
+          setClosing(false)
+          setShot({ src, alt: image.alt, from: fromRect(image, full) })
+          release()
+          source.current = image
+          image.style.visibility = 'hidden'
+        })
     }
 
     document.addEventListener('click', onClick)

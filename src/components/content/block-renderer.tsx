@@ -325,7 +325,7 @@ function Block({ block }: { block: AnnotatedBlock }) {
               // remotePatterns, where the optimiser answers 400.
               unoptimized={!optimisable(url)}
               className={cn(
-                'block h-auto',
+                'block h-auto cursor-zoom-in',
                 stretched ? 'w-full' : 'w-auto max-w-full',
                 withBackground && ['max-w-[85%] sm:max-w-[70%]', place || (align ? '' : 'mx-auto')],
                 withBorder && 'border-line border',
