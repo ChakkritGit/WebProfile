@@ -1,6 +1,6 @@
 import type { CheckId, Env, Result } from './types'
 
-export const CHECKS: { id: CheckId; group: 'portfolio' | 'spentcost' | 'whiteboard'; name: string; hourly?: true }[] = [
+export const CHECKS: { id: CheckId; group: 'portfolio' | 'spentcost' | 'whiteboard' | 'drivemusic'; name: string; hourly?: true }[] = [
   { id: 'portfolio', group: 'portfolio', name: 'Portfolio' },
   { id: 'assistant', group: 'portfolio', name: 'Mr. Worldwide' },
   { id: 'ai', group: 'portfolio', name: 'Mr. Worldwide AI', hourly: true },
@@ -8,6 +8,8 @@ export const CHECKS: { id: CheckId; group: 'portfolio' | 'spentcost' | 'whiteboa
   { id: 'reminders', group: 'spentcost', name: 'ระบบแจ้งเตือนบิล' },
   { id: 'whiteboard', group: 'whiteboard', name: 'Whiteboard' },
   { id: 'rooms', group: 'whiteboard', name: 'ห้อง Whiteboard' },
+  { id: 'music', group: 'drivemusic', name: 'Drive Music' },
+  { id: 'musicauth', group: 'drivemusic', name: 'ล็อกอิน Google ของ Drive Music' },
 ]
 
 const TIMEOUT_MS = 10_000
@@ -76,5 +78,10 @@ export async function runChecks(env: Env, scheduledTime: number): Promise<Result
     httpCheck('whiteboard', 'https://whiteboard.chakkritton.com/', {}, async (r) => r.status === 200),
     // Through the service binding, not the public URL: that one fails in 13ms with Cloudflare's 1042.
     roomsCheck(env.ROOMS, 'https://whiteboard-rooms/__health'),
+    httpCheck('music', 'https://drive-music.chakkritton.com/', {}, async (r) => r.status === 200),
+    // NextAuth's own endpoint: proves the serverless side and its Google provider are configured.
+    httpCheck('musicauth', 'https://drive-music.chakkritton.com/api/auth/providers', {}, async (r) =>
+      r.ok && 'google' in ((await r.json().catch(() => ({}))) as object),
+    ),
   ])
 }

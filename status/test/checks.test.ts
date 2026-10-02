@@ -40,5 +40,5 @@ test('runChecks asks the model only in minutes 0-4', async () => {
   const ids = async (min: number) => (await runChecks(env, Date.UTC(2026, 9, 2, 10, min))).map((r) => r.id)
   for (const m of [0, 4]) assert.ok((await ids(m)).includes('ai'), `minute ${m}`)
   for (const m of [5, 59]) assert.ok(!(await ids(m)).includes('ai'), `minute ${m}`)
-  assert.equal((await ids(5)).length, 6)
+  assert.equal((await ids(5)).length, 8)
 })
