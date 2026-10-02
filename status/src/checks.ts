@@ -5,7 +5,7 @@ export const CHECKS: { id: CheckId; group: 'portfolio' | 'spentcost' | 'whiteboa
   { id: 'assistant', group: 'portfolio', name: 'Mr. Worldwide' },
   { id: 'ai', group: 'portfolio', name: 'Mr. Worldwide AI', hourly: true },
   { id: 'expenses', group: 'spentcost', name: 'Spent-Cost' },
-  { id: 'reminders', group: 'spentcost', name: 'แจ้งเตือนบิล' },
+  { id: 'reminders', group: 'spentcost', name: 'ระบบแจ้งเตือนบิล' },
   { id: 'whiteboard', group: 'whiteboard', name: 'Whiteboard' },
   { id: 'rooms', group: 'whiteboard', name: 'ห้อง Whiteboard' },
 ]

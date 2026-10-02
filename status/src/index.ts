@@ -14,7 +14,7 @@ export default {
     await env.STATUS.put('state', JSON.stringify(state))
     for (const a of alerts) {
       const name = nameOf(a.id)
-      const alert = a.kind === 'down' ? { title: `${name} ล่ม`, body: 'ตรวจไม่ผ่าน 2 ครั้งติดกัน' } : { title: `${name} กลับมาแล้ว`, body: `ล่มไปประมาณ ${a.minutes} นาที` }
+      const alert = a.kind === 'down' ? { title: `${name} ล่ม`, body: 'เข้าไม่ได้ติดกันเกิน 5 นาที' } : { title: `${name} กลับมาแล้ว`, body: `ล่มไปประมาณ ${a.minutes} นาที` }
       // The state is saved already, so a failed alert is logged and never thrown.
       try {
         const r = await fetch(env.SUPABASE_FUNCTION_URL, {

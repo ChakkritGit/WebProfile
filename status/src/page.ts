@@ -74,21 +74,16 @@ function strip(state: State, id: CheckId, now: number): string {
     const cls = ratio === null ? 'none' : ratio === 1 ? 'ok' : ratio >= 0.9 ? 'warn' : 'bad'
     const pct = ratio === null ? 'ไม่มีข้อมูล' : `${Math.round(ratio * 1000) / 10}%`
     const down = downMinutes(state, id, day, now)
-    const note =
-      ratio === null
-        ? 'ยังไม่ได้ตรวจในวันนี้'
-        : down
-          ? `ล่มราว ${down} นาที`
-          : c![0] === c![1]
-            ? 'ไม่มีเหตุขัดข้อง'
-            : `ตรวจไม่ผ่าน ${c![1] - c![0]} จาก ${c![1]} ครั้ง`
+    // Incidents give the minutes; past their 7 days, each failed 5-minute check stands for 5 minutes.
+    const failed = c ? c[1] - c[0] : 0
+    const note = ratio === null ? 'ยังไม่มีข้อมูล' : down || failed ? `ล่มราว ${down || failed * 5} นาที` : 'ไม่มีช่วงที่ล่ม'
     const date = thaiDate(at)
     out += `<i class="bar ${cls}" tabindex="0" data-d="${esc(date)}" data-u="${esc(pct)}" data-n="${esc(note)}" aria-label="${esc(`${date}: ${pct}, ${note}`)}"></i>`
   }
   return out
 }
 
-const BANNER = { ok: 'ทุกระบบปกติ', slow: 'บางระบบตอบช้า', down: 'มีบางระบบล่ม', none: 'ยังไม่เคยตรวจ' } as const
+const BANNER = { ok: 'ทุกระบบปกติ', slow: 'บางระบบตอบช้า', down: 'มีบางระบบล่ม', none: 'ยังไม่มีข้อมูล' } as const
 
 export function render(state: State, now: number, checks: Check[] = CHECKS): string {
   const down = checks.filter((c) => statusOf(state, c.id) === 'down')
@@ -96,7 +91,7 @@ export function render(state: State, now: number, checks: Check[] = CHECKS): str
   const tone = !state.lastRun ? 'none' : down.length ? 'down' : slow.length ? 'slow' : 'ok'
   const named = tone === 'down' ? down : tone === 'slow' ? slow : []
   const head = named.length ? `${BANNER[tone]}: ${named.map((c) => c.name).join(', ')}` : BANNER[tone]
-  const checked = state.lastRun ? `ตรวจล่าสุด ${hhmm(state.lastRun)} · ตรวจทุก 5 นาที` : 'ยังไม่เคยตรวจ · รอบแรกภายใน 5 นาที'
+  const checked = state.lastRun ? `อัปเดตล่าสุด ${hhmm(state.lastRun)} · อัปเดตทุก 5 นาที` : 'ข้อมูลชุดแรกจะมาภายใน 5 นาที'
   const icon = { ok: '✓', slow: '!', down: '✕', none: '…' }[tone]
 
   const groups = GROUPS.map((g) => {
@@ -186,7 +181,7 @@ ${groups}
   const show = (bar) => {
     tip.replaceChildren()
     const b = document.createElement('b'); b.textContent = bar.dataset.d
-    const u = document.createElement('div'); u.textContent = 'ตรวจผ่าน ' + bar.dataset.u
+    const u = document.createElement('div'); u.textContent = 'ใช้งานได้ ' + bar.dataset.u
     const n = document.createElement('span'); n.textContent = bar.dataset.n
     tip.append(b, u, n)
     tip.hidden = false

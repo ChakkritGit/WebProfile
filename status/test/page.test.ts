@@ -16,14 +16,14 @@ const allUp = (): State => ({
 
 test('an empty state renders and says it has never checked', () => {
   const html = render(emptyState(), NOW)
-  assert.match(html, /ยังไม่เคยตรวจ/)
+  assert.match(html, /ยังไม่มีข้อมูล/)
   assert.match(html, /ไม่มีเหตุขัดข้องใน 7 วันที่ผ่านมา/)
 })
 
 test('all up says everything is normal, with the Bangkok check time', () => {
   const html = render(allUp(), NOW)
   assert.match(html, /ทุกระบบปกติ/)
-  assert.match(html, /ตรวจล่าสุด 12:00/)
+  assert.match(html, /อัปเดตล่าสุด 12:00/)
 })
 
 test('one down names it, and an open incident reads "ยังไม่กลับมา"', () => {
@@ -40,7 +40,7 @@ test('a 95/100 day is an amber bar whose tooltip data says 95% and how many chec
   const s = allUp()
   s.days.portfolio = { [bangkokDay(NOW)]: [95, 100] }
   const html = render(s, NOW)
-  assert.match(html, /class="bar warn" tabindex="0" data-d="[^"]+" data-u="95%" data-n="ตรวจไม่ผ่าน 5 จาก 100 ครั้ง"/)
+  assert.match(html, /class="bar warn" tabindex="0" data-d="[^"]+" data-u="95%" data-n="ล่มราว 25 นาที"/)
 })
 
 test('an incident inside a day shows as minutes down in that bar', () => {
