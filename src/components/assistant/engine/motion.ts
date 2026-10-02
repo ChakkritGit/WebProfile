@@ -10,7 +10,7 @@ import type { Figure, Uniforms } from './figure'
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 
 export type Mode = 'walk' | 'pause' | 'wave' | 'notice' | 'act' | 'out' | 'in'
-export type ActName = 'hips' | 'think' | 'talk' | 'point' | 'search' | 'glitch' | 'stretch' | 'dizzy' | 'hop' | 'dance' | 'browse' | 'singularity'
+export type ActName = 'hips' | 'think' | 'talk' | 'point' | 'search' | 'glitch' | 'stretch' | 'dizzy' | 'hop' | 'browse' | 'singularity'
 
 export function createState() {
   return {
@@ -101,7 +101,6 @@ const IDLE: [ActName, number, number][] = [
   ['stretch', 0.1, 3.0],
   ['dizzy', 0.1, 3.4],
   ['hop', 0.12, 1.7],
-  ['dance', 0.14, 4.2],
   ['browse', 0.12, 4.3],
   ['singularity', 0.12, 4.2],
 ]
@@ -123,8 +122,6 @@ function actMood(act: ActName, T: number, t: number): Mood {
   switch (act) {
     case 'hop':
       return { ...m, brow: 0.08, lid: -0.5, smile: 0.2, width: 0.04, open: 0.35 * bell((T - 0.28) / 0.45) }
-    case 'dance':
-      return { ...m, brow: 0.04, lid: -0.9, smile: 0.18, width: 0.03, head: 0.05 * Math.sin(Math.PI * T * 4) }
     case 'stretch': {
       const a = ease(c01((T - 0.1) / 0.6)) * (1 - ease(c01((T - 1.9) / 0.5))), yawn = bell((T - 0.5) / 1.3)
       return { ...m, brow: 0.06 * a, lid: -3.2 * yawn - 0.3 * a, smile: 0.1 - 0.08 * yawn, width: -0.08 * yawn, open: 0.95 * yawn }
@@ -359,16 +356,6 @@ export function step(
       jump = 1.0 * Math.sin(Math.PI * k) + 0.35 * Math.sin(Math.PI * k2)
       squash = 1 - 0.16 * crouch + 0.08 * bell(k) - 0.13 * bell((T - 0.73) / 0.22) - 0.07 * bell((T - 1.25) / 0.18)
       footUp[0] = footUp[1] = 0.2 * bell(k) + 0.08 * bell(k2)
-    } else if (act === 'dance') {
-      // a groove at 120 bpm: down on every beat, hips side to side, stepping out
-      const beat = T * 2
-      bodyG.position.y += -0.06 * 0.5 * (1 - Math.cos(2 * Math.PI * beat))
-      bodyG.position.x += 0.1 * Math.sin(Math.PI * beat)
-      torso.rotation.z += 0.08 * Math.sin(Math.PI * beat)
-      footUp[0] = 0.14 * Math.max(0, Math.sin(Math.PI * beat))
-      footUp[1] = 0.14 * Math.max(0, -Math.sin(Math.PI * beat))
-      stepX[0] = -0.08 * Math.max(0, Math.sin(Math.PI * beat))
-      stepX[1] = 0.08 * Math.max(0, -Math.sin(Math.PI * beat))
     } else if (act === 'stretch') {
       // up on the toes, reaching high, a yawn; then down again
       const a2 = ease(c01((T - 0.1) / 0.6)) * (1 - ease(c01((T - 1.9) / 0.5)))
@@ -596,12 +583,6 @@ export function step(
       } else if (act === 'hop') {
         const upW = Math.min(1, 1.3 * (bell((T - 0.28) / 0.45) + 0.6 * bell((T - 0.95) / 0.3)))
         pose = { E: V(1.25 * side, 2.45, 0.1), H: V(1.4 * side, 3.0, 0.2), dir: V(0.2 * side, 1, 0.1), curl: 0.15, w: upW }
-      } else if (act === 'dance') {
-        if (side > 0) {
-          // disco: up to the corner, down across, on the beat
-          const k = ease(0.5 + 0.5 * Math.sin(Math.PI * T * 2))
-          pose = { E: V(1.2, 2.2, 0.3), H: V(0.6, 1.2, 0.6).lerp(V(1.6, 3.0, 0.3), k), dir: V(-0.4, -1, 0.3).lerp(V(0.45, 1, 0.2), k), curl: 1.3, index: true }
-        } else pose = { E: V(-1.3, 1.5, 0.3), H: V(-0.75, 1.7 + 0.12 * Math.sin(4 * Math.PI * T), 0.75), dir: V(0.3, 0.4, 0.9), curl: 1.2 }
       } else if (act === 'stretch') {
         const a2 = ease(c01((T - 0.1) / 0.6)) * (1 - ease(c01((T - 1.9) / 0.5)))
         pose = { E: V(0.8 * side, 2.75, -0.05), H: V(0.32 * side, 3.4, 0), dir: V(0, 1, 0), curl: 0.35, w: a2 }
