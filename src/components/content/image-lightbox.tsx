@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useScrollLock } from '@/lib/hooks'
 import { MORPH } from '@/components/ui/morphing-dialog'
@@ -121,8 +122,11 @@ export function ImageLightbox() {
   }, [])
 
   // Zoom goes back to fit first, or a zoomed picture shrinks from its zoomed size.
+  // Flushed before `closing`: AnimatePresence freezes the exiting child as it was
+  // last rendered, so a reset in the same render never reached the picture and it
+  // stayed at 2.5x all the way down.
   const dismiss = useCallback(() => {
-    reset()
+    flushSync(reset)
     setClosing(true)
   }, [reset])
 
