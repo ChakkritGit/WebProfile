@@ -1,0 +1,79 @@
+import type { CheckId, Env, Result } from './types'
+
+export const CHECKS: { id: CheckId; group: 'portfolio' | 'spentcost' | 'whiteboard'; name: string; hourly?: true }[] = [
+  { id: 'portfolio', group: 'portfolio', name: 'Portfolio' },
+  { id: 'assistant', group: 'portfolio', name: 'Mr. Worldwide' },
+  { id: 'ai', group: 'portfolio', name: 'Mr. Worldwide AI', hourly: true },
+  { id: 'expenses', group: 'spentcost', name: 'Spent-Cost' },
+  { id: 'reminders', group: 'spentcost', name: 'แจ้งเตือนบิล' },
+  { id: 'whiteboard', group: 'whiteboard', name: 'Whiteboard' },
+  { id: 'rooms', group: 'whiteboard', name: 'ห้อง Whiteboard' },
+]
+
+const TIMEOUT_MS = 10_000
+
+/** One request with a timeout. Any throw, including the timeout, is a failed check. */
+export async function httpCheck(id: CheckId, url: string, init: RequestInit, isOk: (res: Response) => Promise<boolean>): Promise<Result> {
+  const t0 = Date.now()
+  const ok = await fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) })
+    .then(isOk)
+    .catch(() => false)
+  return { id, ok, ms: Date.now() - t0 }
+}
+
+export const jsonOk = async (r: Response) => r.ok && ((await r.json().catch(() => ({}))) as { ok?: unknown }).ok === true
+
+/** The morning job runs daily; 26 hours leaves two hours of slack before it counts as missed. */
+export const fresh = (iso: unknown, now = Date.now()) => {
+  const t = typeof iso === 'string' ? Date.parse(iso) : NaN
+  return Number.isFinite(t) && now - t <= 26 * 3600_000
+}
+
+const remindersOk = async (r: Response) => r.ok && fresh(((await r.json().catch(() => ({}))) as { lastRun?: unknown }).lastRun)
+
+/** The rooms worker sends a message as soon as a socket opens; a silent socket means the Durable Object is stuck. */
+export async function roomsCheck(url: string): Promise<Result> {
+  const t0 = Date.now()
+  let ws: WebSocket | undefined
+  let ok = false
+  try {
+    const res = await fetch(url, { headers: { Upgrade: 'websocket' }, signal: AbortSignal.timeout(TIMEOUT_MS) })
+    ws = res.webSocket ?? undefined
+    if (res.status === 101 && ws) {
+      const sock = ws
+      sock.accept()
+      ok = await new Promise<boolean>((resolve) => {
+        const timer = setTimeout(() => resolve(false), 5000)
+        sock.addEventListener('message', () => (clearTimeout(timer), resolve(true)), { once: true })
+        sock.addEventListener('close', () => (clearTimeout(timer), resolve(false)), { once: true })
+      })
+    }
+  } catch {
+    ok = false
+  } finally {
+    try {
+      ws?.close()
+    } catch {}
+  }
+  return { id: 'rooms', ok, ms: Date.now() - t0 }
+}
+
+export async function runChecks(env: Env, scheduledTime: number): Promise<Result[]> {
+  // The model costs quota, so it is asked once an hour: the run whose scheduled minute is under 5.
+  const hourly = new Date(scheduledTime).getUTCMinutes() < 5
+  const site = 'https://chakkritton.com'
+  return Promise.all([
+    httpCheck('portfolio', `${site}/api/health`, {}, jsonOk),
+    httpCheck('assistant', `${site}/api/assistant/health`, {}, jsonOk),
+    ...(hourly ? [httpCheck('ai', `${site}/api/assistant/health?ai=1`, { headers: { 'x-health-token': env.HEALTH_TOKEN } }, jsonOk)] : []),
+    httpCheck('expenses', 'https://expenses.chakkritton.com/api/health', {}, jsonOk),
+    httpCheck(
+      'reminders',
+      env.SUPABASE_FUNCTION_URL,
+      { method: 'POST', headers: { 'x-status-secret': env.STATUS_SECRET, 'content-type': 'application/json' }, body: '{"health":true}' },
+      remindersOk,
+    ),
+    httpCheck('whiteboard', 'https://whiteboard.chakkritton.com/', {}, async (r) => r.status === 200),
+    roomsCheck('https://whiteboard-rooms.nongtonnee.workers.dev/__health'),
+  ])
+}

@@ -1,12 +1,12 @@
 import { clampPlan, extractJson, filterTidy, parseBoardBody } from './board'
 import { boardMessages } from './board-prompt'
 import { chooseCards } from './cards'
+import { health, MODEL } from './health'
 import { buildMessages } from './prompt'
 import { rank } from './rank'
 import { toClientStream } from './stream'
 import type { Env, Item, Lang, Msg } from './types'
 
-const MODEL = '@cf/qwen/qwen3-30b-a3b-fp8'
 const CACHE = { cf: { cacheTtl: 300, cacheEverything: true } } as RequestInit
 
 export function parseBody(raw: string): { messages: Msg[]; lang: Lang } | null {
@@ -85,6 +85,12 @@ async function handleBoard(raw: string, env: Env, h: Record<string, string>): Pr
 export default {
   async fetch(req: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
     const url = new URL(req.url)
+    if (url.pathname === '/api/assistant/health' && req.method === 'GET') {
+      return health(req, env, {
+        loadIndex,
+        runAi: (e) => e.AI.run(MODEL as never, { messages: [{ role: 'user', content: 'ok /no_think' }], max_tokens: 1 } as never),
+      })
+    }
     const board = url.pathname === '/api/assistant/board'
     if (url.pathname !== '/api/assistant' && !board) return fetch(req)
     const origin = req.headers.get('Origin')

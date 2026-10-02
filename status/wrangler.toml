@@ -1,0 +1,16 @@
+name = "status"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+routes = [{ pattern = "status.chakkritton.com", custom_domain = true }]
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+# Created with: npx wrangler kv namespace create STATUS
+[[kv_namespaces]]
+binding = "STATUS"
+id = "be9d4c52e65a4572b1dd997a30dc2cdb"
+
+# Secrets (wrangler secret put): STATUS_SECRET, HEALTH_TOKEN. The URL below is public.
+[vars]
+SUPABASE_FUNCTION_URL = "https://yavhirzrepgpvvapohyz.supabase.co/functions/v1/push-reminders"

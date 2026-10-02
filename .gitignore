@@ -54,3 +54,5 @@ memory.md
 .superpowers/
 worker/.wrangler/
 worker/node_modules/
+status/node_modules/
+status/.wrangler/

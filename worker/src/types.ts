@@ -22,4 +22,5 @@ export interface Env {
   LIMITER: RateLimit
   SITE: string
   ALLOWED_ORIGINS: string
+  HEALTH_TOKEN?: string
 }
