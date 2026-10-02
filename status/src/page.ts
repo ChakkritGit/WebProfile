@@ -42,24 +42,62 @@ const nameOf = (checks: Check[], id: CheckId) => checks.find((c) => c.id === id)
 const recent = (state: State, now: number) =>
   state.incidents.filter((i) => i.end === undefined || now - i.end <= 7 * DAY).sort((a, b) => b.start - a.start)
 
+/** The portfolio's mark, so the page reads as part of chakkritton.com. Also the favicon. */
+const LOGO = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><rect width="64" height="64" fill="#0000FF"/><path d="M44 18.7H20v26.6h24" fill="none" stroke="#FFFFFF" stroke-width="6.7" stroke-linecap="square"/></svg>'
+
+const thaiDate = (ms: number) =>
+  new Intl.DateTimeFormat('th-TH', { timeZone: 'Asia/Bangkok', day: 'numeric', month: 'short', year: 'numeric' }).format(ms)
+
+/** Minutes of open or closed incidents inside one Bangkok day. Incidents are kept 7 days, so older days have none. */
+function downMinutes(state: State, id: CheckId, day: string, now: number): number {
+  const start = Date.parse(`${day}T00:00:00+07:00`)
+  const end = start + DAY
+  let total = 0
+  for (const i of state.incidents) {
+    if (i.id !== id) continue
+    const a = Math.max(start, i.start)
+    const b = Math.min(end, i.end ?? now)
+    if (b > a) total += b - a
+  }
+  return Math.round(total / 60_000)
+}
+
+/** One bar per Bangkok day, oldest first. The tooltip reads the data attributes; the label is for screen readers. */
 function strip(state: State, id: CheckId, now: number): string {
   const days = state.days[id] ?? {}
   let out = ''
   for (let i = 89; i >= 0; i--) {
-    const day = bangkokDay(now - i * DAY)
+    const at = now - i * DAY
+    const day = bangkokDay(at)
     const c = days[day]
     const ratio = c && c[1] ? c[0] / c[1] : null
     const cls = ratio === null ? 'none' : ratio === 1 ? 'ok' : ratio >= 0.9 ? 'warn' : 'bad'
     const pct = ratio === null ? 'ไม่มีข้อมูล' : `${Math.round(ratio * 1000) / 10}%`
-    out += `<i class="bar ${cls}" title="${esc(day)}: ${esc(pct)}"></i>`
+    const down = downMinutes(state, id, day, now)
+    const note =
+      ratio === null
+        ? 'ยังไม่ได้ตรวจในวันนี้'
+        : down
+          ? `ล่มราว ${down} นาที`
+          : c![0] === c![1]
+            ? 'ไม่มีเหตุขัดข้อง'
+            : `ตรวจไม่ผ่าน ${c![1] - c![0]} จาก ${c![1]} ครั้ง`
+    const date = thaiDate(at)
+    out += `<i class="bar ${cls}" tabindex="0" data-d="${esc(date)}" data-u="${esc(pct)}" data-n="${esc(note)}" aria-label="${esc(`${date}: ${pct}, ${note}`)}"></i>`
   }
   return out
 }
 
+const BANNER = { ok: 'ทุกระบบปกติ', slow: 'บางระบบตอบช้า', down: 'มีบางระบบล่ม', none: 'ยังไม่เคยตรวจ' } as const
+
 export function render(state: State, now: number, checks: Check[] = CHECKS): string {
   const down = checks.filter((c) => statusOf(state, c.id) === 'down')
-  const head = down.length ? `มีบางระบบล่ม: ${down.map((c) => c.name).join(', ')}` : 'ทุกระบบปกติ'
-  const checked = state.lastRun ? `ตรวจล่าสุด ${hhmm(state.lastRun)}` : 'ยังไม่เคยตรวจ'
+  const slow = checks.filter((c) => statusOf(state, c.id) === 'slow')
+  const tone = !state.lastRun ? 'none' : down.length ? 'down' : slow.length ? 'slow' : 'ok'
+  const named = tone === 'down' ? down : tone === 'slow' ? slow : []
+  const head = named.length ? `${BANNER[tone]}: ${named.map((c) => c.name).join(', ')}` : BANNER[tone]
+  const checked = state.lastRun ? `ตรวจล่าสุด ${hhmm(state.lastRun)} · ตรวจทุก 5 นาที` : 'ยังไม่เคยตรวจ · รอบแรกภายใน 5 นาที'
+  const icon = { ok: '✓', slow: '!', down: '✕', none: '…' }[tone]
 
   const groups = GROUPS.map((g) => {
     const rows = checks
@@ -68,16 +106,20 @@ export function render(state: State, now: number, checks: Check[] = CHECKS): str
         const st = statusOf(state, c.id)
         const up = uptime90(state, c.id)
         const ms = state.services[c.id]?.ms
-        return `<li class="row"><div class="top"><span class="dot ${st}" aria-hidden="true"></span><b>${esc(c.name)}</b><span class="st">${esc(LABEL[st])}</span><span class="ms">${ms ? esc(ms) + ' ms' : ''}</span><span class="pct">${up === null ? '-' : esc(up.toFixed(1)) + '%'}</span></div><div class="strip">${strip(state, c.id, now)}</div></li>`
+        return `<li class="row">
+<div class="head"><b>${esc(c.name)}</b><span class="st ${st}">${esc(LABEL[st])}${st !== 'unknown' && ms ? ` <small>${esc(ms)} ms</small>` : ''}</span></div>
+<div class="strip">${strip(state, c.id, now)}</div>
+<div class="axis"><span class="d90">90 วันก่อน</span><span class="d30">30 วันก่อน</span><span class="rule"></span><span>${up === null ? 'ยังไม่มีข้อมูล' : `uptime ${esc(up.toFixed(1))}%`}</span><span class="rule"></span><span>วันนี้</span></div>
+</li>`
       })
       .join('')
-    return `<section><h2>${esc(g.name)}</h2><ul>${rows}</ul></section>`
+    return `<section><h2>${esc(g.name)}</h2><ul class="card">${rows}</ul></section>`
   }).join('')
 
   const inc = recent(state, now)
   const incidents = inc.length
-    ? `<ul class="inc">${inc.map((i) => `<li><b>${esc(nameOf(checks, i.id))}</b> ${esc(dayMonth(i.start))} - ${i.end === undefined ? 'ยังไม่กลับมา' : esc(dayMonth(i.end))}</li>`).join('')}</ul>`
-    : '<p class="muted">ไม่มีเหตุขัดข้องใน 7 วันที่ผ่านมา</p>'
+    ? `<ul class="card inc">${inc.map((i) => `<li><b>${esc(nameOf(checks, i.id))}</b><span>${esc(dayMonth(i.start))} - ${i.end === undefined ? '<em>ยังไม่กลับมา</em>' : esc(dayMonth(i.end))}</span></li>`).join('')}</ul>`
+    : '<p class="card empty">ไม่มีเหตุขัดข้องใน 7 วันที่ผ่านมา</p>'
 
   return `<!doctype html>
 <html lang="th">
@@ -86,36 +128,80 @@ export function render(state: State, now: number, checks: Check[] = CHECKS): str
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="refresh" content="60">
 <title>สถานะระบบ · chakkritton.com</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
-:root{--bg:#fafaf7;--fg:#1a1a17;--muted:#6b6b63;--line:#e3e3dc;--ok:#1a9d55;--warn:#d98a00;--bad:#d6322e;--none:#d4d4cc}
-@media (prefers-color-scheme:dark){:root{--bg:#121211;--fg:#ecece6;--muted:#9a9a90;--line:#2a2a27;--ok:#3ccf7a;--warn:#f0aa2a;--bad:#ff6b66;--none:#3a3a36}}
+:root{--bg:#f6f6f2;--card:#fff;--fg:#1a1a17;--muted:#6b6b63;--line:#e3e3dc;--ok:#3f9d4a;--ok-strong:#2f7d39;--warn:#e0a100;--bad:#d6322e;--none:#dcdcd4;--tip:#1a1a17;--tip-fg:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#121211;--card:#1b1b19;--fg:#ecece6;--muted:#9a9a90;--line:#2c2c29;--ok:#4cb85a;--ok-strong:#2f7d39;--warn:#f0b429;--bad:#ff6b66;--none:#34342f;--tip:#ecece6;--tip-fg:#121211}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,'Segoe UI','Noto Sans Thai',sans-serif}
-main{max-width:720px;margin:0 auto;padding:24px 16px 48px}
-h1{font-size:1.5rem;margin:0 0 4px}
-h2{font-size:1rem;margin:28px 0 8px}
-.muted{color:var(--muted);margin:0}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none;font-weight:700;font-size:1.35rem}
+.brand svg{width:36px;height:36px;display:block}
+.brand span small{display:block;font-weight:500;font-size:.8rem;color:var(--muted)}
+.site{font-size:.875rem;color:var(--fg);border:1.5px solid var(--fg);padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:600}
+.site:hover{background:var(--fg);color:var(--bg)}
+.banner{margin:32px 0 6px;padding:18px 22px;border-radius:10px;color:#fff;font-size:1.2rem;font-weight:600;display:flex;gap:12px;align-items:center}
+.banner i{font-style:normal;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgb(255 255 255 / .22);flex:none}
+.banner.ok{background:var(--ok-strong)}.banner.slow{background:#9a6a00}.banner.down{background:#b42520}.banner.none{background:#5f5f58}
+.checked{color:var(--muted);font-size:.875rem;margin:0 0 28px}
+h2{font-size:1rem;margin:28px 0 10px}
 ul{list-style:none;margin:0;padding:0}
-.row{padding:12px 0;border-top:1px solid var(--line)}
-.top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.top b{flex:1;min-width:8rem}
-.dot{width:10px;height:10px;border-radius:50%;background:var(--none);flex:none}
-.dot.up{background:var(--ok)}.dot.slow{background:var(--warn)}.dot.down{background:var(--bad)}
-.st,.ms,.pct{font-size:.875rem}
-.ms,.pct{color:var(--muted);font-variant-numeric:tabular-nums}
-.strip{display:flex;gap:1px;margin-top:8px;height:24px}
-.bar{flex:1;min-width:0;border-radius:1px;background:var(--none)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:0}
+.row{padding:18px 20px}.row+.row{border-top:1px solid var(--line)}
+.head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:10px}
+.head b{font-weight:600}
+.st{font-size:.9rem;white-space:nowrap}.st small{color:var(--muted);font-variant-numeric:tabular-nums}
+.st.up{color:var(--ok)}.st.slow{color:var(--warn)}.st.down{color:var(--bad)}.st.unknown{color:var(--muted)}
+.strip{display:flex;gap:3px;height:34px}
+.bar{flex:1;min-width:0;border-radius:2px;background:var(--none);outline-offset:2px}
 .bar.ok{background:var(--ok)}.bar.warn{background:var(--warn)}.bar.bad{background:var(--bad)}
-.inc li{padding:8px 0;border-top:1px solid var(--line)}
+.bar:hover,.bar:focus-visible{opacity:.7}
+.axis{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:.8rem;color:var(--muted);white-space:nowrap}
+.axis .rule{flex:1;height:1px;background:var(--line)}
+.d30{display:none}
+@media (max-width:640px){.strip .bar:nth-child(-n+60){display:none}.d90{display:none}.d30{display:inline}.strip{gap:2px}}
+.inc li{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 20px}.inc li+li{border-top:1px solid var(--line)}
+.inc em{font-style:normal;color:var(--bad)}
+.empty{padding:16px 20px;color:var(--muted)}
+#tip{position:fixed;z-index:9;pointer-events:none;background:var(--tip);color:var(--tip-fg);border-radius:8px;padding:10px 12px;font-size:.85rem;line-height:1.45;max-width:240px;box-shadow:0 6px 24px rgb(0 0 0 / .18)}
+#tip b{display:block}#tip span{opacity:.75}
 </style>
 </head>
 <body>
 <main>
-<h1>${esc(head)}</h1>
-<p class="muted">${esc(checked)}</p>
+<header class="top">
+<a class="brand" href="https://chakkritton.com">${LOGO}<span>สถานะระบบ<small>chakkritton.com</small></span></a>
+<a class="site" href="https://chakkritton.com">ไปที่เว็บไซต์ ↗</a>
+</header>
+<div class="banner ${tone}" role="status"><i aria-hidden="true">${icon}</i>${esc(head)}</div>
+<p class="checked">${esc(checked)}</p>
 ${groups}
 <section><h2>เหตุขัดข้องใน 7 วันที่ผ่านมา</h2>${incidents}</section>
 </main>
+<div id="tip" hidden></div>
+<script>
+(() => {
+  const tip = document.getElementById('tip')
+  const show = (bar) => {
+    tip.replaceChildren()
+    const b = document.createElement('b'); b.textContent = bar.dataset.d
+    const u = document.createElement('div'); u.textContent = 'ตรวจผ่าน ' + bar.dataset.u
+    const n = document.createElement('span'); n.textContent = bar.dataset.n
+    tip.append(b, u, n)
+    tip.hidden = false
+    const r = bar.getBoundingClientRect(), t = tip.getBoundingClientRect()
+    const x = Math.min(Math.max(8, r.left + r.width / 2 - t.width / 2), innerWidth - t.width - 8)
+    const y = r.top - t.height - 10 < 8 ? r.bottom + 10 : r.top - t.height - 10
+    tip.style.left = x + 'px'; tip.style.top = y + 'px'
+  }
+  const hide = () => { tip.hidden = true }
+  const pick = (e) => { const bar = e.target.closest && e.target.closest('.bar'); bar ? show(bar) : hide() }
+  document.addEventListener('pointerover', pick)
+  document.addEventListener('focusin', pick)
+  document.addEventListener('scroll', hide, { passive: true })
+})()
+</script>
 </body>
 </html>`
 }
@@ -124,6 +210,9 @@ export function handle(req: Request, state: State, now: number): Response {
   const path = new URL(req.url).pathname
   if (path === '/api/status') {
     return new Response(JSON.stringify(summary(state, now)), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' } })
+  }
+  if (path === '/favicon.svg' || path === '/favicon.ico') {
+    return new Response(LOGO, { headers: { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'public, max-age=86400' } })
   }
   if (path === '/') return new Response(render(state, now), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=60' } })
   return new Response('not found', { status: 404 })

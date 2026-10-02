@@ -37,6 +37,7 @@ export {
   Layers as LayersIcon,
   Rss as RssIcon,
   Network as SitemapIcon,
+  Activity as StatusIcon,
   Search as SearchIcon,
   Tag as TagIcon,
   ChevronDown as ChevronDownIcon,

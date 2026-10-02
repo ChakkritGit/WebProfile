@@ -258,6 +258,7 @@
     "builtWith": "Next.js・TypeScript・Tailwind CSS で構築。",
     "copyright": "© {year} {name}. All rights reserved.",
     "sitemap": "サイトマップ",
+    "status": "システムステータス",
     "rss": "RSS",
     "webringAlt": "タイのウェブリング",
     "webringTitle": "タイのウェブリング",

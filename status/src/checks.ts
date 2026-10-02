@@ -32,12 +32,12 @@ export const fresh = (iso: unknown, now = Date.now()) => {
 const remindersOk = async (r: Response) => r.ok && fresh(((await r.json().catch(() => ({}))) as { lastRun?: unknown }).lastRun)
 
 /** The rooms worker sends a message as soon as a socket opens; a silent socket means the Durable Object is stuck. */
-export async function roomsCheck(url: string): Promise<Result> {
+export async function roomsCheck(rooms: Pick<Fetcher, 'fetch'>, url: string): Promise<Result> {
   const t0 = Date.now()
   let ws: WebSocket | undefined
   let ok = false
   try {
-    const res = await fetch(url, { headers: { Upgrade: 'websocket' }, signal: AbortSignal.timeout(TIMEOUT_MS) })
+    const res = await rooms.fetch(url, { headers: { Upgrade: 'websocket' }, signal: AbortSignal.timeout(TIMEOUT_MS) })
     ws = res.webSocket ?? undefined
     if (res.status === 101 && ws) {
       const sock = ws
@@ -74,6 +74,7 @@ export async function runChecks(env: Env, scheduledTime: number): Promise<Result
       remindersOk,
     ),
     httpCheck('whiteboard', 'https://whiteboard.chakkritton.com/', {}, async (r) => r.status === 200),
-    roomsCheck('https://whiteboard-rooms.nongtonnee.workers.dev/__health'),
+    // Through the service binding, not the public URL: that one fails in 13ms with Cloudflare's 1042.
+    roomsCheck(env.ROOMS, 'https://whiteboard-rooms/__health'),
   ])
 }

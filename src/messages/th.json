@@ -258,6 +258,7 @@
     "builtWith": "สร้างด้วย Next.js, TypeScript และ Tailwind CSS",
     "copyright": "© {year} {name} สงวนลิขสิทธิ์",
     "sitemap": "แผนผังเว็บไซต์",
+    "status": "สถานะระบบ",
     "rss": "RSS",
     "webringAlt": "วงแหวนเว็บ",
     "webringTitle": "วงแหวนเว็บ",

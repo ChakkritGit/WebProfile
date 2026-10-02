@@ -26,6 +26,8 @@ export interface State {
 }
 export interface Env {
   STATUS: KVNamespace
+  /** The whiteboard rooms Worker, bound directly: a Worker cannot fetch another of the account's workers.dev URLs. */
+  ROOMS: Fetcher
   STATUS_SECRET: string
   HEALTH_TOKEN: string
   SUPABASE_FUNCTION_URL: string

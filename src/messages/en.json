@@ -258,6 +258,7 @@
     "builtWith": "Built with Next.js, TypeScript and Tailwind CSS.",
     "copyright": "© {year} {name}. All rights reserved.",
     "sitemap": "Sitemap",
+    "status": "System status",
     "rss": "RSS",
     "webringAlt": "Thai webring",
     "webringTitle": "Thai webring",

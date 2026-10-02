@@ -10,6 +10,7 @@ import {
   PhoneIcon,
   RssIcon,
   SitemapIcon,
+  StatusIcon,
   TikTokIcon,
 } from '@/components/icons'
 import { WebringBadge } from './webring-badge'
@@ -93,6 +94,18 @@ export async function SiteFooter() {
               <li>
                 <a href="/sitemap.xml" aria-label={t('sitemap')} title={t('sitemap')} className={icon}>
                   <SitemapIcon className="size-[1.05rem]" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://status.chakkritton.com"
+                  aria-label={t('status')}
+                  title={t('status')}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className={icon}
+                >
+                  <StatusIcon className="size-[1.05rem]" />
                 </a>
               </li>
             </ul>

@@ -36,16 +36,29 @@ test('one down names it, and an open incident reads "ยังไม่กลั
   assert.match(html, /ยังไม่กลับมา/)
 })
 
-test('a 95/100 day is an amber bar with its date and percentage in the title', () => {
+test('a 95/100 day is an amber bar whose tooltip data says 95% and how many checks failed', () => {
   const s = allUp()
   s.days.portfolio = { [bangkokDay(NOW)]: [95, 100] }
   const html = render(s, NOW)
-  assert.match(html, new RegExp(`class="bar warn" title="${bangkokDay(NOW)}: 95%"`))
+  assert.match(html, /class="bar warn" tabindex="0" data-d="[^"]+" data-u="95%" data-n="ตรวจไม่ผ่าน 5 จาก 100 ครั้ง"/)
+})
+
+test('an incident inside a day shows as minutes down in that bar', () => {
+  const s = allUp()
+  s.days.rooms = { [bangkokDay(NOW)]: [90, 100] }
+  s.incidents = [{ id: 'rooms', start: NOW - 30 * 60_000, end: NOW - 10 * 60_000 }]
+  assert.match(render(s, NOW), /data-n="ล่มราว 20 นาที"/)
+})
+
+test('the banner says slow, not normal, when something is slow', () => {
+  const s = allUp()
+  s.services.expenses = { ...svc('up'), status: 'slow' }
+  assert.match(render(s, NOW), /บางระบบตอบช้า: Spent-Cost/)
 })
 
 test('a name with markup is escaped', () => {
   const html = render(allUp(), NOW, [{ id: 'portfolio', group: 'portfolio', name: '<script>alert(1)</script>' }])
-  assert.ok(!html.includes('<script>'))
+  assert.ok(!html.includes('<script>alert(1)'))
   assert.match(html, /&#60;script&#62;/)
 })
 
@@ -56,4 +69,5 @@ test('routes: json, page, and 404', async () => {
   assert.equal(get('/api/status').headers.get('Cache-Control'), 'public, max-age=60')
   assert.equal(get('/').status, 200)
   assert.equal(get('/nope').status, 404)
+  assert.equal(get('/favicon.svg').headers.get('Content-Type'), 'image/svg+xml')
 })
