@@ -219,3 +219,10 @@ test('the board system prompt carries the date', () => {
   assert.match(boardMessages(b, new Date('2026-10-01T05:00:00Z'))[0].content, /Today is Thursday 1 October 2026/)
   assert.match(boardMessages(b)[0].content, /Today is /)
 })
+
+test('clampPlan keeps an answer and drops an empty one', () => {
+  assert.deepEqual(clampPlan({ type: 'answer', text: '  hi  ' }), { type: 'answer', text: 'hi' })
+  assert.equal((clampPlan({ type: 'answer', text: 'x'.repeat(700) }) as { text: string }).text.length, 600)
+  assert.equal(clampPlan({ type: 'answer', text: ' ' }), null)
+  assert.equal(clampPlan({ type: 'answer' }), null)
+})

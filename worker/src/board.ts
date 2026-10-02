@@ -73,6 +73,7 @@ export type Plan =
   | { type: 'kanban'; title: string; columns: { title: string; cards: string[] }[] }
   | { type: 'timeline'; title: string; milestones: { title: string; note?: string }[] }
   | { type: 'flowchart'; title: string; nodes: { id: string; label: string; shape: Shape }[]; edges: { from: string; to: string; label?: string }[] }
+  | { type: 'answer'; text: string }
 type Shape = 'start' | 'process' | 'decision' | 'end'
 const SHAPES = ['start', 'process', 'decision', 'end']
 export interface Group {
@@ -84,7 +85,12 @@ const clean = (v: unknown, max = 80) => (typeof v === 'string' ? v.trim().slice(
 const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : [])
 
 export function clampPlan(v: unknown): Plan | null {
-  const o = (v ?? {}) as { type?: unknown; title?: unknown; columns?: unknown; milestones?: unknown; nodes?: unknown; edges?: unknown }
+  const o = (v ?? {}) as { type?: unknown; title?: unknown; columns?: unknown; milestones?: unknown; nodes?: unknown; edges?: unknown; text?: unknown }
+  // A question, not something to draw: said in the chat, nothing goes on the board.
+  if (o.type === 'answer') {
+    const text = clean(o.text, 600)
+    return text ? { type: 'answer', text } : null
+  }
   const title = clean(o.title)
   if (o.type === 'kanban') {
     const columns = arr(o.columns)
