@@ -93,7 +93,14 @@ export function render(state: State, now: number, checks: Check[] = CHECKS): str
   const named = tone === 'down' ? down : tone === 'slow' ? slow : []
   const head = named.length ? `${BANNER[tone]}: ${named.map((c) => c.name).join(', ')}` : BANNER[tone]
   const checked = state.lastRun ? `อัปเดตล่าสุด ${hhmm(state.lastRun)} · อัปเดตทุก 5 นาที` : 'ข้อมูลชุดแรกจะมาภายใน 5 นาที'
-  const icon = { ok: '✓', slow: '!', down: '✕', none: '…' }[tone]
+  // SVG, not text glyphs: a glyph sits on the font's baseline and was off centre in the circle.
+  const path = {
+    ok: 'M5 12.5l4.5 4.5L19 7.5',
+    slow: 'M12 6v7M12 17.5v.5',
+    down: 'M7 7l10 10M17 7 7 17',
+    none: 'M7 12h.01M12 12h.01M17 12h.01',
+  }[tone]
+  const icon = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`
 
   const groups = GROUPS.map((g) => {
     const rows = checks
@@ -138,7 +145,7 @@ main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
 .site{font-size:.875rem;color:var(--fg);border:1.5px solid var(--fg);padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:600}
 .site:hover{background:var(--fg);color:var(--bg)}
 .banner{margin:32px 0 6px;padding:18px 22px;border-radius:10px;color:#fff;font-size:1.2rem;font-weight:600;display:flex;gap:12px;align-items:center}
-.banner i{font-style:normal;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgb(255 255 255 / .22);flex:none}
+.banner i{font-style:normal;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgb(255 255 255 / .22);flex:none}.banner i svg{display:block}
 .banner.ok{background:var(--ok-strong)}.banner.slow{background:#9a6a00}.banner.down{background:#b42520}.banner.none{background:#5f5f58}
 .checked{color:var(--muted);font-size:.875rem;margin:0 0 28px}
 h2{font-size:1rem;margin:28px 0 10px}
