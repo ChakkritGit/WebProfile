@@ -60,6 +60,7 @@ test('asked for all the articles (or projects), with nothing better, the cards a
   assert.deepEqual(chooseCards([], site, 'th', { text: 'นี่คือบทความทั้งหมดครับ', ranked: [], question: 'ขอดูบทความทั้งหมด' }), ['post:th:a', 'post:th:b'])
   assert.deepEqual(chooseCards([], site, 'th', { text: 'Here you go!', ranked: [], question: 'show me all your projects' }), ['project:th:smt'])
   assert.deepEqual(chooseCards([], site, 'th', { text: 'Hello!', ranked: [], question: 'hello' }), [])
+  assert.deepEqual(chooseCards([], site, 'th', { text: 'มีหลายเรื่องเลยครับ', ranked: [], question: 'มีบทความแนะนำไหม' }), ['post:th:a', 'post:th:b'])
 })
 
 test('small talk gets no cards, even when the reply talks about the site', () => {

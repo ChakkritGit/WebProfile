@@ -11,6 +11,8 @@ const event = (name: string, data: unknown) => enc.encode(`event: ${name}\ndata:
 export function toClientStream(
   upstream: ReadableStream<Uint8Array>,
   choose: (ids: string[], text: string) => string[],
+  /** What each card needs to be drawn by a page that has no index of its own (the whiteboard). */
+  describe: (ids: string[]) => unknown[] = () => [],
 ): ReadableStream<Uint8Array> {
   const filter = createReplyFilter()
   let full = ''
@@ -42,7 +44,7 @@ export function toClientStream(
         if (text) c.enqueue(event('text', { t: text }))
         full += text
         const known = choose(ids, full)
-        if (known.length) c.enqueue(event('cards', { ids: known }))
+        if (known.length) c.enqueue(event('cards', { ids: known, items: describe(known) }))
         c.enqueue(event('done', {}))
       } catch {
         c.enqueue(event('error', { code: 'upstream' }))

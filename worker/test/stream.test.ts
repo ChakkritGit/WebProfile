@@ -24,8 +24,13 @@ test('text streams out, the CARDS line becomes a cards event with only known ids
   const out = await read(toClientStream(upstream([sse('Try SMT'), sse('rack+!\nCARDS: project:en:a, project:en:ghost'), 'data: [DONE]\n\n']), (ids) => ids.filter((id) => id === 'project:en:a')))
   const text = out.filter(([e]) => e === 'text').map(([, d]) => d.t).join('')
   assert.equal(text.trim(), 'Try SMTrack+!')
-  assert.deepEqual(out.find(([e]) => e === 'cards')![1], { ids: ['project:en:a'] })
+  assert.deepEqual(out.find(([e]) => e === 'cards')![1], { ids: ['project:en:a'], items: [] })
   assert.equal(out.at(-1)![0], 'done')
+})
+
+test('the cards event carries what describe says, for a page with no index', async () => {
+  const out = await read(toClientStream(upstream([sse('Hi\nCARDS: a'), 'data: [DONE]\n\n']), (ids) => ids, (ids) => ids.map((id) => ({ id, title: 'T' }))))
+  assert.deepEqual(out.find(([e]) => e === 'cards')![1], { ids: ['a'], items: [{ id: 'a', title: 'T' }] })
 })
 
 test('an SSE event split across network chunks is still read whole', async () => {

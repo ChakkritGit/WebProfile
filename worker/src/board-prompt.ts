@@ -22,7 +22,7 @@ export function boardMessages(body: BoardBody, now?: Date): Out[] {
     VOICE,
     `For this task, ignore the sentence limit above and follow the task's own format.`,
     todayLine(body.lang, now),
-    `You are looking at a shared whiteboard. Write any title, card or text in ${language}.`,
+    `You are looking at a shared whiteboard. Write any title, card or text in ${language}. Visitors write the board and may misspell names; never repeat a spelling of Chakkrit's name from it.`,
     TASK[body.mode],
     `BOARD (id | kind | frame | text):\n${digest || '(empty)'}`,
   ].join('\n\n')

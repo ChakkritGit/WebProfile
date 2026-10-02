@@ -51,6 +51,10 @@ async function loadText(env: Env, it: Item): Promise<string> {
   return r.ok ? r.text() : ''
 }
 
+type AiOut = { response?: unknown; choices?: { message?: { content?: unknown } }[] }
+// Without stream, Qwen 3 answers in the OpenAI shape (choices[0].message.content); `response` may even arrive as an already-parsed object.
+const replyOf = (out: AiOut) => out.choices?.[0]?.message?.content ?? out.response
+
 async function handleBoard(raw: string, env: Env, h: Record<string, string>): Promise<Response> {
   const body = parseBoardBody(raw)
   if (!body) return json({ code: 'bad_request' }, 400, h)
@@ -64,9 +68,7 @@ async function handleBoard(raw: string, env: Env, h: Record<string, string>): Pr
     }
     const ids = new Set(body.items.map((i) => i.id))
     const ask = async (msgs: typeof messages) => {
-      const out = (await env.AI.run(MODEL as never, { messages: msgs, max_tokens: 700, temperature: 0.2 } as never)) as { response?: unknown; choices?: { message?: { content?: unknown } }[] }
-      // Without stream, Qwen 3 answers in the OpenAI shape (choices[0].message.content); `response` may even arrive as an already-parsed object.
-      const raw = out.choices?.[0]?.message?.content ?? out.response
+      const raw = replyOf((await env.AI.run(MODEL as never, { messages: msgs, max_tokens: 700, temperature: 0.2 } as never)) as AiOut)
       const v = extractJson(typeof raw === 'string' ? raw : JSON.stringify(raw ?? ''))
       return body.mode === 'plan' ? clampPlan(v) : filterTidy(v, ids)
     }
@@ -107,7 +109,9 @@ export default {
       const messages = buildMessages({ items, details: details.filter((d) => d.text), history: body.messages, lang: body.lang })
       // A low temperature: he is cheerful in voice, not inventive with facts.
       const upstream = (await env.AI.run(MODEL as never, { messages, stream: true, max_tokens: 400, temperature: 0.3 } as never)) as ReadableStream<Uint8Array>
-      return new Response(toClientStream(upstream, (ids, text) => chooseCards(ids, items, body.lang, { text, ranked: picked.map((i) => i.id), question })), {
+      const byId = new Map(items.map((i) => [i.id, i]))
+      const describe = (ids: string[]) => ids.map((id) => byId.get(id)!).map((i) => ({ id: i.id, kind: i.kind, title: i.title, url: i.url }))
+      return new Response(toClientStream(upstream, (ids, text) => chooseCards(ids, items, body.lang, { text, ranked: picked.map((i) => i.id), question }), describe), {
         headers: { ...h, 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store' },
       })
     } catch (err) {

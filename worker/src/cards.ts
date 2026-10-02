@@ -2,7 +2,7 @@ import { rank } from './rank'
 import type { Item, Lang } from './types'
 
 // "Show me all the articles", "โปรเจกต์ล่าสุด"…
-const ALL = /(ทั้งหมด|ทุก|ล่าสุด|\ball\b|\bevery|\blatest\b|\brecent|\blist\b)/i
+const ALL = /(ทั้งหมด|ทุก|ล่าสุด|แนะนำ|\ball\b|\bevery|\blatest\b|\brecent|\blist\b|\brecommend)/i
 const POSTS = /(บทความ|โพสต์|article|\bposts?\b|blog)/i
 const PROJECTS = /(โปรเจกต์|โปรเจค|ผลงาน|project)/i
 
