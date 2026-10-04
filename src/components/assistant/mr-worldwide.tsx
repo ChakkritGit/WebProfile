@@ -23,6 +23,8 @@ export function MrWorldwide() {
       clearTimeout(id)
     }
   }, [])
-  if (!ready || pathname.startsWith('/studio')) return null
+  // The home page only: on an article, a project or the studio he walked across what
+  // people came to read. The pathname is locale-free, so '/' is home in every language.
+  if (!ready || pathname !== '/') return null
   return <Assistant />
 }
