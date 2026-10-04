@@ -211,14 +211,13 @@ ${groups}
 
 export function handle(req: Request, state: State, now: number): Response {
   const path = new URL(req.url).pathname
-  if (path === '/api/status') {
+  // Both paths serve the same JSON: /status is the short one people remember.
+  if (path === '/api/status' || path === '/status') {
     return new Response(JSON.stringify(summary(state, now)), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' } })
   }
   if (path === '/favicon.svg' || path === '/favicon.ico') {
     return new Response(LOGO, { headers: { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'public, max-age=86400' } })
   }
-  // People type the page's name onto the domain; send them to where it lives.
-  if (path === '/status' || path === '/status/') return Response.redirect(new URL('/', req.url).toString(), 301)
   if (path === '/') return new Response(render(state, now), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=60' } })
   return new Response('not found', { status: 404 })
 }
