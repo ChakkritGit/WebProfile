@@ -211,8 +211,7 @@ ${groups}
 
 export function handle(req: Request, state: State, now: number): Response {
   const path = new URL(req.url).pathname
-  // Both paths serve the same JSON: /status is the short one people remember.
-  if (path === '/api/status' || path === '/status') {
+  if (path === '/api/status') {
     return new Response(JSON.stringify(summary(state, now)), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' } })
   }
   if (path === '/favicon.svg' || path === '/favicon.ico') {
