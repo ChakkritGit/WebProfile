@@ -69,5 +69,7 @@ test('routes: json, page, and 404', async () => {
   assert.equal(get('/api/status').headers.get('Cache-Control'), 'public, max-age=60')
   assert.equal(get('/').status, 200)
   assert.equal(get('/nope').status, 404)
+  assert.equal(get('/status').status, 301)
+  assert.equal(get('/status').headers.get('Location'), 'https://status.chakkritton.com/')
   assert.equal(get('/favicon.svg').headers.get('Content-Type'), 'image/svg+xml')
 })
