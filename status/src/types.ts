@@ -1,4 +1,4 @@
-export type CheckId = 'portfolio' | 'assistant' | 'ai' | 'expenses' | 'reminders' | 'whiteboard' | 'rooms' | 'music' | 'musicauth'
+export type CheckId = 'portfolio' | 'assistant' | 'ai' | 'expenses' | 'reminders' | 'whiteboard' | 'rooms' | 'music' | 'musicauth' | 'musicsync'
 export interface Result {
   id: CheckId
   ok: boolean
@@ -27,6 +27,7 @@ export interface State {
 export interface Env {
   STATUS: KVNamespace
   /** The whiteboard rooms Worker, bound directly: a Worker cannot fetch another of the account's workers.dev URLs. */
+  MUSIC_SYNC: Fetcher
   ROOMS: Fetcher
   STATUS_SECRET: string
   HEALTH_TOKEN: string

@@ -9,6 +9,7 @@ export const CHECKS: { id: CheckId; group: 'portfolio' | 'spentcost' | 'whiteboa
   { id: 'whiteboard', group: 'whiteboard', name: 'Whiteboard' },
   { id: 'rooms', group: 'whiteboard', name: 'ห้อง Whiteboard' },
   { id: 'music', group: 'drivemusic', name: 'Drive Music' },
+  { id: 'musicsync', group: 'drivemusic', name: 'Party Play sync' },
   { id: 'musicauth', group: 'drivemusic', name: 'ล็อกอิน Google ของ Drive Music' },
 ]
 
@@ -60,6 +61,18 @@ export async function roomsCheck(rooms: Pick<Fetcher, 'fetch'>, url: string): Pr
   return { id: 'rooms', ok, ms: Date.now() - t0 }
 }
 
+/** Use a service binding so same-account workers.dev routing cannot produce error 1042. */
+export async function musicSyncCheck(sync: Pick<Fetcher, 'fetch'>): Promise<Result> {
+  const t0 = Date.now()
+  let ok = false
+  try {
+    const response = await sync.fetch('https://drive-music-sync/health', { signal: AbortSignal.timeout(TIMEOUT_MS) })
+    const body = await response.json() as { status?: unknown; service?: unknown; protocol?: unknown }
+    ok = response.ok && body.status === 'ok' && body.service === 'drive-music-sync' && body.protocol === 2
+  } catch {}
+  return { id: 'musicsync', ok, ms: Date.now() - t0 }
+}
+
 export async function runChecks(env: Env, scheduledTime: number): Promise<Result[]> {
   // The model costs quota, so it is asked once an hour: the run whose scheduled minute is under 5.
   const hourly = new Date(scheduledTime).getUTCMinutes() < 5
@@ -78,6 +91,7 @@ export async function runChecks(env: Env, scheduledTime: number): Promise<Result
     httpCheck('whiteboard', 'https://whiteboard.chakkritton.com/', {}, async (r) => r.status === 200),
     // Through the service binding, not the public URL: that one fails in 13ms with Cloudflare's 1042.
     roomsCheck(env.ROOMS, 'https://whiteboard-rooms/__health'),
+    musicSyncCheck(env.MUSIC_SYNC),
     httpCheck('music', 'https://drive-music.chakkritton.com/', {}, async (r) => r.status === 200),
     // NextAuth's own endpoint: proves the serverless side and its Google provider are configured.
     httpCheck('musicauth', 'https://drive-music.chakkritton.com/api/auth/providers', {}, async (r) =>

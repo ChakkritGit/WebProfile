@@ -19,3 +19,8 @@ service = "whiteboard-rooms"
 # Secrets (wrangler secret put): STATUS_SECRET, HEALTH_TOKEN. The URL below is public.
 [vars]
 SUPABASE_FUNCTION_URL = "https://yavhirzrepgpvvapohyz.supabase.co/functions/v1/push-reminders"
+
+# Drive Music Party Play health endpoint.
+[[services]]
+binding = "MUSIC_SYNC"
+service = "drive-music-sync"

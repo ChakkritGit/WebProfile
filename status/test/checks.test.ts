@@ -1,7 +1,7 @@
 // Run: npx tsx --test test/checks.test.ts   (from status/)
 import { test, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
-import { fresh, httpCheck, jsonOk, runChecks } from '../src/checks'
+import { fresh, httpCheck, jsonOk, runChecks, musicSyncCheck } from '../src/checks'
 
 const realFetch = globalThis.fetch
 afterEach(() => {
@@ -40,5 +40,20 @@ test('runChecks asks the model only in minutes 0-4', async () => {
   const ids = async (min: number) => (await runChecks(env, Date.UTC(2026, 9, 2, 10, min))).map((r) => r.id)
   for (const m of [0, 4]) assert.ok((await ids(m)).includes('ai'), `minute ${m}`)
   for (const m of [5, 59]) assert.ok(!(await ids(m)).includes('ai'), `minute ${m}`)
-  assert.equal((await ids(5)).length, 8)
+  assert.equal((await ids(5)).length, 9)
+})
+
+
+test('Party Play health requires the sync service and current protocol', async () => {
+  for (const [body, status, ok] of [
+    [{ status: 'ok', service: 'drive-music-sync', protocol: 2 }, 200, true],
+    [{ status: 'ok', service: 'drive-music-sync', protocol: 1 }, 200, false],
+    [{ status: 'degraded', service: 'drive-music-sync', protocol: 2 }, 503, false],
+    [{}, 200, false],
+  ] as const) {
+    const result = await musicSyncCheck({ fetch: async () => json(body, status) } as never)
+    assert.equal(result.id, 'musicsync')
+    assert.equal(result.ok, ok)
+  }
+  assert.equal((await musicSyncCheck({ fetch: async () => { throw new Error('offline') } } as never)).ok, false)
 })
