@@ -42,6 +42,7 @@ export function QuickContactDock() {
     // genuinely absent - opacity alone leaves it in the tab order and in the
     // accessibility tree, reachable by people who cannot see that it has gone.
     <aside
+      data-quick-contact
       aria-label={t('quickContact')}
       inert={!visible}
       className={cn(

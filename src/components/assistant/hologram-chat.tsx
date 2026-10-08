@@ -8,20 +8,37 @@ import { useRouter } from '@/i18n/navigation'
 import { useAssistant } from './use-assistant'
 import type { Engine } from './engine/engine'
 
+/** What the chat needs from whoever it speaks for: the globe's engine, or the paper scroll. */
+export type Actor = Pick<Engine, 'setAct' | 'wave' | 'anchor'>
+
 /**
- * The screen Mr. Worldwide projects when you click him: a native modal dialog
- * (focus stays inside, Esc closes, focus returns to him), styled as an amber
- * terminal. He acts the conversation out while it runs.
+ * The screen Mr. Worldwide shows when you click him: a native modal dialog
+ * (focus stays inside, Esc closes, focus returns to him). The globe projects it
+ * as an amber terminal; the paper scroll unrolls it as a sheet of paper
+ * (`variant="paper"`). Either way he acts the conversation out while it runs.
  */
-export function HologramChat({ open, onClose, engine }: { open: boolean; onClose(): void; engine: Engine | null }) {
+export function HologramChat({
+  open,
+  onClose,
+  engine,
+  variant = 'hologram',
+}: {
+  open: boolean
+  onClose(): void
+  engine: Actor | null
+  variant?: 'hologram' | 'paper'
+}) {
   const t = useTranslations('assistant')
   const locale = useLocale()
   const lang = locale === 'th' ? 'th' : 'en'
   const { messages, status, error, send, retry, items } = useAssistant(lang)
   const dialog = useRef<HTMLDialogElement>(null)
   const log = useRef<HTMLDivElement>(null)
+  const input = useRef<HTMLInputElement>(null)
   const [draft, setDraft] = useState('')
   const router = useRouter()
+  // The terminal's prompt and cursor belong to the hologram, not to paper.
+  const prompt = variant === 'paper' ? '' : '> '
 
   useEffect(() => {
     const d = dialog.current
@@ -31,6 +48,8 @@ export function HologramChat({ open, onClose, engine }: { open: boolean; onClose
       const x = engine?.anchor().x ?? innerWidth / 2
       d.style.setProperty('--mw-x', `${Math.round(x)}px`)
       d.showModal()
+      // Straight to the question: showModal would otherwise focus the first control, the close button.
+      input.current?.focus()
     }
     if (!open && d.open) d.close()
   }, [open, engine])
@@ -66,7 +85,7 @@ export function HologramChat({ open, onClose, engine }: { open: boolean; onClose
   return (
     <dialog
       ref={dialog}
-      className="mw-screen"
+      className={variant === 'paper' ? 'mw-screen mw-paper' : 'mw-screen'}
       aria-label={t('title')}
       onClose={() => {
         onClose()
@@ -84,7 +103,10 @@ export function HologramChat({ open, onClose, engine }: { open: boolean; onClose
         </button>
       </div>
       <div ref={log} className="mw-log" aria-live="polite">
-        <p className="mw-him">&gt; {t('greeting')}</p>
+        <p className="mw-him">
+          {prompt}
+          {t('greeting')}
+        </p>
         {messages.length === 0 && (
           <div className="mw-chips">
             {(['suggest1', 'suggest2', 'suggest3'] as const).map((k) => (
@@ -96,7 +118,7 @@ export function HologramChat({ open, onClose, engine }: { open: boolean; onClose
         )}
         {messages.map((m, i) => (
           <div key={i} className={m.role === 'user' ? 'mw-me' : 'mw-him'}>
-            {m.role === 'assistant' ? '> ' : ''}
+            {m.role === 'assistant' ? prompt : ''}
             {(m.role === 'assistant' ? plain(m.content) : m.content) || (status === 'thinking' && i === messages.length - 1 ? '…' : '')}
             {m.cards?.map((id) => {
               const it = items.get(id)
@@ -122,7 +144,8 @@ export function HologramChat({ open, onClose, engine }: { open: boolean; onClose
         ))}
         {errorText && (
           <p className="mw-him mw-err">
-            &gt; {errorText}{' '}
+            {prompt}
+            {errorText}{' '}
             {error!.code !== 'quota' && error!.code !== 'rate_limited' && (
               <button type="button" onClick={retry}>
                 {t('retry')}
@@ -138,8 +161,8 @@ export function HologramChat({ open, onClose, engine }: { open: boolean; onClose
           submit(draft)
         }}
       >
-        <span aria-hidden>▌</span>
-        <input value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={1000} placeholder={t('placeholder')} aria-label={t('placeholder')} />
+        {variant !== 'paper' && <span aria-hidden>▌</span>}
+        <input ref={input} value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={1000} placeholder={t('placeholder')} aria-label={t('placeholder')} />
         <button type="submit" disabled={!draft.trim()}>
           {t('send')}
         </button>

@@ -384,8 +384,9 @@ export function HeroArt() {
         />
       </div>
       {/* Bottom-left: the quick-contact dock owns the bottom-right corner of the
-          screen, and scrolled a little it lands right over this spot. */}
-      <div className="absolute start-4 end-4 bottom-4 z-10 flex items-center gap-3 sm:start-6">
+          screen, and scrolled a little it lands right over this spot. Mr. Worldwide's
+          scroll stands in that corner too, so the row stops short of it (globals.css). */}
+      <div data-art-bar className="absolute start-4 end-4 bottom-4 z-10 flex items-center gap-3 sm:start-6">
         <button
           type="button"
           onClick={toggle}

@@ -27,6 +27,12 @@ export const revalidate = 86400
 const LATEST = 6
 
 /**
+ * The topic orb beside the intro, switched off for now rather than removed:
+ * set to true to bring it back. Its component and styles are left as they are.
+ */
+const SHOW_TAG_ORB = false
+
+/**
  * The front page is the articles and the projects - the site as a place to
  * read. Who wrote them is one paragraph here and the whole of `/about`.
  */
@@ -92,7 +98,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </div>
           </div>
 
-          {topics.nodes.length > 0 && (
+          {SHOW_TAG_ORB && topics.nodes.length > 0 && (
             <div>
               <TagOrb map={topics} />
               <div className="hero-caption border-line bg-surface flex items-baseline justify-between gap-4 border border-t-0 px-4 py-3">
