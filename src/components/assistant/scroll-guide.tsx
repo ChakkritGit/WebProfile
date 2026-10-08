@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import type { Act } from './engine/engine'
 import type { Actor } from './hologram-chat'
 
@@ -17,6 +18,7 @@ const EDGE = '#8d6634'
  * fetched for it.
  */
 export function ScrollGuide({ onReady, onOpen }: { onReady(actor: Actor | null): void; onOpen(): void }) {
+  const t = useTranslations('assistant')
   const button = useRef<HTMLButtonElement>(null)
   const [act, setAct] = useState<Act>(null)
   // Bumped to replay the hop: its wrapper is keyed on it.
@@ -66,7 +68,7 @@ export function ScrollGuide({ onReady, onOpen }: { onReady(actor: Actor | null):
         actor.wave()
         onOpen()
       }}
-      aria-label="Mr. Worldwide - ask about this site"
+      aria-label={`${t('title')} - ${t('placeholder')}`}
       data-act={act ?? 'idle'}
       className={away ? 'sg sg-away' : 'sg'}
     >

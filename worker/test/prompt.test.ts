@@ -14,7 +14,7 @@ test('an index line carries the id, kind, title and tags', () => {
 test('the system prompt holds the persona, the rules and every index line', () => {
   const [system] = buildMessages({ items: [item], details: [], history: [{ role: 'user', content: 'hi' }], lang: 'en' })
   assert.equal(system.role, 'system')
-  assert.ok(system.content.includes('Mr. Worldwide'))
+  assert.ok(system.content.includes('Scrolly'))
   assert.ok(system.content.includes('CARDS:'))
   assert.ok(system.content.includes(indexLine(item)))
 })

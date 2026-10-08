@@ -69,7 +69,7 @@ test('small talk gets no cards, even when the reply talks about the site', () =>
     { id: 'post:th:mole', kind: 'post', locale: 'th', title: 'ล้างแคช macOS ด้วย Mole', summary: 'กู้พื้นที่ดิสก์จาก Terminal', tags: ['macOS'], stack: [], minutes: 20, url: '/blog/mole' } as Item,
   ]
   const ask = (question: string, text: string) => chooseCards([], site, 'th', { text, ranked: rank(site, question, 'th').slice(0, 2).map((i) => i.id), question })
-  assert.deepEqual(ask('คุณชื่ออะไร', 'ฉันคือ Mr. Worldwide คุณสามารถถามฉันเกี่ยวกับบทความหรือโปรเจกต์ต่าง ๆ ในเว็บไซต์ได้เลย!'), [])
+  assert.deepEqual(ask('คุณชื่ออะไร', 'ฉันคือ Scrolly คุณสามารถถามฉันเกี่ยวกับบทความหรือโปรเจกต์ต่าง ๆ ในเว็บไซต์ได้เลย!'), [])
   assert.deepEqual(ask('asdfgh', 'ขอโทษครับ ไม่เข้าใจความหมาย คุณสามารถพิมพ์ใหม่หรือถามเกี่ยวกับบทความในเว็บไซต์นี้ได้เลย!'), [])
   assert.deepEqual(ask('ล้างแคช mac ยังไง', 'ลองอ่านเรื่อง Mole ดูครับ'), ['post:th:mole'])
 })

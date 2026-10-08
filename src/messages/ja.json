@@ -394,7 +394,7 @@
     "empty": "「{query}」に一致する記事やプロジェクトはありません。"
   },
   "assistant": {
-    "title": "Mr. Worldwide",
+    "title": "Scrolly",
     "greeting": "Hey there! I know every project and article on this site. What are you curious about?",
     "suggest1": "What's the best project?",
     "suggest2": "Any articles about AI?",
