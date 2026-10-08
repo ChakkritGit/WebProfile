@@ -2,8 +2,8 @@ import type { CheckId, Env, Result } from './types'
 
 export const CHECKS: { id: CheckId; group: 'portfolio' | 'spentcost' | 'whiteboard' | 'drivemusic'; name: string; hourly?: true }[] = [
   { id: 'portfolio', group: 'portfolio', name: 'Portfolio' },
-  { id: 'assistant', group: 'portfolio', name: 'Mr. Worldwide' },
-  { id: 'ai', group: 'portfolio', name: 'Mr. Worldwide AI', hourly: true },
+  { id: 'assistant', group: 'portfolio', name: 'Scrolly' },
+  { id: 'ai', group: 'portfolio', name: 'Scrolly AI', hourly: true },
   { id: 'expenses', group: 'spentcost', name: 'Spent-Cost' },
   { id: 'reminders', group: 'spentcost', name: 'ระบบแจ้งเตือนบิล' },
   { id: 'whiteboard', group: 'whiteboard', name: 'Whiteboard' },
