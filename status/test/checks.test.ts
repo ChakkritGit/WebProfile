@@ -1,7 +1,7 @@
 // Run: npx tsx --test test/checks.test.ts   (from status/)
 import { test, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
-import { fresh, httpCheck, jsonOk, runChecks, musicSyncCheck } from '../src/checks'
+import { fresh, httpCheck, jsonOk, runChecks, musicSyncCheck, roomsCheck } from '../src/checks'
 
 const realFetch = globalThis.fetch
 afterEach(() => {
@@ -56,4 +56,17 @@ test('Party Play health requires the sync service and current protocol', async (
     assert.equal(result.ok, ok)
   }
   assert.equal((await musicSyncCheck({ fetch: async () => { throw new Error('offline') } } as never)).ok, false)
+})
+
+test('roomsCheck closes the socket and waits for the answer, outside the timing', async () => {
+  // A socket that greets on accept and answers a close 50ms later, like the room does.
+  const ws = new EventTarget() as EventTarget & { accept(): void; close(): void; closed: boolean }
+  ws.closed = false
+  ws.accept = () => setTimeout(() => ws.dispatchEvent(new Event('message')), 0)
+  ws.close = () => setTimeout(() => ((ws.closed = true), ws.dispatchEvent(new Event('close'))), 50)
+  const rooms = { fetch: async () => ({ status: 101, webSocket: ws }) } as never
+  const r = await roomsCheck(rooms, 'https://x/__health')
+  assert.equal(r.ok, true)
+  assert.equal(ws.closed, true, 'returned before the close was answered')
+  assert.ok(r.ms < 50, `timing included the close: ${r.ms}ms`)
 })

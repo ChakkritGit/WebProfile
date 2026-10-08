@@ -53,12 +53,28 @@ export async function roomsCheck(rooms: Pick<Fetcher, 'fetch'>, url: string): Pr
     }
   } catch {
     ok = false
-  } finally {
-    try {
-      ws?.close()
-    } catch {}
   }
-  return { id: 'rooms', ok, ms: Date.now() - t0 }
+  const ms = Date.now() - t0
+  if (ws) await closeCleanly(ws)
+  return { id: 'rooms', ok, ms }
+}
+
+/**
+ * Close and wait (briefly) for the other side's answer. Closing and returning at once dropped the
+ * socket when the cron run ended, which Cloudflare counted against the room as a "client
+ * disconnected" error every five minutes.
+ */
+function closeCleanly(ws: WebSocket): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, 2000)
+    ws.addEventListener('close', () => (clearTimeout(timer), resolve()), { once: true })
+    try {
+      ws.close(1000, 'health check done')
+    } catch {
+      clearTimeout(timer)
+      resolve()
+    }
+  })
 }
 
 /** Use a service binding so same-account workers.dev routing cannot produce error 1042. */
