@@ -58,15 +58,11 @@ test('Party Play health requires the sync service and current protocol', async (
   assert.equal((await musicSyncCheck({ fetch: async () => { throw new Error('offline') } } as never)).ok, false)
 })
 
-test('roomsCheck closes the socket and waits for the answer, outside the timing', async () => {
-  // A socket that greets on accept and answers a close 50ms later, like the room does.
-  const ws = new EventTarget() as EventTarget & { accept(): void; close(): void; closed: boolean }
-  ws.closed = false
-  ws.accept = () => setTimeout(() => ws.dispatchEvent(new Event('message')), 0)
-  ws.close = () => setTimeout(() => ((ws.closed = true), ws.dispatchEvent(new Event('close'))), 50)
-  const rooms = { fetch: async () => ({ status: 101, webSocket: ws }) } as never
-  const r = await roomsCheck(rooms, 'https://x/__health')
-  assert.equal(r.ok, true)
-  assert.equal(ws.closed, true, 'returned before the close was answered')
-  assert.ok(r.ms < 50, `timing included the close: ${r.ms}ms`)
+test('roomsCheck: only a plain "ok" from the room object passes', async () => {
+  const rooms = (answer: () => Response | Promise<Response>) => ({ fetch: async () => answer() }) as never
+  assert.equal((await roomsCheck(rooms(() => new Response('ok\n')), 'https://x/__health')).ok, true)
+  // The old Worker's reply to a plain request: up, but not the room object.
+  assert.equal((await roomsCheck(rooms(() => new Response('whiteboard rooms\n')), 'https://x/__health')).ok, false)
+  assert.equal((await roomsCheck(rooms(() => new Response('ok', { status: 503 })), 'https://x/__health')).ok, false)
+  assert.equal((await roomsCheck(rooms(() => { throw new Error('stuck') }), 'https://x/__health')).ok, false)
 })

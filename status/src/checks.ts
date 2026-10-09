@@ -34,47 +34,21 @@ export const fresh = (iso: unknown, now = Date.now()) => {
 
 const remindersOk = async (r: Response) => r.ok && fresh(((await r.json().catch(() => ({}))) as { lastRun?: unknown }).lastRun)
 
-/** The rooms worker sends a message as soon as a socket opens; a silent socket means the Durable Object is stuck. */
+/**
+ * A room object answers a plain request with "ok" (whiteboard-rooms' /__health);
+ * no answer means the Durable Object is stuck. Plain HTTP, not a socket: every
+ * socket the probe opened and closed was counted against the room as an error.
+ */
 export async function roomsCheck(rooms: Pick<Fetcher, 'fetch'>, url: string): Promise<Result> {
   const t0 = Date.now()
-  let ws: WebSocket | undefined
   let ok = false
   try {
-    const res = await rooms.fetch(url, { headers: { Upgrade: 'websocket' }, signal: AbortSignal.timeout(TIMEOUT_MS) })
-    ws = res.webSocket ?? undefined
-    if (res.status === 101 && ws) {
-      const sock = ws
-      sock.accept()
-      ok = await new Promise<boolean>((resolve) => {
-        const timer = setTimeout(() => resolve(false), 5000)
-        sock.addEventListener('message', () => (clearTimeout(timer), resolve(true)), { once: true })
-        sock.addEventListener('close', () => (clearTimeout(timer), resolve(false)), { once: true })
-      })
-    }
+    const res = await rooms.fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) })
+    ok = res.ok && (await res.text()).trim() === 'ok'
   } catch {
     ok = false
   }
-  const ms = Date.now() - t0
-  if (ws) await closeCleanly(ws)
-  return { id: 'rooms', ok, ms }
-}
-
-/**
- * Close and wait (briefly) for the other side's answer. Closing and returning at once dropped the
- * socket when the cron run ended, which Cloudflare counted against the room as a "client
- * disconnected" error every five minutes.
- */
-function closeCleanly(ws: WebSocket): Promise<void> {
-  return new Promise((resolve) => {
-    const timer = setTimeout(resolve, 2000)
-    ws.addEventListener('close', () => (clearTimeout(timer), resolve()), { once: true })
-    try {
-      ws.close(1000, 'health check done')
-    } catch {
-      clearTimeout(timer)
-      resolve()
-    }
-  })
+  return { id: 'rooms', ok, ms: Date.now() - t0 }
 }
 
 /** Use a service binding so same-account workers.dev routing cannot produce error 1042. */
