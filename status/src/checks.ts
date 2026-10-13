@@ -1,4 +1,4 @@
-import type { CheckId, Env, Result } from './types'
+import type { CheckId, Env, Result, FailureReason } from './types'
 
 export const CHECKS: { id: CheckId; group: 'portfolio' | 'spentcost' | 'whiteboard' | 'drivemusic'; name: string; hourly?: true }[] = [
   { id: 'portfolio', group: 'portfolio', name: 'Portfolio' },
@@ -15,13 +15,29 @@ export const CHECKS: { id: CheckId; group: 'portfolio' | 'spentcost' | 'whiteboa
 
 const TIMEOUT_MS = 10_000
 
-/** One request with a timeout. Any throw, including the timeout, is a failed check. */
-export async function httpCheck(id: CheckId, url: string, init: RequestInit, isOk: (res: Response) => Promise<boolean>): Promise<Result> {
+/** Preserve the actual elapsed time and a safe failure category for diagnostics.
+ * Only read-only probes opt into one retry for a transient transport failure. */
+export async function httpCheck(id: CheckId, url: string, init: RequestInit, isOk: (res: Response) => Promise<boolean | FailureReason>, retries = 0): Promise<Result> {
   const t0 = Date.now()
-  const ok = await fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) })
-    .then(isOk)
-    .catch(() => false)
-  return { id, ok, ms: Date.now() - t0 }
+  let result: Result = { id, ok: false, ms: 0 }
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const response = await fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) })
+      if (!response.ok) {
+        result = { id, ok: false, ms: 0, reason: 'http-error', httpStatus: response.status }
+      } else {
+        const verdict = await isOk(response)
+        result = { id, ok: verdict === true, ms: 0, ...(verdict === true ? {} : { reason: verdict === false ? 'unhealthy' : verdict }) }
+      }
+    } catch (error) {
+      const name = (error as { name?: string } | null)?.name
+      result = { id, ok: false, ms: 0, reason: name === 'TimeoutError' || name === 'AbortError' ? 'timeout' : 'network' }
+    }
+    const transient = result.reason === 'timeout' || result.reason === 'network' ||
+      (result.reason === 'http-error' && [502, 503, 504].includes(result.httpStatus ?? 0))
+    if (result.ok || !transient) break
+  }
+  return { ...result, ms: Date.now() - t0 }
 }
 
 export const jsonOk = async (r: Response) => r.ok && ((await r.json().catch(() => ({}))) as { ok?: unknown }).ok === true
@@ -29,10 +45,14 @@ export const jsonOk = async (r: Response) => r.ok && ((await r.json().catch(() =
 /** The morning job runs daily; 26 hours leaves two hours of slack before it counts as missed. */
 export const fresh = (iso: unknown, now = Date.now()) => {
   const t = typeof iso === 'string' ? Date.parse(iso) : NaN
-  return Number.isFinite(t) && now - t <= 26 * 3600_000
+  return Number.isFinite(t) && t <= now + 5 * 60_000 && now - t <= 26 * 3600_000
 }
 
-const remindersOk = async (r: Response) => r.ok && fresh(((await r.json().catch(() => ({}))) as { lastRun?: unknown }).lastRun)
+const remindersOk = async (r: Response): Promise<boolean | FailureReason> => {
+  const body = await r.json().catch(() => null) as { lastRun?: unknown } | null
+  if (!body || typeof body !== 'object' || !('lastRun' in body)) return 'invalid-response'
+  return fresh(body.lastRun) ? true : 'heartbeat-stale'
+}
 
 /**
  * A room object answers a plain request with "ok" (whiteboard-rooms' /__health);
@@ -77,6 +97,7 @@ export async function runChecks(env: Env, scheduledTime: number): Promise<Result
       env.SUPABASE_FUNCTION_URL,
       { method: 'POST', headers: { 'x-status-secret': env.STATUS_SECRET, 'content-type': 'application/json' }, body: '{"health":true}' },
       remindersOk,
+      1, // The health read is safe to retry; no notifications are sent by this request.
     ),
     httpCheck('whiteboard', 'https://whiteboard.chakkritton.com/', {}, async (r) => r.status === 200),
     // Through the service binding, not the public URL: that one fails in 13ms with Cloudflare's 1042.

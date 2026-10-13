@@ -13,6 +13,12 @@ const GROUPS = [
 ] as const
 const LABEL = { up: 'ปกติ', slow: 'ช้า', down: 'ล่ม', unknown: 'ยังไม่มีข้อมูล' } as const
 
+const REASON = {
+  'http-error': 'ปลายทางตอบผิดพลาด', timeout: 'ตรวจสถานะเกินเวลาที่กำหนด',
+  network: 'เชื่อมต่อปลายทางไม่ได้', 'invalid-response': 'ข้อมูลตรวจสถานะไม่ถูกต้อง',
+  unhealthy: 'ปลายทางรายงานปัญหา', 'heartbeat-stale': 'งานส่งบิลยังไม่มีรอบสำเร็จภายใน 26 ชั่วโมง',
+} as const
+
 const esc = (v: unknown) => String(v).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 const hhmm = (ms: number) => new Date(ms + 7 * 60 * 60_000).toISOString().slice(11, 16)
 const dayMonth = (ms: number) => bangkokDay(ms).slice(8) + '/' + bangkokDay(ms).slice(5, 7) + ' ' + hhmm(ms)
@@ -32,7 +38,7 @@ export function summary(state: State, now: number, checks: Check[] = CHECKS) {
   return {
     services: checks.map((c) => {
       const s = state.services[c.id]
-      return { id: c.id, name: c.name, group: c.group, status: statusOf(state, c.id), ms: s?.ms ?? 0, since: s?.since ?? 0, uptime90: uptime90(state, c.id) }
+      return { id: c.id, name: c.name, group: c.group, status: statusOf(state, c.id), ms: s?.ms ?? 0, since: s?.since ?? 0, uptime90: uptime90(state, c.id), reason: s?.reason ?? null, httpStatus: s?.httpStatus ?? null, checkedAt: s?.checkedAt ?? 0 }
     }),
     incidents: recent(state, now).map((i) => ({ name: nameOf(checks, i.id), start: i.start, end: i.end ?? null })),
     lastRun: state.lastRun,
@@ -108,9 +114,12 @@ export function render(state: State, now: number, checks: Check[] = CHECKS): str
       .map((c) => {
         const st = statusOf(state, c.id)
         const up = uptime90(state, c.id)
-        const ms = state.services[c.id]?.ms
+        const service = state.services[c.id]
+        const ms = service?.ms
+        const detail = service?.reason ? `${REASON[service.reason]}${service.httpStatus ? ` (HTTP ${service.httpStatus})` : ''}` : ''
         return `<li class="row">
 <div class="head"><b>${esc(c.name)}</b><span class="st ${st}">${esc(LABEL[st])}${st !== 'unknown' && ms ? ` <small>${esc(ms)} ms</small>` : ''}</span></div>
+${detail ? `<p class="check-detail">${esc(detail)}</p>` : ''}
 <div class="strip">${strip(state, c.id, now)}</div>
 <div class="axis"><span class="d90">90 วันก่อน</span><span class="d30">30 วันก่อน</span><span class="rule"></span><span>${up === null ? 'ยังไม่มีข้อมูล' : `uptime ${esc(up.toFixed(1))}%`}</span><span class="rule"></span><span>วันนี้</span></div>
 </li>`
@@ -154,6 +163,7 @@ ul{list-style:none;margin:0;padding:0}
 .row{padding:18px 20px}.row+.row{border-top:1px solid var(--line)}
 .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:10px}
 .head b{font-weight:600}
+.check-detail{margin:0 0 10px;color:var(--muted);font-size:.85rem}
 .st{font-size:.9rem;white-space:nowrap}.st small{color:var(--muted);font-variant-numeric:tabular-nums}
 .st.up{color:var(--ok)}.st.slow{color:var(--warn)}.st.down{color:var(--bad)}.st.unknown{color:var(--muted)}
 .strip{display:flex;gap:3px;height:34px}

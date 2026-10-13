@@ -72,3 +72,14 @@ test('routes: json, page, and 404', async () => {
   assert.equal(get('/status').status, 404)
   assert.equal(get('/favicon.svg').headers.get('Content-Type'), 'image/svg+xml')
 })
+
+test('shows failure categories and measured latency', async () => {
+  const s = allUp()
+  s.services.reminders = { ...svc('down', 20_000), reason: 'timeout' }
+  assert.match(render(s, NOW), /ตรวจสถานะเกินเวลาที่กำหนด/)
+  assert.match(render(s, NOW), /20000 ms/)
+  s.services.reminders = { ...svc('down'), reason: 'heartbeat-stale' }
+  assert.match(render(s, NOW), /งานส่งบิลยังไม่มีรอบสำเร็จภายใน 26 ชั่วโมง/)
+  const j = await handle(new Request('https://status.chakkritton.com/api/status'), s, NOW).json() as { services: { id: string; reason: string }[] }
+  assert.equal(j.services.find((service) => service.id === 'reminders')?.reason, 'heartbeat-stale')
+})

@@ -1,14 +1,19 @@
 export type CheckId = 'portfolio' | 'assistant' | 'ai' | 'expenses' | 'reminders' | 'whiteboard' | 'rooms' | 'music' | 'musicauth' | 'musicsync'
+export type FailureReason = 'http-error' | 'timeout' | 'network' | 'invalid-response' | 'unhealthy' | 'heartbeat-stale'
 export interface Result {
   id: CheckId
   ok: boolean
   ms: number
+  reason?: FailureReason
+  httpStatus?: number
 }
 export interface Service {
   status: 'up' | 'slow' | 'down' | 'unknown'
   fails: number
   since: number
   ms: number
+  reason?: FailureReason
+  httpStatus?: number
   checkedAt: number
 }
 export interface Incident {

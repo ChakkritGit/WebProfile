@@ -99,3 +99,11 @@ test('the input state is not mutated', () => {
   run(s, [bad], T + 10 * MIN)
   assert.equal(JSON.stringify(s), frozen)
 })
+
+test('failure diagnostics survive state updates and clear on recovery', () => {
+  const failed: Result = { id: 'reminders', ok: false, ms: 20_000, reason: 'timeout' }
+  const state = run(emptyState(), [failed], T).state
+  assert.equal(state.services.reminders?.reason, 'timeout')
+  const recovered = run(state, [{ id: 'reminders', ok: true, ms: 100 }], T + 5 * MIN).state
+  assert.equal(recovered.services.reminders?.reason, undefined)
+})

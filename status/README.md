@@ -13,3 +13,10 @@ Setup, in order:
 7. Allow notifications in Spent-Cost Settings on the phone that should get alerts
 
 Try it locally: `npx wrangler dev --test-scheduled`, then `curl "http://localhost:8787/__scheduled?cron=*/5+*+*+*+*"` and open http://localhost:8787.
+
+
+Reminder health checks retry one temporary timeout/network/502/503/504 failure.
+Authentication errors, malformed health responses and old heartbeats are never
+retried. The displayed `ms` includes the whole probe and any retry; the page and
+JSON API preserve a safe failure reason and HTTP status. Existing history remains
+unchanged. Deploy Spent-Cost's lightweight health handler first, then this Worker.
