@@ -11,8 +11,7 @@ import { SiteHeader } from '@/components/layout/site-header'
 import { SiteFooter } from '@/components/layout/site-footer'
 import { QuickContactDock } from '@/components/layout/quick-contact'
 import { MrWorldwide } from '@/components/assistant/mr-worldwide'
-import { Analytics } from '@vercel/analytics/next'
-import { SpeedInsights } from '@vercel/speed-insights/next'
+import { DockAnalytics } from '@/components/layout/dock-analytics'
 
 /**
  * One family at two widths.
@@ -159,9 +158,7 @@ export default async function LocaleLayout({
             <SiteFooter />
             <QuickContactDock />
             <MrWorldwide />
-            {/* No-ops off Vercel; they only report from a deployed instance. */}
-            <Analytics />
-            <SpeedInsights />
+            <DockAnalytics />
           </Providers>
         </NextIntlClientProvider>
       </body>
