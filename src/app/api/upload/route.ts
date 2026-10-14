@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import sharp from 'sharp'
-import { STORAGE_BUCKET, getSupabaseAdmin, missingStorageEnv, publicUrlFor } from '@/lib/supabase'
+import { mediaStore, missingStorageEnv, publicUrlFor } from '@/lib/media'
 import { StudioError, jsonError, requireOwner } from '@/lib/studio-service'
 
 const MAX_BYTES = 5 * 1024 * 1024
@@ -8,8 +8,8 @@ const MAX_BYTES = 5 * 1024 * 1024
  * GIFs get more room: they are never recompressed on the way up (a re-encode
  * would flatten the animation), and a few seconds of one is easily 10MB.
  * ponytail: a *file* upload still passes through this function's request body,
- * which Vercel caps at 4.5MB - a bigger GIF goes in by URL (fetched server-side,
- * no cap). Direct-to-storage signed uploads lift that if it ever matters.
+ * which the proxy caps (client_max_body_size) - a bigger GIF goes in by URL
+ * (fetched server-side, no cap).
  */
 const MAX_GIF_BYTES = 15 * 1024 * 1024
 const ALLOWED_TYPES: Record<string, string> = {
@@ -21,14 +21,11 @@ const ALLOWED_TYPES: Record<string, string> = {
 }
 
 function client() {
-  const supabase = getSupabaseAdmin()
-  if (!supabase) {
-    throw new StudioError(
-      `Image storage is not configured. Set ${missingStorageEnv().join(' and ')} in .env, then create a public Supabase Storage bucket named "${STORAGE_BUCKET}".`,
-      503,
-    )
+  const media = mediaStore()
+  if (!media) {
+    throw new StudioError(`Image storage is not configured. Set ${missingStorageEnv().join(' and ')} in .env.`, 503)
   }
-  return supabase
+  return media
 }
 
 async function store(bytes: ArrayBuffer, contentType: string) {
@@ -44,14 +41,14 @@ async function store(bytes: ArrayBuffer, contentType: string) {
     throw new StudioError(`Image is larger than ${limit / 1024 / 1024} MB.`, 413)
   }
 
-  const supabase = client()
+  const media = client()
   const path = `uploads/${new Date().toISOString().slice(0, 7)}/${randomUUID()}.${extension}`
 
-  const { error } = await supabase.storage
-    .from(STORAGE_BUCKET)
-    .upload(path, bytes, { contentType, cacheControl: '31536000', upsert: false })
-
-  if (error) throw new StudioError(`Upload failed: ${error.message}`, 502)
+  try {
+    await media.put(path, bytes, contentType)
+  } catch (error) {
+    throw new StudioError(`Upload failed: ${(error as Error).message}`, 502)
+  }
 
   /**
    * The picture's own dimensions travel with it.
@@ -70,7 +67,7 @@ async function store(bytes: ArrayBuffer, contentType: string) {
   return Response.json({
     success: 1,
     file: {
-      url: publicUrlFor(supabase, path),
+      url: publicUrlFor(path),
       ...(size?.width && size?.height ? { width: size.width, height: size.height } : {}),
     },
   })

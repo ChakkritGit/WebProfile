@@ -36,7 +36,6 @@
     "@editorjs/warning": "^1.4.1",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
-    "@supabase/supabase-js": "^2.112.4",
     "clsx": "^2.1.1",
     "editorjs-alert": "^1.1.4",
     "editorjs-text-alignment-blocktune": "^1.0.3",

@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import type { AnnotatedBlock } from '@/lib/toc'
-import { optimisable } from '@/lib/supabase'
+import { optimisable } from '@/lib/media'
 import { cn } from '@/lib/utils'
 import { RichText } from './rich-text'
 import { CodeBlock } from './code-block'

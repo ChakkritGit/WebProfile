@@ -4,7 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { Badge, toneFor } from '@/components/ui/badge'
 import { TechIcon } from '@/components/brand/tech-icons'
 import { ArrowRightIcon, ClockIcon, EyeIcon } from '@/components/icons'
-import { optimisable } from '@/lib/supabase'
+import { optimisable } from '@/lib/media'
 import { dayOfMonth, formatDate, formatMonthYear } from '@/lib/utils'
 import type { PostRecord, ProjectRecord } from '@/lib/content-types'
 

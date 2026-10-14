@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { STORAGE_BUCKET, getSupabaseAdmin, storagePathFromUrl } from '@/lib/supabase'
+import { mediaStore, storagePathFromUrl } from '@/lib/media'
 import { prisma } from '@/lib/prisma'
 
 /**
@@ -54,8 +54,8 @@ async function pathsInUse(): Promise<Set<string> | null> {
 export async function pruneOrphanedMedia(candidates: Set<string>): Promise<string[]> {
   if (candidates.size === 0) return []
 
-  const supabase = getSupabaseAdmin()
-  if (!supabase) return []
+  const media = mediaStore()
+  if (!media) return []
 
   try {
     const inUse = await pathsInUse()
@@ -63,9 +63,10 @@ export async function pruneOrphanedMedia(candidates: Set<string>): Promise<strin
     const orphans = [...candidates].filter((path) => !inUse.has(path))
     if (orphans.length === 0) return []
 
-    const { error } = await supabase.storage.from(STORAGE_BUCKET).remove(orphans)
-    if (error) {
-      console.error('[media] could not remove orphaned uploads:', error.message)
+    try {
+      await media.remove(orphans)
+    } catch (error) {
+      console.error('[media] could not remove orphaned uploads:', (error as Error).message)
       return []
     }
     return orphans
