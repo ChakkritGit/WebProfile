@@ -12,6 +12,7 @@ import { SiteFooter } from '@/components/layout/site-footer'
 import { QuickContactDock } from '@/components/layout/quick-contact'
 import { MrWorldwide } from '@/components/assistant/mr-worldwide'
 import { DockAnalytics } from '@/components/layout/dock-analytics'
+import { STARTUP_IMAGES } from '@/lib/splash'
 
 /**
  * One family at two widths.
@@ -65,6 +66,7 @@ export async function generateMetadata({
 
   return {
     metadataBase: new URL(SITE_URL),
+    appleWebApp: { capable: true, title: 'Chakkrit', statusBarStyle: 'default', startupImage: STARTUP_IMAGES },
     title: {
       default: `${t('siteName')} - ${t('tagline')}`,
       template: `%s · ${t('siteName')}`,
