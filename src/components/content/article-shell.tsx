@@ -89,7 +89,7 @@ export async function ArticleShell({
           </div>
         )}
 
-        <Container className="relative z-10 py-10 sm:py-14">
+        <Container className="hero-in relative z-10 py-10 sm:py-14">
           <Link
             href={backHref}
             className="text-muted hover:text-brand-strong font-display mb-5 inline-flex items-center gap-2 text-sm font-semibold transition-colors"
