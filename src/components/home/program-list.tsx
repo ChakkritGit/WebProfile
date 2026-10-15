@@ -85,10 +85,10 @@ export function ProgramList() {
             {shown.map((p) => (
               <tr key={p.id} className="border-line group hover:bg-surface border-t transition-colors">
                 <td className="px-4 py-4 align-middle">
-                  <a href={p.url} target="_blank" rel="noopener" className="flex items-center gap-3">
+                  <a href={p.url} target="_blank" rel="noopener" className="flex min-w-0 items-center gap-3">
                     {p.icon ? (
                       // eslint-disable-next-line @next/next/no-img-element -- 192px app icons from public/, shown at 44px
-                      <img src={p.icon} alt="" width={44} height={44} className="size-11 shrink-0 rounded-[11px]" />
+                      <img src={p.icon} alt="" width={44} height={44} className="ring-line size-11 shrink-0 rounded-[11px] ring-1" />
                     ) : (
                       <span aria-hidden className="bg-ink text-paper grid size-11 shrink-0 place-items-center rounded-[11px]">
                         <StatusIcon className="size-5" />
@@ -96,7 +96,7 @@ export function ProgramList() {
                     )}
                     <span className="min-w-0">
                       <span className="font-display group-hover:text-brand-strong block font-semibold transition-colors">{p.name[locale]}</span>
-                      <span className="text-muted block font-mono text-xs">{p.url.replace('https://', '')}</span>
+                      <span className="text-muted block truncate font-mono text-xs whitespace-nowrap">{p.url.replace('https://', '')}</span>
                       <span className="text-ink-soft mt-1 block text-sm md:hidden">{p.about[locale]}</span>
                     </span>
                   </a>
