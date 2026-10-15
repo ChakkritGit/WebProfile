@@ -163,7 +163,16 @@
     "orbPlay": "回転を再開",
     "bgOff": "背景を隠す",
     "bgOn": "背景を表示",
-    "egg": "ガルガンチュア - 『インターステラー』(2014)より。もう一度「ton」と打つと戻ります。"
+    "egg": "ガルガンチュア - 『インターステラー』(2014)より。もう一度「ton」と打つと戻ります。",
+    "programsTitle": "プログラム",
+    "programsSubtitle": "自分で作って運用しているアプリ。新しいタブで開きます",
+    "programsSearch": "アプリ名や技術で検索",
+    "programsCount": "{count}件のアプリ",
+    "programsApp": "アプリ",
+    "programsAbout": "できること",
+    "programsStack": "使用技術",
+    "programsOpen": "開く",
+    "programsEmpty": "該当するアプリはありません"
   },
   "about": {
     "title": "自己紹介",

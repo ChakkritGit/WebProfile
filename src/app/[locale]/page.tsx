@@ -13,6 +13,7 @@ import { PostCard, PostRow, ProjectCard } from '@/components/content/content-car
 import { TagOrb } from '@/components/home/tag-orb'
 import { HeroArt, HeroArtScript } from '@/components/home/collage-backdrop'
 import { HoverScramble } from '@/components/motion/text-scramble'
+import { ProgramList } from '@/components/home/program-list'
 import { ArrowRightIcon } from '@/components/icons'
 
 /**
@@ -131,10 +132,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </Section>
       )}
 
+      {/* ---------------------------- programs ----------------------------- */}
+      <Section className="border-line border-b">
+        <SectionHeading eyebrow={`02 - ${t('programsTitle')}`} title={t('programsTitle')} description={t('programsSubtitle')} />
+        <ProgramList />
+      </Section>
+
       {/* ----------------------------- latest ------------------------------ */}
       <Section className="border-line border-b">
         <SectionHeading
-          eyebrow={`02 - ${t('latestTitle')}`}
+          eyebrow={`03 - ${t('latestTitle')}`}
           title={t('latestTitle')}
           description={t('latestSubtitle')}
           action={
@@ -158,7 +165,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* ---------------------------- projects ----------------------------- */}
       <Section>
         <SectionHeading
-          eyebrow={`03 - ${t('projectsTitle')}`}
+          eyebrow={`04 - ${t('projectsTitle')}`}
           title={t('projectsTitle')}
           description={t('projectsSubtitle')}
           action={

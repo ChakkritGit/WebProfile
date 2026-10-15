@@ -163,7 +163,16 @@
     "orbPlay": "หมุนต่อ",
     "bgOff": "ปิดภาพพื้นหลัง",
     "bgOn": "เปิดภาพพื้นหลัง",
-    "egg": "Gargantua - จากภาพยนตร์ Interstellar (2014) พิมพ์ “ton” อีกครั้งเพื่อกลับ"
+    "egg": "Gargantua - จากภาพยนตร์ Interstellar (2014) พิมพ์ “ton” อีกครั้งเพื่อกลับ",
+    "programsTitle": "โปรแกรม",
+    "programsSubtitle": "แอปที่ผมทำและเปิดใช้อยู่ กดเพื่อเปิดในแท็บใหม่",
+    "programsSearch": "ค้นหาแอป ชื่อ หรือเทคโนโลยี",
+    "programsCount": "{count} แอป",
+    "programsApp": "แอป",
+    "programsAbout": "ทำอะไร",
+    "programsStack": "สร้างด้วย",
+    "programsOpen": "เปิด",
+    "programsEmpty": "ไม่พบแอปที่ตรงกับคำค้น"
   },
   "about": {
     "title": "เกี่ยวกับฉัน",

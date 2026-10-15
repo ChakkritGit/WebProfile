@@ -163,7 +163,16 @@
     "orbPlay": "Resume rotation",
     "bgOff": "Hide backdrop",
     "bgOn": "Show backdrop",
-    "egg": "Gargantua - after Interstellar (2014). Type “ton” again to leave."
+    "egg": "Gargantua - after Interstellar (2014). Type “ton” again to leave.",
+    "programsTitle": "Programs",
+    "programsSubtitle": "Apps I built and run, each opens in a new tab",
+    "programsSearch": "Search apps, names or technologies",
+    "programsCount": "{count, plural, one {# app} other {# apps}}",
+    "programsApp": "App",
+    "programsAbout": "What it does",
+    "programsStack": "Built with",
+    "programsOpen": "Open",
+    "programsEmpty": "No app matches that search"
   },
   "about": {
     "title": "About me",
