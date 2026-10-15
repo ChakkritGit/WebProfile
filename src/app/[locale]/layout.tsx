@@ -13,6 +13,7 @@ import { QuickContactDock } from '@/components/layout/quick-contact'
 import { MrWorldwide } from '@/components/assistant/mr-worldwide'
 import { DockAnalytics } from '@/components/layout/dock-analytics'
 import { STARTUP_IMAGES } from '@/lib/splash'
+import { PwaChrome } from '@/components/pwa-chrome'
 
 /**
  * One family at two widths.
@@ -146,6 +147,7 @@ export default async function LocaleLayout({
       )}
       <body className="min-h-dvh antialiased">
         <NextIntlClientProvider>
+          <PwaChrome />
           <Providers>
             <a
               href="#main"
