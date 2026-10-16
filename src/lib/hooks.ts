@@ -73,22 +73,52 @@ export function useAtFooter(band: number, narrow = band): boolean {
  * the page 700px underneath, and the graph did the same expanded. The scrollbar's
  * width is padded back on so the page does not shift sideways as it disappears.
  *
- * Restores whatever the body carried before rather than clearing the properties,
- * because two of these can overlap - a dialog opened from a page that already
- * locked.
+ * The body is pinned with `position: fixed` at minus the scroll offset, and the
+ * offset is scrolled back to on release. `overflow: hidden` was not a lock on
+ * iOS Safari: the page moved under an open picture (1781 → 1530 px measured in
+ * WebKit) and, on a phone, closing the picture left the article at the very top.
+ * No `overflow: hidden` with it: that makes the body the sticky header's scroll
+ * container, and the header rode up off the screen with the pinned page.
+ *
+ * Counted, because two of these can overlap - a dialog opened from a page that
+ * already locked: the first one in pins the page, the last one out lets it go.
  */
+let locks = 0
+let saved: { y: number; style: Partial<CSSStyleDeclaration> } | null = null
+
 export function useScrollLock(active: boolean): void {
   useEffect(() => {
     if (!active) return
 
-    const { overflow, paddingRight } = document.body.style
-    const scrollbar = window.innerWidth - document.documentElement.clientWidth
-    document.body.style.overflow = 'hidden'
-    if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`
+    if (locks++ === 0) {
+      const body = document.body.style
+      const y = window.scrollY
+      const scrollbar = window.innerWidth - document.documentElement.clientWidth
+      saved = {
+        y,
+        style: {
+          position: body.position,
+          top: body.top,
+          left: body.left,
+          right: body.right,
+          width: body.width,
+          paddingRight: body.paddingRight,
+        },
+      }
+      body.position = 'fixed'
+      body.top = `-${y}px`
+      body.left = '0'
+      body.right = '0'
+      body.width = '100%'
+      if (scrollbar > 0) body.paddingRight = `${scrollbar}px`
+    }
 
     return () => {
-      document.body.style.overflow = overflow
-      document.body.style.paddingRight = paddingRight
+      if (--locks > 0 || !saved) return
+      Object.assign(document.body.style, saved.style)
+      // `instant`: back where the reader was, not a visible scroll from the top.
+      window.scrollTo({ top: saved.y, left: 0, behavior: 'instant' })
+      saved = null
     }
   }, [active])
 }
