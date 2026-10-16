@@ -15,7 +15,7 @@ export function Skeleton({ className }: { className?: string }) {
   )
 }
 
-/** A row of pill-shaped placeholders, sized to look like tags. */
+/** A row of placeholders sized to look like tags (square, as the tags are). */
 export function SkeletonChips({ count = 6, label }: { count?: number; label: string }) {
   // Varied widths read as content rather than a loading bar.
   const widths = ['w-16', 'w-24', 'w-20', 'w-28', 'w-14', 'w-24', 'w-20', 'w-16']
@@ -23,7 +23,7 @@ export function SkeletonChips({ count = 6, label }: { count?: number; label: str
     <div role="status" aria-live="polite" aria-busy="true" className="flex flex-wrap gap-1.5">
       <span className="sr-only">{label}</span>
       {Array.from({ length: count }, (_, i) => (
-        <Skeleton key={i} className={cn('h-7 rounded-full', widths[i % widths.length])} />
+        <Skeleton key={i} className={cn('h-7 rounded-none', widths[i % widths.length])} />
       ))}
     </div>
   )

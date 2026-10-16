@@ -29,7 +29,7 @@ export function ArticleSkeleton() {
           </div>
           <div className="mt-5 flex flex-wrap gap-1.5">
             {['w-20', 'w-16', 'w-24', 'w-14'].map((w, i) => (
-              <Skeleton key={i} className={`h-7 rounded-full ${w}`} />
+              <Skeleton key={i} className={`h-8 rounded-none ${w}`} />
             ))}
           </div>
         </Container>

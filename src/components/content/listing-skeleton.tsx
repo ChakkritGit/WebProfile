@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton'
  * this hands the route its shell immediately and the rows arrive into it.
  *
  * Shaped to the real page rather than a spinner, and with the same header band,
- * so the swap moves as little as possible: heading, search box, tag row, count,
+ * so the swap moves as little as possible: heading, search box and date filters, tag row, count,
  * then the card grid.
  */
 export function ListingSkeleton({ cards = 6 }: { cards?: number }) {
@@ -28,10 +28,18 @@ export function ListingSkeleton({ cards = 6 }: { cards?: number }) {
 
       <Section>
         <div className="space-y-5">
-          <Skeleton className="h-11 w-full max-w-xl rounded-full" />
-          <div className="flex flex-wrap gap-1.5">
-            {['w-16', 'w-24', 'w-20', 'w-28', 'w-14', 'w-24'].map((w, i) => (
-              <Skeleton key={i} className={`h-7 rounded-full ${w}`} />
+          {/* square, like the real controls: search box, then the year / month / order selects */}
+          <div className="flex flex-wrap items-start gap-3">
+            <Skeleton className="h-12 w-full max-w-xl rounded-none" />
+            <div className="flex flex-wrap items-center gap-2">
+              {['w-36', 'w-40', 'w-40'].map((w, i) => (
+                <Skeleton key={i} className={`h-11 rounded-none ${w}`} />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {['w-20', 'w-24', 'w-32', 'w-28', 'w-20', 'w-36'].map((w, i) => (
+              <Skeleton key={i} className={`h-8 rounded-none ${w}`} />
             ))}
           </div>
           <Skeleton className="h-5 w-24" />
