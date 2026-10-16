@@ -7,7 +7,7 @@ import { EyeIcon } from '@/components/icons'
 /**
  * The view count, kept current in the browser.
  *
- * The page HTML is cached for a day, so `initial` may be yesterday's number.
+ * The page HTML is regenerated at most a minute apart, so `initial` can trail by a few views.
  * The first view this session POSTs (which counts it) and takes the number the
  * API answers with; later loads in the same session GET the current number.
  * Any failure keeps `initial`, never an error or a blank.

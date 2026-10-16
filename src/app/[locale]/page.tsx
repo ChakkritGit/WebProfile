@@ -17,13 +17,15 @@ import { ProgramList } from '@/components/home/program-list'
 import { ArrowRightIcon } from '@/components/icons'
 
 /**
- * A day, not a minute.
+ * A minute: these pages show view counts.
  *
- * Pages are cleared on publish (see `revalidateContent`); this is only the
- * floor in case a purge is missed. A day keeps Vercel's ISR writes down - at
- * a minute, every crawler visit regenerated the page.
+ * Pages are also cleared on publish (see `revalidateContent`). A day was right on
+ * Vercel, where every regeneration was a paid ISR write; on the VPS one is a
+ * couple of database reads. At a day the home page showed yesterday's count
+ * while the article showed it first and then the live one from `ViewCount`, so
+ * the same post carried two numbers.
  */
-export const revalidate = 86400
+export const revalidate = 60
 
 const LATEST = 6
 
