@@ -13,6 +13,10 @@ export const config = {
    * `/nope.txt/blog` through to the app with `nope.txt` as its locale, where it
    * rendered the blog listing and answered 200. Those reach the proxy now, get
    * the default prefix, match no route under it, and 404 like any other bad URL.
+   *
+   * Locale-prefixed share images (`/th/opengraph-image`, `/th/blog/x/opengraph-image`) skip it too: the
+   * metadata points at those URLs, and for the default locale the proxy answered them with a 307 to the
+   * unprefixed path, which LINE and some other link-preview crawlers do not follow for images.
    */
-  matcher: ['/((?!api|_next|_vercel|.*\\.[^/]*$).*)'],
+  matcher: ['/((?!api|_next|_vercel|.*\\.[^/]*$|(?:th|en|ja)/(?:.*/)?(?:opengraph|twitter)-image).*)'],
 }
