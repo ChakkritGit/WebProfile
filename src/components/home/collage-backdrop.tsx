@@ -98,6 +98,8 @@ function Photo({ photo, thumb = false }: { photo: HeroPhoto; thumb?: boolean }) 
           ref={thumb ? undefined : shown}
           src={thumb ? `/hero/thumb/${photo.id}.webp` : `/hero/${photo.id}.webp`}
           alt=""
+          // the picture the hero settles on is the page's largest paint: ahead of everything else
+          fetchPriority={thumb ? 'auto' : 'high'}
           onLoad={thumb ? undefined : (e) => e.currentTarget.classList.add('is-loaded')}
           className={thumb ? 'absolute inset-0 size-full object-cover' : 'hero-photo absolute inset-0 size-full object-cover'}
           style={{ objectPosition: photo.focus ?? '50% 50%' }}

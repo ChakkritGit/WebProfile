@@ -13,6 +13,19 @@ const nextConfig: NextConfig = {
     '/**/opengraph-image': ['./src/assets/fonts/**'],
     '/**/twitter-image': ['./src/assets/fonts/**'],
   },
+  /**
+   * The hero pictures and app icons in /public change rarely and keep their
+   * names, so browsers keep them for a month (revalidating after). Without a
+   * header Next sends max-age=0 and Cloudflare turns that into 4 hours, so a
+   * visitor coming back the next day downloaded the timelapse again.
+   */
+  async headers() {
+    const month = [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=604800' }]
+    return [
+      { source: '/hero/:path*', headers: month },
+      { source: '/apps/:path*', headers: month },
+    ]
+  },
   images: {
     // 60 for the listing cards (content-card.tsx), 75 - the default - elsewhere.
     qualities: [60, 75],
