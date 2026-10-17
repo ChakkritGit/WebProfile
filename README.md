@@ -11,7 +11,9 @@ Thai and English, light and dark, Next.js 16 App Router on Supabase Postgres.
 
 | | |
 | --- | --- |
-| Framework | Next.js 16.3.4 (App Router, React 19.2) |
+| Framework | Next.js 16.3.8 (App Router, React 19.2) |
+| VPS runtime | Bun 1.4.2, running Next.js standalone output |
+| Public API | Elysia 1.4.30 inside Next.js Route Handlers (`/api/search`, `/api/health`) |
 | Language | TypeScript 5, `strict` |
 | Styling | Tailwind CSS v4 (CSS-variable theming, no config file) |
 | i18n | next-intl 4 - Thai at `/`, English at `/en/…`, Japanese at `/ja/…` |
@@ -22,6 +24,23 @@ Thai and English, light and dark, Next.js 16 App Router on Supabase Postgres.
 | Storage | Supabase Storage (public bucket) |
 | Animation | `motion` 13 |
 | Telemetry | Vercel Analytics + Speed Insights (active only on a Vercel deployment) |
+
+---
+
+## VPS runtime trial
+
+Portfolio uses Bun to run its production standalone server. The production build still uses Node.js,
+and `npm run dev` remains available for local development. Deployment is managed by
+[`deploy/apps` in Thai-Weather](https://github.com/ChakkritGit/Thai-Weather/tree/claude/vigilant-ride-i3yr1m/deploy/apps):
+only Portfolio selects the Bun image target. The other apps keep their Node.js target.
+
+Elysia handles the existing public search and database-health endpoints through `app.fetch` in
+Next.js Route Handlers. Their URLs, response shapes and cache policies stay the same. Auth.js,
+studio writes, uploads and page rendering continue through their existing Next.js handlers.
+
+`npm test` checks the API contract on Node.js; `bun test src/lib/*.test.ts` checks it on Bun.
+The controlled measurements and validation are recorded in
+[`docs/runtime-trial-2026-10-17.md`](docs/runtime-trial-2026-10-17.md).
 
 ---
 
