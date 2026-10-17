@@ -20,6 +20,8 @@ export function createPublicApi(deps: PublicApiDependencies) {
     .onError(({ code }) => {
       if (code !== 'NOT_FOUND') return Response.json({ error: 'Internal server error' }, { status: 500 })
     })
+    // Container liveness must not render a page or query the database every 30 seconds.
+    .get('/healthz', () => Response.json({ ok: true }, { headers: { 'Cache-Control': 'no-store' } }))
     .get('/search', async ({ request }) => {
       const requested = new URL(request.url).searchParams.get('locale') ?? ''
       const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale

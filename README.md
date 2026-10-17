@@ -365,3 +365,8 @@ links to `webring.wonderful.software#<domain>`, where the domain is derived from
 
 © Chakkrit Laolit. The written content, résumé and personal imagery are not
 licensed for reuse.
+
+Container liveness uses `/api/healthz` without rendering a page or querying the database.
+The public `/api/health` dependency probe is retained for the status page. Runtime images
+create `.next/cache/images` as UID/GID 1000 so fresh Docker cache volumes are writable;
+existing root-owned cache volumes need a one-time ownership repair before rollout.

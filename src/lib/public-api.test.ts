@@ -39,11 +39,20 @@ test('search keeps the default locale and first query value semantics', async ()
 
 test('HEAD remains available without a response body', async () => {
   const app = createPublicApi({ listPosts: async () => [], listProjects: async () => [], checkDatabase: async () => 1 })
-  for (const path of ['/api/search', '/api/health']) {
+  for (const path of ['/api/search', '/api/health', '/api/healthz']) {
     const response = await app.fetch(new Request(`http://localhost${path}`, { method: 'HEAD' }))
     assert.equal(response.status, 200)
     assert.equal(await response.text(), '')
   }
+})
+
+test('liveness performs no content reads or database work', async () => {
+  const unexpected = async (): Promise<never> => { throw new Error('must not be called') }
+  const app = createPublicApi({ listPosts: unexpected, listProjects: unexpected, checkDatabase: unexpected })
+  const response = await app.fetch(new Request('http://localhost/api/healthz'))
+  assert.equal(response.status, 200)
+  assert.deepEqual(await response.json(), { ok: true })
+  assert.equal(response.headers.get('cache-control'), 'no-store')
 })
 
 test('health checks the database and reports only booleans and a timing', async () => {
